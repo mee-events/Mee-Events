@@ -1,0 +1,22 @@
+packages:
+  - "apps/backend"
+  - "apps/erp-web"
+  # apps/mobile is now a Flutter project — managed separately
+  - "packages/*"
+
+onlyBuiltDependencies:
+  - "@nestjs/core"
+  - "esbuild"
+  - "sharp"
+  - "unrs-resolver"
+
+ignoredBuiltDependencies:
+  - "@scarf/scarf"
+  - "nestjs-pino"
+allowBuilds:
+  "@nestjs/core": true
+  "@scarf/scarf": false
+  esbuild: true
+  nestjs-pino: false
+  sharp: true
+  unrs-resolver: true

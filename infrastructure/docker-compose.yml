@@ -1,0 +1,34 @@
+name: me-event-local
+
+services:
+  postgres:
+    image: postgres:17.2-alpine
+    environment:
+      POSTGRES_DB: me_event_dev
+      POSTGRES_USER: me_event
+      POSTGRES_PASSWORD: local-development-only
+    ports:
+      - "${POSTGRES_PORT:-5433}:5432"
+    volumes:
+      - me_event_postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U me_event -d me_event_dev"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  redis:
+    image: redis:7.4.1-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "${REDIS_PORT:-6380}:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+volumes:
+  me_event_postgres:

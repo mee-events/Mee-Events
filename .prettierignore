@@ -1,0 +1,14 @@
+node_modules/**
+**/dist/**
+**/.next/**
+**/.expo/**
+apps/mobile/android/**
+apps/mobile/ios/**
+
+# Separate deployed prototype with its own formatter and lockfile.
+apps/customer-web/**
+
+# Generated source material and exports.
+output/**
+outputs/**
+tmp/**

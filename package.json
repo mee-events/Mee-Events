@@ -1,0 +1,31 @@
+{
+  "name": "me-event-platform",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@9.15.4",
+  "engines": {
+    "node": ">=20.11.0",
+    "pnpm": ">=9.0.0"
+  },
+  "scripts": {
+    "build": "corepack pnpm -r --if-present build",
+    "db:migrate": "bash infrastructure/postgres/apply-migrations.sh",
+    "db:seed:dev": "docker compose -f infrastructure/docker-compose.yml exec -T postgres psql -U me_event -d me_event_dev -v ON_ERROR_STOP=1 < infrastructure/postgres/seeds/dev-employee.sql",
+    "db:status": "docker compose -f infrastructure/docker-compose.yml ps",
+    "db:up": "docker compose -f infrastructure/docker-compose.yml up -d postgres redis",
+    "dev:backend": "corepack pnpm --filter @me-event/backend dev",
+    "dev:erp": "corepack pnpm --filter @me-event/erp-web dev",
+    "dev:mobile": "cd apps/mobile && flutter run",
+    "dev:mobile:android": "cd apps/mobile && flutter run -d android",
+    "dev:mobile:ios": "cd apps/mobile && flutter run -d ios",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "corepack pnpm -r --if-present lint",
+    "test": "corepack pnpm -r --if-present test",
+    "typecheck": "corepack pnpm -r --if-present typecheck",
+    "verify": "corepack pnpm format:check && corepack pnpm lint && corepack pnpm typecheck && corepack pnpm test && corepack pnpm build"
+  },
+  "devDependencies": {
+    "prettier": "3.4.2"
+  }
+}
