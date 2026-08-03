@@ -39,9 +39,11 @@ function principalWithRole(
 }
 
 describe("CapabilityGuard", () => {
-  it("allows endpoints without a capability requirement", () => {
+  it("denies endpoints without a capability requirement", () => {
     const guard = guardRequiring(undefined);
-    expect(guard.canActivate(contextWithPrincipal(undefined))).toBe(true);
+    expect(() =>
+      guard.canActivate(contextWithPrincipal(principalWithRole("employee"))),
+    ).toThrow(ForbiddenException);
   });
 
   it("allows a role that holds the required capability", () => {

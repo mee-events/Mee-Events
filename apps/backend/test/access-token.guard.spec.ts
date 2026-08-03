@@ -8,6 +8,7 @@ import {
   AccessTokenGuard,
   type AuthenticatedPlatformRequest,
 } from "../src/modules/platform-foundation/security/access-token.guard";
+import { authPrincipalCache } from "../src/modules/platform-foundation/security/auth-principal-cache";
 
 const secret = "j".repeat(32);
 
@@ -17,9 +18,13 @@ describe("AccessTokenGuard", () => {
   let guard: AccessTokenGuard;
 
   beforeEach(() => {
+    authPrincipalCache.clear();
     jwt = new JwtService({ secret });
     repository = new InMemoryIdentityRepository();
-    guard = new AccessTokenGuard(jwt, repository);
+    const reflector = {
+      getAllAndOverride: () => undefined,
+    } as unknown as import("@nestjs/core").Reflector;
+    guard = new AccessTokenGuard(jwt, reflector, repository);
   });
 
   it("accepts a signed token only when its user, session and role are active", async () => {
@@ -34,12 +39,29 @@ describe("AccessTokenGuard", () => {
     const request = requestWithAuthorization(`Bearer ${token}`);
 
     await expect(guard.canActivate(contextFor(request))).resolves.toBe(true);
-    expect(request.user).toEqual({
-      userId: user.id,
-      sessionId: session.id,
-      activeRole: "customer",
-      roleAssignments: user.roles,
+    expect(request.user?.userId).toBe(user.id);
+    expect(request.user?.sessionId).toBe(session.id);
+    expect(request.user?.activeRole).toBe("customer");
+    expect(request.user?.roleAssignments).toEqual(user.roles);
+    expect(request.user?.branchId).toBeDefined();
+  });
+
+  it("reuses the short-TTL principal cache on subsequent requests", async () => {
+    const user = await repository.createUser("+919876543210", "customer");
+    const session = activeSession(user.id);
+    await repository.saveSession(session, "not-used-by-access-token-check");
+    const token = await jwt.signAsync({
+      sub: user.id,
+      sid: session.id,
+      role: "customer",
     });
+    const first = requestWithAuthorization(`Bearer ${token}`);
+    const second = requestWithAuthorization(`Bearer ${token}`);
+
+    await expect(guard.canActivate(contextFor(first))).resolves.toBe(true);
+    await expect(guard.canActivate(contextFor(second))).resolves.toBe(true);
+    expect(second.user?.userId).toBe(user.id);
+    expect(authPrincipalCache.size).toBeGreaterThan(0);
   });
 
   it("rejects requests without a bearer token", async () => {
@@ -69,6 +91,19 @@ describe("AccessTokenGuard", () => {
       ),
     ).rejects.toThrow("session is not active");
   });
+
+  it("skips authentication for public endpoints", async () => {
+    const reflector = {
+      getAllAndOverride: () => true,
+    } as unknown as import("@nestjs/core").Reflector;
+    const publicGuard = new AccessTokenGuard(jwt, reflector, repository);
+    const request = requestWithAuthorization(undefined);
+
+    await expect(publicGuard.canActivate(contextFor(request))).resolves.toBe(
+      true,
+    );
+    expect(request.user).toBeUndefined();
+  });
 });
 
 function activeSession(userId: string): DeviceSession {
@@ -94,6 +129,8 @@ function requestWithAuthorization(
 
 function contextFor(request: AuthenticatedPlatformRequest): ExecutionContext {
   return {
+    getHandler: () => undefined,
+    getClass: () => undefined,
     switchToHttp: () => ({
       getRequest: () => request,
     }),

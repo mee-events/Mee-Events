@@ -346,4 +346,91 @@ class BookingSummary {
       eventNumber: json['eventNumber'] as String?,
     );
   }
+
+  String get statusLabel {
+    switch (status) {
+      case 'confirmed':
+        return 'Confirmed';
+      case 'cancelled':
+        return 'Cancelled';
+      default:
+        return status;
+    }
+  }
+
+  String get remainingBalance {
+    final total = double.tryParse(finalAmount) ?? 0;
+    final advance = double.tryParse(advancePaid) ?? 0;
+    final remaining = (total - advance).clamp(0, double.infinity);
+    return remaining.toStringAsFixed(2);
+  }
+}
+
+class BookingActivity {
+  final String id;
+  final String activityType;
+  final String? content;
+  final String? actorUserId;
+  final String occurredAt;
+
+  const BookingActivity({
+    required this.id,
+    required this.activityType,
+    required this.occurredAt,
+    this.content,
+    this.actorUserId,
+  });
+
+  factory BookingActivity.fromJson(Map<String, dynamic> json) {
+    return BookingActivity(
+      id: json['id'] as String,
+      activityType: json['activityType'] as String,
+      occurredAt: json['occurredAt'] as String,
+      content: json['content'] as String?,
+      actorUserId: json['actorUserId'] as String?,
+    );
+  }
+}
+
+class BookingDetail extends BookingSummary {
+  final List<BookingActivity> activities;
+
+  const BookingDetail({
+    required super.id,
+    required super.bookingNumber,
+    required super.quotationId,
+    required super.leadId,
+    required super.enquiryId,
+    required super.status,
+    required super.finalAmount,
+    required super.advancePaid,
+    required super.createdAt,
+    required this.activities,
+    super.quotationReferenceCode,
+    super.confirmedAt,
+    super.eventRecordId,
+    super.eventNumber,
+  });
+
+  factory BookingDetail.fromJson(Map<String, dynamic> json) {
+    final summary = BookingSummary.fromJson(json);
+    return BookingDetail(
+      id: summary.id,
+      bookingNumber: summary.bookingNumber,
+      quotationId: summary.quotationId,
+      leadId: summary.leadId,
+      enquiryId: summary.enquiryId,
+      status: summary.status,
+      finalAmount: summary.finalAmount,
+      advancePaid: summary.advancePaid,
+      createdAt: summary.createdAt,
+      quotationReferenceCode: summary.quotationReferenceCode,
+      confirmedAt: summary.confirmedAt,
+      eventRecordId: summary.eventRecordId,
+      eventNumber: summary.eventNumber,
+      activities: ((json['activities'] as List<dynamic>?) ?? [])
+          .map((item) => BookingActivity.fromJson(item as Map<String, dynamic>))
+          .toList(),
+    );
+  }
 }

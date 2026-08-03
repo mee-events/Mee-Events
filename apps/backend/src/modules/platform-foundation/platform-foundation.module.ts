@@ -8,5 +8,6 @@ import { AccessTokenGuard } from "./security/access-token.guard";
   imports: [IdentityModule],
   controllers: [PlatformBootstrapController],
   providers: [AccessTokenGuard, PlatformFoundationService],
+  exports: [AccessTokenGuard],
 })
 export class PlatformFoundationModule {}

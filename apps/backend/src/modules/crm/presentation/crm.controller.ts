@@ -7,6 +7,7 @@ import {
   Param,
   ParseUUIDPipe,
   Post,
+  Query,
   Req,
   UnauthorizedException,
   UseGuards,
@@ -19,27 +20,36 @@ import {
   type LeadSummary,
 } from "@me-event/api-contracts";
 import { ZodValidationPipe } from "../../../common/http/zod-validation.pipe";
+import {
+  parsePagination,
+  type PaginationMeta,
+} from "../../../common/pagination/pagination";
 import { RequireCapability } from "../../authorization/capability.decorator";
 import { CapabilityGuard } from "../../authorization/capability.guard";
-import {
-  AccessTokenGuard,
-  type AuthenticatedPlatformRequest,
-} from "../../platform-foundation/security/access-token.guard";
+import type { AuthenticatedPlatformRequest } from "../../platform-foundation/security/access-token.guard";
 import type { AuthenticatedPrincipal } from "../../platform-foundation/domain/platform-foundation";
 import { CrmService } from "../application/crm.service";
 
 @ApiTags("CRM")
 @ApiBearerAuth()
 @Controller("crm")
-@UseGuards(AccessTokenGuard, CapabilityGuard)
+@UseGuards(CapabilityGuard)
 export class CrmController {
   public constructor(private readonly crm: CrmService) {}
 
   @Get("leads")
   @RequireCapability("crm_lead.read")
   @ApiOperation({ summary: "List branch leads" })
-  public listLeads(): Promise<LeadListResponse> {
-    return this.crm.listLeads();
+  public listLeads(
+    @Req() request: AuthenticatedPlatformRequest,
+    @Query() query: Record<string, unknown>,
+  ): Promise<
+    LeadListResponse & {
+      readonly data?: readonly LeadSummary[];
+      readonly meta?: PaginationMeta;
+    }
+  > {
+    return this.crm.listLeads(principalOf(request), parsePagination(query));
   }
 
   @Get("leads/:id")

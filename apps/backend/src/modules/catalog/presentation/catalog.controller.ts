@@ -4,12 +4,14 @@ import type {
   EventTypeSummary,
   ServiceCategorySummary,
 } from "@me-event/api-contracts";
+import { Public } from "../../authorization/public.decorator";
 import {
   CATALOG_REPOSITORY,
   type CatalogRepository,
 } from "../ports/catalog-repository";
 
 @ApiTags("Catalogue")
+@Public()
 @Controller("catalog")
 export class CatalogController {
   public constructor(

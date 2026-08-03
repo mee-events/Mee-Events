@@ -1,20 +1,22 @@
 import { Inject, Injectable } from "@nestjs/common";
 import type {
   AddEventNoteRequest,
+  AddEventTimelineEntryRequest,
   ChangeEventStatusRequest,
   CreateEventRecordRequest,
   EventActivityListResponse,
   EventNoteSummary,
   EventRecordDetailResponse,
   EventRecordListResponse,
+  EventTimelineEntry,
   EventTimelineResponse,
   UpdateEventNoteRequest,
   UpdateEventRecordRequest,
 } from "@me-event/api-contracts";
 import { randomUUID } from "node:crypto";
+import { resolveBranchId } from "../../../common/branch/branch-context";
 import { DomainError } from "../../../common/errors/domain.error";
 import type { AuthenticatedPrincipal } from "../../platform-foundation/domain/platform-foundation";
-import { HYDERABAD_BRANCH } from "../../platform-foundation/domain/platform-foundation";
 import {
   EVENT_RECORD_REPOSITORY,
   type EventRecordRepository,
@@ -67,12 +69,16 @@ export class EventRecordService {
     return { activities };
   }
 
-  public async listCrm(): Promise<EventRecordListResponse> {
-    const events = await this.events.listForBranch(HYDERABAD_BRANCH.id);
+  public async listCrm(
+    principal: AuthenticatedPrincipal,
+  ): Promise<EventRecordListResponse> {
+    const events = await this.events.listForBranch(resolveBranchId(principal));
     return { events };
   }
 
-  public async getCrm(eventRecordId: string): Promise<EventRecordDetailResponse> {
+  public async getCrm(
+    eventRecordId: string,
+  ): Promise<EventRecordDetailResponse> {
     const event = await this.events.findById(eventRecordId);
     if (event === undefined) {
       throw new DomainError("EVENT_RECORD_NOT_FOUND", "Event not found", 404);
@@ -183,12 +189,37 @@ export class EventRecordService {
       body,
     });
     if (note === undefined) {
-      throw new DomainError("EVENT_NOTE_NOT_FOUND", "Event note not found", 404);
+      throw new DomainError(
+        "EVENT_NOTE_NOT_FOUND",
+        "Event note not found",
+        404,
+      );
     }
     return note;
   }
 
-  public async timelineCrm(eventRecordId: string): Promise<EventTimelineResponse> {
+  public async addTimelineEntry(
+    principal: AuthenticatedPrincipal,
+    eventRecordId: string,
+    body: AddEventTimelineEntryRequest,
+    requestId: string = randomUUID(),
+  ): Promise<EventTimelineEntry> {
+    const entry = await this.events.addTimelineEntry({
+      eventRecordId,
+      actorUserId: principal.userId,
+      actorRole: principal.activeRole,
+      requestId,
+      body,
+    });
+    if (entry === undefined) {
+      throw new DomainError("EVENT_RECORD_NOT_FOUND", "Event not found", 404);
+    }
+    return entry;
+  }
+
+  public async timelineCrm(
+    eventRecordId: string,
+  ): Promise<EventTimelineResponse> {
     await this.getCrm(eventRecordId);
     const timeline = await this.events.getTimeline(eventRecordId, false);
     return { timeline };

@@ -5,14 +5,18 @@ import {
   Injectable,
   UnauthorizedException,
 } from "@nestjs/common";
+import { Reflector } from "@nestjs/core";
 import { JwtService } from "@nestjs/jwt";
 import { platformRoles, type PlatformRole } from "@me-event/shared-types";
 import type { Request } from "express";
+import { resolveBranchId } from "../../../common/branch/branch-context";
+import { IS_PUBLIC_KEY } from "../../authorization/public.decorator";
 import {
   IDENTITY_REPOSITORY,
   type IdentityRepository,
 } from "../../identity/ports/identity-repository";
 import type { AuthenticatedPrincipal } from "../domain/platform-foundation";
+import { authPrincipalCache } from "./auth-principal-cache";
 
 interface AccessTokenClaims {
   readonly sub: string;
@@ -29,16 +33,32 @@ export type AuthenticatedPlatformRequest = Request & {
 export class AccessTokenGuard implements CanActivate {
   public constructor(
     private readonly jwt: JwtService,
+    private readonly reflector: Reflector,
     @Inject(IDENTITY_REPOSITORY)
     private readonly identityRepository: IdentityRepository,
   ) {}
 
   public async canActivate(context: ExecutionContext): Promise<boolean> {
+    const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
+    if (isPublic === true) {
+      return true;
+    }
+
     const request = context
       .switchToHttp()
       .getRequest<AuthenticatedPlatformRequest>();
     const token = this.readBearerToken(request);
     const claims = await this.verifyClaims(token);
+
+    const cached = authPrincipalCache.get(claims.sid, claims.role);
+    if (cached !== undefined) {
+      request.user = cached;
+      return true;
+    }
+
     const [user, session] = await Promise.all([
       this.identityRepository.findUserById(claims.sub),
       this.identityRepository.findSessionById(claims.sid),
@@ -62,12 +82,25 @@ export class AccessTokenGuard implements CanActivate {
       throw new UnauthorizedException("Access token role is not active");
     }
 
-    request.user = {
+    const principal: AuthenticatedPrincipal = {
       userId: user.id,
       sessionId: session.id,
       activeRole: claims.role,
       roleAssignments: user.roles,
     };
+    const withBranch: AuthenticatedPrincipal = {
+      ...principal,
+      branchId: resolveBranchId(principal),
+    };
+
+    authPrincipalCache.set(
+      claims.sid,
+      claims.role,
+      withBranch,
+      session.expiresAt,
+    );
+
+    request.user = withBranch;
     return true;
   }
 

@@ -26,16 +26,13 @@ import { ZodValidationPipe } from "../../../common/http/zod-validation.pipe";
 import { RequireCapability } from "../../authorization/capability.decorator";
 import { CapabilityGuard } from "../../authorization/capability.guard";
 import type { AuthenticatedPrincipal } from "../../platform-foundation/domain/platform-foundation";
-import {
-  AccessTokenGuard,
-  type AuthenticatedPlatformRequest,
-} from "../../platform-foundation/security/access-token.guard";
+import type { AuthenticatedPlatformRequest } from "../../platform-foundation/security/access-token.guard";
 import { QuotationService } from "../application/quotation.service";
 
 @ApiTags("Quotations")
 @ApiBearerAuth()
 @Controller("quotations")
-@UseGuards(AccessTokenGuard, CapabilityGuard)
+@UseGuards(CapabilityGuard)
 export class QuotationController {
   public constructor(private readonly quotations: QuotationService) {}
 

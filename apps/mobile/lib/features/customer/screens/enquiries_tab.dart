@@ -5,6 +5,7 @@ import 'package:mee_events/features/auth/screens/login_screen.dart';
 import 'package:mee_events/features/auth/session_provider.dart';
 import 'package:mee_events/features/customer/screens/new_enquiry_screen.dart';
 import 'package:mee_events/features/customer/screens/quotation_detail_screen.dart';
+import 'package:mee_events/features/customer/workspace/event_workspace_screen.dart';
 import 'package:mee_events/models/enquiry.dart';
 import 'package:mee_events/models/quotation.dart';
 import 'package:mee_events/theme/app_colors.dart';
@@ -111,6 +112,17 @@ class _EnquiryCard extends StatelessWidget {
       onTap: quotation == null
           ? null
           : () {
+              final bookingId = quotation!.bookingId;
+              if (bookingId != null) {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => EventWorkspaceScreen(
+                      bookingId: bookingId,
+                    ),
+                  ),
+                );
+                return;
+              }
               Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (context) => QuotationDetailScreen(
@@ -128,9 +140,12 @@ class _EnquiryCard extends StatelessWidget {
           if (enquiry.guestCount != null) '${enquiry.guestCount} guests',
           if (enquiry.location != null) enquiry.location!,
           if (quotation != null) 'Quote ${quotation!.referenceCode}',
+          if (quotation?.bookingId != null) 'My Event ready',
         ].where((part) => part.isNotEmpty).join(' · '),
         status: MeBadge(
-          label: quotation?.statusLabel ?? enquiry.statusLabel,
+          label: quotation?.bookingId != null
+              ? 'Booked'
+              : (quotation?.statusLabel ?? enquiry.statusLabel),
           tone: isActive ? MeStatusTone.success : MeStatusTone.neutral,
         ),
       ),

@@ -136,9 +136,7 @@ export default function EventsPage() {
                       {statusLabels[event.status] ?? event.status}
                     </span>
                   </td>
-                  <td>
-                    ₹{Number(event.budgetAmount).toLocaleString("en-IN")}
-                  </td>
+                  <td>₹{Number(event.budgetAmount).toLocaleString("en-IN")}</td>
                   <td>
                     <Link
                       className="claim-button"

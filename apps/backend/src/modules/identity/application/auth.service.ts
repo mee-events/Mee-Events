@@ -20,6 +20,7 @@ import {
 } from "node:crypto";
 import { DomainError } from "../../../common/errors/domain.error";
 import { AUDIT_SINK, type AuditSink } from "../../audit/audit-event";
+import { authPrincipalCache } from "../../platform-foundation/security/auth-principal-cache";
 import { normalizeMobileNumber } from "../domain/phone-number";
 import {
   IDENTITY_REPOSITORY,
@@ -203,6 +204,7 @@ export class AuthService {
     if (found.match === "previous") {
       // A rotated token was presented again: assume theft and kill the session.
       await this.repository.revokeSession(session.id, new Date());
+      authPrincipalCache.invalidateSession(session.id);
       await this.audit.append({
         requestId,
         actorUserId: session.userId,
@@ -267,6 +269,7 @@ export class AuthService {
     requestId: string = randomUUID(),
   ): Promise<LogoutResponse> {
     await this.repository.revokeSession(sessionId, new Date());
+    authPrincipalCache.invalidateSession(sessionId);
     await this.audit.append({
       requestId,
       actorUserId: userId,

@@ -14,6 +14,7 @@ import {
 import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
 import {
   submitAdvancePaymentSchema,
+  type ConfirmAdvanceResult,
   type PaymentListResponse,
   type PaymentSummary,
   type SubmitAdvancePaymentRequest,
@@ -22,16 +23,13 @@ import { ZodValidationPipe } from "../../../common/http/zod-validation.pipe";
 import { RequireCapability } from "../../authorization/capability.decorator";
 import { CapabilityGuard } from "../../authorization/capability.guard";
 import type { AuthenticatedPrincipal } from "../../platform-foundation/domain/platform-foundation";
-import {
-  AccessTokenGuard,
-  type AuthenticatedPlatformRequest,
-} from "../../platform-foundation/security/access-token.guard";
+import type { AuthenticatedPlatformRequest } from "../../platform-foundation/security/access-token.guard";
 import { PaymentService } from "../application/payment.service";
 
 @ApiTags("Payments")
 @ApiBearerAuth()
 @Controller("payments")
-@UseGuards(AccessTokenGuard, CapabilityGuard)
+@UseGuards(CapabilityGuard)
 export class PaymentController {
   public constructor(private readonly payments: PaymentService) {}
 
@@ -64,20 +62,20 @@ export class PaymentController {
 @ApiTags("CRM Payments")
 @ApiBearerAuth()
 @Controller("crm/payments")
-@UseGuards(AccessTokenGuard, CapabilityGuard)
+@UseGuards(CapabilityGuard)
 export class CrmPaymentController {
   public constructor(private readonly payments: PaymentService) {}
 
   @Post(":id/confirm")
   @HttpCode(HttpStatus.OK)
-  @RequireCapability("crm_quotation.manage")
+  @RequireCapability("crm_payment.approve")
   @ApiOperation({
     summary: "Confirm advance payment and create booking",
   })
   public confirm(
     @Param("id", new ParseUUIDPipe()) id: string,
     @Req() request: AuthenticatedPlatformRequest,
-  ) {
+  ): Promise<ConfirmAdvanceResult> {
     return this.payments.confirmAdvance(
       principalOf(request),
       id,
@@ -86,7 +84,7 @@ export class CrmPaymentController {
   }
 
   @Get("quotation/:quotationId")
-  @RequireCapability("crm_quotation.manage")
+  @RequireCapability("crm_payment.read")
   @ApiOperation({ summary: "List pending advance payments for a quotation" })
   public pendingForQuotation(
     @Param("quotationId", new ParseUUIDPipe()) quotationId: string,

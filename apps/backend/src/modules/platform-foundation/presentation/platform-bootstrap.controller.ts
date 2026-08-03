@@ -1,10 +1,4 @@
-import {
-  Controller,
-  Get,
-  Req,
-  UnauthorizedException,
-  UseGuards,
-} from "@nestjs/common";
+import { Controller, Get, Req, UnauthorizedException } from "@nestjs/common";
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -13,15 +7,11 @@ import {
 } from "@nestjs/swagger";
 import { PlatformFoundationService } from "../application/platform-foundation.service";
 import type { PlatformBootstrap } from "../domain/platform-foundation";
-import {
-  AccessTokenGuard,
-  type AuthenticatedPlatformRequest,
-} from "../security/access-token.guard";
+import type { AuthenticatedPlatformRequest } from "../security/access-token.guard";
 
 @ApiTags("Platform foundation")
 @ApiBearerAuth()
 @Controller("platform")
-@UseGuards(AccessTokenGuard)
 export class PlatformBootstrapController {
   public constructor(private readonly foundation: PlatformFoundationService) {}
 

@@ -105,7 +105,8 @@ export default function LeadDetailPage() {
         discountAmount: 0,
         discountPercent: 0,
         advancePercent: 30,
-        terms: "Advance payment confirms booking. Balance due 7 days before event.",
+        terms:
+          "Advance payment confirms booking. Balance due 7 days before event.",
         customerNotes: "Thank you for choosing Mee Events Hyderabad.",
       });
       router.push(`/quotes/${quote.id}`);
@@ -122,9 +123,7 @@ export default function LeadDetailPage() {
   if (session === null || lead === null) {
     return (
       <main className="leads-shell">
-        <p className="leads-loading">
-          {error ?? "Loading lead…"}
-        </p>
+        <p className="leads-loading">{error ?? "Loading lead…"}</p>
       </main>
     );
   }

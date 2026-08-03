@@ -13,9 +13,9 @@ import type {
   UpdateQuotationRequest,
 } from "@me-event/api-contracts";
 import { randomUUID } from "node:crypto";
+import { resolveBranchId } from "../../../common/branch/branch-context";
 import { DomainError } from "../../../common/errors/domain.error";
 import type { AuthenticatedPrincipal } from "../../platform-foundation/domain/platform-foundation";
-import { HYDERABAD_BRANCH } from "../../platform-foundation/domain/platform-foundation";
 import {
   QUOTATION_REPOSITORY,
   type ComputedTotals,
@@ -38,7 +38,7 @@ export class QuotationService {
     if (lead === undefined) {
       throw new DomainError("LEAD_NOT_FOUND", "Lead not found", 404);
     }
-    if (lead.branchId !== HYDERABAD_BRANCH.id) {
+    if (lead.branchId !== resolveBranchId(principal)) {
       throw new DomainError("LEAD_NOT_FOUND", "Lead not found", 404);
     }
 
@@ -147,9 +147,7 @@ export class QuotationService {
     if (existing === undefined) {
       throw new DomainError("QUOTATION_NOT_FOUND", "Quotation not found", 404);
     }
-    if (
-      !["sent", "revision_requested", "approved"].includes(existing.status)
-    ) {
+    if (!["sent", "revision_requested", "approved"].includes(existing.status)) {
       throw new DomainError(
         "QUOTATION_NOT_REVISABLE",
         "Quotation cannot be revised in its current status",
@@ -242,8 +240,12 @@ export class QuotationService {
     return this.requireDetail(quotationId);
   }
 
-  public async listCrm(): Promise<QuotationListResponse> {
-    const quotations = await this.quotations.listForBranch(HYDERABAD_BRANCH.id);
+  public async listCrm(
+    principal: AuthenticatedPrincipal,
+  ): Promise<QuotationListResponse> {
+    const quotations = await this.quotations.listForBranch(
+      resolveBranchId(principal),
+    );
     return { quotations };
   }
 

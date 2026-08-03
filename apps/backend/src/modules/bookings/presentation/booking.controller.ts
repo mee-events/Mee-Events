@@ -15,16 +15,13 @@ import type {
 import { RequireCapability } from "../../authorization/capability.decorator";
 import { CapabilityGuard } from "../../authorization/capability.guard";
 import type { AuthenticatedPrincipal } from "../../platform-foundation/domain/platform-foundation";
-import {
-  AccessTokenGuard,
-  type AuthenticatedPlatformRequest,
-} from "../../platform-foundation/security/access-token.guard";
+import type { AuthenticatedPlatformRequest } from "../../platform-foundation/security/access-token.guard";
 import { BookingService } from "../application/booking.service";
 
 @ApiTags("Bookings")
 @ApiBearerAuth()
 @Controller("bookings")
-@UseGuards(AccessTokenGuard, CapabilityGuard)
+@UseGuards(CapabilityGuard)
 export class BookingController {
   public constructor(private readonly bookings: BookingService) {}
 
@@ -51,19 +48,21 @@ export class BookingController {
 @ApiTags("CRM Bookings")
 @ApiBearerAuth()
 @Controller("crm/bookings")
-@UseGuards(AccessTokenGuard, CapabilityGuard)
+@UseGuards(CapabilityGuard)
 export class CrmBookingController {
   public constructor(private readonly bookings: BookingService) {}
 
   @Get()
-  @RequireCapability("crm_quotation.manage")
+  @RequireCapability("crm_booking.read")
   @ApiOperation({ summary: "List branch bookings" })
-  public list(): Promise<BookingListResponse> {
-    return this.bookings.listCrm();
+  public list(
+    @Req() request: AuthenticatedPlatformRequest,
+  ): Promise<BookingListResponse> {
+    return this.bookings.listCrm(principalOf(request));
   }
 
   @Get(":id")
-  @RequireCapability("crm_quotation.manage")
+  @RequireCapability("crm_booking.read")
   @ApiOperation({ summary: "Get booking detail for CRM" })
   public get(
     @Param("id", new ParseUUIDPipe()) id: string,

@@ -4,8 +4,9 @@ import 'theme/app_colors.dart';
 import 'theme/app_spacing.dart';
 import 'theme/app_typography.dart';
 import 'features/customer/screens/customer_dashboard_screen.dart';
-import 'features/vendor/screens/vendor_dashboard_screen.dart';
-import 'features/worker/screens/worker_dashboard_screen.dart';
+import 'features/manager/screens/manager_dashboard_screen.dart';
+import 'features/vendor/screens/vendor_ops_dashboard_screen.dart';
+import 'features/worker/screens/worker_ops_dashboard_screen.dart';
 import 'screens/splash_screen.dart';
 
 /// Root widget for the Mee Events application.
@@ -81,6 +82,12 @@ class _DevPreviewShellState extends State<_DevPreviewShell> {
                   isActive: _activeRole == 'worker',
                   onTap: () => _switchRole('worker'),
                 ),
+                const SizedBox(width: AppSpacing.xs),
+                _RoleChip(
+                  label: 'Manager',
+                  isActive: _activeRole == 'manager',
+                  onTap: () => _switchRole('manager'),
+                ),
               ],
             ),
           ),
@@ -97,9 +104,11 @@ class _DevPreviewShellState extends State<_DevPreviewShell> {
   Widget _buildDashboard() {
     switch (_activeRole) {
       case 'vendor':
-        return const VendorDashboardScreen();
+        return const VendorOpsDashboardScreen();
       case 'worker':
-        return const WorkerDashboardScreen();
+        return const WorkerOpsDashboardScreen();
+      case 'manager':
+        return const ManagerDashboardScreen();
       case 'customer':
       default:
         return const CustomerDashboardScreen();

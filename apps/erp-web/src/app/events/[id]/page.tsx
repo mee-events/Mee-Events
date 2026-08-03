@@ -9,6 +9,7 @@ import type {
 } from "@me-event/api-contracts";
 import {
   addEventNote,
+  addEventTimelineEntry,
   changeEventStatus,
   clearStoredSession,
   EmployeeApiError,
@@ -46,10 +47,11 @@ export default function EventDetailPage() {
   const [noteVisibility, setNoteVisibility] = useState<"internal" | "customer">(
     "internal",
   );
-  const [nextStatus, setNextStatus] =
-    useState<EventRecordStatus>("planning");
+  const [nextStatus, setNextStatus] = useState<EventRecordStatus>("planning");
   const [venueName, setVenueName] = useState("");
   const [venueAddress, setVenueAddress] = useState("");
+  const [timelineTitle, setTimelineTitle] = useState("");
+  const [timelineContent, setTimelineContent] = useState("");
 
   const load = useCallback(
     async (active: EmployeeSession) => {
@@ -152,6 +154,37 @@ export default function EventDetailPage() {
     }
   }
 
+  async function handleAddTimeline() {
+    if (
+      session === null ||
+      event === null ||
+      timelineTitle.trim().length === 0
+    ) {
+      return;
+    }
+    setBusy(true);
+    setError(null);
+    try {
+      await addEventTimelineEntry(session, event.id, {
+        title: timelineTitle.trim(),
+        content: timelineContent.trim() || undefined,
+        entryType: "milestone",
+        customerVisible: true,
+      });
+      setTimelineTitle("");
+      setTimelineContent("");
+      await load(session);
+    } catch (cause) {
+      setError(
+        cause instanceof EmployeeApiError
+          ? cause.message
+          : "Could not add timeline entry.",
+      );
+    } finally {
+      setBusy(false);
+    }
+  }
+
   if (session === null || event === null) {
     return (
       <main className="leads-shell">
@@ -177,6 +210,12 @@ export default function EventDetailPage() {
           </p>
         </div>
         <div className="leads-session">
+          <Link
+            className="claim-button"
+            href={`/manager/events/${event.id}` as never}
+          >
+            Manager ops
+          </Link>
           <Link className="claim-button" href={`/bookings/${event.bookingId}`}>
             Booking
           </Link>
@@ -298,9 +337,7 @@ export default function EventDetailPage() {
           Change status
           <select
             value={nextStatus}
-            onChange={(e) =>
-              setNextStatus(e.target.value as EventRecordStatus)
-            }
+            onChange={(e) => setNextStatus(e.target.value as EventRecordStatus)}
           >
             {statusOptions.map((status) => (
               <option key={status} value={status}>
@@ -371,9 +408,7 @@ export default function EventDetailPage() {
             <li key={item.id}>
               <strong>{item.visibility}</strong>
               <span>{item.content}</span>
-              <small>
-                {new Date(item.updatedAt).toLocaleString("en-IN")}
-              </small>
+              <small>{new Date(item.updatedAt).toLocaleString("en-IN")}</small>
             </li>
           ))}
         </ul>
@@ -381,6 +416,31 @@ export default function EventDetailPage() {
 
       <section className="quote-panel">
         <h2>Timeline</h2>
+        <label className="quote-field">
+          Milestone title
+          <input
+            value={timelineTitle}
+            onChange={(e) => setTimelineTitle(e.target.value)}
+            placeholder="e.g. Site survey completed"
+          />
+        </label>
+        <label className="quote-field">
+          Details
+          <textarea
+            value={timelineContent}
+            onChange={(e) => setTimelineContent(e.target.value)}
+            rows={2}
+            placeholder="Optional customer-visible detail…"
+          />
+        </label>
+        <button
+          type="button"
+          className="claim-button"
+          disabled={busy || timelineTitle.trim().length === 0}
+          onClick={() => void handleAddTimeline()}
+        >
+          Add timeline entry
+        </button>
         <ul className="quote-timeline">
           {event.timeline.map((entry) => (
             <li key={entry.id}>

@@ -553,7 +553,12 @@ export class PostgresQuotationRepository implements QuotationRepository {
   }
 
   public async approve(input: CustomerDecisionInput): Promise<boolean> {
-    return this.customerDecision(input, "approved", "approved", "quotation.approved");
+    return this.customerDecision(
+      input,
+      "approved",
+      "approved",
+      "quotation.approved",
+    );
   }
 
   public async reject(input: CustomerDecisionInput): Promise<boolean> {
@@ -600,9 +605,7 @@ export class PostgresQuotationRepository implements QuotationRepository {
     }
   }
 
-  public async requestRevision(
-    input: CustomerDecisionInput,
-  ): Promise<boolean> {
+  public async requestRevision(input: CustomerDecisionInput): Promise<boolean> {
     return this.customerDecision(
       input,
       "revision_requested",
@@ -680,10 +683,11 @@ export class PostgresQuotationRepository implements QuotationRepository {
       };
     }
 
-    const revision = await this.pool.query<{ current_revision_id: string | null }>(
-      `SELECT current_revision_id FROM quotations WHERE id = $1`,
-      [quotationId],
-    );
+    const revision = await this.pool.query<{
+      current_revision_id: string | null;
+    }>(`SELECT current_revision_id FROM quotations WHERE id = $1`, [
+      quotationId,
+    ]);
     const inserted = await this.pool.query<{ id: string }>(
       `INSERT INTO quotation_documents (quotation_id, revision_id, doc_type, status)
        VALUES ($1, $2, 'pdf_placeholder', 'pending')

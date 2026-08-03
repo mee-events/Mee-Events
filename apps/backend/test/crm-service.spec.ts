@@ -93,7 +93,7 @@ describe("CrmService", () => {
     repository.seed();
     repository.seed();
 
-    const response = await service.listLeads();
+    const response = await service.listLeads(employeePrincipal());
     expect(response.leads).toHaveLength(2);
   });
 

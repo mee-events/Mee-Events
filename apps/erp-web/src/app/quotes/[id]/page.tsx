@@ -251,7 +251,10 @@ export default function QuoteDetailPage() {
             Lead
           </Link>
           {quote.bookingId !== undefined ? (
-            <Link className="claim-button" href={`/bookings/${quote.bookingId}`}>
+            <Link
+              className="claim-button"
+              href={`/bookings/${quote.bookingId}`}
+            >
               Booking
             </Link>
           ) : null}
@@ -333,8 +336,7 @@ export default function QuoteDetailPage() {
                     )}
                   </td>
                   <td>
-                    ₹
-                    {(item.quantity * item.unitPrice).toLocaleString("en-IN")}
+                    ₹{(item.quantity * item.unitPrice).toLocaleString("en-IN")}
                   </td>
                 </tr>
               ))}
@@ -376,9 +378,9 @@ export default function QuoteDetailPage() {
             Final:{" "}
             <strong>
               ₹
-              {Number(quote.revision?.finalAmount ?? quote.finalAmount ?? 0).toLocaleString(
-                "en-IN",
-              )}
+              {Number(
+                quote.revision?.finalAmount ?? quote.finalAmount ?? 0,
+              ).toLocaleString("en-IN")}
             </strong>
           </p>
           <p>
@@ -477,7 +479,9 @@ export default function QuoteDetailPage() {
             <li key={activity.id}>
               <strong>{activity.activityType}</strong>
               <span>{activity.content ?? ""}</span>
-              <small>{new Date(activity.occurredAt).toLocaleString("en-IN")}</small>
+              <small>
+                {new Date(activity.occurredAt).toLocaleString("en-IN")}
+              </small>
             </li>
           ))}
         </ul>

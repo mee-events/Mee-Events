@@ -6,7 +6,6 @@ import {
   Post,
   Req,
   UnauthorizedException,
-  UseGuards,
 } from "@nestjs/common";
 import {
   ApiBearerAuth,
@@ -27,10 +26,8 @@ import {
   type VerifyOtpResponse,
 } from "@me-event/api-contracts";
 import { ZodValidationPipe } from "../../../common/http/zod-validation.pipe";
-import {
-  AccessTokenGuard,
-  type AuthenticatedPlatformRequest,
-} from "../../platform-foundation/security/access-token.guard";
+import { Public } from "../../authorization/public.decorator";
+import type { AuthenticatedPlatformRequest } from "../../platform-foundation/security/access-token.guard";
 import { AuthService } from "../application/auth.service";
 
 @ApiTags("Authentication")
@@ -38,6 +35,7 @@ import { AuthService } from "../application/auth.service";
 export class AuthController {
   public constructor(private readonly auth: AuthService) {}
 
+  @Public()
   @Post("otp/request")
   @HttpCode(HttpStatus.ACCEPTED)
   @ApiOperation({ summary: "Request a mobile-number OTP challenge" })
@@ -48,6 +46,7 @@ export class AuthController {
     return this.auth.requestOtp(body);
   }
 
+  @Public()
   @Post("otp/verify")
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: "Verify an OTP and create a device session" })
@@ -59,6 +58,7 @@ export class AuthController {
     return this.auth.verifyOtp(body, requestIdOf(request));
   }
 
+  @Public()
   @Post("refresh")
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: "Rotate a refresh token and issue new tokens" })
@@ -73,7 +73,6 @@ export class AuthController {
 
   @Post("logout")
   @HttpCode(HttpStatus.OK)
-  @UseGuards(AccessTokenGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: "Revoke the current device session" })
   @ApiResponse({ status: HttpStatus.OK })

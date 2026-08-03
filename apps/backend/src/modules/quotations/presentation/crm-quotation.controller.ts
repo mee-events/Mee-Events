@@ -29,16 +29,13 @@ import { ZodValidationPipe } from "../../../common/http/zod-validation.pipe";
 import { RequireCapability } from "../../authorization/capability.decorator";
 import { CapabilityGuard } from "../../authorization/capability.guard";
 import type { AuthenticatedPrincipal } from "../../platform-foundation/domain/platform-foundation";
-import {
-  AccessTokenGuard,
-  type AuthenticatedPlatformRequest,
-} from "../../platform-foundation/security/access-token.guard";
+import type { AuthenticatedPlatformRequest } from "../../platform-foundation/security/access-token.guard";
 import { QuotationService } from "../application/quotation.service";
 
 @ApiTags("CRM Quotations")
 @ApiBearerAuth()
 @Controller("crm/quotations")
-@UseGuards(AccessTokenGuard, CapabilityGuard)
+@UseGuards(CapabilityGuard)
 export class CrmQuotationController {
   public constructor(private readonly quotations: QuotationService) {}
 
@@ -59,14 +56,16 @@ export class CrmQuotationController {
   }
 
   @Get()
-  @RequireCapability("crm_quotation.manage")
+  @RequireCapability("crm_quotation.read")
   @ApiOperation({ summary: "List branch quotations" })
-  public list(): Promise<QuotationListResponse> {
-    return this.quotations.listCrm();
+  public list(
+    @Req() request: AuthenticatedPlatformRequest,
+  ): Promise<QuotationListResponse> {
+    return this.quotations.listCrm(principalOf(request));
   }
 
   @Get(":id")
-  @RequireCapability("crm_quotation.manage")
+  @RequireCapability("crm_quotation.read")
   @ApiOperation({ summary: "Get quotation detail for CRM" })
   public get(
     @Param("id", new ParseUUIDPipe()) id: string,
@@ -75,7 +74,7 @@ export class CrmQuotationController {
   }
 
   @Get(":id/timeline")
-  @RequireCapability("crm_quotation.manage")
+  @RequireCapability("crm_quotation.read")
   @ApiOperation({ summary: "Get quotation timeline for CRM" })
   public async timeline(
     @Param("id", new ParseUUIDPipe()) id: string,
@@ -85,7 +84,7 @@ export class CrmQuotationController {
   }
 
   @Get(":id/pdf")
-  @RequireCapability("crm_quotation.manage")
+  @RequireCapability("crm_quotation.read")
   @ApiOperation({ summary: "PDF placeholder for CRM" })
   public pdf(
     @Param("id", new ParseUUIDPipe()) id: string,
@@ -136,11 +135,7 @@ export class CrmQuotationController {
     @Param("id", new ParseUUIDPipe()) id: string,
     @Req() request: AuthenticatedPlatformRequest,
   ): Promise<QuotationDetailResponse> {
-    return this.quotations.send(
-      principalOf(request),
-      id,
-      requestIdOf(request),
-    );
+    return this.quotations.send(principalOf(request), id, requestIdOf(request));
   }
 }
 

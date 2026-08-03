@@ -13,8 +13,8 @@ import type {
   RefreshDigestMatch,
 } from "../ports/identity-repository";
 
-/** Hyderabad is the only active branch in Phase 1 (ADR 0010). */
-const HYDERABAD_BRANCH_ID = "00000000-0000-4000-8000-000000000001";
+/** Platform DEFAULT_BRANCH for new user role assignments until multi-branch provisioning. */
+const DEFAULT_BRANCH_ID = "00000000-0000-4000-8000-000000000001";
 
 interface UserRow {
   readonly id: string;
@@ -155,7 +155,7 @@ export class PostgresIdentityRepository implements IdentityRepository {
          )
          VALUES ($1, $2, 'active', 'branch', $3, now())
          RETURNING role, state, scope_id, verified_at`,
-        [row.id, defaultRole, HYDERABAD_BRANCH_ID],
+        [row.id, defaultRole, DEFAULT_BRANCH_ID],
       );
       return this.toUserRecord(row, assignmentResult.rows);
     });

@@ -101,6 +101,22 @@ describe("PlatformFoundationService", () => {
       expect(ROLE_MODULES[role].length).toBeGreaterThan(0);
     }
   });
+
+  it("keeps CRM capabilities off mobile vendor and worker roles", () => {
+    for (const role of ["vendor_owner", "vendor_member", "worker"] as const) {
+      expect(
+        ROLE_CAPABILITIES[role].some((capability) =>
+          capability.startsWith("crm_"),
+        ),
+      ).toBe(false);
+    }
+    expect(ROLE_CAPABILITIES.vendor_owner).toEqual(
+      expect.arrayContaining(["vendor_own.read", "vendor_own.update"]),
+    );
+    expect(ROLE_CAPABILITIES.worker).toEqual(
+      expect.arrayContaining(["worker_own.read", "worker_own.update"]),
+    );
+  });
 });
 
 function principal(

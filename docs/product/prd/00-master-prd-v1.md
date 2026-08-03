@@ -291,7 +291,7 @@ Foundation rules already enforced by migration
   timestamp, request identifier, and reason/approval evidence
 - Protected admin actions
 - Secrets never committed or embedded in client builds (ADR 0003,
-  `docs/security/secrets.md`)
+  `docs/05-security/secrets.md`)
 
 Security is built into the architecture, not added later.
 

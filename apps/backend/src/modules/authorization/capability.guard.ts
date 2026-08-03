@@ -26,7 +26,9 @@ export class CapabilityGuard implements CanActivate {
       CapabilityId | undefined
     >(REQUIRED_CAPABILITY_KEY, [context.getHandler(), context.getClass()]);
     if (capability === undefined) {
-      return true;
+      throw new ForbiddenException(
+        "Capability-protected endpoint is missing a required capability",
+      );
     }
 
     const request = context

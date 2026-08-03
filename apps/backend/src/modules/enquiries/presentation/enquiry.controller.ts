@@ -26,17 +26,14 @@ import {
 import { ZodValidationPipe } from "../../../common/http/zod-validation.pipe";
 import { RequireCapability } from "../../authorization/capability.decorator";
 import { CapabilityGuard } from "../../authorization/capability.guard";
-import {
-  AccessTokenGuard,
-  type AuthenticatedPlatformRequest,
-} from "../../platform-foundation/security/access-token.guard";
+import type { AuthenticatedPlatformRequest } from "../../platform-foundation/security/access-token.guard";
 import type { AuthenticatedPrincipal } from "../../platform-foundation/domain/platform-foundation";
 import { EnquiryService } from "../application/enquiry.service";
 
 @ApiTags("Enquiries")
 @ApiBearerAuth()
 @Controller("enquiries")
-@UseGuards(AccessTokenGuard, CapabilityGuard)
+@UseGuards(CapabilityGuard)
 export class EnquiryController {
   public constructor(private readonly enquiries: EnquiryService) {}
 

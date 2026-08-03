@@ -2,25 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:mee_events/design_system/design_system.dart';
-import 'package:mee_events/features/auth/session_provider.dart';
+import 'package:mee_events/features/customer/providers/event_record_providers.dart';
 import 'package:mee_events/models/event_record.dart';
 import 'package:mee_events/theme/app_colors.dart';
 import 'package:mee_events/theme/app_radius.dart';
 import 'package:mee_events/theme/app_spacing.dart';
 import 'package:mee_events/theme/app_typography.dart';
-
-final eventRecordProvider =
-    FutureProvider.autoDispose.family<EventRecordDetail?, String>((
-  ref,
-  eventId,
-) async {
-  final session = ref.watch(sessionProvider);
-  if (session == null) {
-    return null;
-  }
-  final api = ref.watch(mobileApiProvider);
-  return api.getEvent(eventId);
-});
 
 class EventRecordScreen extends ConsumerWidget {
   final String eventId;

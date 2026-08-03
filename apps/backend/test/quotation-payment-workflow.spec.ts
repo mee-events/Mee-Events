@@ -130,9 +130,7 @@ class FakeQuotationRepository implements QuotationRepository {
     return true;
   }
 
-  public async requestRevision(
-    input: CustomerDecisionInput,
-  ): Promise<boolean> {
+  public async requestRevision(input: CustomerDecisionInput): Promise<boolean> {
     const quote = this.quotes.get(input.quotationId);
     if (quote === undefined || quote.status !== "sent") return false;
     this.quotes.set(input.quotationId, {
@@ -169,12 +167,15 @@ class FakeQuotationRepository implements QuotationRepository {
     return [];
   }
 
-  public async ensurePdfPlaceholder(quotationId: string) {
+  public async ensurePdfPlaceholder(_quotationId: string): Promise<{
+    documentId: string;
+    status: "pending";
+    message: string;
+  }> {
     return {
       documentId: randomUUID(),
-      status: "pending" as const,
+      status: "pending",
       message: "PDF generation is not available yet.",
-      quotationId,
     };
   }
 }
@@ -340,7 +341,10 @@ describe("QuotationService + PaymentService workflow", () => {
     });
     expect(advance.status).toBe("pending");
 
-    const confirmed = await paymentService.confirmAdvance(employee(), advance.id);
+    const confirmed = await paymentService.confirmAdvance(
+      employee(),
+      advance.id,
+    );
     expect(confirmed.payment.status).toBe("paid");
     expect(confirmed.booking.bookingNumber).toMatch(/^BK-/);
     expect(confirmed.eventRecord.eventNumber).toMatch(/^EV-/);

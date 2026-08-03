@@ -15,7 +15,9 @@ import {
 export default function QuotesPage() {
   const router = useRouter();
   const [session, setSession] = useState<EmployeeSession | null>(null);
-  const [quotes, setQuotes] = useState<readonly QuotationSummary[] | null>(null);
+  const [quotes, setQuotes] = useState<readonly QuotationSummary[] | null>(
+    null,
+  );
   const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(

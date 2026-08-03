@@ -1,9 +1,9 @@
 import { Inject, Injectable } from "@nestjs/common";
 import type {
   AddEventNoteRequest,
+  AddEventTimelineEntryRequest,
   ChangeEventStatusRequest,
   EventActivitySummary,
-  EventActivityType,
   EventDocumentSummary,
   EventNoteSummary,
   EventNoteVisibility,
@@ -13,12 +13,16 @@ import type {
   EventRecordSummary,
   EventStatusHistoryEntry,
   EventTimelineEntry,
-  EventTimelineEntryType,
   UpdateEventNoteRequest,
   UpdateEventRecordRequest,
 } from "@me-event/api-contracts";
 import type { Pool, PoolClient } from "pg";
 import { PG_POOL } from "../../../database/database.module";
+import {
+  appendEventActivity as appendActivity,
+  appendEventTimeline as appendTimeline,
+  writeAuditOutbox,
+} from "../../../common/pattern-b/append-event-pattern-b";
 import type {
   CreateEventRecordFromBookingInput,
   EventRecordMutationContext,
@@ -300,7 +304,7 @@ export class PostgresEventRecordRepository implements EventRecordRepository {
       });
 
       await client.query("COMMIT");
-      return this.findByBookingId(input.bookingId);
+      return await this.findByBookingId(input.bookingId);
     } catch (error) {
       await client.query("ROLLBACK");
       throw error;
@@ -388,13 +392,15 @@ export class PostgresEventRecordRepository implements EventRecordRepository {
         actorRole: input.actorRole,
         branchId: current.branch_id,
         entityId: input.eventRecordId,
+        entityType: "event_record",
         action: "event_record.updated",
         version: row.version,
         payload: { eventRecordId: input.eventRecordId },
+        outboxTopic: "event_record.updated",
       });
 
       await client.query("COMMIT");
-      return this.findById(input.eventRecordId);
+      return await this.findById(input.eventRecordId);
     } catch (error) {
       await client.query("ROLLBACK");
       throw error;
@@ -418,7 +424,7 @@ export class PostgresEventRecordRepository implements EventRecordRepository {
       }
       if (current.status === input.body.status) {
         await client.query("ROLLBACK");
-        return this.findById(input.eventRecordId);
+        return await this.findById(input.eventRecordId);
       }
       if (!isAllowedTransition(current.status, input.body.status)) {
         await client.query("ROLLBACK");
@@ -477,6 +483,7 @@ export class PostgresEventRecordRepository implements EventRecordRepository {
         actorRole: input.actorRole,
         branchId: current.branch_id,
         entityId: input.eventRecordId,
+        entityType: "event_record",
         action: "event_record.status_changed",
         version: row.version,
         payload: {
@@ -484,10 +491,11 @@ export class PostgresEventRecordRepository implements EventRecordRepository {
           fromStatus: current.status,
           toStatus: input.body.status,
         },
+        outboxTopic: "event_record.status_changed",
       });
 
       await client.query("COMMIT");
-      return this.findById(input.eventRecordId);
+      return await this.findById(input.eventRecordId);
     } catch (error) {
       await client.query("ROLLBACK");
       throw error;
@@ -541,7 +549,9 @@ export class PostgresEventRecordRepository implements EventRecordRepository {
         eventRecordId: input.eventRecordId,
         actorUserId: input.actorUserId,
         entryType: "note_added",
-        title: customerVisible ? "Note shared with customer" : "Internal note added",
+        title: customerVisible
+          ? "Note shared with customer"
+          : "Internal note added",
         content: note.content,
         customerVisible,
       });
@@ -558,6 +568,7 @@ export class PostgresEventRecordRepository implements EventRecordRepository {
         actorRole: input.actorRole,
         branchId: current.branch_id,
         entityId: input.eventRecordId,
+        entityType: "event_record",
         action: "event_record.note_added",
         version: current.version,
         payload: {
@@ -565,6 +576,7 @@ export class PostgresEventRecordRepository implements EventRecordRepository {
           noteId: note.id,
           visibility: note.visibility,
         },
+        outboxTopic: "event_record.note_added",
       });
 
       await client.query("COMMIT");
@@ -641,16 +653,88 @@ export class PostgresEventRecordRepository implements EventRecordRepository {
         actorRole: input.actorRole,
         branchId: current.branch_id,
         entityId: input.eventRecordId,
+        entityType: "event_record",
         action: "event_record.note_updated",
         version: current.version,
         payload: {
           eventRecordId: input.eventRecordId,
           noteId: note.id,
         },
+        outboxTopic: "event_record.note_updated",
       });
 
       await client.query("COMMIT");
       return toNote(note);
+    } catch (error) {
+      await client.query("ROLLBACK");
+      throw error;
+    } finally {
+      client.release();
+    }
+  }
+
+  public async addTimelineEntry(
+    input: EventRecordMutationContext & {
+      readonly body: AddEventTimelineEntryRequest;
+    },
+  ): Promise<EventTimelineEntry | undefined> {
+    const client = await this.pool.connect();
+    try {
+      await client.query("BEGIN");
+      const current = await lockEvent(client, input.eventRecordId);
+      if (current === undefined) {
+        await client.query("ROLLBACK");
+        return undefined;
+      }
+
+      const content = input.body.content ?? "";
+      const inserted = await client.query<TimelineRow>(
+        `INSERT INTO event_timelines (
+           event_record_id, actor_user_id, entry_type, title, content, customer_visible
+         ) VALUES ($1, $2, $3, $4, $5, $6)
+         RETURNING id, entry_type, title, content, customer_visible,
+                   actor_user_id, occurred_at`,
+        [
+          input.eventRecordId,
+          input.actorUserId,
+          input.body.entryType,
+          input.body.title,
+          content,
+          input.body.customerVisible,
+        ],
+      );
+      const row = inserted.rows[0];
+      if (row === undefined) {
+        throw new Error("Failed to add event timeline entry");
+      }
+
+      await appendActivity(client, {
+        eventRecordId: input.eventRecordId,
+        actorUserId: input.actorUserId,
+        activityType: "updated",
+        content: input.body.title,
+        customerVisible: input.body.customerVisible,
+      });
+      await writeAuditOutbox(client, {
+        requestId: input.requestId,
+        actorUserId: input.actorUserId,
+        actorRole: input.actorRole,
+        branchId: current.branch_id,
+        entityId: input.eventRecordId,
+        entityType: "event_record",
+        action: "event_record.timeline_added",
+        version: current.version,
+        payload: {
+          eventRecordId: input.eventRecordId,
+          timelineEntryId: row.id,
+          entryType: row.entry_type,
+          title: row.title,
+        },
+        outboxTopic: "event_record.timeline_added",
+      });
+
+      await client.query("COMMIT");
+      return toTimeline(row);
     } catch (error) {
       await client.query("ROLLBACK");
       throw error;
@@ -754,7 +838,9 @@ export class PostgresEventRecordRepository implements EventRecordRepository {
 async function lockEvent(
   client: PoolClient,
   eventRecordId: string,
-): Promise<{ branch_id: string; status: EventRecordStatus; version: number } | undefined> {
+): Promise<
+  { branch_id: string; status: EventRecordStatus; version: number } | undefined
+> {
   const result = await client.query<{
     branch_id: string;
     status: EventRecordStatus;
@@ -823,6 +909,7 @@ async function seedEventCreatedArtifacts(
     actorRole: input.actorRole,
     branchId: input.branchId,
     entityId: input.eventRecordId,
+    entityType: "event_record",
     action: "event_record.created",
     version: input.version,
     payload: {
@@ -831,99 +918,8 @@ async function seedEventCreatedArtifacts(
       bookingId: input.bookingId,
       bookingNumber: input.bookingNumber,
     },
+    outboxTopic: "event_record.created",
   });
-}
-
-async function appendTimeline(
-  client: PoolClient,
-  input: {
-    readonly eventRecordId: string;
-    readonly actorUserId: string;
-    readonly entryType: EventTimelineEntryType;
-    readonly title: string;
-    readonly content: string;
-    readonly customerVisible: boolean;
-  },
-): Promise<void> {
-  await client.query(
-    `INSERT INTO event_timelines (
-       event_record_id, actor_user_id, entry_type, title, content, customer_visible
-     ) VALUES ($1, $2, $3, $4, $5, $6)`,
-    [
-      input.eventRecordId,
-      input.actorUserId,
-      input.entryType,
-      input.title,
-      input.content,
-      input.customerVisible,
-    ],
-  );
-}
-
-async function appendActivity(
-  client: PoolClient,
-  input: {
-    readonly eventRecordId: string;
-    readonly actorUserId: string;
-    readonly activityType: EventActivityType;
-    readonly content: string;
-    readonly customerVisible: boolean;
-  },
-): Promise<void> {
-  await client.query(
-    `INSERT INTO event_activities (
-       event_record_id, actor_user_id, activity_type, content, customer_visible
-     ) VALUES ($1, $2, $3, $4, $5)`,
-    [
-      input.eventRecordId,
-      input.actorUserId,
-      input.activityType,
-      input.content,
-      input.customerVisible,
-    ],
-  );
-}
-
-async function writeAuditOutbox(
-  client: PoolClient,
-  input: {
-    readonly requestId: string;
-    readonly actorUserId: string;
-    readonly actorRole: string;
-    readonly branchId: string;
-    readonly entityId: string;
-    readonly action: string;
-    readonly version: number;
-    readonly payload: Record<string, unknown>;
-  },
-): Promise<void> {
-  await client.query(
-    `INSERT INTO audit_events (
-       request_id, actor_user_id, actor_role, branch_id,
-       entity_type, entity_id, action, after_version, metadata
-     ) VALUES ($1, $2, $3, $4, 'event_record', $5, $6, $7, $8)`,
-    [
-      input.requestId,
-      input.actorUserId,
-      input.actorRole,
-      input.branchId,
-      input.entityId,
-      input.action,
-      input.version,
-      JSON.stringify(input.payload),
-    ],
-  );
-  await client.query(
-    `INSERT INTO outbox_events (
-       topic, aggregate_type, aggregate_id, aggregate_version, payload
-     ) VALUES ($1, 'event_record', $2, $3, $4)`,
-    [
-      input.action,
-      input.entityId,
-      input.version,
-      JSON.stringify(input.payload),
-    ],
-  );
 }
 
 function isAllowedTransition(
@@ -1026,7 +1022,9 @@ function toSummary(row: EventRow): EventRecordSummary {
     priority: row.priority,
     createdAt: row.created_at.toISOString(),
     updatedAt: row.updated_at.toISOString(),
-    ...(row.booking_number === null ? {} : { bookingNumber: row.booking_number }),
+    ...(row.booking_number === null
+      ? {}
+      : { bookingNumber: row.booking_number }),
     ...(row.customer_display_name === null
       ? {}
       : { customerDisplayName: row.customer_display_name }),
@@ -1049,7 +1047,7 @@ function toSummary(row: EventRow): EventRecordSummary {
 function toTimeline(row: TimelineRow): EventTimelineEntry {
   return {
     id: row.id,
-    entryType: row.entry_type,
+    entryType: row.entry_type as EventTimelineEntry["entryType"],
     title: row.title,
     customerVisible: row.customer_visible,
     occurredAt: row.occurred_at.toISOString(),
@@ -1061,7 +1059,7 @@ function toTimeline(row: TimelineRow): EventTimelineEntry {
 function toActivity(row: ActivityRow): EventActivitySummary {
   return {
     id: row.id,
-    activityType: row.activity_type,
+    activityType: row.activity_type as EventActivitySummary["activityType"],
     customerVisible: row.customer_visible,
     occurredAt: row.occurred_at.toISOString(),
     ...(row.content === null ? {} : { content: row.content }),
@@ -1099,11 +1097,16 @@ function toDocument(row: DocumentRow): EventDocumentSummary {
 }
 
 function toStatusHistory(row: StatusHistoryRow): EventStatusHistoryEntry {
-  return {
+  const base: EventStatusHistoryEntry = {
     id: row.id,
-    toStatus: row.to_status,
+    toStatus: row.to_status as EventRecordStatus,
     occurredAt: row.occurred_at.toISOString(),
-    ...(row.from_status === null ? {} : { fromStatus: row.from_status }),
+  };
+  return {
+    ...base,
+    ...(row.from_status === null
+      ? {}
+      : { fromStatus: row.from_status as EventRecordStatus }),
     ...(row.reason === null ? {} : { reason: row.reason }),
     ...(row.actor_user_id === null ? {} : { actorUserId: row.actor_user_id }),
   };

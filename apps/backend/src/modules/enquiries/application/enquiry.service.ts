@@ -5,12 +5,12 @@ import type {
   EnquirySummary,
 } from "@me-event/api-contracts";
 import { randomUUID } from "node:crypto";
+import { resolveBranchId } from "../../../common/branch/branch-context";
 import { DomainError } from "../../../common/errors/domain.error";
 import {
   CATALOG_REPOSITORY,
   type CatalogRepository,
 } from "../../catalog/ports/catalog-repository";
-import { HYDERABAD_BRANCH } from "../../platform-foundation/domain/platform-foundation";
 import type { AuthenticatedPrincipal } from "../../platform-foundation/domain/platform-foundation";
 import {
   ENQUIRY_REPOSITORY,
@@ -54,7 +54,7 @@ export class EnquiryService {
     }
     await this.assertServiceCategoryCodes(request.serviceCategoryCodes);
 
-    const branchId = HYDERABAD_BRANCH.id;
+    const branchId = resolveBranchId(principal);
     const slaMinutes =
       await this.enquiries.getLeadFirstResponseSlaMinutes(branchId);
     const referenceCode = generateReferenceCode();

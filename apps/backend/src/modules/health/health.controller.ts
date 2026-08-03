@@ -1,6 +1,7 @@
 import { Controller, Get, Inject } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
 import type { Pool } from "pg";
+import { Public } from "../authorization/public.decorator";
 import { PG_POOL } from "../../database/database.module";
 
 interface ReadinessReport {
@@ -9,6 +10,7 @@ interface ReadinessReport {
 }
 
 @ApiTags("Health")
+@Public()
 @Controller("health")
 export class HealthController {
   public constructor(@Inject(PG_POOL) private readonly pool: Pool) {}

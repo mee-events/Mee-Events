@@ -59,13 +59,3 @@ final bookingsProvider = FutureProvider.autoDispose((ref) async {
   final api = ref.watch(mobileApiProvider);
   return api.listBookings();
 });
-
-/// Live event records for the signed-in customer.
-final eventsProvider = FutureProvider.autoDispose((ref) async {
-  final session = ref.watch(sessionProvider);
-  if (session == null) {
-    return null;
-  }
-  final api = ref.watch(mobileApiProvider);
-  return api.listEvents();
-});

@@ -82,7 +82,10 @@ export default function BookingDetailPage() {
               Event record
             </Link>
           ) : null}
-          <Link className="claim-button" href={`/quotes/${booking.quotationId}`}>
+          <Link
+            className="claim-button"
+            href={`/quotes/${booking.quotationId}`}
+          >
             Quotation
           </Link>
         </div>

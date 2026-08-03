@@ -51,7 +51,7 @@ mobile toolchain.
 - No Supabase-specific backend features (client-side database access, RLS as
   the authorization layer, Supabase Auth) are introduced; authorization stays
   in the backend per ADR 0002 and ADR 0010.
-- `docs/supabase/schema.sql` is a legacy artifact of an earlier prototype
+- `docs/references/supabase/schema.sql` is a legacy artifact of an earlier prototype
   and is not part of the platform architecture.
 - ADR 0006 (Flutter toolchain) remains superseded as written, but its
   toolchain concerns return in Flutter form through the CI pipeline and the

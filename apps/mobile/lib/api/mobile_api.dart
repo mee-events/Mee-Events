@@ -4,7 +4,13 @@ import 'package:mee_events/models/bootstrap_response.dart';
 import 'package:mee_events/models/catalog_item.dart';
 import 'package:mee_events/models/enquiry.dart';
 import 'package:mee_events/models/event_record.dart';
+import 'package:mee_events/models/manager_ops.dart';
 import 'package:mee_events/models/quotation.dart';
+import 'package:mee_events/models/vendor_ops.dart';
+import 'package:mee_events/models/worker_ops.dart';
+import 'package:mee_events/models/inventory_ops.dart';
+import 'package:mee_events/models/finance_ops.dart';
+import 'package:mee_events/models/operations_ops.dart';
 
 class MobileApi {
   final ApiClient apiClient;
@@ -213,6 +219,22 @@ class MobileApi {
     );
   }
 
+  Future<BookingDetail> getBookingDetail(String id) {
+    return apiClient.request<BookingDetail>(
+      '/bookings/$id',
+      method: 'GET',
+      fromJson: BookingDetail.fromJson,
+    );
+  }
+
+  Future<Enquiry> getEnquiry(String id) {
+    return apiClient.request<Enquiry>(
+      '/enquiries/$id',
+      method: 'GET',
+      fromJson: Enquiry.fromJson,
+    );
+  }
+
   Future<List<EventRecordSummary>> listEvents() async {
     final response = await apiClient.request<Map<String, dynamic>>(
       '/events',
@@ -232,5 +254,557 @@ class MobileApi {
       method: 'GET',
       fromJson: EventRecordDetail.fromJson,
     );
+  }
+
+  Future<ManagerDashboardSnapshot> getManagerDashboard() {
+    return apiClient.request<ManagerDashboardSnapshot>(
+      '/manager/dashboard',
+      method: 'GET',
+      fromJson: ManagerDashboardSnapshot.fromJson,
+    );
+  }
+
+  Future<List<ManagerEventSummary>> listManagerEvents() async {
+    final response = await apiClient.request<Map<String, dynamic>>(
+      '/manager/events',
+      method: 'GET',
+    );
+    final items = response['events'] as List<dynamic>? ?? [];
+    return items
+        .map(
+          (item) => ManagerEventSummary.fromJson(item as Map<String, dynamic>),
+        )
+        .toList();
+  }
+
+  Future<ManagerEventDashboard> getManagerEventDashboard(String eventId) {
+    return apiClient.request<ManagerEventDashboard>(
+      '/manager/events/$eventId/dashboard',
+      method: 'GET',
+      fromJson: ManagerEventDashboard.fromJson,
+    );
+  }
+
+  Future<List<ManagerTaskSummary>> listManagerTodayTasks() async {
+    final response = await apiClient.request<Map<String, dynamic>>(
+      '/manager/tasks/today',
+      method: 'GET',
+    );
+    final items = response['tasks'] as List<dynamic>? ?? [];
+    return items
+        .map(
+          (item) => ManagerTaskSummary.fromJson(item as Map<String, dynamic>),
+        )
+        .toList();
+  }
+
+  Future<ManagerTaskDetail> getManagerTask(String taskId) {
+    return apiClient.request<ManagerTaskDetail>(
+      '/manager/tasks/$taskId',
+      method: 'GET',
+      fromJson: ManagerTaskDetail.fromJson,
+    );
+  }
+
+  Future<ManagerTaskSummary> completeManagerTask(String taskId) async {
+    final response = await apiClient.request<Map<String, dynamic>>(
+      '/manager/tasks/$taskId/complete',
+      method: 'POST',
+      body: <String, dynamic>{},
+    );
+    return ManagerTaskSummary.fromJson(response);
+  }
+
+  Future<void> createManagerProgress({
+    required String eventId,
+    required String updateKind,
+    required String summary,
+  }) {
+    return apiClient.request<Map<String, dynamic>>(
+      '/manager/events/$eventId/progress',
+      method: 'POST',
+      body: {
+        'updateKind': updateKind,
+        'summary': summary,
+      },
+    );
+  }
+
+  Future<VendorDashboardSnapshot> getVendorDashboard() {
+    return apiClient.request<VendorDashboardSnapshot>(
+      '/vendors/me/dashboard',
+      method: 'GET',
+      fromJson: VendorDashboardSnapshot.fromJson,
+    );
+  }
+
+  Future<List<VendorAssignmentItem>> listVendorAssignments() async {
+    final response = await apiClient.request<Map<String, dynamic>>(
+      '/vendors/me/assignments',
+      method: 'GET',
+    );
+    final items = response['assignments'] as List<dynamic>? ?? [];
+    return items
+        .map(
+          (item) =>
+              VendorAssignmentItem.fromJson(item as Map<String, dynamic>),
+        )
+        .toList();
+  }
+
+  Future<VendorAssignmentDetail> getVendorAssignment(String assignmentId) {
+    return apiClient.request<VendorAssignmentDetail>(
+      '/vendors/me/assignments/$assignmentId',
+      method: 'GET',
+      fromJson: VendorAssignmentDetail.fromJson,
+    );
+  }
+
+  Future<VendorAssignmentItem> acceptVendorAssignment(String assignmentId) {
+    return apiClient.request<VendorAssignmentItem>(
+      '/vendors/me/assignments/$assignmentId/accept',
+      method: 'POST',
+      body: <String, dynamic>{},
+      fromJson: VendorAssignmentItem.fromJson,
+    );
+  }
+
+  Future<VendorAssignmentItem> rejectVendorAssignment(
+    String assignmentId,
+    String reason,
+  ) {
+    return apiClient.request<VendorAssignmentItem>(
+      '/vendors/me/assignments/$assignmentId/reject',
+      method: 'POST',
+      body: {'reason': reason},
+      fromJson: VendorAssignmentItem.fromJson,
+    );
+  }
+
+  Future<VendorAssignmentItem> updateVendorProgress({
+    required String assignmentId,
+    required String summary,
+    String? status,
+  }) {
+    return apiClient.request<VendorAssignmentItem>(
+      '/vendors/me/assignments/$assignmentId/progress',
+      method: 'POST',
+      body: {
+        'summary': summary,
+        if (status != null) 'status': status,
+      },
+      fromJson: VendorAssignmentItem.fromJson,
+    );
+  }
+
+  Future<WorkerDashboardSnapshot> getWorkerDashboard() {
+    return apiClient.request<WorkerDashboardSnapshot>(
+      '/workers/me/dashboard',
+      method: 'GET',
+      fromJson: WorkerDashboardSnapshot.fromJson,
+    );
+  }
+
+  Future<List<WorkerTaskItem>> listWorkerTasks() async {
+    final response = await apiClient.request<Map<String, dynamic>>(
+      '/workers/me/tasks',
+      method: 'GET',
+    );
+    final items = response['tasks'] as List<dynamic>? ?? [];
+    return items
+        .map(
+          (item) => WorkerTaskItem.fromJson(item as Map<String, dynamic>),
+        )
+        .toList();
+  }
+
+  Future<WorkerTaskDetail> getWorkerTask(String taskId) {
+    return apiClient.request<WorkerTaskDetail>(
+      '/workers/me/tasks/$taskId',
+      method: 'GET',
+      fromJson: WorkerTaskDetail.fromJson,
+    );
+  }
+
+  Future<WorkerTaskItem> acceptWorkerTask(String taskId) {
+    return apiClient.request<WorkerTaskItem>(
+      '/workers/me/tasks/$taskId/accept',
+      method: 'POST',
+      body: <String, dynamic>{},
+      fromJson: WorkerTaskItem.fromJson,
+    );
+  }
+
+  Future<WorkerTaskItem> rejectWorkerTask(String taskId, String reason) {
+    return apiClient.request<WorkerTaskItem>(
+      '/workers/me/tasks/$taskId/reject',
+      method: 'POST',
+      body: {'reason': reason},
+      fromJson: WorkerTaskItem.fromJson,
+    );
+  }
+
+  Future<WorkerTaskItem> checkInWorkerTask({
+    required String taskId,
+    String? gpsPlaceholder,
+    String? locationPlaceholder,
+  }) {
+    return apiClient.request<WorkerTaskItem>(
+      '/workers/me/tasks/$taskId/check-in',
+      method: 'POST',
+      body: {
+        if (gpsPlaceholder != null) 'gpsPlaceholder': gpsPlaceholder,
+        if (locationPlaceholder != null)
+          'locationPlaceholder': locationPlaceholder,
+      },
+      fromJson: WorkerTaskItem.fromJson,
+    );
+  }
+
+  Future<WorkerTaskItem> updateWorkerProgress({
+    required String taskId,
+    required String summary,
+    String? status,
+    int? percentComplete,
+  }) {
+    return apiClient.request<WorkerTaskItem>(
+      '/workers/me/tasks/$taskId/progress',
+      method: 'POST',
+      body: {
+        'summary': summary,
+        if (status != null) 'status': status,
+        if (percentComplete != null) 'percentComplete': percentComplete,
+      },
+      fromJson: WorkerTaskItem.fromJson,
+    );
+  }
+
+  Future<WorkerTaskItem> checkOutWorkerTask({
+    required String taskId,
+    String? completionNotes,
+  }) {
+    return apiClient.request<WorkerTaskItem>(
+      '/workers/me/tasks/$taskId/check-out',
+      method: 'POST',
+      body: {
+        'markCompleted': true,
+        if (completionNotes != null) 'completionNotes': completionNotes,
+      },
+      fromJson: WorkerTaskItem.fromJson,
+    );
+  }
+
+  Future<InventoryDashboardSnapshot> getInventoryDashboard() {
+    return apiClient.request<InventoryDashboardSnapshot>(
+      '/inventory/me/dashboard',
+      method: 'GET',
+      fromJson: InventoryDashboardSnapshot.fromJson,
+    );
+  }
+
+  Future<List<InventoryAllocationItem>> listInventoryAllocations({
+    String? eventRecordId,
+  }) async {
+    final suffix = eventRecordId == null
+        ? ''
+        : '?eventRecordId=${Uri.encodeQueryComponent(eventRecordId)}';
+    final response = await apiClient.request<Map<String, dynamic>>(
+      '/inventory/me/allocations$suffix',
+      method: 'GET',
+    );
+    final items = response['allocations'] as List<dynamic>? ?? [];
+    return items
+        .map(
+          (item) =>
+              InventoryAllocationItem.fromJson(item as Map<String, dynamic>),
+        )
+        .toList();
+  }
+
+  Future<InventoryAllocationDetail> getInventoryAllocation(
+    String allocationId,
+  ) {
+    return apiClient.request<InventoryAllocationDetail>(
+      '/inventory/me/allocations/$allocationId',
+      method: 'GET',
+      fromJson: InventoryAllocationDetail.fromJson,
+    );
+  }
+
+  Future<InventoryAllocationItem> updateInventoryAllocation({
+    required String allocationId,
+    required String status,
+    String? vehiclePlaceholder,
+    String? venuePlaceholder,
+  }) {
+    return apiClient.request<InventoryAllocationItem>(
+      '/inventory/me/allocations/$allocationId',
+      method: 'PATCH',
+      body: {
+        'status': status,
+        if (vehiclePlaceholder != null)
+          'vehiclePlaceholder': vehiclePlaceholder,
+        if (venuePlaceholder != null) 'venuePlaceholder': venuePlaceholder,
+      },
+      fromJson: InventoryAllocationItem.fromJson,
+    );
+  }
+
+  Future<InventoryAllocationItem> returnInventoryAllocation(
+    String allocationId,
+  ) {
+    return apiClient.request<InventoryAllocationItem>(
+      '/inventory/me/allocations/$allocationId/return',
+      method: 'POST',
+      body: {
+        'returnedQuantity': 1,
+        'conditionOnReturn': 'good',
+      },
+      fromJson: InventoryAllocationItem.fromJson,
+    );
+  }
+
+  Future<List<InventoryMovementItem>> listInventoryMovements({
+    String? eventRecordId,
+  }) async {
+    final suffix = eventRecordId == null
+        ? ''
+        : '?eventRecordId=${Uri.encodeQueryComponent(eventRecordId)}';
+    final response = await apiClient.request<Map<String, dynamic>>(
+      '/inventory/me/movements$suffix',
+      method: 'GET',
+    );
+    final items = response['movements'] as List<dynamic>? ?? [];
+    return items
+        .map(
+          (item) =>
+              InventoryMovementItem.fromJson(item as Map<String, dynamic>),
+        )
+        .toList();
+  }
+
+  Future<List<FinancePaymentItem>> listMyFinancePayments() async {
+    final response = await apiClient.request<Map<String, dynamic>>(
+      '/finance/me/payments',
+      method: 'GET',
+    );
+    final items = response['payments'] as List<dynamic>? ?? [];
+    return items
+        .map(
+          (item) => FinancePaymentItem.fromJson(item as Map<String, dynamic>),
+        )
+        .toList();
+  }
+
+  Future<List<FinanceInvoiceItem>> listMyFinanceInvoices() async {
+    final response = await apiClient.request<Map<String, dynamic>>(
+      '/finance/me/invoices',
+      method: 'GET',
+    );
+    final items = response['invoices'] as List<dynamic>? ?? [];
+    return items
+        .map(
+          (item) => FinanceInvoiceItem.fromJson(item as Map<String, dynamic>),
+        )
+        .toList();
+  }
+
+  Future<List<FinanceReceiptItem>> listMyFinanceReceipts() async {
+    final response = await apiClient.request<Map<String, dynamic>>(
+      '/finance/me/receipts',
+      method: 'GET',
+    );
+    final items = response['receipts'] as List<dynamic>? ?? [];
+    return items
+        .map(
+          (item) => FinanceReceiptItem.fromJson(item as Map<String, dynamic>),
+        )
+        .toList();
+  }
+
+  Future<EventFinanceSummaryItem> getMyEventFinance(String eventRecordId) {
+    return apiClient.request<EventFinanceSummaryItem>(
+      '/finance/me/events/$eventRecordId',
+      method: 'GET',
+      fromJson: EventFinanceSummaryItem.fromJson,
+    );
+  }
+
+  Future<List<FinanceSettlementItem>> listMyVendorSettlements() async {
+    final response = await apiClient.request<Map<String, dynamic>>(
+      '/finance/me/vendors',
+      method: 'GET',
+    );
+    final items = response['settlements'] as List<dynamic>? ?? [];
+    return items
+        .map(
+          (item) => FinanceSettlementItem(
+            id: (item as Map<String, dynamic>)['id'] as String? ?? '',
+            label: item['vendorBusinessName'] as String? ??
+                item['vendorId'] as String? ??
+                '',
+            amount: item['amount'] as String? ?? '0',
+            status: item['status'] as String? ?? '',
+          ),
+        )
+        .toList();
+  }
+
+  Future<List<FinanceSettlementItem>> listMyWorkerPayouts() async {
+    final response = await apiClient.request<Map<String, dynamic>>(
+      '/finance/me/workers',
+      method: 'GET',
+    );
+    final items = response['payouts'] as List<dynamic>? ?? [];
+    return items
+        .map(
+          (item) => FinanceSettlementItem(
+            id: (item as Map<String, dynamic>)['id'] as String? ?? '',
+            label: item['workerDisplayName'] as String? ??
+                item['workerId'] as String? ??
+                '',
+            amount: item['amount'] as String? ?? '0',
+            status: item['status'] as String? ?? '',
+          ),
+        )
+        .toList();
+  }
+
+  Future<OperationsDashboardSnapshot> getOperationsDashboard() {
+    return apiClient.request<OperationsDashboardSnapshot>(
+      '/operations/me/dashboard',
+      method: 'GET',
+      fromJson: OperationsDashboardSnapshot.fromJson,
+    );
+  }
+
+  Future<List<OperationsProgressItem>> listOperationsEvents() async {
+    final response = await apiClient.request<Map<String, dynamic>>(
+      '/operations/me/events',
+      method: 'GET',
+    );
+    final items = response['events'] as List<dynamic>? ?? [];
+    return items
+        .map(
+          (item) =>
+              OperationsProgressItem.fromJson(item as Map<String, dynamic>),
+        )
+        .toList();
+  }
+
+  Future<EventOperationsDetail> getOperationsEvent(String eventRecordId) {
+    return apiClient.request<EventOperationsDetail>(
+      '/operations/me/events/$eventRecordId',
+      method: 'GET',
+      fromJson: EventOperationsDetail.fromJson,
+    );
+  }
+
+  Future<List<OperationsTaskItem>> listOperationsTasks({
+    String? eventRecordId,
+  }) async {
+    final suffix = eventRecordId == null
+        ? ''
+        : '?eventRecordId=${Uri.encodeQueryComponent(eventRecordId)}';
+    final response = await apiClient.request<Map<String, dynamic>>(
+      '/operations/me/tasks$suffix',
+      method: 'GET',
+    );
+    final items = response['tasks'] as List<dynamic>? ?? [];
+    return items
+        .map(
+          (item) => OperationsTaskItem.fromJson(item as Map<String, dynamic>),
+        )
+        .toList();
+  }
+
+  Future<AttendanceLogItem> checkInOperationsAttendance(
+    Map<String, dynamic> body,
+  ) {
+    return apiClient.request<AttendanceLogItem>(
+      '/operations/me/attendance/check-in',
+      method: 'POST',
+      body: body,
+      fromJson: AttendanceLogItem.fromJson,
+    );
+  }
+
+  Future<AttendanceLogItem> checkOutOperationsAttendance(
+    Map<String, dynamic> body,
+  ) {
+    return apiClient.request<AttendanceLogItem>(
+      '/operations/me/attendance/check-out',
+      method: 'POST',
+      body: body,
+      fromJson: AttendanceLogItem.fromJson,
+    );
+  }
+
+  Future<List<AttendanceLogItem>> listOperationsAttendance({
+    String? eventRecordId,
+  }) async {
+    final suffix = eventRecordId == null
+        ? ''
+        : '?eventRecordId=${Uri.encodeQueryComponent(eventRecordId)}';
+    final response = await apiClient.request<Map<String, dynamic>>(
+      '/operations/me/attendance$suffix',
+      method: 'GET',
+    );
+    final items = response['logs'] as List<dynamic>? ?? [];
+    return items
+        .map(
+          (item) => AttendanceLogItem.fromJson(item as Map<String, dynamic>),
+        )
+        .toList();
+  }
+
+  Future<EventIssueItem> createOperationsIssue(Map<String, dynamic> body) {
+    return apiClient.request<EventIssueItem>(
+      '/operations/me/issues',
+      method: 'POST',
+      body: body,
+      fromJson: EventIssueItem.fromJson,
+    );
+  }
+
+  Future<List<EventIssueItem>> listOperationsIssues({
+    String? eventRecordId,
+  }) async {
+    final suffix = eventRecordId == null
+        ? ''
+        : '?eventRecordId=${Uri.encodeQueryComponent(eventRecordId)}';
+    final response = await apiClient.request<Map<String, dynamic>>(
+      '/operations/me/issues$suffix',
+      method: 'GET',
+    );
+    final items = response['issues'] as List<dynamic>? ?? [];
+    return items
+        .map(
+          (item) => EventIssueItem.fromJson(item as Map<String, dynamic>),
+        )
+        .toList();
+  }
+
+  Future<EventPhotoItem> uploadOperationsPhoto(Map<String, dynamic> body) {
+    return apiClient.request<EventPhotoItem>(
+      '/operations/me/photos',
+      method: 'POST',
+      body: body,
+      fromJson: EventPhotoItem.fromJson,
+    );
+  }
+
+  Future<List<OperationsProgressItem>> listOperationsProgress() async {
+    final response = await apiClient.request<Map<String, dynamic>>(
+      '/operations/me/progress',
+      method: 'GET',
+    );
+    final items = response['progress'] as List<dynamic>? ?? [];
+    return items
+        .map(
+          (item) =>
+              OperationsProgressItem.fromJson(item as Map<String, dynamic>),
+        )
+        .toList();
   }
 }

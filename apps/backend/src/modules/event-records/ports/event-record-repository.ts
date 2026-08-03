@@ -1,5 +1,6 @@
 import type {
   AddEventNoteRequest,
+  AddEventTimelineEntryRequest,
   ChangeEventStatusRequest,
   EventActivityListResponse,
   EventActivitySummary,
@@ -39,9 +40,7 @@ export interface EventRecordRepository {
     userId: string,
     eventRecordId: string,
   ): Promise<EventRecordDetailResponse | undefined>;
-  findByBookingId(
-    bookingId: string,
-  ): Promise<EventRecordSummary | undefined>;
+  findByBookingId(bookingId: string): Promise<EventRecordSummary | undefined>;
   createFromBooking(
     input: CreateEventRecordFromBookingInput,
   ): Promise<EventRecordSummary | undefined>;
@@ -66,6 +65,11 @@ export interface EventRecordRepository {
       readonly body: UpdateEventNoteRequest;
     },
   ): Promise<EventNoteSummary | undefined>;
+  addTimelineEntry(
+    input: EventRecordMutationContext & {
+      readonly body: AddEventTimelineEntryRequest;
+    },
+  ): Promise<EventTimelineEntry | undefined>;
   getTimeline(
     eventRecordId: string,
     customerVisibleOnly: boolean,

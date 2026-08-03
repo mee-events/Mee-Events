@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { employeeBootstrapConnection } from "@/lib/platform-bootstrap";
 
 const navigation = [
@@ -14,11 +15,13 @@ const navigation = [
     label: "ERP",
     items: [
       { short: "EV", label: "Event records", href: "/events" as const },
-      { short: "OP", label: "Event operations", href: "/events" as const },
-      { short: "VN", label: "Vendors", href: "#system-map" },
-      { short: "WK", label: "Workers", href: "#system-map" },
-      { short: "WH", label: "Warehouse", href: "#operations" },
-      { short: "FN", label: "Finance & approvals", href: "#approvals" },
+      { short: "OP", label: "Event operations", href: "/operations" as const },
+      { short: "MG", label: "Manager ops", href: "/manager" as const },
+      { short: "VN", label: "Vendors", href: "/vendors" as const },
+      { short: "WK", label: "Workers", href: "/workers" as const },
+      { short: "WH", label: "Warehouse", href: "/warehouse" as const },
+      { short: "IN", label: "Inventory", href: "/inventory" as const },
+      { short: "FN", label: "Finance", href: "/finance" as const },
       { short: "RP", label: "Reports", href: "#team" },
     ],
   },
@@ -271,7 +274,7 @@ export default function Home() {
               <strong>This is the Employee CRM + ERP foundation.</strong>
               <p>
                 The records below are local sample data. Employee login and the
-                live <a href="/leads">leads inbox</a> are connected to the
+                live <Link href="/leads">leads inbox</Link> are connected to the
                 central database; the remaining modules follow slice by slice.
               </p>
             </div>

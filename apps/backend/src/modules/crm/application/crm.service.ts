@@ -5,9 +5,15 @@ import type {
   LeadSummary,
 } from "@me-event/api-contracts";
 import { randomUUID } from "node:crypto";
+import { resolveBranchId } from "../../../common/branch/branch-context";
 import { DomainError } from "../../../common/errors/domain.error";
+import {
+  buildPaginationMeta,
+  paginatedCollection,
+  type PaginationMeta,
+  type PaginationParams,
+} from "../../../common/pagination/pagination";
 import type { AuthenticatedPrincipal } from "../../platform-foundation/domain/platform-foundation";
-import { HYDERABAD_BRANCH } from "../../platform-foundation/domain/platform-foundation";
 import { LEAD_REPOSITORY, type LeadRepository } from "../ports/lead-repository";
 
 @Injectable()
@@ -17,9 +23,33 @@ export class CrmService {
     private readonly leads: LeadRepository,
   ) {}
 
-  public async listLeads(): Promise<LeadListResponse> {
-    const leads = await this.leads.listForBranch(HYDERABAD_BRANCH.id);
-    return { leads };
+  public async listLeads(
+    principal: AuthenticatedPrincipal,
+    pagination?: PaginationParams,
+  ): Promise<
+    LeadListResponse & {
+      readonly data?: readonly LeadSummary[];
+      readonly meta?: PaginationMeta;
+    }
+  > {
+    const leads = await this.leads.listForBranch(resolveBranchId(principal));
+    if (pagination?.requested !== true) {
+      return { leads };
+    }
+    const total = leads.length;
+    const items = leads.slice(
+      pagination.offset,
+      pagination.offset + pagination.limit,
+    );
+    return paginatedCollection(
+      "leads",
+      items,
+      buildPaginationMeta({
+        page: pagination.page,
+        limit: pagination.limit,
+        total,
+      }),
+    );
   }
 
   public async getLead(leadId: string): Promise<LeadSummary> {

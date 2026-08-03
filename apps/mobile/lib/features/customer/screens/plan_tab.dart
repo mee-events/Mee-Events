@@ -3,8 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mee_events/design_system/design_system.dart';
 import 'package:mee_events/features/auth/screens/login_screen.dart';
 import 'package:mee_events/features/auth/session_provider.dart';
-import 'package:mee_events/features/customer/screens/event_record_screen.dart';
+import 'package:mee_events/features/customer/providers/event_record_providers.dart';
 import 'package:mee_events/features/customer/screens/new_enquiry_screen.dart';
+import 'package:mee_events/features/customer/workspace/event_workspace_screen.dart';
 import 'package:mee_events/theme/app_colors.dart';
 import 'package:mee_events/theme/app_spacing.dart';
 import 'package:mee_events/theme/app_typography.dart';
@@ -51,8 +52,38 @@ class PlanTab extends ConsumerWidget {
           : ListView(
               padding: const EdgeInsets.all(AppSpacing.lg),
               children: [
-                if (liveEvents.isNotEmpty) ...[
-                  Text('Your events', style: AppTypography.titleMd),
+                if (liveBookings.isNotEmpty) ...[
+                  Text('My events', style: AppTypography.titleMd),
+                  const SizedBox(height: AppSpacing.md),
+                  for (final booking in liveBookings)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: AppSpacing.md),
+                      child: MeOrderCard(
+                        reference: booking.eventNumber ?? booking.bookingNumber,
+                        title: booking.eventNumber ??
+                            booking.quotationReferenceCode ??
+                            'My event',
+                        subtitle:
+                            'Booking ${booking.bookingNumber} · ₹${booking.advancePaid} advance · ${booking.statusLabel}',
+                        status: MeBadge(
+                          label: booking.statusLabel,
+                          tone: MeStatusTone.success,
+                        ),
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => EventWorkspaceScreen(
+                                bookingId: booking.id,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  const SizedBox(height: AppSpacing.lg),
+                ],
+                if (liveEvents.isNotEmpty && liveBookings.isEmpty) ...[
+                  Text('My events', style: AppTypography.titleMd),
                   const SizedBox(height: AppSpacing.md),
                   for (final event in liveEvents)
                     Padding(
@@ -69,41 +100,9 @@ class PlanTab extends ConsumerWidget {
                         onTap: () {
                           Navigator.of(context).push(
                             MaterialPageRoute(
-                              builder: (context) =>
-                                  EventRecordScreen(eventId: event.id),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  const SizedBox(height: AppSpacing.lg),
-                ],
-                if (liveBookings.isNotEmpty && liveEvents.isEmpty) ...[
-                  Text('Confirmed bookings', style: AppTypography.titleMd),
-                  const SizedBox(height: AppSpacing.md),
-                  for (final booking in liveBookings)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: AppSpacing.md),
-                      child: MeOrderCard(
-                        reference: booking.bookingNumber,
-                        title: booking.eventNumber ??
-                            booking.quotationReferenceCode ??
-                            'Event booking',
-                        subtitle:
-                            'Advance paid · ₹${booking.advancePaid} · ${booking.status}',
-                        status: const MeBadge(
-                          label: 'Confirmed',
-                          tone: MeStatusTone.success,
-                        ),
-                        onTap: () {
-                          final eventId = booking.eventRecordId;
-                          if (eventId == null) {
-                            return;
-                          }
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  EventRecordScreen(eventId: eventId),
+                              builder: (context) => EventWorkspaceScreen(
+                                bookingId: event.bookingId,
+                              ),
                             ),
                           );
                         },

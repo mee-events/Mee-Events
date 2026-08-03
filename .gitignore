@@ -46,3 +46,6 @@ output/
 outputs/
 tmp/
 work/
+
+# TypeScript incremental build info
+*.tsbuildinfo

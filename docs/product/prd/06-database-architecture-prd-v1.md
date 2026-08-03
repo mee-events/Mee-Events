@@ -5,7 +5,7 @@
 - Parent: `00-master-prd-v1.md`
 - Related: ADR 0005, ADR 0010,
   `infrastructure/postgres/migrations/0001_platform_foundation.sql`
-- Note: `docs/supabase/schema.sql` is an unreferenced legacy artifact from an
+- Note: `docs/references/supabase/schema.sql` is an unreferenced legacy artifact from an
   earlier prototype and is not part of this architecture
 
 ## 1. Purpose

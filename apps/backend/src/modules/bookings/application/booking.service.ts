@@ -3,9 +3,9 @@ import type {
   BookingDetailResponse,
   BookingListResponse,
 } from "@me-event/api-contracts";
+import { resolveBranchId } from "../../../common/branch/branch-context";
 import { DomainError } from "../../../common/errors/domain.error";
 import type { AuthenticatedPrincipal } from "../../platform-foundation/domain/platform-foundation";
-import { HYDERABAD_BRANCH } from "../../platform-foundation/domain/platform-foundation";
 import {
   BOOKING_REPOSITORY,
   type BookingRepository,
@@ -39,8 +39,12 @@ export class BookingService {
     return booking;
   }
 
-  public async listCrm(): Promise<BookingListResponse> {
-    const bookings = await this.bookings.listForBranch(HYDERABAD_BRANCH.id);
+  public async listCrm(
+    principal: AuthenticatedPrincipal,
+  ): Promise<BookingListResponse> {
+    const bookings = await this.bookings.listForBranch(
+      resolveBranchId(principal),
+    );
     return { bookings };
   }
 

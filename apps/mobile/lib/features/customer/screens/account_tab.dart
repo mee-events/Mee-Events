@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mee_events/features/auth/screens/login_screen.dart';
 import 'package:mee_events/features/auth/session_provider.dart';
+import 'package:mee_events/features/finance/screens/customer_finance_screen.dart';
 import 'package:mee_events/theme/app_colors.dart';
 import 'package:mee_events/theme/app_spacing.dart';
 import 'package:mee_events/theme/app_radius.dart';
@@ -58,6 +59,27 @@ class AccountTab extends ConsumerWidget {
               child: Column(
                 children: [
                   _buildMenuItem(Icons.event, 'My Events'),
+                  const Divider(height: 1, color: AppColors.hairlineSoft, indent: 56),
+                  _buildMenuItem(
+                    Icons.payments_outlined,
+                    'Payments & billing',
+                    onTap: session == null
+                        ? () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => const LoginScreen(),
+                              ),
+                            );
+                          }
+                        : () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    const CustomerFinanceScreen(),
+                              ),
+                            );
+                          },
+                  ),
                   const Divider(height: 1, color: AppColors.hairlineSoft, indent: 56),
                   _buildMenuItem(Icons.bookmark_outline, 'Saved Services'),
                   const Divider(height: 1, color: AppColors.hairlineSoft, indent: 56),

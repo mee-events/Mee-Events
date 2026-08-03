@@ -17,16 +17,13 @@ import type {
 import { RequireCapability } from "../../authorization/capability.decorator";
 import { CapabilityGuard } from "../../authorization/capability.guard";
 import type { AuthenticatedPrincipal } from "../../platform-foundation/domain/platform-foundation";
-import {
-  AccessTokenGuard,
-  type AuthenticatedPlatformRequest,
-} from "../../platform-foundation/security/access-token.guard";
+import type { AuthenticatedPlatformRequest } from "../../platform-foundation/security/access-token.guard";
 import { EventRecordService } from "../application/event-record.service";
 
 @ApiTags("Events")
 @ApiBearerAuth()
 @Controller("events")
-@UseGuards(AccessTokenGuard, CapabilityGuard)
+@UseGuards(CapabilityGuard)
 export class EventRecordController {
   public constructor(private readonly events: EventRecordService) {}
 

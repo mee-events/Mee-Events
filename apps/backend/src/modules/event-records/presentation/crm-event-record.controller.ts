@@ -15,17 +15,20 @@ import {
 import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
 import {
   addEventNoteSchema,
+  addEventTimelineEntrySchema,
   changeEventStatusSchema,
   createEventRecordSchema,
   updateEventNoteSchema,
   updateEventRecordSchema,
   type AddEventNoteRequest,
+  type AddEventTimelineEntryRequest,
   type ChangeEventStatusRequest,
   type CreateEventRecordRequest,
   type EventActivityListResponse,
   type EventNoteSummary,
   type EventRecordDetailResponse,
   type EventRecordListResponse,
+  type EventTimelineEntry,
   type EventTimelineResponse,
   type UpdateEventNoteRequest,
   type UpdateEventRecordRequest,
@@ -34,24 +37,23 @@ import { ZodValidationPipe } from "../../../common/http/zod-validation.pipe";
 import { RequireCapability } from "../../authorization/capability.decorator";
 import { CapabilityGuard } from "../../authorization/capability.guard";
 import type { AuthenticatedPrincipal } from "../../platform-foundation/domain/platform-foundation";
-import {
-  AccessTokenGuard,
-  type AuthenticatedPlatformRequest,
-} from "../../platform-foundation/security/access-token.guard";
+import type { AuthenticatedPlatformRequest } from "../../platform-foundation/security/access-token.guard";
 import { EventRecordService } from "../application/event-record.service";
 
 @ApiTags("CRM Events")
 @ApiBearerAuth()
 @Controller("crm/events")
-@UseGuards(AccessTokenGuard, CapabilityGuard)
+@UseGuards(CapabilityGuard)
 export class CrmEventRecordController {
   public constructor(private readonly events: EventRecordService) {}
 
   @Get()
   @RequireCapability("erp_event.read")
   @ApiOperation({ summary: "List branch event records" })
-  public list(): Promise<EventRecordListResponse> {
-    return this.events.listCrm();
+  public list(
+    @Req() request: AuthenticatedPlatformRequest,
+  ): Promise<EventRecordListResponse> {
+    return this.events.listCrm(principalOf(request));
   }
 
   @Post()
@@ -148,6 +150,24 @@ export class CrmEventRecordController {
       principalOf(request),
       id,
       noteId,
+      body,
+      requestIdOf(request),
+    );
+  }
+
+  @Post(":id/timeline")
+  @HttpCode(HttpStatus.CREATED)
+  @RequireCapability("erp_event.manage")
+  @ApiOperation({ summary: "Add an immutable timeline milestone entry" })
+  public addTimelineEntry(
+    @Param("id", new ParseUUIDPipe()) id: string,
+    @Body(new ZodValidationPipe(addEventTimelineEntrySchema))
+    body: AddEventTimelineEntryRequest,
+    @Req() request: AuthenticatedPlatformRequest,
+  ): Promise<EventTimelineEntry> {
+    return this.events.addTimelineEntry(
+      principalOf(request),
+      id,
       body,
       requestIdOf(request),
     );

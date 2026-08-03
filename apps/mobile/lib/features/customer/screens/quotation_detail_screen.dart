@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:mee_events/design_system/design_system.dart';
 import 'package:mee_events/features/auth/session_provider.dart';
+import 'package:mee_events/features/customer/workspace/event_workspace_screen.dart';
 import 'package:mee_events/models/quotation.dart';
 import 'package:mee_events/shared/detail_row.dart';
 import 'package:mee_events/shared/section_header.dart';
@@ -395,16 +396,24 @@ class _QuotationDetailScreenState extends ConsumerState<QuotationDetailScreen> {
             Padding(
               padding: const EdgeInsets.only(top: AppSpacing.md),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   const MeBadge(
                     label: 'Booking confirmed',
                     tone: MeStatusTone.success,
                   ),
-                  const SizedBox(height: AppSpacing.sm),
-                  Text(
-                    'Your event record is ready on the Plan tab.',
-                    style: AppTypography.bodySm.copyWith(color: AppColors.muted),
+                  const SizedBox(height: AppSpacing.md),
+                  MeButton.primary(
+                    label: 'Open My Event',
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => EventWorkspaceScreen(
+                            bookingId: quote.bookingId!,
+                          ),
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),
