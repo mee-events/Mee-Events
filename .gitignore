@@ -40,3 +40,9 @@ android/app/google-services.json
 .turbo/
 postgres-data/
 apps/customer-web/
+
+# Scratch and generated local artifacts
+output/
+outputs/
+tmp/
+work/

@@ -3,8 +3,8 @@
 - Status: accepted
 - Date: 2026-08-01
 - Parent: `00-master-prd-v1.md`
-- Related: ADR 0003, `docs/runbooks/local-development.md`,
-  `docs/security/secrets.md`, `.github/workflows/ci.yml`
+- Related: ADR 0003, `docs/07-deployment/local-development.md`,
+  `docs/05-security/secrets.md`, `.github/workflows/ci.yml`
 
 ## 1. Purpose
 
@@ -65,7 +65,7 @@ Rules:
 - New backend modules ship with tests that run in the TypeScript job
 - Integration tests that need Postgres run against a CI service container
 
-## 6. Secrets management (`docs/security/secrets.md`)
+## 6. Secrets management (`docs/05-security/secrets.md`)
 
 - No secrets in the repository; `.env.example` files contain placeholders
   only
