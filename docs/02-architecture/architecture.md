@@ -680,7 +680,6 @@ apps/
   backend/         NestJS modular monolith and /api/v1
   erp-web/         Next.js Employee CRM/ERP
   mobile/          Flutter multi-role client (outside pnpm workspace)
-  customer-web/    Separate customer UI prototype (not Phase 1 delivery path)
 packages/
   api-contracts/   Shared Zod schemas, modules, capabilities
   shared-types/    Shared identity and role types

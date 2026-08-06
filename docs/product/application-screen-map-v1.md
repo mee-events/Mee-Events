@@ -1,21 +1,23 @@
 # ME Event Application Screen Map v1
 
-- Status: proposed for founder approval
-- Scope: interface design before authentication/backend integration
+- Status: **superseded in part** — use for journey inventory only
+- Active client: Flutter `apps/mobile` via AppGateway (Customer + Vendor/Worker ops)
+- Removed: development interface preview, `customer-web`, venue/ticket fake path, legacy preview dashboards
+- Scope note below is historical (interface-before-auth era); auth and backend are live
 
 ## Global application shell
 
 1. Splash and brand introduction
-2. Development-only interface preview
-3. Future phone login and OTP
-4. Current-role indicator
-5. Role switcher
+2. ~~Development-only interface preview~~ (removed)
+3. Phone login and OTP (shipped)
+4. Current-role indicator (via bootstrap / AppGateway)
+5. Role switcher (deferred; not a preview shell)
 6. Notifications
 7. Help and support
 8. Profile and settings
 9. Legal, privacy, and account management
 
-The interface preview exists only while authentication is deferred.
+Authentication is live. Do not reintroduce a development role-preview shell.
 
 ## Customer navigation
 

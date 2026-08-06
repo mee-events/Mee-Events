@@ -39,7 +39,6 @@ android/app/google-services.json
 .pnpm-store/
 .turbo/
 postgres-data/
-apps/customer-web/
 
 # Scratch and generated local artifacts
 output/

@@ -83,11 +83,10 @@ flowchart TB
 
 Customer and staff mobile experiences share the Flutter application in
 `apps/mobile`. Authentication and role determine which surface is available.
-There is no separate Staff App package. A development role preview exists for
-local switching; it must never impersonate production authorization.
-
-`apps/customer-web` is a separate UI prototype and is not part of the pnpm
-workspace or the connected Phase 1 delivery path.
+There is no separate Staff App package. Mobile entry is **AppGateway only**
+(Customer, Vendor ops, Worker ops). Development role-preview shells and the
+former `apps/customer-web` prototype have been removed. AppGateway must never
+impersonate production authorization.
 
 ### Customer App
 
@@ -357,7 +356,6 @@ apps/
   backend/        NestJS modular monolith (`/api/v1`)
   erp-web/        Next.js Employee CRM/ERP
   mobile/         Flutter multi-role app (outside pnpm workspace)
-  customer-web/   Customer journey web prototype (separate build; not Phase 1 path)
 packages/
   api-contracts/  Shared Zod schemas, modules, capabilities
   shared-types/   Shared identity and role types

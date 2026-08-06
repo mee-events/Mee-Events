@@ -38,7 +38,6 @@ apps/
   mobile/        Flutter app (outside the pnpm workspace; Flutter SDK 3.x+)
   backend/       NestJS modular monolith
   erp-web/       Next.js Employee CRM/ERP
-  customer-web/  Archived web prototype (reference only, separate build)
 packages/
   api-contracts/ Zod schemas, response types, capability and module catalogs
   shared-types/  Platform roles, identity types

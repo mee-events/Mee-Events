@@ -42,7 +42,6 @@
 **/.expo-shared/
 **/android/
 **/ios/
-apps/customer-web/
 postgres-data/
 output/
 outputs/

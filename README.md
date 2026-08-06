@@ -23,10 +23,9 @@ Governing PRD: `docs/product/prd/07-ui-ux-design-system-prd-v1.md`.
 
 ```text
 apps/
-  mobile/        Flutter app with Customer, Vendor and Worker roles
+  mobile/        Flutter app — Customer + Vendor/Worker ops (AppGateway)
   backend/       NestJS modular backend and authenticated platform bootstrap
   erp-web/       Next.js Employee CRM/ERP command centre
-  customer-web/  Existing Customer App/workflow web prototype (separate build)
 packages/
   api-contracts/ Shared request, response, module and capability contracts
   shared-types/  Shared identity and role types
@@ -35,6 +34,10 @@ infrastructure/
   docker-compose.yml
 ```
 
+Customer product UI is Flutter only. Dubbed/duplicate surfaces (former
+`customer-web` prototype, mobile role-preview shell, venue/ticket fake path,
+legacy preview dashboards) were removed.
+
 The mobile app (`apps/mobile`) is a Flutter project managed separately from the
 pnpm workspace. It requires the Flutter SDK (3.x+) installed on your machine.
 
@@ -42,37 +45,46 @@ pnpm workspace. It requires the Flutter SDK (3.x+) installed on your machine.
 
 Implemented:
 
-- the approved premium Customer UI/UX with Home, Explore, four-step Plan,
-  Enquiries, event workspace, quotation, payment preview, manager chat and
-  Account;
+- Flutter Customer shell: Home, Explore, Plan, Enquiries, quotation detail,
+  advance submit, event workspace, and Account (Home/Explore catalog still
+  sample data; Stitch KEEP depth incomplete);
 - the exact 21 event categories and 41 service categories with editable,
   approval-governed Hyderabad estimates;
-- isolated development previews for Vendor and Worker while their approved
-  visual designs are prepared;
-- a Hyderabad Employee CRM/ERP foundation;
+- live Vendor and Worker **ops** dashboards on AppGateway (not full Stitch
+  Vendor/Worker product apps yet);
+- a Hyderabad Employee CRM/ERP foundation with live leads / quotes / events;
 - authenticated `GET /api/v1/platform/bootstrap`;
 - backend-owned role modules and capabilities;
 - one shared API bootstrap contract;
-- the Hyderabad branch, multi-role identities, device sessions, configurable
-  lead SLA, append-only audit log, outbox, and idempotency database foundation.
+- PostgreSQL identity (OTP challenges, users, device sessions);
+- enquiry create + CRM lead in one transaction; CRM claim updates customer
+  enquiry status;
+- quotation, advance payment, booking, and Event Record write path;
+- vendor, worker, warehouse, inventory, operations, and finance API foundations;
+- Hyderabad branch, configurable lead SLA, append-only audit log, outbox, and
+  idempotency database foundation.
 
-Still intentionally labelled as not live:
+Still intentionally labelled as not live / not production-ready:
 
-- mobile and ERP sample records;
-- production authentication provider;
-- PostgreSQL identity repository;
-- enquiry, quotation, booking, payment, vendor, worker, warehouse, and finance
-  transactions.
+- mobile Home/Explore catalog sample data (live path is Plan → enquiry → quote);
+- ERP overview dashboard sample metrics (live work is under `/leads`, `/quotes`);
+- production SMS OTP provider (local OTP only in development);
+- push / outbox consumers; customer feedback; manager chat (not shipped);
+- real quotation PDF and payment gateway.
 
-The next connected vertical slice is:
+Local demo of the connected sale path:
 
 ```text
-Customer submits enquiry
-  -> backend validates and stores it
-  -> CRM receives the lead
-  -> Marketing Manager becomes the owner
-  -> customer sees the same status
+Customer OTP login → Plan → submit enquiry
+  → ERP login (+919000000001) → /leads → Claim
+  → requirements → create/send quote
+  → Customer approve → submit advance
+  → ERP confirm advance → booking BK-… + event EV-…
 ```
+
+See [`docs/07-deployment/local-demo-checklist.md`](docs/07-deployment/local-demo-checklist.md).
+API smokes: `bash scripts/demo-enquiry-claim-smoke.sh` and
+`bash scripts/demo-enquiry-to-booking-smoke.sh`.
 
 ## Local setup
 
