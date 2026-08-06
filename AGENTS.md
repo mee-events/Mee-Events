@@ -1,0 +1,69 @@
+# Mee Events — agent briefing
+
+Keep this file short. Deep detail lives in `docs/` and ADRs — read those on demand.
+
+## What this is
+
+Connected Hyderabad event OS: one Flutter multi-role mobile app, one NestJS API,
+one Next.js Employee CRM/ERP, one PostgreSQL source of truth.
+
+```text
+apps/mobile/     Flutter (Customer, Vendor, Worker)
+apps/backend/    NestJS API
+apps/erp-web/    Next.js CRM/ERP
+packages/        api-contracts, shared-types
+infrastructure/  postgres migrations, docker-compose
+docs/            engineering suites + ADRs + PRDs
+```
+
+## Canonical docs (read before inventing architecture)
+
+| Need | Path |
+| --- | --- |
+| Engineering overview | `docs/01-overview/README.md` |
+| Architecture | `docs/02-architecture/architecture.md` |
+| API routes | `docs/04-api/README.md` |
+| Auth / secrets | `docs/05-security/` |
+| Local / deploy | `docs/07-deployment/` |
+| Testing / verify gate | `docs/08-testing/testing-strategy.md` |
+| ADRs | `docs/adr/` — **ADR 0010** is the active connected-platform decision |
+| Product scope | `docs/product/prd/00-master-prd-v1.md` |
+| AI coding controls | `docs/05-security/ai-coding-controls.md` |
+
+## Local commands
+
+```sh
+corepack pnpm install
+corepack pnpm db:up
+corepack pnpm db:migrate
+corepack pnpm dev:backend   # API ~:3002  docs /api/docs
+corepack pnpm dev:erp       # ERP ~:3001
+
+cd apps/mobile && flutter pub get && flutter run
+```
+
+Demo path and smokes: `docs/07-deployment/local-demo-checklist.md`,
+`scripts/demo-enquiry-claim-smoke.sh`, `scripts/demo-enquiry-to-booking-smoke.sh`.
+
+## Hard rules for agents
+
+1. Prefer small, scoped changes. Do not drive-by refactor.
+2. Never commit real secrets. Only `.env.example` / placeholders. See `docs/05-security/secrets.md`.
+3. Do not send company code through FreeLLMAPI, free-tier LLM proxies, or personal AI accounts without Privacy Mode.
+4. Prefer `@`-mentioning specific files over broad codebase dumps. Respect `.cursorignore`.
+5. When LeanCTX is available, prefer `ctx_read` / `ctx_search` / `ctx_shell` / `ctx_tree` over raw full-file dumps and noisy shell output.
+6. Match existing patterns in the touched app (`apps/backend`, `apps/erp-web`, `apps/mobile`).
+7. Do not claim production/SMS/payment/PDF as live unless docs say so — see root `README.md` status section.
+
+## Memory
+
+- Decisions: `docs/adr/`
+- Product scope: `docs/product/prd/`
+- Session/tooling memory (optional): LeanCTX CCP after Phase 2 install — do not invent a parallel memory store in the repo.
+
+<!-- lean-ctx -->
+## lean-ctx
+
+lean-ctx is active — the MCP tools replace native equivalents.
+Full rules: LEAN-CTX.md (open on demand — do not auto-load).
+<!-- /lean-ctx -->

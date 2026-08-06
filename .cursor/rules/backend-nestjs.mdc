@@ -1,0 +1,13 @@
+---
+description: NestJS backend conventions
+globs:
+  - apps/backend/**/*
+alwaysApply: false
+---
+
+# Backend (`apps/backend`)
+
+- Modular NestJS; follow existing module/port/adapter layout.
+- Authz and writes are backend-owned. Prefer existing identity and capability patterns.
+- DB changes go through `infrastructure/postgres` migrations — do not invent ad-hoc schema in app code.
+- Check `docs/04-api/` and `docs/05-security/` before changing auth or public routes.

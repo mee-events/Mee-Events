@@ -1,5 +1,7 @@
 # Secret handling
 
+Also see [AI coding controls](./ai-coding-controls.md) for agent/MCP policy.
+
 - Commit only examples containing placeholders.
 - Store local values in ignored `.env` files.
 - Store CI, staging, and production values in protected secret managers.

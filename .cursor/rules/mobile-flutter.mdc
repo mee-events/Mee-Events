@@ -1,0 +1,13 @@
+---
+description: Flutter mobile conventions
+globs:
+  - apps/mobile/**/*
+alwaysApply: false
+---
+
+# Mobile (`apps/mobile`)
+
+- Flutter multi-role app. Theme tokens in `lib/theme/`; shared components in `lib/design_system/`.
+- Follow existing feature folder layout under `lib/features/`.
+- Do not embed backend secrets. Use the documented API client / env patterns.
+- Design system PRD: `docs/product/prd/07-ui-ux-design-system-prd-v1.md`.

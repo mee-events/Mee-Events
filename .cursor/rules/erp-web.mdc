@@ -1,0 +1,12 @@
+---
+description: ERP web (Next.js) conventions
+globs:
+  - apps/erp-web/**/*
+alwaysApply: false
+---
+
+# ERP web (`apps/erp-web`)
+
+- Next.js Employee CRM/ERP. Match existing app router and API client patterns.
+- Live work concentrates on leads/quotes/events — do not invent dashboard metrics as production truth.
+- Use shared contracts from `packages/` when touching API shapes.

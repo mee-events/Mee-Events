@@ -1,0 +1,90 @@
+# Mee Event — Cursor / agent context exclusions
+# Keeps secrets and bulk junk out of prompts (tokens + security).
+# Syntax matches .gitignore. Prefer .env.example over real .env files.
+
+# --- Secrets and credentials ---
+.env
+.env.*
+!.env.example
+!.env.*.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*.keystore
+*.mobileprovision
+**/google-services.json
+**/GoogleService-Info.plist
+**/key.properties
+**/auth.json
+.aws/
+.ssh/
+*.sqlite
+*.sqlite3
+*.db
+
+# --- Dependencies and package stores ---
+**/node_modules/
+**/.pnpm-store/
+**/vendor/
+**/.dart_tool/
+**/Pods/
+**/.pub-cache/
+
+# --- Build and generated output ---
+**/dist/
+**/.next/
+**/build/
+**/coverage/
+**/.turbo/
+**/.expo/
+**/.expo-shared/
+**/android/
+**/ios/
+apps/customer-web/
+postgres-data/
+output/
+outputs/
+tmp/
+work/
+*.tsbuildinfo
+*.map
+
+# --- Lockfiles (huge, low signal for agents) ---
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+**/pubspec.lock
+
+# --- Design export bulk (keep curated .md; exclude HTML/JS dumps) ---
+design/stitch-screens/**/*.html
+design/stitch-screens/**/*.js
+design/stitch-screens/html/
+design/stitch-screens/chunk*.js
+design/stitch-screens/dist-*.js
+design/stitch-screens/_*.js
+
+# --- Media and archives ---
+*.zip
+*.tar.gz
+*.tgz
+*.7z
+*.rar
+*.iso
+*.dmg
+*.pdf
+*.mp4
+*.mov
+*.webm
+*.psd
+*.ai
+
+# --- Logs and IDE noise ---
+*.log
+.DS_Store
+.idea/
+**/.cursor/debug*.log
+
+# --- Local agent scratch ---
+.agents/mcp_config.json

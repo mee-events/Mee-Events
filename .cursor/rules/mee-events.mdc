@@ -1,0 +1,13 @@
+---
+description: Mee Events core agent rules — keep lean; details in AGENTS.md and docs/
+alwaysApply: true
+---
+
+# Mee Events
+
+- Read `AGENTS.md` first. Architecture and product scope live in `docs/` and `docs/adr/` (ADR 0010 active).
+- Scope changes tightly. No unprompted refactors or new dependencies.
+- Never commit secrets; never put backend secrets in Flutter or `NEXT_PUBLIC_*`.
+- Ban for company code: FreeLLMAPI / free-tier LLM proxies / personal AI without Privacy Mode.
+- Prefer specific file mentions; respect `.cursorignore`.
+- If LeanCTX MCP tools exist, prefer `ctx_read`, `ctx_search`, `ctx_shell`, `ctx_tree`.
