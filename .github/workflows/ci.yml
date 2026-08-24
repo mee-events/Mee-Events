@@ -26,6 +26,10 @@ jobs:
           node-version: 20
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - name: Build shared contracts for type-aware linting
+        run: >-
+          pnpm --filter @me-event/shared-types build &&
+          pnpm --filter @me-event/api-contracts build
       - run: pnpm format:check
       - run: pnpm lint
       - run: pnpm typecheck
@@ -45,6 +49,8 @@ jobs:
           flutter-version: "3.44.8"
           channel: stable
           cache: true
+      - name: Create CI-safe mobile environment asset
+        run: cp .env.example .env
       - run: flutter pub get
       - run: dart format --output=none --set-exit-if-changed lib test
       - run: flutter analyze --fatal-infos
