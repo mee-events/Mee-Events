@@ -1,6 +1,10 @@
-import type { ContactPreference, EnquiryStatus } from "@me-event/api-contracts";
-
-export interface CreateEnquiryWithLeadInput {
+import type {
+  ContactPreference,
+  EnquiryStatus,
+  LeadStatus,
+  PlanItemSnapshot,
+} from "@me-event/api-contracts";
+export interface CreateEnquiryInput {
   readonly branchId: string;
   readonly userId: string;
   readonly eventTypeId: string;
@@ -11,8 +15,11 @@ export interface CreateEnquiryWithLeadInput {
   readonly budgetMin?: number;
   readonly budgetMax?: number;
   readonly notes?: string;
+  readonly preferredExternalVendor?: string;
   readonly serviceCategoryCodes: readonly string[];
+  readonly planItems: readonly PlanItemSnapshot[];
   readonly contactPreference: ContactPreference;
+  /** SLA deadline forwarded to CRM via `enquiry.submitted` outbox payload. */
   readonly firstResponseDueAt: Date;
   readonly requestId: string;
 }
@@ -34,7 +41,9 @@ export interface EnquiryDetail extends EnquiryListItem {
   readonly budgetMin?: number;
   readonly budgetMax?: number;
   readonly notes?: string;
+  readonly preferredExternalVendor?: string;
   readonly serviceCategoryCodes: readonly string[];
+  readonly planItems: readonly PlanItemSnapshot[];
   readonly contactPreference: ContactPreference;
 }
 
@@ -42,16 +51,23 @@ export const ENQUIRY_REPOSITORY = Symbol("ENQUIRY_REPOSITORY");
 
 export interface EnquiryRepository {
   /**
-   * Creates the customer profile if missing, the enquiry, the CRM lead, the
-   * lead activity, the audit events, and the outbox event in one transaction.
+   * Creates the customer profile if missing, the enquiry, enquiry audit, and
+   * `enquiry.submitted` outbox event in one transaction. CRM lead creation is
+   * handled asynchronously by the CRM outbox processor.
    */
-  createEnquiryWithLead(
-    input: CreateEnquiryWithLeadInput,
-  ): Promise<{ enquiryId: string; leadId: string }>;
+  createEnquiry(input: CreateEnquiryInput): Promise<{ enquiryId: string }>;
   listForCustomerUser(userId: string): Promise<readonly EnquiryListItem[]>;
   findForCustomerUser(
     userId: string,
     enquiryId: string,
   ): Promise<EnquiryDetail | undefined>;
   getLeadFirstResponseSlaMinutes(branchId: string): Promise<number>;
+  /**
+   * Applies customer-visible enquiry status changes driven by CRM lead updates
+   * (`crm.lead.updated` outbox).
+   */
+  syncStatusFromCrmLead(
+    enquiryId: string,
+    leadStatus: LeadStatus,
+  ): Promise<void>;
 }

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mee_events/design_system/design_system.dart';
+import 'package:mee_events/features/auth/role_switcher/mobile_roles.dart';
+import 'package:mee_events/features/auth/role_switcher/role_switch_chip.dart';
+import 'package:mee_events/features/auth/role_switcher/show_role_switcher.dart';
 import 'package:mee_events/features/auth/screens/login_screen.dart';
 import 'package:mee_events/features/auth/session_provider.dart';
 import 'package:mee_events/features/operations/screens/operations_attendance_screen.dart';
@@ -29,9 +32,9 @@ class WorkerOpsDashboardScreen extends ConsumerWidget {
           message: 'Sign in as a worker to view today\'s tasks.',
           actionLabel: 'Sign in',
           onAction: () {
-            Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const LoginScreen()),
-            );
+            Navigator.of(
+              context,
+            ).push(MaterialPageRoute(builder: (_) => const LoginScreen()));
           },
         ),
       );
@@ -42,7 +45,18 @@ class WorkerOpsDashboardScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: AppColors.canvas,
-      appBar: const MeAppBar(title: 'Worker'),
+      appBar: MeAppBar(
+        title: 'Worker',
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: AppSpacing.sm),
+            child: RoleSwitchChip(
+              roleLabel: mobileRoleLabel(session.lastActiveRole),
+              onPressed: () => showRoleSwitcher(context: context, ref: ref),
+            ),
+          ),
+        ],
+      ),
       body: dashboard.when(
         loading: () => const Center(child: MeCircularLoader()),
         error: (error, _) => MeErrorState(

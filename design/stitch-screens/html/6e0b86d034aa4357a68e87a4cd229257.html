@@ -1,0 +1,272 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport">
+<title>Plan - Mee Events</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&amp;family=EB+Garamond:wght@500&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-container": "#8c8c88",
+                        "surface-container": "#f0eded",
+                        "error-container": "#ffdad6",
+                        "on-tertiary-fixed": "#1b1c19",
+                        "background": "#fcf9f8",
+                        "surface-container-low": "#f6f3f2",
+                        "surface-dim": "#dcd9d9",
+                        "on-secondary": "#ffffff",
+                        "tertiary": "#0f100d",
+                        "inverse-on-surface": "#f3f0ef",
+                        "on-primary-fixed-variant": "#77302d",
+                        "on-tertiary": "#ffffff",
+                        "outline-variant": "#dac1bf",
+                        "on-primary-container": "#cc726d",
+                        "on-error-container": "#93000a",
+                        "on-surface": "#1c1b1b",
+                        "outline": "#877270",
+                        "on-error": "#ffffff",
+                        "surface-container-high": "#eae7e7",
+                        "on-secondary-container": "#785a1a",
+                        "inverse-primary": "#ffb3ad",
+                        "tertiary-fixed": "#e4e2dd",
+                        "error": "#ba1a1a",
+                        "tertiary-fixed-dim": "#c8c6c2",
+                        "surface-container-lowest": "#ffffff",
+                        "surface": "#fcf9f8",
+                        "secondary-container": "#fed488",
+                        "secondary": "#775a19",
+                        "primary": "#2a0002",
+                        "on-surface-variant": "#544341",
+                        "on-secondary-fixed-variant": "#5d4201",
+                        "on-tertiary-fixed-variant": "#474744",
+                        "primary-container": "#4a0e0e",
+                        "tertiary-container": "#242522",
+                        "inverse-surface": "#313030",
+                        "primary-fixed": "#ffdad7",
+                        "surface-container-highest": "#e5e2e1",
+                        "on-background": "#1c1b1b",
+                        "secondary-fixed-dim": "#e9c176",
+                        "primary-fixed-dim": "#ffb3ad",
+                        "surface-bright": "#fcf9f8",
+                        "on-primary": "#ffffff",
+                        "surface-variant": "#e5e2e1",
+                        "on-secondary-fixed": "#261900",
+                        "surface-tint": "#954742",
+                        "on-primary-fixed": "#3d0506",
+                        "secondary-fixed": "#ffdea5"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px",
+                        "card": "14px"
+                    },
+                    "spacing": {
+                        "lg": "48px",
+                        "md": "24px",
+                        "gutter": "24px",
+                        "container-max": "1280px",
+                        "xs": "4px",
+                        "xl": "80px",
+                        "sm": "12px",
+                        "base": "8px",
+                        "pb-safe": "env(safe-area-inset-bottom)"
+                    },
+                    "fontFamily": {
+                        "display-hero-mobile": ["EB Garamond", "serif"],
+                        "h1": ["Manrope", "sans-serif"],
+                        "button": ["Manrope", "sans-serif"],
+                        "h2": ["Manrope", "sans-serif"],
+                        "display-hero": ["EB Garamond", "serif"],
+                        "body-md": ["Manrope", "sans-serif"],
+                        "body-lg": ["Manrope", "sans-serif"],
+                        "label-caps": ["Manrope", "sans-serif"]
+                    },
+                    "fontSize": {
+                        "display-hero-mobile": ["36px", { "lineHeight": "1.2", "fontWeight": "500" }],
+                        "h1": ["32px", { "lineHeight": "1.3", "fontWeight": "700" }],
+                        "button": ["14px", { "lineHeight": "1", "fontWeight": "600" }],
+                        "h2": ["24px", { "lineHeight": "1.4", "fontWeight": "600" }],
+                        "display-hero": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "500" }],
+                        "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "label-caps": ["12px", { "lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "700" }]
+                    },
+                    "boxShadow": {
+                        "interactive": "0px 10px 30px rgba(74, 14, 14, 0.05)"
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined[data-weight="fill"] {
+            font-variation-settings: 'FILL' 1;
+        }
+        body {
+            background-color: #F9F7F2; /* Warm Ivory Canvas */
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="text-on-background font-body-md antialiased pb-24">
+<!-- TopAppBar -->
+<header class="bg-surface dark:bg-surface-dim docked full-width top-0 border-b border-outline-variant dark:border-outline sticky z-40">
+  <div class="flex justify-between items-center w-full px-md h-16 max-w-container-max mx-auto">
+    <!-- Left: Profile Avatar -->
+    <div class="flex items-center">
+      <div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center cursor-pointer hover:bg-surface-container-high transition-colors">
+        <span class="material-symbols-outlined text-primary">account_circle</span>
+      </div>
+    </div>
+    
+    <!-- Center: Wordmark -->
+    <div class="text-center">
+      <h1 class="font-display-hero-mobile text-display-hero-mobile text-primary dark:text-primary-fixed-dim">Mee Events</h1>
+    </div>
+    
+    <!-- Right: Search, Favourites, Notifications -->
+    <div class="flex items-center gap-2">
+      <button class="p-2 text-on-surface-variant hover:bg-surface-container rounded-full transition-colors">
+        <span class="material-symbols-outlined text-[24px]">search</span>
+      </button>
+      <button class="p-2 text-on-surface-variant hover:bg-surface-container rounded-full transition-colors">
+        <span class="material-symbols-outlined text-[24px]">favorite</span>
+      </button>
+      <button class="p-2 text-on-surface-variant hover:bg-surface-container rounded-full transition-colors">
+        <span class="material-symbols-outlined text-[24px]">notifications</span>
+      </button>
+    </div>
+  </div>
+</header>
+<!-- Main Content Canvas -->
+<main class="max-w-container-max mx-auto px-6 md:px-lg py-lg space-y-lg">
+<!-- Page Header & Identity -->
+<section class="space-y-sm">
+
+<h2 class="font-h1 text-h1 text-primary">Plan your event</h2>
+</section>
+<!-- Active Draft Bento Card -->
+<section class="bg-on-secondary rounded-card border border-outline-variant p-6 hover:shadow-interactive transition-shadow duration-300 relative overflow-hidden group">
+<!-- Decorative Subtle Pattern -->
+<div class="absolute inset-0 opacity-[0.03] pointer-events-none" style="background-image: radial-gradient(#2a0002 1px, transparent 1px); background-size: 16px 16px;"></div>
+<div class="relative z-10 flex flex-col h-full space-y-6">
+<div class="flex justify-between items-start">
+<span class="bg-surface-container-low text-on-surface-variant px-3 py-1 rounded-full font-label-caps text-label-caps border border-outline-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">edit_document</span> Draft
+                    </span>
+<span class="text-on-surface-variant font-label-caps text-label-caps">Last updated today</span>
+</div>
+<div>
+<h3 class="font-h2 text-h2 text-primary mb-2">Priya &amp; Arjun’s Wedding</h3>
+<div class="space-y-1 text-on-surface-variant font-body-md">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px]">calendar_month</span>
+<span class="">12–14 December 2026</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px]">pin_drop</span>
+<span class="">Banjara Hills, Hyderabad</span>
+</div>
+</div>
+</div>
+<!-- Progress Indicator -->
+<div class="space-y-2">
+<div class="flex justify-between font-label-caps text-label-caps text-on-surface-variant">
+<span class="">Planning Progress</span>
+<span class="">6 of 10 sections</span>
+</div>
+<div class="h-2 w-full bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary-container rounded-full" style="width: 60%;"></div>
+</div>
+</div>
+<div class="flex flex-col sm:flex-row gap-4 pt-2">
+<button class="bg-primary-container text-on-primary font-button text-button px-6 py-3 rounded-full hover:bg-primary transition-colors w-full sm:w-auto">
+                        Resume plan
+                    </button>
+<button class="bg-transparent text-primary-container font-button text-button px-6 py-3 rounded-full border border-primary-container hover:bg-surface-container-low transition-colors w-full sm:w-auto">
+                        View summary
+                    </button>
+</div>
+</div>
+</section>
+<!-- New Plan Action Card -->
+<section class="bg-on-secondary rounded-card border border-outline-variant p-6 hover:shadow-interactive transition-shadow duration-300 flex flex-col md:flex-row items-center gap-6">
+<div class="flex-1 space-y-2 text-center md:text-left">
+<h3 class="font-h2 text-h2 text-primary">Start a new event plan</h3>
+<p class="text-on-surface-variant font-body-md">Begin designing another unforgettable experience with our guided planning tools.</p>
+</div>
+<button class="bg-primary-container text-on-primary font-button text-button px-6 py-3 rounded-full hover:bg-primary transition-colors whitespace-nowrap w-full md:w-auto flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                Create new plan
+            </button>
+</section>
+<!-- Auxiliary Links (Footer-style for mobile) -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t border-outline-variant/50">
+<a class="flex items-center justify-between p-4 bg-on-secondary rounded-card border border-outline-variant hover:bg-surface-container-low transition-colors group" href="#">
+<div class="flex items-center gap-3 text-primary">
+<span class="material-symbols-outlined">task_alt</span>
+<span class="font-button text-button">Recently completed plans</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors">arrow_forward</span>
+</a>
+<a class="flex items-center justify-between p-4 bg-on-secondary rounded-card border border-outline-variant hover:bg-surface-container-low transition-colors group" href="#">
+<div class="flex items-center gap-3 text-primary">
+<span class="material-symbols-outlined">favorite</span>
+<span class="font-button text-button">Saved inspiration</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors">arrow_forward</span>
+</a>
+<a class="flex items-center justify-between p-4 bg-on-secondary rounded-card border border-outline-variant hover:bg-surface-container-low transition-colors group" href="#">
+<div class="flex items-center gap-3 text-primary">
+<span class="material-symbols-outlined">support_agent</span>
+<span class="font-button text-button">Help from a Mee Events expert</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors">arrow_forward</span>
+</a>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="bg-surface dark:bg-surface-dim docked full-width bottom-0 rounded-t-xl border-t border-outline-variant dark:border-outline shadow-sm fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-safe h-20 md:hidden">
+<!-- Home -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant pt-1 hover:text-primary dark:hover:text-primary-fixed-dim transition-all w-16" href="#">
+<span class="material-symbols-outlined text-[24px] mb-1" data-icon="home">home</span>
+<span class="font-label-caps text-label-caps">Home</span>
+</a>
+<!-- Explore -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant pt-1 hover:text-primary dark:hover:text-primary-fixed-dim transition-all w-16" href="#">
+<span class="material-symbols-outlined text-[24px] mb-1" data-icon="search">search</span>
+<span class="font-label-caps text-label-caps">Explore</span>
+</a>
+<!-- Plan (Active) -->
+<a class="flex flex-col items-center justify-center text-primary dark:text-primary-fixed-dim border-t-2 border-secondary pt-1 hover:text-primary dark:hover:text-primary-fixed-dim transition-all scale-95 transition-transform duration-150 w-16" href="#">
+<span class="material-symbols-outlined text-[24px] mb-1" data-icon="event_note" data-weight="fill">event_note</span>
+<span class="font-label-caps text-label-caps">Plan</span>
+</a>
+<!-- Enquiries -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant pt-1 hover:text-primary dark:hover:text-primary-fixed-dim transition-all w-16" href="#">
+<span class="material-symbols-outlined text-[24px] mb-1" data-icon="chat_bubble">chat_bubble</span>
+<span class="font-label-caps text-label-caps">Enquiries</span>
+</a>
+<!-- Account -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant pt-1 hover:text-primary dark:hover:text-primary-fixed-dim transition-all w-16" href="#">
+<span class="material-symbols-outlined text-[24px] mb-1" data-icon="person">person</span>
+<span class="font-label-caps text-label-caps">Account</span>
+</a>
+</nav>
+
+
+</body></html>

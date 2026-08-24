@@ -1,58 +1,51 @@
 "use client";
 
+import type { LeadStatus } from "@me-event/api-contracts";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
-import type { LeadSummary } from "@me-event/api-contracts";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useMemo, useState } from "react";
+import { DUMMY_LEADS } from "@/components/leads/dummy-leads";
+import { LeadDetailPanel } from "@/components/leads/lead-detail-panel";
+import { LeadKanbanBoard } from "@/components/leads/lead-kanban-board";
+import { LeadsToolbar } from "@/components/leads/leads-toolbar";
+import type {
+  CrmLead,
+  DateRangeFilter,
+  LeadSourceFilter,
+  PipelineColumnId,
+} from "@/components/leads/types";
+import { statusesForColumn } from "@/components/leads/types";
 import {
-  clearStoredSession,
-  EmployeeApiError,
   type EmployeeSession,
-  claimLead,
-  listLeads,
   logout,
   readStoredSession,
 } from "@/lib/employee-api";
 
-const statusLabels: Record<string, string> = {
-  new: "New",
-  claimed: "Claimed",
-  contacted: "Contacted",
-  qualified: "Qualified",
-  quoted: "Quoted",
-  converted: "Converted",
-  lost: "Lost",
-  closed: "Closed",
-};
-
 export default function LeadsPage() {
-  const router = useRouter();
-  const [session, setSession] = useState<EmployeeSession | null>(null);
-  const [leads, setLeads] = useState<readonly LeadSummary[] | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [claimingId, setClaimingId] = useState<string | null>(null);
-
-  const loadLeads = useCallback(
-    async (activeSession: EmployeeSession) => {
-      setError(null);
-      try {
-        const response = await listLeads(activeSession);
-        setLeads(response.leads);
-      } catch (cause) {
-        if (cause instanceof EmployeeApiError && cause.status === 401) {
-          clearStoredSession();
-          router.replace("/login");
-          return;
-        }
-        setError(
-          cause instanceof EmployeeApiError
-            ? cause.message
-            : "Could not load leads. Is the backend running?",
-        );
+  return (
+    <Suspense
+      fallback={
+        <main className="leads-shell leads-shell-wide">
+          <p className="leads-loading">Loading leads…</p>
+        </main>
       }
-    },
-    [router],
+    >
+      <LeadsPageContent />
+    </Suspense>
   );
+}
+
+function LeadsPageContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [session, setSession] = useState<EmployeeSession | null>(null);
+  const [leads, setLeads] = useState<CrmLead[]>(() => [...DUMMY_LEADS]);
+  const [search, setSearch] = useState("");
+  const [status, setStatus] = useState<PipelineColumnId | "all">("all");
+  const [dateRange, setDateRange] = useState<DateRangeFilter>("all");
+  const [source, setSource] = useState<LeadSourceFilter>("all");
+
+  const selectedLeadId = searchParams.get("leadId");
 
   useEffect(() => {
     const stored = readStoredSession();
@@ -61,27 +54,61 @@ export default function LeadsPage() {
       return;
     }
     setSession(stored);
-    void loadLeads(stored);
-  }, [router, loadLeads]);
+  }, [router]);
 
-  async function handleClaim(leadId: string) {
-    if (session === null) {
-      return;
-    }
-    setClaimingId(leadId);
-    setError(null);
-    try {
-      await claimLead(session, leadId);
-      await loadLeads(session);
-    } catch (cause) {
-      setError(
-        cause instanceof EmployeeApiError
-          ? cause.message
-          : "Could not claim the lead.",
-      );
-    } finally {
-      setClaimingId(null);
-    }
+  const filteredLeads = useMemo(
+    () =>
+      filterLeads(leads, {
+        search,
+        status,
+        dateRange,
+        source,
+      }),
+    [leads, search, status, dateRange, source],
+  );
+
+  const selectedLead =
+    selectedLeadId === null
+      ? null
+      : (leads.find((lead) => lead.id === selectedLeadId) ?? null);
+
+  function buildLeadsHref(mutator: (params: URLSearchParams) => void): string {
+    const params = new URLSearchParams(searchParams.toString());
+    mutator(params);
+    const query = params.toString();
+    return query.length > 0 ? `/leads?${query}` : "/leads";
+  }
+
+  function handleSelectLead(lead: CrmLead) {
+    router.push(
+      buildLeadsHref((params) => {
+        params.set("leadId", lead.id);
+      }) as never,
+    );
+  }
+
+  function handleClosePanel() {
+    router.push(
+      buildLeadsHref((params) => {
+        params.delete("leadId");
+      }) as never,
+    );
+  }
+
+  function handleStatusChange(leadId: string, nextStatus: LeadStatus) {
+    setLeads((current) =>
+      current.map((lead) =>
+        lead.id === leadId ? { ...lead, status: nextStatus } : lead,
+      ),
+    );
+  }
+
+  function handleMarkAsLost(leadId: string) {
+    handleStatusChange(leadId, "lost");
+  }
+
+  function handleConvertToQuotation(lead: CrmLead) {
+    router.push(`/quotes?fromLead=${encodeURIComponent(lead.id)}`);
   }
 
   async function handleLogout() {
@@ -97,165 +124,120 @@ export default function LeadsPage() {
 
   if (session === null) {
     return (
-      <main className="leads-shell">
+      <main className="leads-shell leads-shell-wide">
         <p className="leads-loading">Checking your session…</p>
       </main>
     );
   }
 
   return (
-    <main className="leads-shell">
+    <main className="leads-shell leads-shell-wide">
       <header className="leads-topbar">
         <div>
           <p className="breadcrumb">
             <Link href="/">Employee portal</Link>{" "}
-            <span aria-hidden="true">/</span> Leads inbox
+            <span aria-hidden="true">/</span> Enquiries &amp; Leads
           </p>
-          <h1>Leads inbox</h1>
+          <h1>Enquiries &amp; Leads</h1>
           <p className="leads-subtitle">
-            Live enquiries from the customer app. Claim a lead to own the first
-            response.
+            Sales pipeline for customer enquiries from the Mee Events app.
           </p>
         </div>
-        <div className="leads-session">
-          <span>
-            <strong>{session.mobileNumber}</strong>
-            <small>{session.lastActiveRole.replaceAll("_", " ")}</small>
-          </span>
-          <button onClick={() => void handleLogout()} type="button">
-            Log out
+        <div className="leads-topbar-actions">
+          <button className="claim-button" type="button">
+            New Lead
           </button>
+          <div className="leads-session">
+            <span>
+              <strong>{session.mobileNumber}</strong>
+              <small>{session.lastActiveRole.replaceAll("_", " ")}</small>
+            </span>
+            <button onClick={() => void handleLogout()} type="button">
+              Log out
+            </button>
+          </div>
         </div>
       </header>
 
-      {error !== null ? (
-        <div className="leads-error" role="alert">
-          {error}
-          <button onClick={() => void loadLeads(session)} type="button">
-            Retry
-          </button>
-        </div>
-      ) : null}
+      <LeadsToolbar
+        dateRange={dateRange}
+        onDateRangeChange={setDateRange}
+        onSearchChange={setSearch}
+        onSourceChange={setSource}
+        onStatusChange={setStatus}
+        search={search}
+        source={source}
+        status={status}
+      />
 
-      {leads === null ? (
-        <p className="leads-loading">Loading leads…</p>
-      ) : leads.length === 0 ? (
+      {filteredLeads.length === 0 ? (
         <div className="leads-empty">
-          <strong>No leads yet.</strong>
-          <p>
-            When a customer submits an enquiry from the mobile app, it appears
-            here immediately with its first-response deadline.
-          </p>
+          <strong>No leads match these filters.</strong>
+          <p>Try clearing search or widening the date range.</p>
         </div>
       ) : (
-        <div className="leads-table-wrap">
-          <table className="leads-table">
-            <thead>
-              <tr>
-                <th scope="col">Enquiry</th>
-                <th scope="col">Customer</th>
-                <th scope="col">Event</th>
-                <th scope="col">Event date</th>
-                <th scope="col">Status</th>
-                <th scope="col">First response due</th>
-                <th scope="col">Owner</th>
-                <th scope="col">
-                  <span className="visually-hidden">Actions</span>
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {leads.map((lead) => (
-                <LeadRow
-                  claiming={claimingId === lead.id}
-                  key={lead.id}
-                  lead={lead}
-                  onClaim={() => void handleClaim(lead.id)}
-                  sessionUserId={session.userId}
-                />
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <LeadKanbanBoard
+          leads={filteredLeads}
+          onSelectLead={handleSelectLead}
+        />
       )}
+
+      <LeadDetailPanel
+        lead={selectedLead}
+        onClose={handleClosePanel}
+        onConvertToQuotation={handleConvertToQuotation}
+        onMarkAsLost={handleMarkAsLost}
+        onStatusChange={handleStatusChange}
+      />
     </main>
   );
 }
 
-function LeadRow({
-  lead,
-  sessionUserId,
-  claiming,
-  onClaim,
-}: {
-  lead: LeadSummary;
-  sessionUserId: string;
-  claiming: boolean;
-  onClaim: () => void;
-}) {
-  const unowned = lead.ownerUserId === undefined || lead.ownerUserId === null;
-  const ownedByMe = lead.ownerUserId === sessionUserId;
-  const overdue =
-    unowned &&
-    lead.firstRespondedAt === undefined &&
-    lead.firstResponseDueAt !== undefined &&
-    new Date(lead.firstResponseDueAt).getTime() < Date.now();
+function filterLeads(
+  leads: readonly CrmLead[],
+  filters: {
+    search: string;
+    status: PipelineColumnId | "all";
+    dateRange: DateRangeFilter;
+    source: LeadSourceFilter;
+  },
+): CrmLead[] {
+  const query = filters.search.trim().toLowerCase();
+  const now = Date.now();
+  const rangeMs =
+    filters.dateRange === "7d"
+      ? 7 * 24 * 60 * 60 * 1000
+      : filters.dateRange === "30d"
+        ? 30 * 24 * 60 * 60 * 1000
+        : filters.dateRange === "90d"
+          ? 90 * 24 * 60 * 60 * 1000
+          : null;
+  const allowedStatuses = statusesForColumn(filters.status);
 
-  return (
-    <tr className={overdue ? "lead-overdue" : undefined}>
-      <td>
-        <Link href={`/leads/${lead.id}`}>
-          <strong>{lead.enquiryReferenceCode ?? "—"}</strong>
-        </Link>
-        <small>{formatTimestamp(lead.createdAt)}</small>
-      </td>
-      <td>
-        <strong>{lead.customerName ?? "Customer"}</strong>
-        <small>{lead.customerMobile}</small>
-      </td>
-      <td>{lead.eventTypeName ?? "—"}</td>
-      <td>{lead.eventDate ?? "To be decided"}</td>
-      <td>
-        <span className={`lead-status lead-status-${lead.status}`}>
-          {statusLabels[lead.status] ?? lead.status}
-        </span>
-      </td>
-      <td>
-        {lead.firstResponseDueAt === undefined
-          ? "—"
-          : formatTimestamp(lead.firstResponseDueAt)}
-        {overdue ? <small className="overdue-flag">Overdue</small> : null}
-      </td>
-      <td>{ownedByMe ? "You" : unowned ? "Unclaimed" : "Teammate"}</td>
-      <td>
-        {unowned ? (
-          <button
-            className="claim-button"
-            disabled={claiming}
-            onClick={onClaim}
-            type="button"
-          >
-            {claiming ? "Claiming…" : "Claim lead"}
-          </button>
-        ) : (
-          <Link className="claim-button" href={`/leads/${lead.id}`}>
-            Open
-          </Link>
-        )}
-      </td>
-    </tr>
-  );
-}
-
-function formatTimestamp(iso: string): string {
-  const parsed = new Date(iso);
-  if (Number.isNaN(parsed.getTime())) {
-    return iso;
-  }
-  return parsed.toLocaleString("en-IN", {
-    day: "2-digit",
-    month: "short",
-    hour: "2-digit",
-    minute: "2-digit",
+  return leads.filter((lead) => {
+    if (allowedStatuses !== null && !allowedStatuses.includes(lead.status)) {
+      return false;
+    }
+    if (filters.source !== "all" && lead.source !== filters.source) {
+      return false;
+    }
+    if (rangeMs !== null) {
+      const created = new Date(lead.createdAt).getTime();
+      if (Number.isNaN(created) || now - created > rangeMs) {
+        return false;
+      }
+    }
+    if (query.length === 0) {
+      return true;
+    }
+    const haystack = [
+      lead.customerName ?? "",
+      lead.eventTypeName ?? "",
+      lead.enquiryReferenceCode ?? "",
+      lead.customerMobile,
+    ]
+      .join(" ")
+      .toLowerCase();
+    return haystack.includes(query);
   });
 }

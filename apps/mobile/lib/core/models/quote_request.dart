@@ -35,7 +35,7 @@ class QuoteRequest {
   String get formattedTotal {
     final String priceStr = totalAmount.toString();
     if (priceStr.length <= 3) return '₹$priceStr';
-    
+
     String result = priceStr.substring(priceStr.length - 3);
     String remaining = priceStr.substring(0, priceStr.length - 3);
     while (remaining.length > 2) {

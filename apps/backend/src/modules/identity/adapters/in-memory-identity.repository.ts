@@ -1,11 +1,13 @@
 import { Injectable } from "@nestjs/common";
 import type { DeviceSession, PlatformRole } from "@me-event/shared-types";
 import { randomUUID } from "node:crypto";
+import type { AuditEvent } from "../../audit/audit-event";
 import type {
   DeviceSessionRecord,
   IdentityRepository,
   OtpChallengeRecord,
   RefreshDigestMatch,
+  RoleSwitchPersistence,
 } from "../ports/identity-repository";
 import type { UserRecord } from "../domain/user";
 
@@ -20,6 +22,8 @@ export class InMemoryIdentityRepository implements IdentityRepository {
   private readonly challenges = new Map<string, OtpChallengeRecord>();
   private readonly users = new Map<string, UserRecord>();
   private readonly sessions = new Map<string, StoredSession>();
+  public readonly roleSwitchAudits: AuditEvent[] = [];
+  public failNextRoleSwitchAudit = false;
 
   public async saveChallenge(challenge: OtpChallengeRecord): Promise<void> {
     this.challenges.set(challenge.id, challenge);
@@ -29,6 +33,47 @@ export class InMemoryIdentityRepository implements IdentityRepository {
     id: string,
   ): Promise<OtpChallengeRecord | undefined> {
     return this.challenges.get(id);
+  }
+
+  public async findLatestOpenChallengeByMobile(
+    mobileNumber: string,
+  ): Promise<OtpChallengeRecord | undefined> {
+    const now = Date.now();
+    let latest: OtpChallengeRecord | undefined;
+    for (const challenge of this.challenges.values()) {
+      if (challenge.mobileNumber !== mobileNumber) {
+        continue;
+      }
+      if (challenge.consumedAt !== undefined) {
+        continue;
+      }
+      if (challenge.expiresAt.getTime() <= now) {
+        continue;
+      }
+      if (
+        latest === undefined ||
+        challenge.expiresAt.getTime() > latest.expiresAt.getTime()
+      ) {
+        latest = challenge;
+      }
+    }
+    return latest;
+  }
+
+  public async countChallengesSince(
+    mobileNumber: string,
+    since: Date,
+  ): Promise<number> {
+    let count = 0;
+    for (const challenge of this.challenges.values()) {
+      if (
+        challenge.mobileNumber === mobileNumber &&
+        challenge.createdAt.getTime() >= since.getTime()
+      ) {
+        count += 1;
+      }
+    }
+    return count;
   }
 
   public async updateChallenge(challenge: OtpChallengeRecord): Promise<void> {
@@ -63,6 +108,14 @@ export class InMemoryIdentityRepository implements IdentityRepository {
     };
     this.users.set(mobileNumber, user);
     return user;
+  }
+
+  public replaceUser(user: UserRecord): void {
+    this.users.set(user.mobileNumber, user);
+  }
+
+  public sessionCount(): number {
+    return this.sessions.size;
   }
 
   public async saveSession(
@@ -124,6 +177,48 @@ export class InMemoryIdentityRepository implements IdentityRepository {
       ...stored,
       session: { ...stored.session, revokedAt: revokedAt.toISOString() },
     });
+  }
+
+  public async persistRoleSwitch(
+    input: RoleSwitchPersistence,
+  ): Promise<UserRecord | undefined> {
+    const current = [...this.users.values()].find(
+      (user) => user.id === input.userId,
+    );
+    if (current === undefined || current.version !== input.expectedVersion) {
+      return undefined;
+    }
+    const next: UserRecord = {
+      ...current,
+      lastActiveRole: input.role,
+      updatedAt: new Date(),
+      version: current.version + 1,
+    };
+    this.users.set(current.mobileNumber, next);
+    try {
+      if (this.failNextRoleSwitchAudit) {
+        this.failNextRoleSwitchAudit = false;
+        throw new Error("audit insert failed");
+      }
+      this.roleSwitchAudits.push({
+        requestId: input.requestId,
+        actorUserId: input.actorUserId,
+        actorRole: input.actorRole,
+        entityType: "app_user",
+        entityId: input.userId,
+        action: "identity.role.switched",
+        beforeVersion: input.expectedVersion,
+        afterVersion: next.version,
+        metadata: {
+          fromRole: input.fromRole,
+          toRole: input.toRole,
+        },
+      });
+      return next;
+    } catch (error) {
+      this.users.set(current.mobileNumber, current);
+      throw error;
+    }
   }
 
   private toRecord(stored: StoredSession): DeviceSessionRecord {

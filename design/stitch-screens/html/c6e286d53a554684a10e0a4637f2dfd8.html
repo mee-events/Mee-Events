@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Mee Events - Event Workspace Overview</title>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&amp;family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary-fixed-dim": "#ffb3ad",
+                        "primary": "#2a0002",
+                        "on-primary-fixed-variant": "#77302d",
+                        "on-background": "#1c1b1b",
+                        "tertiary": "#0f100d",
+                        "on-primary-fixed": "#3d0506",
+                        "tertiary-fixed-dim": "#c8c6c2",
+                        "outline": "#877270",
+                        "error-container": "#ffdad6",
+                        "on-surface": "#1c1b1b",
+                        "surface-container": "#f0eded",
+                        "error": "#ba1a1a",
+                        "on-secondary-fixed": "#261900",
+                        "surface-variant": "#e5e2e1",
+                        "surface-container-high": "#eae7e7",
+                        "on-primary": "#ffffff",
+                        "on-tertiary-fixed-variant": "#474744",
+                        "outline-variant": "#dac1bf",
+                        "surface-bright": "#fcf9f8",
+                        "on-secondary-fixed-variant": "#5d4201",
+                        "surface-tint": "#954742",
+                        "inverse-surface": "#313030",
+                        "surface-container-low": "#f6f3f2",
+                        "tertiary-container": "#242522",
+                        "surface-dim": "#dcd9d9",
+                        "surface-container-highest": "#e5e2e1",
+                        "primary-fixed": "#ffdad7",
+                        "tertiary-fixed": "#e4e2dd",
+                        "on-surface-variant": "#544341",
+                        "secondary-fixed-dim": "#e9c176",
+                        "primary-container": "#4a0e0e",
+                        "on-secondary-container": "#785a1a",
+                        "secondary-fixed": "#ffdea5",
+                        "on-tertiary-container": "#8c8c88",
+                        "surface": "#fcf9f8",
+                        "on-error-container": "#93000a",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary": "#775a19",
+                        "inverse-primary": "#ffb3ad",
+                        "on-primary-container": "#cc726d",
+                        "secondary-container": "#fed488",
+                        "inverse-on-surface": "#f3f0ef",
+                        "background": "#fcf9f8",
+                        "on-secondary": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "on-tertiary-fixed": "#1b1c19",
+                        "on-error": "#ffffff",
+                        "gold": "#C5A059",
+                        "soft-border": "#E5DED4",
+                        "warm-ivory": "#F9F7F2"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "lg": "48px",
+                        "xl": "80px",
+                        "container-max": "1280px",
+                        "sm": "12px",
+                        "gutter": "24px",
+                        "md": "24px",
+                        "xs": "4px",
+                        "base": "8px",
+                        "safe": "env(safe-area-inset-bottom)"
+                    },
+                    "fontFamily": {
+                        "display-hero-mobile": ["EB Garamond", "serif"],
+                        "body-lg": ["Manrope", "sans-serif"],
+                        "button": ["Manrope", "sans-serif"],
+                        "h1": ["Manrope", "sans-serif"],
+                        "h2": ["Manrope", "sans-serif"],
+                        "label-caps": ["Manrope", "sans-serif"],
+                        "body-md": ["Manrope", "sans-serif"],
+                        "display-hero": ["EB Garamond", "serif"]
+                    },
+                    "fontSize": {
+                        "display-hero-mobile": ["36px", { "lineHeight": "1.2", "fontWeight": "500" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "button": ["14px", { "lineHeight": "1", "fontWeight": "600" }],
+                        "h1": ["32px", { "lineHeight": "1.3", "fontWeight": "700" }],
+                        "h2": ["24px", { "lineHeight": "1.4", "fontWeight": "600" }],
+                        "label-caps": ["12px", { "lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "display-hero": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "500" }]
+                    },
+                    "boxShadow": {
+                        "interactive": "0px 10px 30px rgba(74, 14, 14, 0.05)"
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { background-color: #F9F7F2; } /* Warm Ivory Canvas */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid #E5DED4;
+        }
+        .progress-circle {
+            transition: stroke-dashoffset 1s ease-out;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="font-body-md text-on-surface antialiased pb-[100px] md:pb-0">
+<!-- TopAppBar -->
+<header class="bg-surface dark:bg-surface-dim docked full-width top-0 border-b border-outline-variant dark:border-outline flat no shadows flex justify-between items-center w-full px-md h-16 max-w-container-max mx-auto sticky z-50">
+<div class="flex items-center gap-4">
+<button class="hover:bg-surface-container dark:hover:bg-surface-container-high transition-colors p-2 rounded-full hidden md:block opacity-80 transition-opacity">
+<span class="material-symbols-outlined text-primary dark:text-primary-fixed-dim" style="font-variation-settings: 'FILL' 1;">location_on</span>
+</button>
+<h1 class="font-display-hero-mobile text-display-hero-mobile text-primary dark:text-primary-fixed-dim hidden md:block">Mee Events</h1>
+<!-- Mobile Brand Logo / Left Section -->
+<div class="md:hidden flex items-center">
+<button class="p-2 -ml-2 text-primary">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<h1 class="font-display-hero-mobile text-display-hero-mobile text-primary dark:text-primary-fixed-dim text-xl ml-2 leading-none">Mee Events</h1>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<!-- Customer Role Chip -->
+<button class="flex items-center gap-2 bg-warm-ivory border border-soft-border rounded-full px-4 py-2 hover:shadow-interactive transition-all">
+<span class="font-button text-button text-primary-container">Customer</span>
+<span class="material-symbols-outlined text-primary-container text-sm">arrow_drop_down</span>
+</button>
+<button class="hover:bg-surface-container dark:hover:bg-surface-container-high transition-colors p-2 rounded-full relative group">
+<span class="material-symbols-outlined text-primary dark:text-primary-fixed-dim">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full"></span>
+</button>
+</div>
+</header>
+<main class="max-w-container-max mx-auto px-4 md:px-lg py-lg space-y-lg">
+<!-- Hero Card (Aarav & Ananya Wedding) -->
+<section class="relative rounded-xl overflow-hidden shadow-interactive group">
+<div class="bg-cover bg-center w-full h-[400px] md:h-[500px]" data-alt="An opulent Indian wedding setup featuring grand floral arrangements in shades of deep red and gold, set against a luxurious hotel facade at twilight. The lighting is warm and inviting, highlighting intricate architectural details. High-resolution editorial photography style, embodying a Modern Indian Premium aesthetic." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDDU4wd0X3SH_91aalM4c8SZ6TmcwUhRlJ6g47JkMjNVCP9aa0qgtB1F0KQPmI6h2gjtFH6V18c4TVlHtHLPxH74AGm6eECxfh76IxTOka7PM49wxPJmRKd4TUJ9CgoSLseRBDQNmsrFIMLqBdMQXcn2VZa2yPOD86T1enDLcdsoPvJn50OQxaV9H366JjbmngZYbUVZijp4P4lAMxi2K6WcFNKbrnP_-fMjW5uIBARSGaWSQos_1ON')"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/40 to-transparent"></div>
+<div class="absolute bottom-0 left-0 w-full p-6 md:p-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
+<div class="space-y-4 text-on-primary">
+<div class="flex items-center gap-3">
+<span class="px-3 py-1 bg-gold text-on-primary font-label-caps text-label-caps rounded-full tracking-wider">CONFIRMED</span>
+<span class="font-label-caps text-label-caps opacity-90 tracking-wider">MEE-BKG-2026-0418</span>
+</div>
+<h2 class="font-display-hero text-display-hero-mobile md:text-display-hero">Aarav &amp; Ananya Wedding</h2>
+<div class="flex flex-wrap gap-x-6 gap-y-2 font-body-md text-on-primary/90">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">location_on</span>
+<span>Taj Krishna, Hyderabad</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">calendar_month</span>
+<span>Dec 12 - 14, 2026</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">groups</span>
+<span>250 Guests</span>
+</div>
+</div>
+</div>
+<!-- Countdown Box -->
+<div class="glass-card text-primary-container p-6 rounded-xl flex flex-col items-center min-w-[160px] md:mb-0 mb-4">
+<span class="font-display-hero text-4xl leading-none font-medium text-primary">486</span>
+<span class="font-label-caps text-label-caps mt-2 text-on-surface-variant">DAYS TO GO</span>
+</div>
+</div>
+</section>
+<!-- Main Workspace Grid (Bento Style) -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+<!-- Left Column: Progress & Actions (col-span 8) -->
+<div class="lg:col-span-8 space-y-gutter">
+<!-- Planning Progress -->
+<section class="bg-surface-container-lowest border border-soft-border rounded-xl p-md md:p-8 flex flex-col md:flex-row items-center gap-8 hover:shadow-interactive transition-shadow">
+<!-- Circular Progress -->
+<div class="relative w-32 h-32 flex-shrink-0">
+<svg class="w-full h-full transform -rotate-90" viewbox="0 0 100 100">
+<circle cx="50" cy="50" fill="none" r="45" stroke="#f6f3f2" stroke-width="8"></circle>
+<circle class="progress-circle" cx="50" cy="50" fill="none" r="45" stroke="#C5A059" stroke-dasharray="282.7" stroke-dashoffset="163.9" stroke-linecap="round" stroke-width="8"></circle> <!-- 282.7 * (1 - 0.42) = 163.9 -->
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center">
+<span class="font-display-hero text-3xl text-primary-container">42%</span>
+</div>
+</div>
+<div class="flex-1 w-full space-y-4">
+<div>
+<h3 class="font-h2 text-h2 text-primary-container">Planning Progress</h3>
+<p class="font-body-md text-on-surface-variant mt-1">Current Stage: <strong class="text-primary-container">Planning kickoff</strong></p>
+</div>
+<div class="bg-warm-ivory border border-soft-border rounded-lg p-4 flex justify-between items-center">
+<div>
+<p class="font-label-caps text-label-caps text-on-surface-variant mb-1">NEXT MILESTONE</p>
+<p class="font-button text-button text-primary-container">Décor and menu approval</p>
+</div>
+<div class="text-right">
+<p class="font-label-caps text-label-caps text-on-surface-variant mb-1">DUE</p>
+<p class="font-body-md font-medium text-error">5 Sept 2026</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Quick Actions Grid -->
+<section>
+<h3 class="font-h2 text-h2 text-primary-container mb-6">Quick Actions</h3>
+<div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+<!-- Action Items -->
+<a class="bg-surface-container-lowest border border-soft-border rounded-xl p-6 flex flex-col items-center justify-center text-center gap-3 hover:shadow-interactive hover:border-outline-variant transition-all group" href="#">
+<div class="w-12 h-12 rounded-full bg-surface-container-low flex items-center justify-center text-primary-container group-hover:bg-primary-container group-hover:text-surface-container-lowest transition-colors">
+<span class="material-symbols-outlined">timeline</span>
+</div>
+<span class="font-button text-button text-primary-container">View timeline</span>
+</a>
+<a class="bg-surface-container-lowest border border-soft-border rounded-xl p-6 flex flex-col items-center justify-center text-center gap-3 hover:shadow-interactive hover:border-outline-variant transition-all group" href="#">
+<div class="w-12 h-12 rounded-full bg-surface-container-low flex items-center justify-center text-primary-container group-hover:bg-primary-container group-hover:text-surface-container-lowest transition-colors relative">
+<span class="material-symbols-outlined">task_alt</span>
+<span class="absolute -top-1 -right-1 w-4 h-4 bg-error rounded-full text-[10px] text-white flex items-center justify-center font-bold">2</span>
+</div>
+<span class="font-button text-button text-primary-container">Tasks &amp; approvals</span>
+</a>
+<a class="bg-surface-container-lowest border border-soft-border rounded-xl p-6 flex flex-col items-center justify-center text-center gap-3 hover:shadow-interactive hover:border-outline-variant transition-all group" href="#">
+<div class="w-12 h-12 rounded-full bg-surface-container-low flex items-center justify-center text-primary-container group-hover:bg-primary-container group-hover:text-surface-container-lowest transition-colors relative">
+<span class="material-symbols-outlined">chat</span>
+<span class="absolute top-0 right-0 w-3 h-3 bg-gold rounded-full"></span>
+</div>
+<span class="font-button text-button text-primary-container">Messages</span>
+</a>
+<a class="bg-surface-container-lowest border border-soft-border rounded-xl p-6 flex flex-col items-center justify-center text-center gap-3 hover:shadow-interactive hover:border-outline-variant transition-all group" href="#">
+<div class="w-12 h-12 rounded-full bg-surface-container-low flex items-center justify-center text-primary-container group-hover:bg-primary-container group-hover:text-surface-container-lowest transition-colors">
+<span class="material-symbols-outlined">description</span>
+</div>
+<span class="font-button text-button text-primary-container">Documents</span>
+</a>
+<a class="bg-surface-container-lowest border border-soft-border rounded-xl p-6 flex flex-col items-center justify-center text-center gap-3 hover:shadow-interactive hover:border-outline-variant transition-all group" href="#">
+<div class="w-12 h-12 rounded-full bg-surface-container-low flex items-center justify-center text-primary-container group-hover:bg-primary-container group-hover:text-surface-container-lowest transition-colors">
+<span class="material-symbols-outlined">event_note</span>
+</div>
+<span class="font-button text-button text-primary-container">Event schedule</span>
+</a>
+<a class="bg-surface-container-lowest border border-soft-border rounded-xl p-6 flex flex-col items-center justify-center text-center gap-3 hover:shadow-interactive hover:border-outline-variant transition-all group" href="#">
+<div class="w-12 h-12 rounded-full bg-surface-container-low flex items-center justify-center text-primary-container group-hover:bg-primary-container group-hover:text-surface-container-lowest transition-colors">
+<span class="material-symbols-outlined">payments</span>
+</div>
+<span class="font-button text-button text-primary-container">View payments</span>
+</a>
+</div>
+</section>
+</div>
+<!-- Right Column: Attention & Summary (col-span 4) -->
+<div class="lg:col-span-4 space-y-gutter">
+<!-- Action Required Card -->
+<section class="bg-surface-container-lowest border border-error-container rounded-xl overflow-hidden shadow-sm">
+<div class="bg-error-container/30 px-6 py-4 flex items-center gap-3 border-b border-error-container">
+<span class="material-symbols-outlined text-error">notification_important</span>
+<h3 class="font-button text-button text-error">2 actions need your attention</h3>
+</div>
+<div class="p-0">
+<ul class="divide-y divide-soft-border">
+<li class="px-6 py-4 hover:bg-warm-ivory transition-colors cursor-pointer group flex justify-between items-center">
+<div>
+<p class="font-button text-button text-primary-container group-hover:text-primary transition-colors">Approve décor concept</p>
+<p class="font-label-caps text-label-caps text-on-surface-variant mt-1">DUE IN 3 DAYS</p>
+</div>
+<span class="material-symbols-outlined text-outline-variant group-hover:text-primary transition-colors">chevron_right</span>
+</li>
+<li class="px-6 py-4 hover:bg-warm-ivory transition-colors cursor-pointer group flex justify-between items-center">
+<div>
+<p class="font-button text-button text-primary-container group-hover:text-primary transition-colors">Confirm menu preferences</p>
+<p class="font-label-caps text-label-caps text-on-surface-variant mt-1">DUE IN 5 DAYS</p>
+</div>
+<span class="material-symbols-outlined text-outline-variant group-hover:text-primary transition-colors">chevron_right</span>
+</li>
+</ul>
+</div>
+</section>
+<!-- Next Payment Card -->
+<section class="bg-surface-container-lowest border border-soft-border rounded-xl p-6 relative overflow-hidden shadow-sm">
+<!-- Decorative accent -->
+<div class="absolute top-0 right-0 w-24 h-24 bg-gold/10 rounded-bl-full -mr-4 -mt-4"></div>
+<div class="relative z-10">
+<div class="flex items-center gap-2 mb-4">
+<span class="material-symbols-outlined text-gold">account_balance_wallet</span>
+<h3 class="font-label-caps text-label-caps text-on-surface-variant tracking-wider">NEXT PAYMENT</h3>
+</div>
+<p class="font-display-hero text-3xl text-primary-container">₹3,54,000</p>
+<p class="font-body-md text-on-surface-variant mt-1">Due 15 Oct 2026</p>
+<button class="mt-6 w-full bg-primary-container text-on-primary font-button text-button py-3 px-4 rounded-lg hover:bg-primary transition-colors">
+                            Make Payment
+                        </button>
+</div>
+</section>
+<!-- Simple Illustration/Vibe Image -->
+<div class="rounded-xl overflow-hidden h-48 border border-soft-border">
+<div class="bg-cover bg-center w-full h-full" data-alt="A close-up detail shot of exquisite gold and pearl Indian wedding jewelry resting softly on a luxurious ivory silk fabric. Warm, diffused lighting creates an elegant, premium aesthetic suitable for a high-end wedding planning interface." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuD0m4_aFRmykOWQbo4_rwuIT4kpGvM0O0Fa0AE3_QSXutfQzems_mKKa2heCPduzi_f7ii3JefT0o3Mngzdmal19b8x9t7gtoQwFJH6-6AV2nrJvxreFYcgLG7-4YSqqVz9MtbgN8CT7DuO4SVZczgZ3Dldih96y5F21ExNU_lawCjs_Z1PNxw4h5bG_DEKxp71KGO73Yb0n4bqM0HxcwyrMjn6qA7ZuNYvydjsSY-cGWU8WKIUBsYs')"></div>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-safe bg-surface dark:bg-surface-dim h-20 border-t border-outline-variant dark:border-outline shadow-sm rounded-t-xl">
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant pt-1 hover:text-primary dark:hover:text-primary-fixed-dim transition-all w-16" href="#">
+<span class="material-symbols-outlined text-[24px] mb-1">home</span>
+<span class="font-label-caps text-label-caps">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant pt-1 hover:text-primary dark:hover:text-primary-fixed-dim transition-all w-16" href="#">
+<span class="material-symbols-outlined text-[24px] mb-1">search</span>
+<span class="font-label-caps text-label-caps">Explore</span>
+</a>
+<!-- Active Tab: Plan -->
+<a class="flex flex-col items-center justify-center text-primary dark:text-primary-fixed-dim border-t-2 border-secondary pt-1 scale-95 transition-transform duration-150 w-16 -mt-[2px]" href="#">
+<span class="material-symbols-outlined text-[24px] mb-1" style="font-variation-settings: 'FILL' 1;">event_note</span>
+<span class="font-label-caps text-label-caps">Plan</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant pt-1 hover:text-primary dark:hover:text-primary-fixed-dim transition-all w-16" href="#">
+<span class="material-symbols-outlined text-[24px] mb-1">chat_bubble</span>
+<span class="font-label-caps text-label-caps">Enquiries</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant pt-1 hover:text-primary dark:hover:text-primary-fixed-dim transition-all w-16" href="#">
+<span class="material-symbols-outlined text-[24px] mb-1">person</span>
+<span class="font-label-caps text-label-caps">Account</span>
+</a>
+</nav>
+<!-- Desktop Nav Cluster (Hidden on Mobile, placed in header technically but visual representation needed per instructions if not in header) -->
+<!-- The TopAppBar handles the brand, we assume a side-nav or top-nav for desktop destination routing per modern patterns, but instructions say TopAppBar for web full nav cluster. Let's add it to TopAppBar for desktop -->
+<script>
+        // Move navigation into TopAppBar for desktop on load to satisfy "full nav cluster in the TopAppBar"
+        document.addEventListener("DOMContentLoaded", function() {
+            const topBar = document.querySelector('header > div:first-child');
+            
+            const desktopNav = document.createElement('nav');
+            desktopNav.className = 'hidden md:flex items-center ml-8 gap-8';
+            
+            const links = [
+                { text: 'Home', icon: 'home', active: false },
+                { text: 'Explore', icon: 'search', active: false },
+                { text: 'Plan', icon: 'event_note', active: true },
+                { text: 'Enquiries', icon: 'chat_bubble', active: false },
+                { text: 'Account', icon: 'person', active: false }
+            ];
+
+            links.forEach(link => {
+                const a = document.createElement('a');
+                a.href = '#';
+                if(link.active) {
+                    a.className = 'text-primary dark:text-primary-fixed-dim font-bold flex items-center gap-2 border-b-2 border-secondary pb-1 pt-1';
+                } else {
+                    a.className = 'text-on-surface-variant dark:text-on-surface-variant hover:text-primary transition-colors flex items-center gap-2 font-body-md pb-1 pt-1';
+                }
+                a.innerHTML = `<span class="material-symbols-outlined text-sm ${link.active ? 'fill-current' : ''}">${link.icon}</span> <span class="font-label-caps text-label-caps">${link.text}</span>`;
+                desktopNav.appendChild(a);
+            });
+
+            topBar.appendChild(desktopNav);
+        });
+    </script>
+</body></html>

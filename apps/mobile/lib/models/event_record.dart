@@ -211,8 +211,7 @@ class EventRecordDetail extends EventRecordSummary {
       generalNotes: summary.generalNotes,
       timeline: ((json['timeline'] as List<dynamic>?) ?? [])
           .map(
-            (item) =>
-                EventTimelineEntry.fromJson(item as Map<String, dynamic>),
+            (item) => EventTimelineEntry.fromJson(item as Map<String, dynamic>),
           )
           .toList(),
       noteEntries: ((json['notes'] as List<dynamic>?) ?? [])

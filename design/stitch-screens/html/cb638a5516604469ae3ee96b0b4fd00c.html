@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Mee Events - Active Draft</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&amp;family=EB+Garamond:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "on-background": "#1c1b1b",
+            "on-tertiary-fixed": "#1b1c19",
+            "primary-fixed": "#ffdad7",
+            "tertiary-fixed-dim": "#c8c6c2",
+            "on-error": "#ffffff",
+            "secondary-fixed": "#ffdea5",
+            "surface": "#fcf9f8",
+            "on-tertiary-container": "#8c8c88",
+            "on-secondary-fixed": "#261900",
+            "inverse-surface": "#313030",
+            "primary-fixed-dim": "#ffb3ad",
+            "primary": "#2a0002",
+            "on-primary-fixed": "#3d0506",
+            "surface-container-highest": "#e5e2e1",
+            "surface-bright": "#fcf9f8",
+            "on-secondary-fixed-variant": "#5d4201",
+            "surface-variant": "#e5e2e1",
+            "background": "#fcf9f8",
+            "tertiary": "#0f100d",
+            "surface-dim": "#dcd9d9",
+            "tertiary-fixed": "#e4e2dd",
+            "error-container": "#ffdad6",
+            "on-surface-variant": "#544341",
+            "secondary": "#775a19",
+            "outline": "#877270",
+            "surface-container-high": "#eae7e7",
+            "tertiary-container": "#242522",
+            "inverse-primary": "#ffb3ad",
+            "secondary-fixed-dim": "#e9c176",
+            "surface-container-lowest": "#ffffff",
+            "on-primary": "#ffffff",
+            "on-secondary": "#ffffff",
+            "on-surface": "#1c1b1b",
+            "inverse-on-surface": "#f3f0ef",
+            "on-tertiary-fixed-variant": "#474744",
+            "on-tertiary": "#ffffff",
+            "secondary-container": "#fed488",
+            "surface-container": "#f0eded",
+            "error": "#ba1a1a",
+            "on-error-container": "#93000a",
+            "surface-tint": "#954742",
+            "on-secondary-container": "#785a1a",
+            "primary-container": "#4a0e0e",
+            "outline-variant": "#dac1bf",
+            "on-primary-container": "#cc726d",
+            "on-primary-fixed-variant": "#77302d",
+            "surface-container-low": "#f6f3f2"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "container-max": "1280px",
+            "xl": "80px",
+            "md": "24px",
+            "gutter": "24px",
+            "xs": "4px",
+            "base": "8px",
+            "sm": "12px",
+            "lg": "48px"
+          },
+          "fontFamily": {
+            "h1": ["Manrope"],
+            "body-md": ["Manrope"],
+            "button": ["Manrope"],
+            "label-caps": ["Manrope"],
+            "display-hero-mobile": ["EB Garamond"],
+            "h2": ["Manrope"],
+            "body-lg": ["Manrope"],
+            "display-hero": ["EB Garamond"]
+          },
+          "fontSize": {
+            "h1": ["32px", { "lineHeight": "1.3", "fontWeight": "700" }],
+            "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+            "button": ["14px", { "lineHeight": "1", "fontWeight": "600" }],
+            "label-caps": ["12px", { "lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "700" }],
+            "display-hero-mobile": ["36px", { "lineHeight": "1.2", "fontWeight": "500" }],
+            "h2": ["24px", { "lineHeight": "1.4", "fontWeight": "600" }],
+            "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+            "display-hero": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "500" }]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    body { background-color: #F9F7F2; } /* Warm Ivory Canvas override as per style guide */
+    /* Component specific overrides to match style guide */
+    .card-border { border-color: #E5DED4; border-width: 1px; }
+    .btn-primary { background-color: #4a0e0e; color: #ffffff; } /* Deep Burgundy */
+    .btn-secondary { background-color: transparent; border: 1px solid #4a0e0e; color: #4a0e0e; }
+    .interactive-shadow:hover { box-shadow: 0px 10px 30px rgba(74, 14, 14, 0.05); }
+    .image-inset { border: 1px solid #E5DED4; border-radius: 14px; overflow: hidden; }
+    .aspect-box { position: relative; width: 100%; padding-bottom: 75%; overflow: hidden; border-radius: 14px; }
+    .aspect-box img, .aspect-box > div { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
+    
+    /* Top AppBar Hide on Mobile, Nav Hide on Desktop */
+    @media (max-width: 767px) { .web-only { display: none !important; } }
+    @media (min-width: 768px) { .mobile-only { display: none !important; } }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="text-on-background font-body-md antialiased pb-[100px] md:pb-0 pt-[64px] md:pt-[80px]">
+<!-- WEB: TopAppBar -->
+<header class="web-only fixed top-0 w-full z-50 bg-surface border-b border-outline-variant flex justify-between items-center px-md h-16 mx-auto">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary text-sm" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+</div>
+<h1 class="font-display-hero-mobile text-display-hero-mobile text-primary font-extrabold tracking-tight">Mee Events</h1>
+</div>
+<div class="flex items-center gap-4">
+<button class="hover:bg-surface-container transition-colors p-2 rounded-full">
+<span class="material-symbols-outlined text-primary">notifications</span>
+</button>
+<div class="flex items-center gap-2 bg-surface-container-high px-3 h-[44px] rounded-full">
+<span class="material-symbols-outlined text-primary text-sm">person</span>
+<span class="font-label-caps text-label-caps text-on-surface">Customer</span>
+</div>
+</div>
+</header>
+<!-- MOBILE: TopAppBar -->
+<header class="mobile-only fixed top-0 w-full z-50 bg-surface border-b border-outline-variant flex justify-between items-center px-md h-16 mx-auto">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary text-sm" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+</div>
+<h1 class="font-display-hero-mobile text-display-hero-mobile text-primary font-extrabold tracking-tight">Mee Events</h1>
+</div>
+<div class="flex items-center gap-2">
+<button class="hover:bg-surface-container transition-colors p-2 rounded-full">
+<span class="material-symbols-outlined text-primary">notifications</span>
+</button>
+<div class="flex items-center gap-2 bg-surface-container-high px-3 h-[44px] rounded-full">
+<span class="material-symbols-outlined text-primary text-sm">person</span>
+<span class="font-label-caps text-label-caps text-on-surface">Customer</span>
+</div>
+</div>
+</header>
+<main class="max-w-container-max mx-auto px-4 md:px-lg space-y-xl mt-8">
+<!-- Hero / Greeting Section with Resume Plan Card -->
+<section class="grid grid-cols-1 lg:grid-cols-12 gap-gutter items-start">
+<!-- Greeting & Search -->
+<div class="col-span-1 lg:col-span-5 space-y-6 lg:pt-8">
+<div>
+<p class="font-label-caps text-label-caps text-on-surface-variant mb-2">WELCOME BACK</p>
+<h2 class="font-display-hero-mobile md:font-display-hero text-display-hero-mobile md:text-display-hero text-primary">Ready to continue your planning journey?</h2>
+</div>
+<!-- Search Bar -->
+<div class="relative bg-surface rounded-lg card-border flex items-center p-2 focus-within:ring-1 focus-within:ring-primary shadow-sm transition-shadow">
+<span class="material-symbols-outlined text-on-surface-variant ml-2">search</span>
+<input class="w-full bg-transparent border-none focus:ring-0 font-body-md text-on-surface px-3 py-2 outline-none" placeholder="Search venues, decorators, photographers..." type="text"/>
+</div>
+</div>
+<!-- Active Draft Card (Bento/Premium Style) -->
+<div class="col-span-1 lg:col-span-7 mt-8 lg:mt-0">
+<div class="bg-surface rounded-[14px] card-border p-md md:p-lg interactive-shadow transition-shadow relative overflow-hidden flex flex-col md:flex-row gap-8 items-center">
+<!-- Abstract Background Pattern / Subtle Image -->
+<div class="absolute inset-0 opacity-10 pointer-events-none" data-alt="Subtle, elegant abstract watercolor pattern in warm ivory and pale gold tones, modern premium aesthetic, soft fluid shapes creating a sophisticated backdrop, high key lighting." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBab7qxCK_FKj506sXqVZfa-rllPKbGg9e38SSf7gb1kaALvcUn6M7s3HmKYHSR6CyENX4nyGuhsMqQt-DtXj28mVX_v4n23dGaYCCZSbQqhUpDcC_PqBx0Ufr4l6FI5ZApDfzap4_RR3t4ykGJG-2cOFBmI9AIlkzXTspTfGSOz-LlPg3TbeMAHpUpdeL1a8CXVILJQCXuZqCpDlQzjPDojOTvv1y_zUdVqqxfi4EituPbMNl41IyL')"></div>
+<!-- Content -->
+<div class="relative z-10 flex-1 space-y-6 w-full">
+<div class="flex items-center gap-2">
+<span class="bg-secondary-fixed text-on-secondary-fixed font-label-caps text-label-caps px-3 py-1 rounded-full">ACTIVE DRAFT</span>
+<span class="text-sm text-on-surface-variant">Last updated today</span>
+</div>
+<div>
+<h3 class="font-h1 text-h1 text-primary mb-2">Priya &amp; Arjun’s Wedding</h3>
+<p class="font-body-md text-on-surface-variant flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">calendar_month</span> 12–14 December 2026
+              </p>
+<p class="font-body-md text-on-surface-variant flex items-center gap-2 mt-1">
+<span class="material-symbols-outlined text-sm">location_on</span> Banjara Hills, Hyderabad
+              </p>
+</div>
+<!-- Progress -->
+<div class="space-y-2">
+<div class="flex justify-between font-label-caps text-label-caps text-on-surface-variant">
+<span>PLANNING PROGRESS</span>
+<span>6 of 10 sections</span>
+</div>
+<div class="w-full bg-surface-variant rounded-full h-1.5">
+<div class="bg-primary h-1.5 rounded-full" style="width: 60%"></div>
+</div>
+</div>
+<!-- Actions -->
+<div class="pt-4 flex flex-col sm:flex-row gap-4 items-center">
+<button class="btn-primary w-full sm:w-auto px-8 py-3 rounded font-button text-button">Resume plan</button>
+<button class="font-button text-button text-primary hover:underline underline-offset-4 decoration-2 decoration-secondary">View summary</button>
+</div>
+<div class="pt-2 text-center sm:text-left">
+<button class="font-label-caps text-label-caps text-on-surface-variant hover:text-primary transition-colors">START A NEW PLAN</button>
+</div>
+</div>
+<!-- Accompanying visual/image for the draft -->
+<div class="hidden md:block w-[240px] aspect-[3/4] image-inset shrink-0 relative">
+<img class="w-full h-full object-cover" data-alt="High-end editorial photography of an Indian wedding venue detail, macro shot of vibrant marigold floral arrangements against warm ivory stone, soft cinematic lighting, modern premium wedding aesthetic, rich burgundy and gold tones." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA8t8tPrA4CyohLTRiNEIqigYfIpEldKjw-rEdsjQPvjdFD-Kr8h6eecFLlhVCe0de3Ox7yB8biy2KHYbytf5FPv7tE74ExXU5-G-1VVWd4KP5DVF93TZ1ZepQSI17RO5u1oijibt2QcfYVtOmuPVhJqQQkhpMw-yp0dTnXT5BK3s7nAb50y1xVB2C18Ub_F5QCP6vA9B0jN6zBIfAxVSb8vthACT1vQn9THb3UdPAjE7FLUiWDYDaz"/>
+</div>
+</div>
+</div>
+</section>
+<!-- Divider -->
+<hr class="border-outline-variant opacity-50"/>
+<!-- Occasions Section -->
+<section>
+<div class="flex justify-between items-end mb-8">
+<h2 class="font-h2 text-h2 text-on-surface">Explore by Occasion</h2>
+<button class="font-label-caps text-label-caps text-primary hover:underline decoration-secondary decoration-2">VIEW ALL</button>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-gutter">
+<!-- Occasion Card 1 -->
+<div class="group cursor-pointer">
+<div class="aspect-box image-inset mb-4 interactive-shadow">
+<img class="group-hover:scale-105 transition-transform duration-500" data-alt="Elegant Mehndi ceremony setup, vibrant colorful drapery, intricate floor seating, high resolution, modern Indian premium aesthetic, soft natural lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBUIftKPTNxsVUsWyKP2Zz9eGCO27APtf9Ntb_6wZXTSjz9CbO8DDdVf7rh4AYdGo8QChPz0HytLXziAivkz3Dnu602EP4ZPrZ1HthLFRp2jXb5h7aaShEG--j0EKcOjEvxNkZW0-s7aIykGOLCx8d0j_dseG7Jgnp3MBZwvPTU0m-DYpKICrq3S7EebnLwZeg4qtar6vyH7omY55trtpdfq4s3R7Epe3acl7p3cEh9GAb0_Fw1gA9b"/>
+</div>
+<h3 class="font-button text-button text-on-surface text-center">Mehndi &amp; Sangeet</h3>
+</div>
+<!-- Occasion Card 2 -->
+<div class="group cursor-pointer">
+<div class="aspect-box image-inset mb-4 interactive-shadow">
+<img class="group-hover:scale-105 transition-transform duration-500" data-alt="Grand Haldi ceremony decor, bright yellow marigold strings hanging elegantly, outdoor sunny setting, warm ivory backdrop, premium modern wedding photography." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAEqPF1sy2jI3e-Gbv7lEkwuB2y0IVMTp1x9YM8EydhGuqEbo4Nx_WiaAoN1dnu-HXQsaD7McqWBzxM6dAPeFhc7pluKe23uWIvF7QM_I645hcNAAmdKj8JaTuAL9HfP89OwpMAgOZUD8Oihc135UXsXwIgHouxaFzSav4IAmcu0lQbEcizbCPoEe_T6d5w2YjOlrGYmSTc6JjG4RkrtxFkLj-FQcZeK1qwhSesohwF_dXOt-yx_X68"/>
+</div>
+<h3 class="font-button text-button text-on-surface text-center">Haldi</h3>
+</div>
+<!-- Occasion Card 3 -->
+<div class="group cursor-pointer">
+<div class="aspect-box image-inset mb-4 interactive-shadow">
+<img class="group-hover:scale-105 transition-transform duration-500" data-alt="Opulent Indian wedding Mandap, floral canopy with roses and orchids, evening setting with soft ambient lighting, high contrast rich colors, luxurious editorial style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuALbAK2LeXudSCegkHDnX7iljv-ZxOU3Tt5iUB077t09n02A-5B0bYBIy2PHif6szzqoCqwlJh7pnM3UOcanF1IB2FPQneR1BddauJhs3CMDTOwocphKFEZsdF2QINCvSCsDjJ6YZW9dvWaF6KQ_M5u2HJPtU2wV-oaxdUs26F23OIYsZIb71jwqEh6WgDdk2BFW6oCuDnGq2RgOwjwRLLnu346s5SW_DIkJEXDI8inR5izmV3QoDvo"/>
+</div>
+<h3 class="font-button text-button text-on-surface text-center">Wedding</h3>
+</div>
+<!-- Occasion Card 4 -->
+<div class="group cursor-pointer">
+<div class="aspect-box image-inset mb-4 interactive-shadow">
+<img class="group-hover:scale-105 transition-transform duration-500" data-alt="Luxurious wedding reception stage, crystal chandeliers, modern contemporary design, deep burgundy and gold accents, sophisticated evening event lighting, high-end aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAgQq1nj2aXm44Dqtaa3JOV5VwVEMaqxS0UgIvJq3WdWhkDiHkrD5YamiePycfxyrB0SXg89EH6Y_wNwjP2M1jnwKepVwa9rJQYyNBMPvqVIfPrwBBcUHAptbG0cxYl3HNAIJ38IuPiQ8OGMUhv_XQGwENXaNaBFp90w81tiHRoHHpwSZon_E2ctZpJGd0McfQU_fg-uwdVCqZZM93BdQA_XNcq-pxI5riKiiCDKxb1spyJxWoBVd6j"/>
+</div>
+<h3 class="font-button text-button text-on-surface text-center">Reception</h3>
+</div>
+</div>
+</section>
+</main>
+<!-- MOBILE: BottomNavBar -->
+<nav class="mobile-only fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-safe bg-surface dark:bg-surface-dim h-20 border-t border-outline-variant dark:border-outline shadow-sm rounded-t-xl">
+<a class="flex flex-col items-center justify-center text-primary dark:text-primary-fixed-dim border-t-2 border-secondary pt-1 w-16 scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="font-label-caps text-[10px]">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant pt-1 w-16 hover:text-primary dark:hover:text-primary-fixed-dim transition-all" href="#">
+<span class="material-symbols-outlined mb-1">search</span>
+<span class="font-label-caps text-[10px]">Explore</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant pt-1 w-16 hover:text-primary dark:hover:text-primary-fixed-dim transition-all" href="#">
+<span class="material-symbols-outlined mb-1">event_note</span>
+<span class="font-label-caps text-[10px]">Plan</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant pt-1 w-16 hover:text-primary dark:hover:text-primary-fixed-dim transition-all" href="#">
+<span class="material-symbols-outlined mb-1">chat_bubble</span>
+<span class="font-label-caps text-[10px]">Enquiries</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant pt-1 w-16 hover:text-primary dark:hover:text-primary-fixed-dim transition-all" href="#">
+<span class="material-symbols-outlined mb-1">person</span>
+<span class="font-label-caps text-[10px]">Account</span>
+</a>
+</nav>
+</body></html>

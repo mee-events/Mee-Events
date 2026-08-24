@@ -53,18 +53,39 @@ export class EnquiryService {
       );
     }
     await this.assertServiceCategoryCodes(request.serviceCategoryCodes);
+    const requestedPlanItems = (request.planItems ?? []).map((item) => ({
+      productCode: item.productCode,
+      ...(item.displayName === undefined
+        ? {}
+        : { displayName: item.displayName }),
+      ...(item.serviceCode === undefined
+        ? {}
+        : { serviceCode: item.serviceCode }),
+    }));
+    const planItems = await this.catalog.resolvePlanItems(requestedPlanItems);
+    if (
+      requestedPlanItems.length > 0 &&
+      planItems.length !== requestedPlanItems.length
+    ) {
+      throw new DomainError(
+        "PLAN_ITEM_UNKNOWN",
+        "One or more plan items are not available",
+        422,
+      );
+    }
 
     const branchId = resolveBranchId(principal);
     const slaMinutes =
       await this.enquiries.getLeadFirstResponseSlaMinutes(branchId);
     const referenceCode = generateReferenceCode();
 
-    const { enquiryId } = await this.enquiries.createEnquiryWithLead({
+    const { enquiryId } = await this.enquiries.createEnquiry({
       branchId,
       userId: principal.userId,
       eventTypeId: eventType.id,
       referenceCode,
       serviceCategoryCodes: request.serviceCategoryCodes,
+      planItems,
       contactPreference: request.contactPreference,
       firstResponseDueAt: new Date(Date.now() + slaMinutes * 60 * 1000),
       requestId,
@@ -82,6 +103,9 @@ export class EnquiryService {
         ? {}
         : { budgetMax: request.budgetMax }),
       ...(request.notes === undefined ? {} : { notes: request.notes }),
+      ...(request.preferredExternalVendor === undefined
+        ? {}
+        : { preferredExternalVendor: request.preferredExternalVendor }),
     });
 
     const detail = await this.enquiries.findForCustomerUser(

@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Roles and Access - Mee Events</title>
+<!-- Google Fonts: Manrope & EB Garamond -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@500&amp;family=Manrope:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-bright": "#fcf9f8",
+                        "on-tertiary-container": "#8c8c88",
+                        "surface-container-highest": "#e5e2e1",
+                        "surface": "#fcf9f8",
+                        "on-primary": "#ffffff",
+                        "primary": "#2a0002",
+                        "on-secondary": "#ffffff",
+                        "surface-container-high": "#eae7e7",
+                        "primary-fixed-dim": "#ffb3ad",
+                        "on-surface": "#1c1b1b",
+                        "on-error": "#ffffff",
+                        "on-background": "#1c1b1b",
+                        "surface-tint": "#954742",
+                        "error": "#ba1a1a",
+                        "surface-variant": "#e5e2e1",
+                        "on-tertiary-fixed": "#1b1c19",
+                        "background": "#fcf9f8",
+                        "inverse-on-surface": "#f3f0ef",
+                        "on-primary-fixed-variant": "#77302d",
+                        "inverse-surface": "#313030",
+                        "tertiary-container": "#242522",
+                        "error-container": "#ffdad6",
+                        "inverse-primary": "#ffb3ad",
+                        "primary-fixed": "#ffdad7",
+                        "tertiary": "#0f100d",
+                        "on-tertiary-fixed-variant": "#474744",
+                        "surface-container": "#f0eded",
+                        "outline": "#877270",
+                        "secondary-fixed": "#ffdea5",
+                        "on-secondary-fixed-variant": "#5d4201",
+                        "secondary": "#775a19",
+                        "surface-container-low": "#f6f3f2",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary-fixed": "#261900",
+                        "tertiary-fixed": "#e4e2dd",
+                        "on-primary-container": "#cc726d",
+                        "on-surface-variant": "#544341",
+                        "on-primary-fixed": "#3d0506",
+                        "tertiary-fixed-dim": "#c8c6c2",
+                        "primary-container": "#4a0e0e",
+                        "outline-variant": "#dac1bf",
+                        "on-tertiary": "#ffffff",
+                        "surface-dim": "#dcd9d9",
+                        "on-secondary-container": "#785a1a",
+                        "secondary-fixed-dim": "#e9c176",
+                        "secondary-container": "#fed488",
+                        "on-error-container": "#93000a"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    spacing: {
+                        "container-max": "1280px",
+                        "sm": "12px",
+                        "md": "24px",
+                        "xl": "80px",
+                        "xs": "4px",
+                        "lg": "48px",
+                        "base": "8px",
+                        "gutter": "24px"
+                    },
+                    fontFamily: {
+                        "display-hero": ["EB Garamond"],
+                        "h1": ["Manrope"],
+                        "button": ["Manrope"],
+                        "label-caps": ["Manrope"],
+                        "h2": ["Manrope"],
+                        "body-lg": ["Manrope"],
+                        "display-hero-mobile": ["EB Garamond"],
+                        "body-md": ["Manrope"]
+                    },
+                    fontSize: {
+                        "display-hero": ["48px", { lineHeight: "1.1", letterSpacing: "-0.02em", fontWeight: "500" }],
+                        "h1": ["32px", { lineHeight: "1.3", fontWeight: "700" }],
+                        "button": ["14px", { lineHeight: "1", fontWeight: "600" }],
+                        "label-caps": ["12px", { lineHeight: "1", letterSpacing: "0.05em", fontWeight: "700" }],
+                        "h2": ["24px", { lineHeight: "1.4", fontWeight: "600" }],
+                        "body-lg": ["18px", { lineHeight: "1.6", fontWeight: "400" }],
+                        "display-hero-mobile": ["36px", { lineHeight: "1.2", fontWeight: "500" }],
+                        "body-md": ["16px", { lineHeight: "1.6", fontWeight: "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: theme('colors.background');
+            color: theme('colors.on-background');
+            -webkit-font-smoothing: antialiased;
+        }
+        /* Hide scrollbar for nav */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="min-h-screen flex flex-col pb-24 md:pb-0">
+<!-- TopAppBar -->
+<header class="bg-background dark:bg-background text-primary dark:text-primary-fixed-dim w-full top-0 left-0 bg-background dark:bg-background sticky z-50 flex justify-between items-center px-gutter py-sm w-full border-b border-transparent">
+<button aria-label="Menu" class="material-symbols-outlined text-primary hover:opacity-80 transition-opacity focus:outline-none" style="font-variation-settings: 'FILL' 0;">
+            menu
+        </button>
+<div class="font-display-hero-mobile text-display-hero-mobile text-primary dark:text-primary-fixed-dim flex-1 text-center">
+            Mee Events
+        </div>
+<button class="font-button text-button text-primary hover:opacity-80 transition-opacity focus:outline-none">
+            Customer ▾
+        </button>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-1 container max-w-container-max mx-auto px-gutter py-lg md:py-xl">
+<!-- Page Header Section -->
+<div class="mb-lg max-w-3xl">
+<p class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest mb-4">Account Settings</p>
+<h1 class="font-display-hero text-display-hero text-primary mb-4">Roles and Access</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant">
+                Manage your identities within the Mee Events ecosystem. Enjoy the simplicity of a single account with independent statuses for various operational roles.
+            </p>
+</div>
+<!-- Roles Bento Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+<!-- Customer Card (Active) -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md flex flex-col relative overflow-hidden transition-all duration-300 hover:shadow-[0px_10px_30px_rgba(74,14,14,0.05)] hover:-translate-y-1 h-full min-h-[280px]">
+<!-- Subtle Active Indicator Line -->
+<div class="absolute top-0 left-0 w-full h-1 bg-secondary"></div>
+<div class="flex justify-between items-start mb-6">
+<div class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center">
+<span class="material-symbols-outlined text-2xl text-primary" style="font-variation-settings: 'FILL' 1;">person</span>
+</div>
+<span class="bg-secondary-container text-on-secondary-container font-label-caps text-label-caps px-3 py-1.5 rounded-full uppercase tracking-widest flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span> Active
+                    </span>
+</div>
+<div class="flex-1">
+<h2 class="font-h2 text-h2 text-on-surface mb-2">Customer</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">
+                        Your default role for browsing, booking, and managing your personal event experiences.
+                    </p>
+</div>
+<div class="mt-6 pt-4 border-t border-outline-variant/30 flex items-center justify-between">
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest">Default role</span>
+<button class="font-button text-button text-primary/50 cursor-default px-4 py-2 transition-colors">
+                        Currently Active
+                    </button>
+</div>
+</div>
+<!-- Vendor Card -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md flex flex-col relative overflow-hidden transition-all duration-300 hover:shadow-[0px_10px_30px_rgba(74,14,14,0.05)] hover:-translate-y-1 h-full min-h-[280px]">
+<div class="flex justify-between items-start mb-6">
+<div class="w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center">
+<span class="material-symbols-outlined text-2xl text-on-surface-variant" style="font-variation-settings: 'FILL' 0;">storefront</span>
+</div>
+<span class="bg-surface-variant text-on-surface-variant font-label-caps text-label-caps px-3 py-1.5 rounded-full uppercase tracking-widest">
+                        Not applied
+                    </span>
+</div>
+<div class="flex-1">
+<h2 class="font-h2 text-h2 text-on-surface mb-2">Vendor</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">
+                        Mee Events managed marketplace partner access. Subject to business verification and approval.
+                    </p>
+</div>
+<div class="mt-6 pt-4 border-t border-outline-variant/30">
+<button class="w-full font-button text-button bg-primary text-on-primary px-4 py-3 rounded-full hover:bg-primary-container transition-colors flex justify-center items-center gap-2">
+                        Apply as Vendor <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- Worker Card -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md flex flex-col relative overflow-hidden transition-all duration-300 hover:shadow-[0px_10px_30px_rgba(74,14,14,0.05)] hover:-translate-y-1 h-full min-h-[280px]">
+<div class="flex justify-between items-start mb-6">
+<div class="w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center">
+<span class="material-symbols-outlined text-2xl text-on-surface-variant" style="font-variation-settings: 'FILL' 0;">engineering</span>
+</div>
+<span class="bg-surface-variant text-on-surface-variant font-label-caps text-label-caps px-3 py-1.5 rounded-full uppercase tracking-widest">
+                        Not applied
+                    </span>
+</div>
+<div class="flex-1">
+<h2 class="font-h2 text-h2 text-on-surface mb-2">Worker</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">
+                        On-ground operational delivery access. Subject to individual verification and training.
+                    </p>
+</div>
+<div class="mt-6 pt-4 border-t border-outline-variant/30">
+<button class="w-full font-button text-button bg-transparent border border-primary text-primary px-4 py-3 rounded-full hover:bg-primary/5 transition-colors flex justify-center items-center gap-2">
+                        Apply as Worker <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden bg-surface-container-lowest dark:bg-surface-container-low fixed bottom-0 w-full z-50 rounded-t-xl bg-surface-container-lowest dark:bg-surface-container-low border-t border-outline-variant/30 shadow-sm flex justify-around items-center px-4 pt-base pb-safe">
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors py-2 px-3 w-16" href="#">
+<span class="material-symbols-outlined mb-1 text-2xl" style="font-variation-settings: 'FILL' 0;">home</span>
+<span class="font-label-caps text-label-caps uppercase tracking-widest text-[10px]">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors py-2 px-3 w-16" href="#">
+<span class="material-symbols-outlined mb-1 text-2xl" style="font-variation-settings: 'FILL' 0;">explore</span>
+<span class="font-label-caps text-label-caps uppercase tracking-widest text-[10px]">Explore</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors py-2 px-3 w-16" href="#">
+<span class="material-symbols-outlined mb-1 text-2xl" style="font-variation-settings: 'FILL' 0;">event_note</span>
+<span class="font-label-caps text-label-caps uppercase tracking-widest text-[10px]">Plan</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors py-2 px-3 w-16" href="#">
+<span class="material-symbols-outlined mb-1 text-2xl" style="font-variation-settings: 'FILL' 0;">chat_bubble</span>
+<span class="font-label-caps text-label-caps uppercase tracking-widest text-[10px]">Enquiries</span>
+</a>
+<!-- Active Tab: Profile -->
+<a class="flex flex-col items-center justify-center text-primary dark:text-primary-fixed-dim relative after:content-[''] after:w-1 after:h-1 after:bg-secondary after:rounded-full after:mt-1 py-2 px-3 w-16 opacity-100 scale-100 transition-all" href="#">
+<span class="material-symbols-outlined mb-1 text-2xl" style="font-variation-settings: 'FILL' 1;">person</span>
+<span class="font-label-caps text-label-caps uppercase tracking-widest text-[10px]">Profile</span>
+</a>
+</nav>
+</body></html>

@@ -155,10 +155,83 @@ class ServiceModel {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'name': name,
-      'image': image,
-      'shortDescription': description,
-    };
+    return {'name': name, 'image': image, 'shortDescription': description};
   }
+}
+
+class OccasionTileModel {
+  final String id;
+  final String name;
+  final String image;
+
+  OccasionTileModel({
+    required this.id,
+    required this.name,
+    required this.image,
+  });
+}
+
+class OccasionSectionModel {
+  final String title;
+  final List<OccasionTileModel> tiles;
+
+  OccasionSectionModel({required this.title, required this.tiles});
+}
+
+class PopularServiceModel {
+  final String id;
+  final String name;
+  final String image;
+  final String fromPrice;
+
+  PopularServiceModel({
+    required this.id,
+    required this.name,
+    required this.image,
+    required this.fromPrice,
+  });
+}
+
+class CuratedPackageModel {
+  final String id;
+  final String name;
+  final String image;
+  final String price;
+
+  CuratedPackageModel({
+    required this.id,
+    required this.name,
+    required this.image,
+    required this.price,
+  });
+}
+
+class VenueModel {
+  final String id;
+  final String name;
+  final String image;
+  final String area;
+
+  VenueModel({
+    required this.id,
+    required this.name,
+    required this.image,
+    required this.area,
+  });
+}
+
+class SuccessStoryModel {
+  final String id;
+  final String names;
+  final String eventType;
+  final String quote;
+  final String avatar;
+
+  SuccessStoryModel({
+    required this.id,
+    required this.names,
+    required this.eventType,
+    required this.quote,
+    required this.avatar,
+  });
 }

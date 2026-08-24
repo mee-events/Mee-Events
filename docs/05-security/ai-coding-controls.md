@@ -16,23 +16,23 @@ Alternatives with comparable enterprise posture: Claude for Enterprise, GitHub C
 
 ## Repo controls (committed)
 
-| Control | Location |
-| --- | --- |
-| Context exclusion | [`.cursorignore`](../../.cursorignore) |
-| Agent briefing | [`AGENTS.md`](../../AGENTS.md) |
-| Cursor rules | [`.cursor/rules/`](../../.cursor/rules/) |
-| Secrets policy | [`secrets.md`](./secrets.md) |
+| Control           | Location                                 |
+| ----------------- | ---------------------------------------- |
+| Context exclusion | [`.cursorignore`](../../.cursorignore)   |
+| Agent briefing    | [`AGENTS.md`](../../AGENTS.md)           |
+| Cursor rules      | [`.cursor/rules/`](../../.cursor/rules/) |
+| Secrets policy    | [`secrets.md`](./secrets.md)             |
 
 ## MCP allowlist
 
 Default posture: **deny by default**.
 
-| Status | Server / tool |
-| --- | --- |
-| Allowed (Phase 2) | `lean-ctx` (local context compression + PathJail) after install |
-| Allowed when needed | Project-approved browser/devtools MCP for explicit UI verification only |
-| Banned for company code | FreeLLMAPI, OpenRouter free routes, any public tunnel to free LLM proxies |
-| Banned | Unreviewed community MCP servers that can read the full tree or exfiltrate secrets |
+| Status                  | Server / tool                                                                      |
+| ----------------------- | ---------------------------------------------------------------------------------- |
+| Allowed (Phase 2)       | `lean-ctx` (local context compression + PathJail) after install                    |
+| Allowed when needed     | Project-approved browser/devtools MCP for explicit UI verification only            |
+| Banned for company code | FreeLLMAPI, OpenRouter free routes, any public tunnel to free LLM proxies          |
+| Banned                  | Unreviewed community MCP servers that can read the full tree or exfiltrate secrets |
 
 Project file [`.agents/mcp_config.json`](../../.agents/mcp_config.json) should stay minimal. Prefer Cursor user MCP config for `lean-ctx` (installed by `lean-ctx init --agent cursor`).
 

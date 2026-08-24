@@ -3,9 +3,12 @@ library;
 
 export 'components/buttons/me_button.dart';
 export 'components/inputs/me_inputs.dart';
+export 'components/inputs/me_segmented_control.dart';
 export 'components/cards/me_cards.dart';
 export 'components/status/me_status.dart';
 export 'components/dialogs/me_dialogs.dart';
+export 'components/motion/me_pressable.dart';
+export 'components/navigation/app_header.dart';
 export 'components/navigation/me_navigation.dart';
 export 'components/loading/me_loading.dart';
 export 'components/empty/me_empty.dart';

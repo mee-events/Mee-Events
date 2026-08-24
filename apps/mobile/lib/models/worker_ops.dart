@@ -23,9 +23,7 @@ class WorkerDashboardSnapshot {
       checkedInToday: json['checkedInToday'] as int? ?? 0,
       completedTasks: json['completedTasks'] as int? ?? 0,
       openTasks: ((json['openTasks'] as List<dynamic>?) ?? [])
-          .map(
-            (item) => WorkerTaskItem.fromJson(item as Map<String, dynamic>),
-          )
+          .map((item) => WorkerTaskItem.fromJson(item as Map<String, dynamic>))
           .toList(),
     );
   }
@@ -151,7 +149,8 @@ class WorkerTaskDetail extends WorkerTaskItem {
             (item) => WorkerTimelineItem(
               id: (item as Map<String, dynamic>)['id'] as String? ?? '',
               title: item['checkType'] as String? ?? 'check',
-              content: item['locationPlaceholder'] as String? ??
+              content:
+                  item['locationPlaceholder'] as String? ??
                   item['completionNotes'] as String? ??
                   '',
             ),

@@ -121,7 +121,8 @@ class EventFinanceSummaryItem {
           .map(
             (item) => FinanceSettlementItem(
               id: (item as Map<String, dynamic>)['id'] as String? ?? '',
-              label: item['vendorBusinessName'] as String? ??
+              label:
+                  item['vendorBusinessName'] as String? ??
                   item['vendorId'] as String? ??
                   '',
               amount: item['amount'] as String? ?? '0',
@@ -133,7 +134,8 @@ class EventFinanceSummaryItem {
           .map(
             (item) => FinanceSettlementItem(
               id: (item as Map<String, dynamic>)['id'] as String? ?? '',
-              label: item['workerDisplayName'] as String? ??
+              label:
+                  item['workerDisplayName'] as String? ??
                   item['workerId'] as String? ??
                   '',
               amount: item['amount'] as String? ?? '0',

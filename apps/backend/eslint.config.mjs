@@ -36,4 +36,11 @@ export default tseslint.config(
       "@typescript-eslint/return-await": ["error", "in-try-catch"],
     },
   },
+  {
+    // In NestJS controller reflection unit tests, referencing Prototype.method is required to read Reflect metadata.
+    files: ["test/**/*.ts"],
+    rules: {
+      "@typescript-eslint/unbound-method": "off",
+    },
+  },
 );

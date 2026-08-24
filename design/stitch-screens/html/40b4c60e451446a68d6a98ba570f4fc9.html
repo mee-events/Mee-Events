@@ -1,0 +1,282 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>00B1 — Components: Actions and Inputs</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&amp;family=EB+Garamond:wght@500&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-background": "#1c1b1b",
+                        "on-tertiary-fixed": "#1b1c19",
+                        "primary-fixed": "#ffdad7",
+                        "tertiary-fixed-dim": "#c8c6c2",
+                        "on-error": "#ffffff",
+                        "secondary-fixed": "#ffdea5",
+                        "surface": "#fcf9f8",
+                        "on-tertiary-container": "#8c8c88",
+                        "on-secondary-fixed": "#261900",
+                        "inverse-surface": "#313030",
+                        "primary-fixed-dim": "#ffb3ad",
+                        "primary": "#2a0002",
+                        "on-primary-fixed": "#3d0506",
+                        "surface-container-highest": "#e5e2e1",
+                        "surface-bright": "#fcf9f8",
+                        "on-secondary-fixed-variant": "#5d4201",
+                        "surface-variant": "#e5e2e1",
+                        "background": "#fcf9f8",
+                        "tertiary": "#0f100d",
+                        "surface-dim": "#dcd9d9",
+                        "tertiary-fixed": "#e4e2dd",
+                        "error-container": "#ffdad6",
+                        "on-surface-variant": "#544341",
+                        "secondary": "#775a19",
+                        "outline": "#877270",
+                        "surface-container-high": "#eae7e7",
+                        "tertiary-container": "#242522",
+                        "inverse-primary": "#ffb3ad",
+                        "secondary-fixed-dim": "#e9c176",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "on-secondary": "#ffffff",
+                        "on-surface": "#1c1b1b",
+                        "inverse-on-surface": "#f3f0ef",
+                        "on-tertiary-fixed-variant": "#474744",
+                        "on-tertiary": "#ffffff",
+                        "secondary-container": "#fed488",
+                        "surface-container": "#f0eded",
+                        "error": "#ba1a1a",
+                        "on-error-container": "#93000a",
+                        "surface-tint": "#954742",
+                        "on-secondary-container": "#785a1a",
+                        "primary-container": "#4a0e0e",
+                        "outline-variant": "#dac1bf",
+                        "on-primary-container": "#cc726d",
+                        "on-primary-fixed-variant": "#77302d",
+                        "surface-container-low": "#f6f3f2"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "container-max": "1280px",
+                        "xl": "80px",
+                        "md": "24px",
+                        "gutter": "24px",
+                        "xs": "4px",
+                        "base": "8px",
+                        "sm": "12px",
+                        "lg": "48px"
+                    },
+                    "fontFamily": {
+                        "h1": ["Manrope"],
+                        "body-md": ["Manrope"],
+                        "button": ["Manrope"],
+                        "label-caps": ["Manrope"],
+                        "display-hero-mobile": ["EB Garamond"],
+                        "h2": ["Manrope"],
+                        "body-lg": ["Manrope"],
+                        "display-hero": ["EB Garamond"]
+                    },
+                    "fontSize": {
+                        "h1": ["32px", { "lineHeight": "1.3", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "button": ["14px", { "lineHeight": "1", "fontWeight": "600" }],
+                        "label-caps": ["12px", { "lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "700" }],
+                        "display-hero-mobile": ["36px", { "lineHeight": "1.2", "fontWeight": "500" }],
+                        "h2": ["24px", { "lineHeight": "1.4", "fontWeight": "600" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "display-hero": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "500" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .custom-shadow-interactive {
+            box-shadow: 0px 10px 30px rgba(74, 14, 14, 0.05);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen">
+<!-- Top App Bar Shell (Suppressed for raw component library screen, keeping for canvas framing) -->
+<header class="bg-surface dark:bg-surface-dim border-b border-outline-variant dark:border-outline flex justify-between items-center w-full px-md h-16 max-w-container-max mx-auto docked full-width top-0 z-10">
+<div class="flex items-center gap-4 text-primary dark:text-primary-fixed-dim">
+<span class="material-symbols-outlined">menu</span>
+<span class="font-display-hero-mobile text-display-hero-mobile">Mee Events</span>
+</div>
+<div class="flex gap-4">
+<span class="material-symbols-outlined text-primary dark:text-primary-fixed-dim">notifications</span>
+</div>
+</header>
+<main class="max-w-container-max mx-auto px-md py-lg md:py-xl">
+<h1 class="font-display-hero text-display-hero text-primary mb-2">00B1 — Components</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant mb-lg pb-md border-b border-outline-variant">Actions and Inputs Library</p>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-xl">
+<!-- BUTTONS SECTION -->
+<section>
+<h2 class="font-h2 text-h2 text-primary mb-md">Buttons</h2>
+<div class="space-y-md">
+<div class="p-md bg-surface rounded-xl border border-outline-variant">
+<p class="font-label-caps text-label-caps text-on-surface-variant mb-sm uppercase">Primary</p>
+<button class="bg-primary-container text-on-primary font-button text-button h-11 px-6 rounded-full hover:custom-shadow-interactive transition-shadow">
+                            Start planning
+                        </button>
+</div>
+<div class="p-md bg-surface rounded-xl border border-outline-variant">
+<p class="font-label-caps text-label-caps text-on-surface-variant mb-sm uppercase">Secondary</p>
+<button class="bg-transparent border border-primary-container text-primary-container font-button text-button h-11 px-6 rounded-full hover:bg-surface-container-low transition-colors">
+                            View summary
+                        </button>
+</div>
+<div class="p-md bg-surface rounded-xl border border-outline-variant">
+<p class="font-label-caps text-label-caps text-on-surface-variant mb-sm uppercase">Outline (Icon Left)</p>
+<button class="bg-transparent border border-outline-variant text-primary-container font-button text-button h-11 px-6 rounded-full flex items-center gap-2 hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                            Add item
+                        </button>
+</div>
+<div class="p-md bg-surface rounded-xl border border-outline-variant">
+<p class="font-label-caps text-label-caps text-on-surface-variant mb-sm uppercase">Text</p>
+<button class="bg-transparent text-primary-container font-button text-button h-11 px-6 rounded-full hover:bg-surface-container-low transition-colors">
+                            Cancel
+                        </button>
+</div>
+<div class="p-md bg-surface rounded-xl border border-outline-variant">
+<p class="font-label-caps text-label-caps text-on-surface-variant mb-sm uppercase">Destructive</p>
+<button class="bg-error text-on-error font-button text-button h-11 px-6 rounded-full hover:bg-on-error-container transition-colors">
+                            Delete plan
+                        </button>
+</div>
+<div class="p-md bg-surface rounded-xl border border-outline-variant flex gap-4">
+<div>
+<p class="font-label-caps text-label-caps text-on-surface-variant mb-sm uppercase">Icon Button</p>
+<button class="bg-surface-container text-primary-container h-11 w-11 rounded-full flex items-center justify-center hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+</div>
+<div>
+<p class="font-label-caps text-label-caps text-on-surface-variant mb-sm uppercase">Loading State</p>
+<button class="bg-primary-container text-on-primary font-button text-button h-11 px-6 rounded-full opacity-80 cursor-not-allowed flex items-center gap-2">
+<span class="material-symbols-outlined animate-spin text-[18px]">progress_activity</span>
+                                Processing...
+                            </button>
+</div>
+<div>
+<p class="font-label-caps text-label-caps text-on-surface-variant mb-sm uppercase">Disabled State</p>
+<button class="bg-surface-variant text-on-surface-variant font-button text-button h-11 px-6 rounded-full cursor-not-allowed opacity-50">
+                                Submit
+                            </button>
+</div>
+</div>
+</div>
+</section>
+<!-- INPUTS & CHIPS SECTION -->
+<section>
+<h2 class="font-h2 text-h2 text-primary mb-md">Inputs &amp; Fields</h2>
+<div class="space-y-md">
+<!-- Search -->
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="w-full bg-surface border border-outline-variant rounded-lg h-12 pl-10 pr-4 font-body-md text-body-md text-on-background focus:ring-1 focus:ring-primary-container focus:border-primary-container outline-none transition-all placeholder:text-on-surface-variant" placeholder="Search events and services" type="text">
+</div>
+<!-- Standard Text -->
+<div>
+<label class="block font-label-caps text-label-caps text-on-surface-variant mb-xs uppercase">Event Name</label>
+<input class="w-full bg-surface border border-outline-variant rounded-lg h-12 px-4 font-body-md text-body-md text-on-background focus:ring-1 focus:ring-primary-container focus:border-primary-container outline-none transition-all" type="text" value="Anika's Sangeet">
+</div>
+<!-- Phone Input with Error -->
+<div>
+<label class="block font-label-caps text-label-caps text-on-surface-variant mb-xs uppercase">Phone</label>
+<div class="flex gap-2">
+<input class="w-20 bg-surface border border-error rounded-lg h-12 px-3 text-center font-body-md text-body-md text-on-background outline-none" type="text" value="+91">
+<input class="w-full bg-surface border border-error rounded-lg h-12 px-4 font-body-md text-body-md text-on-background outline-none" type="text" value="98765">
+</div>
+<p class="font-label-caps text-label-caps text-error mt-1">Invalid phone number</p>
+</div>
+<!-- 6-digit OTP -->
+<div>
+<label class="block font-label-caps text-label-caps text-on-surface-variant mb-xs uppercase">Verification Code</label>
+<div class="flex gap-2">
+<input class="w-12 h-12 text-center bg-surface border border-outline-variant rounded-lg font-h2 text-h2 text-primary focus:ring-1 focus:ring-primary-container outline-none" maxlength="1" type="text">
+<input class="w-12 h-12 text-center bg-surface border border-outline-variant rounded-lg font-h2 text-h2 text-primary focus:ring-1 focus:ring-primary-container outline-none" maxlength="1" type="text">
+<input class="w-12 h-12 text-center bg-surface border border-outline-variant rounded-lg font-h2 text-h2 text-primary focus:ring-1 focus:ring-primary-container outline-none" maxlength="1" type="text">
+<input class="w-12 h-12 text-center bg-surface border border-outline-variant rounded-lg font-h2 text-h2 text-primary focus:ring-1 focus:ring-primary-container outline-none" maxlength="1" type="text">
+<input class="w-12 h-12 text-center bg-surface border border-outline-variant rounded-lg font-h2 text-h2 text-primary focus:ring-1 focus:ring-primary-container outline-none" maxlength="1" type="text">
+<input class="w-12 h-12 text-center bg-surface border border-outline-variant rounded-lg font-h2 text-h2 text-primary focus:ring-1 focus:ring-primary-container outline-none" maxlength="1" type="text">
+</div>
+<p class="font-label-caps text-label-caps text-on-surface-variant mt-1">Helpful hint: Check your SMS</p>
+</div>
+<!-- Dropdown, Date, Time Row -->
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+<div>
+<label class="block font-label-caps text-label-caps text-on-surface-variant mb-xs uppercase">Select Occasion</label>
+<div class="relative">
+<select class="w-full bg-surface border border-outline-variant rounded-lg h-12 px-4 appearance-none font-body-md text-body-md text-on-background outline-none">
+<option>Wedding</option>
+<option>Corporate</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none">expand_more</span>
+</div>
+</div>
+<div>
+<label class="block font-label-caps text-label-caps text-on-surface-variant mb-xs uppercase">Date</label>
+<div class="relative">
+<input class="w-full bg-surface border border-outline-variant rounded-lg h-12 pl-4 pr-10 font-body-md text-body-md text-on-background outline-none" type="text" value="24 Nov 2024">
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none">calendar_today</span>
+</div>
+</div>
+<div>
+<label class="block font-label-caps text-label-caps text-on-surface-variant mb-xs uppercase">Time</label>
+<div class="relative">
+<input class="w-full bg-surface border border-outline-variant rounded-lg h-12 pl-4 pr-10 font-body-md text-body-md text-on-background outline-none" type="text" value="7:00 PM">
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none">schedule</span>
+</div>
+</div>
+</div>
+<!-- Multiline -->
+<div>
+<label class="block font-label-caps text-label-caps text-on-surface-variant mb-xs uppercase">Special requests</label>
+<textarea class="w-full bg-surface border border-outline-variant rounded-lg p-4 h-24 font-body-md text-body-md text-on-background focus:ring-1 focus:ring-primary-container outline-none resize-none placeholder:text-on-surface-variant" placeholder="Any dietary requirements?"></textarea>
+</div>
+<!-- Upload -->
+<div>
+<label class="block font-label-caps text-label-caps text-on-surface-variant mb-xs uppercase">Upload venue photo</label>
+<button class="w-full h-12 border-2 border-dashed border-outline-variant rounded-lg flex items-center justify-center gap-2 text-on-surface-variant hover:bg-surface-container-low transition-colors font-body-md text-body-md">
+<span class="material-symbols-outlined">upload_file</span>
+                             Select File
+                         </button>
+</div>
+<!-- Chips -->
+<div class="pt-4 border-t border-outline-variant">
+<p class="font-label-caps text-label-caps text-on-surface-variant mb-sm uppercase">Filter Chips</p>
+<div class="flex flex-wrap gap-2">
+<button class="bg-secondary text-on-secondary font-button text-button h-8 px-4 rounded-full flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">check</span> Weddings
+                            </button>
+<button class="bg-surface border border-outline-variant text-on-surface-variant font-button text-button h-8 px-4 rounded-full hover:bg-surface-container-low transition-colors">
+                                Catering
+                            </button>
+<button class="bg-surface border border-outline-variant text-on-surface-variant font-button text-button h-8 px-4 rounded-full hover:bg-surface-container-low transition-colors">
+                                Photography
+                            </button>
+</div>
+</div>
+</div>
+</section>
+</div>
+</main>
+</body></html>

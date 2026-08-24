@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Notification Preferences - Mee Events</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@500&amp;family=Manrope:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "primary-fixed-dim": "#ffb3ad",
+                      "primary-fixed": "#ffdad7",
+                      "on-error": "#ffffff",
+                      "surface-container-lowest": "#ffffff",
+                      "surface-bright": "#fcf9f8",
+                      "tertiary-fixed-dim": "#c8c6c2",
+                      "on-primary": "#ffffff",
+                      "secondary-fixed-dim": "#e9c176",
+                      "primary-container": "#4a0e0e",
+                      "secondary-fixed": "#ffdea5",
+                      "outline-variant": "#dac1bf",
+                      "surface-variant": "#e5e2e1",
+                      "on-primary-container": "#cc726d",
+                      "on-tertiary-container": "#8c8c88",
+                      "on-secondary-container": "#785a1a",
+                      "tertiary": "#0f100d",
+                      "surface-tint": "#954742",
+                      "on-tertiary-fixed": "#1b1c19",
+                      "background": "#fcf9f8",
+                      "inverse-surface": "#313030",
+                      "surface-container-high": "#eae7e7",
+                      "on-tertiary": "#ffffff",
+                      "tertiary-container": "#242522",
+                      "on-secondary-fixed": "#261900",
+                      "error": "#ba1a1a",
+                      "on-surface": "#1c1b1b",
+                      "tertiary-fixed": "#e4e2dd",
+                      "surface": "#fcf9f8",
+                      "on-secondary-fixed-variant": "#5d4201",
+                      "on-surface-variant": "#544341",
+                      "on-secondary": "#ffffff",
+                      "surface-dim": "#dcd9d9",
+                      "inverse-on-surface": "#f3f0ef",
+                      "on-background": "#1c1b1b",
+                      "error-container": "#ffdad6",
+                      "on-primary-fixed": "#3d0506",
+                      "outline": "#877270",
+                      "secondary": "#775a19",
+                      "on-primary-fixed-variant": "#77302d",
+                      "surface-container": "#f0eded",
+                      "on-tertiary-fixed-variant": "#474744",
+                      "on-error-container": "#93000a",
+                      "surface-container-highest": "#e5e2e1",
+                      "secondary-container": "#fed488",
+                      "surface-container-low": "#f6f3f2",
+                      "inverse-primary": "#ffb3ad",
+                      "primary": "#2a0002"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "md": "24px",
+                      "xs": "4px",
+                      "sm": "12px",
+                      "base": "8px",
+                      "container-max": "1280px",
+                      "xl": "80px",
+                      "gutter": "24px",
+                      "lg": "48px"
+              },
+              "fontFamily": {
+                      "h1": [
+                              "Manrope"
+                      ],
+                      "display-hero": [
+                              "EB Garamond"
+                      ],
+                      "body-lg": [
+                              "Manrope"
+                      ],
+                      "h2": [
+                              "Manrope"
+                      ],
+                      "body-md": [
+                              "Manrope"
+                      ],
+                      "label-caps": [
+                              "Manrope"
+                      ],
+                      "display-hero-mobile": [
+                              "EB Garamond"
+                      ],
+                      "button": [
+                              "Manrope"
+                      ]
+              },
+              "fontSize": {
+                      "h1": [
+                              "32px",
+                              {
+                                      "lineHeight": "1.3",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "display-hero": [
+                              "48px",
+                              {
+                                      "lineHeight": "1.1",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "h2": [
+                              "24px",
+                              {
+                                      "lineHeight": "1.4",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-caps": [
+                              "12px",
+                              {
+                                      "lineHeight": "1",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "display-hero-mobile": [
+                              "36px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "button": [
+                              "14px",
+                              {
+                                      "lineHeight": "1",
+                                      "fontWeight": "600"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+        .custom-toggle:checked {
+            background-color: theme('colors.primary-container');
+            border-color: theme('colors.primary-container');
+        }
+        .custom-toggle:checked:after {
+            transform: translateX(100%);
+            border-color: white;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-background min-h-screen pb-24 md:pb-0 font-body-md text-on-surface">
+<!-- TopAppBar (Web & Mobile Contexts handled via styling instructions but adapted for responsiveness) -->
+<header class="bg-surface dark:bg-surface-dim border-b border-outline-variant docked full-width top-0 z-40 hidden md:flex">
+<div class="flex justify-between items-center w-full px-md h-16 max-w-container-max mx-auto">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary dark:text-primary-fixed-dim" data-icon="menu">menu</span>
+<span class="text-h2 font-h2 text-primary dark:text-primary-fixed-dim tracking-tight">Mee Events</span>
+</div>
+<nav class="flex gap-md items-center">
+<a class="text-on-surface-variant dark:text-on-surface-variant hover:text-secondary transition-colors duration-200 text-label-caps font-label-caps" href="#">Home</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant hover:text-secondary transition-colors duration-200 text-label-caps font-label-caps" href="#">Explore</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant hover:text-secondary transition-colors duration-200 text-label-caps font-label-caps" href="#">Plan</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant hover:text-secondary transition-colors duration-200 text-label-caps font-label-caps" href="#">Enquiries</a>
+<a class="text-secondary dark:text-secondary-fixed font-bold opacity-80 transition-opacity hover:text-secondary transition-colors duration-200 text-label-caps font-label-caps" href="#">Profile</a>
+<span class="ml-md text-label-caps font-label-caps cursor-pointer">Customer ▾</span>
+</nav>
+</div>
+</header>
+<!-- Mobile Header (Simplified for sub-page feel on mobile) -->
+<header class="md:hidden bg-surface border-b border-outline-variant sticky top-0 z-40 px-md h-16 flex items-center gap-sm">
+<span class="material-symbols-outlined text-on-surface cursor-pointer">arrow_back</span>
+<h1 class="text-h2 font-h2-mobile text-on-surface">Notification Preferences</h1>
+</header>
+<main class="max-w-container-max mx-auto px-md md:px-lg py-lg md:py-xl">
+<div class="mb-lg hidden md:block">
+<h1 class="text-display-hero font-display-hero text-on-surface mb-xs">Notification Preferences</h1>
+<p class="text-body-lg font-body-lg text-on-surface-variant">Control how and when you receive updates.</p>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+<!-- Sidebar / Settings Nav (Desktop only for Bento feel) -->
+<aside class="hidden lg:block lg:col-span-3 space-y-sm">
+<div class="bg-surface-container-low rounded-xl p-md">
+<ul class="space-y-sm">
+<li><a class="block py-sm px-sm text-on-surface-variant hover:bg-surface-container-high rounded-md transition-colors text-body-md font-body-md" href="#">Account Details</a></li>
+<li><a class="block py-sm px-sm text-on-surface-variant hover:bg-surface-container-high rounded-md transition-colors text-body-md font-body-md" href="#">Security</a></li>
+<li><a class="block py-sm px-sm bg-surface rounded-md shadow-[0px_2px_8px_rgba(74,14,14,0.02)] text-primary-container font-semibold transition-colors text-body-md font-body-md relative after:content-[''] after:absolute after:left-0 after:top-1/2 after:-translate-y-1/2 after:w-1 after:h-4 after:bg-primary-container after:rounded-r" href="#">Notifications</a></li>
+<li><a class="block py-sm px-sm text-on-surface-variant hover:bg-surface-container-high rounded-md transition-colors text-body-md font-body-md" href="#">Billing</a></li>
+</ul>
+</div>
+</aside>
+<!-- Main Content Area -->
+<div class="col-span-1 lg:col-span-9 space-y-md">
+<!-- Mandatory Section (Bento Card 1) -->
+<section class="bg-surface rounded-[14px] border border-surface-variant p-md md:p-lg relative overflow-hidden group">
+<div class="absolute inset-0 bg-gradient-to-br from-surface-bright to-surface opacity-50 pointer-events-none"></div>
+<div class="relative z-10 flex items-start gap-md">
+<div class="w-12 h-12 rounded-full bg-error-container text-on-error-container flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined" data-icon="security">security</span>
+</div>
+<div class="flex-1">
+<h2 class="text-h2 font-h2 text-on-surface mb-xs">Security &amp; OTP</h2>
+<p class="text-body-md font-body-md text-on-surface-variant mb-md">Mandatory security alerts to protect your account. These cannot be disabled.</p>
+<div class="space-y-sm pt-sm border-t border-surface-variant">
+<div class="flex justify-between items-center py-xs">
+<span class="text-body-md font-body-md">Push Notifications</span>
+<span class="text-label-caps font-label-caps text-on-surface-variant bg-surface-variant px-sm py-xs rounded-full">Required</span>
+</div>
+<div class="flex justify-between items-center py-xs">
+<span class="text-body-md font-body-md">Email</span>
+<span class="text-label-caps font-label-caps text-on-surface-variant bg-surface-variant px-sm py-xs rounded-full">Required</span>
+</div>
+<div class="flex justify-between items-center py-xs">
+<span class="text-body-md font-body-md">SMS</span>
+<span class="text-label-caps font-label-caps text-on-surface-variant bg-surface-variant px-sm py-xs rounded-full">Required</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Essential Planning Section (Bento Card 2) -->
+<section class="bg-surface rounded-[14px] border border-surface-variant p-md md:p-lg">
+<div class="flex items-center gap-sm mb-md">
+<span class="material-symbols-outlined text-secondary" data-icon="event_note">event_note</span>
+<h2 class="text-h2 font-h2 text-on-surface">Event Planning &amp; Tasks</h2>
+</div>
+<p class="text-body-md font-body-md text-on-surface-variant mb-lg">Updates on tasks, approvals, documents, and schedule changes.</p>
+<div class="space-y-md">
+<div class="flex items-center justify-between">
+<label class="text-body-md font-body-md cursor-pointer flex-1">Push Notifications</label>
+<input checked="" class="custom-toggle appearance-none w-11 h-6 bg-surface-variant rounded-full relative outline-none cursor-pointer transition-colors duration-300 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-surface-variant after:border after:rounded-full after:h-5 after:w-5 after:transition-all after:duration-300 checked:bg-primary-container checked:after:translate-x-full checked:after:border-primary-container" type="checkbox"/>
+</div>
+<div class="w-full h-px bg-surface-variant"></div>
+<div class="flex items-center justify-between">
+<label class="text-body-md font-body-md cursor-pointer flex-1">Email</label>
+<input checked="" class="custom-toggle appearance-none w-11 h-6 bg-surface-variant rounded-full relative outline-none cursor-pointer transition-colors duration-300 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-surface-variant after:border after:rounded-full after:h-5 after:w-5 after:transition-all after:duration-300 checked:bg-primary-container checked:after:translate-x-full checked:after:border-primary-container" type="checkbox"/>
+</div>
+</div>
+</section>
+<!-- Quotation Updates -->
+<section class="bg-surface rounded-[14px] border border-surface-variant p-md md:p-lg flex flex-col">
+<div class="flex items-center gap-sm mb-sm">
+<span class="material-symbols-outlined text-secondary" data-icon="request_quote">request_quote</span>
+<h3 class="text-body-lg font-bold text-on-surface">Quotation Updates</h3>
+</div>
+<p class="text-body-md font-body-md text-on-surface-variant mb-md flex-1">Alerts when new quotes are received or modified.</p>
+<div class="space-y-sm">
+<div class="flex items-center gap-sm">
+<input checked="" class="w-5 h-5 rounded border-outline-variant text-primary-container focus:ring-primary-container" id="quote-email" type="checkbox"/>
+<label class="text-body-md font-body-md" for="quote-email">Email</label>
+</div>
+<div class="flex items-center gap-sm">
+<input checked="" class="w-5 h-5 rounded border-outline-variant text-primary-container focus:ring-primary-container" id="quote-push" type="checkbox"/>
+<label class="text-body-md font-body-md" for="quote-push">Push Notification</label>
+</div>
+</div>
+</section>
+<!-- Gallery and deliverables -->
+<section class="bg-surface rounded-[14px] border border-surface-variant p-md md:p-lg flex flex-col">
+<div class="flex items-center gap-sm mb-sm">
+<span class="material-symbols-outlined text-secondary" data-icon="photo_library">photo_library</span>
+<h3 class="text-body-lg font-bold text-on-surface">Gallery and Deliverables</h3>
+</div>
+<p class="text-body-md font-body-md text-on-surface-variant mb-md flex-1">Updates when event photos and deliverables are ready.</p>
+<div class="space-y-sm">
+<div class="flex items-center gap-sm">
+<input checked="" class="w-5 h-5 rounded border-outline-variant text-primary-container focus:ring-primary-container" id="gallery-email" type="checkbox"/>
+<label class="text-body-md font-body-md" for="gallery-email">Email</label>
+</div>
+<div class="flex items-center gap-sm">
+<input checked="" class="w-5 h-5 rounded border-outline-variant text-primary-container focus:ring-primary-container" id="gallery-push" type="checkbox"/>
+<label class="text-body-md font-body-md" for="gallery-push">Push Notification</label>
+</div>
+</div>
+</section>
+<!-- Support-case updates -->
+<section class="bg-surface rounded-[14px] border border-surface-variant p-md md:p-lg flex flex-col">
+<div class="flex items-center gap-sm mb-sm">
+<span class="material-symbols-outlined text-secondary" data-icon="support_agent">support_agent</span>
+<h3 class="text-body-lg font-bold text-on-surface">Support-case updates</h3>
+</div>
+<p class="text-body-md font-body-md text-on-surface-variant mb-md flex-1">Notifications regarding your support tickets.</p>
+<div class="space-y-sm">
+<div class="flex items-center gap-sm">
+<input checked="" class="w-5 h-5 rounded border-outline-variant text-primary-container focus:ring-primary-container" id="support-email" type="checkbox"/>
+<label class="text-body-md font-body-md" for="support-email">Email</label>
+</div>
+<div class="flex items-center gap-sm">
+<input checked="" class="w-5 h-5 rounded border-outline-variant text-primary-container focus:ring-primary-container" id="support-push" type="checkbox"/>
+<label class="text-body-md font-body-md" for="support-push">Push Notification</label>
+</div>
+</div>
+</section>
+<!-- Feedback Requests -->
+<section class="bg-surface rounded-[14px] border border-surface-variant p-md md:p-lg flex flex-col">
+<div class="flex items-center gap-sm mb-sm">
+<span class="material-symbols-outlined text-secondary" data-icon="feedback">feedback</span>
+<h3 class="text-body-lg font-bold text-on-surface">Feedback Requests</h3>
+</div>
+<p class="text-body-md font-body-md text-on-surface-variant mb-md flex-1">Requests for your feedback and reviews.</p>
+<div class="space-y-sm">
+<div class="flex items-center gap-sm">
+<input checked="" class="w-5 h-5 rounded border-outline-variant text-primary-container focus:ring-primary-container" id="feedback-email" type="checkbox"/>
+<label class="text-body-md font-body-md" for="feedback-email">Email</label>
+</div>
+<div class="flex items-center gap-sm">
+<input class="w-5 h-5 rounded border-outline-variant text-primary-container focus:ring-primary-container" id="feedback-push" type="checkbox"/>
+<label class="text-body-md font-body-md" for="feedback-push">Push Notification</label>
+</div>
+</div>
+</section>
+<!-- Product news and promotions -->
+<section class="bg-surface rounded-[14px] border border-surface-variant p-md md:p-lg flex flex-col">
+<div class="flex items-center gap-sm mb-sm">
+<span class="material-symbols-outlined text-secondary" data-icon="campaign">campaign</span>
+<h3 class="text-body-lg font-bold text-on-surface">Product News &amp; Promotions</h3>
+</div>
+<p class="text-body-md font-body-md text-on-surface-variant mb-md flex-1">Marketing, promotions, and new features.</p>
+<div class="space-y-sm">
+<div class="flex items-center gap-sm">
+<input class="w-5 h-5 rounded border-outline-variant text-primary-container focus:ring-primary-container" id="promo-email" type="checkbox"/>
+<label class="text-body-md font-body-md" for="promo-email">Email</label>
+</div>
+<div class="flex items-center gap-sm">
+<input class="w-5 h-5 rounded border-outline-variant text-primary-container focus:ring-primary-container" id="promo-push" type="checkbox"/>
+<label class="text-body-md font-body-md" for="promo-push">Push Notification</label>
+</div>
+<div class="flex items-center gap-sm">
+<input class="w-5 h-5 rounded border-outline-variant text-primary-container focus:ring-primary-container" id="promo-sms" type="checkbox"/>
+<label class="text-body-md font-body-md" for="promo-sms">SMS</label>
+</div>
+</div>
+</section>
+<!-- Transactional & Crucial Alerts Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+<!-- Payments -->
+<section class="bg-surface rounded-[14px] border border-surface-variant p-md md:p-lg flex flex-col">
+<div class="flex items-center gap-sm mb-sm">
+<span class="material-symbols-outlined text-secondary" data-icon="payments">payments</span>
+<h3 class="text-body-lg font-bold text-on-surface">Payment Confirmations</h3>
+</div>
+<p class="text-body-md font-body-md text-on-surface-variant mb-md flex-1">At least one channel must remain active.</p>
+<div class="space-y-sm">
+<div class="flex items-center gap-sm">
+<input checked="" class="w-5 h-5 rounded border-outline-variant text-primary-container focus:ring-primary-container" disabled="" id="pay-email" type="checkbox"/>
+<label class="text-body-md font-body-md" for="pay-email">Email (Required)</label>
+</div>
+<div class="flex items-center gap-sm">
+<input class="w-5 h-5 rounded border-outline-variant text-primary-container focus:ring-primary-container" id="pay-push" type="checkbox"/>
+<label class="text-body-md font-body-md" for="pay-push">Push Notification</label>
+</div>
+</div>
+</section>
+<!-- Event Day -->
+<section class="bg-surface rounded-[14px] border border-surface-variant p-md md:p-lg flex flex-col relative overflow-hidden group hover:shadow-[0px_10px_30px_rgba(74,14,14,0.05)] transition-shadow">
+<div class="absolute top-0 right-0 p-sm text-on-tertiary-container bg-tertiary-fixed-dim rounded-bl-xl text-label-caps font-label-caps">Ignores Quiet Hours</div>
+<div class="flex items-center gap-sm mb-sm mt-sm">
+<span class="material-symbols-outlined text-error" data-icon="notifications_active" data-weight="fill" style="font-variation-settings: 'FILL' 1;">notifications_active</span>
+<h3 class="text-body-lg font-bold text-on-surface">Event-Day Alerts</h3>
+</div>
+<p class="text-body-md font-body-md text-on-surface-variant mb-md flex-1">Crucial updates during your event.</p>
+<div class="flex items-center gap-sm">
+<input checked="" class="w-5 h-5 rounded border-outline-variant text-primary-container focus:ring-primary-container" id="event-sms" type="checkbox"/>
+<label class="text-body-md font-body-md" for="event-sms">SMS Updates</label>
+</div>
+</section>
+</div>
+<!-- Action Button Area -->
+<div class="pt-lg flex justify-end pb-xl">
+<button class="bg-surface-variant text-on-surface-variant px-xl py-sm rounded text-button font-button cursor-not-allowed opacity-50" disabled="">
+                        Save Preferences
+                    </button>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 w-full z-50 rounded-t-xl bg-surface dark:bg-surface-container-low border-t border-outline-variant shadow-lg flex justify-around items-center px-sm py-base">
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant gap-xs hover:bg-surface-container-high transition-all p-xs rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="text-label-caps font-label-caps">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant gap-xs hover:bg-surface-container-high transition-all p-xs rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="search">search</span>
+<span class="text-label-caps font-label-caps">Explore</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant gap-xs hover:bg-surface-container-high transition-all p-xs rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="event_note">event_note</span>
+<span class="text-label-caps font-label-caps">Plan</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant gap-xs hover:bg-surface-container-high transition-all p-xs rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="chat_bubble">chat_bubble</span>
+<span class="text-label-caps font-label-caps">Enquiries</span>
+</a>
+<a class="flex flex-col items-center justify-center text-secondary dark:text-secondary-fixed-dim gap-xs hover:bg-surface-container-high transition-all p-xs rounded-lg scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="text-label-caps font-label-caps">Profile</span>
+</a>
+</nav>
+<script>
+        // Simple logic to enable 'Save Preferences' on change
+        document.addEventListener('DOMContentLoaded', () => {
+            const saveBtn = document.querySelector('button[disabled]');
+            const inputs = document.querySelectorAll('input[type="checkbox"]:not([disabled])');
+
+            inputs.forEach(input => {
+                input.addEventListener('change', () => {
+                    saveBtn.disabled = false;
+                    saveBtn.className = "bg-primary-container text-on-primary px-xl py-sm rounded text-button font-button transition-colors";
+                });
+            });
+        });
+    </script>
+</body></html>

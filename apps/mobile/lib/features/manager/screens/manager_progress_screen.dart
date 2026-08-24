@@ -30,7 +30,9 @@ class _ManagerProgressScreenState extends ConsumerState<ManagerProgressScreen> {
     if (_summary.text.trim().isEmpty) return;
     setState(() => _busy = true);
     try {
-      await ref.read(managerOperationsRepositoryProvider).addProgress(
+      await ref
+          .read(managerOperationsRepositoryProvider)
+          .addProgress(
             eventId: widget.eventId,
             updateKind: _kind,
             summary: _summary.text.trim(),
@@ -52,7 +54,7 @@ class _ManagerProgressScreenState extends ConsumerState<ManagerProgressScreen> {
         padding: const EdgeInsets.all(AppSpacing.lg),
         children: [
           DropdownButtonFormField<String>(
-            value: _kind,
+            initialValue: _kind,
             items: const [
               DropdownMenuItem(value: 'morning', child: Text('Morning')),
               DropdownMenuItem(value: 'afternoon', child: Text('Afternoon')),

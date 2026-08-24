@@ -28,11 +28,11 @@ class SubcategorySection extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                '${currentCategory.name} Services', 
+                '${currentCategory.name} Services',
                 style: AppTypography.displayMd,
               ),
               Text(
-                'Show all', 
+                'Show all',
                 style: AppTypography.bodySm.copyWith(
                   color: AppColors.ink,
                   decoration: TextDecoration.underline,
@@ -91,7 +91,9 @@ class SubcategorySection extends StatelessWidget {
                                 const SizedBox(height: 2),
                                 Text(
                                   sub.description,
-                                  style: AppTypography.bodySm.copyWith(color: AppColors.muted),
+                                  style: AppTypography.bodySm.copyWith(
+                                    color: AppColors.muted,
+                                  ),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                 ),

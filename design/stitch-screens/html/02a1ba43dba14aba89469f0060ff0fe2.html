@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Preferences - Mee Events</title>
+<!-- Google Fonts & Material Symbols -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600&amp;family=Manrope:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-bright": "#fcf9f8",
+                        "on-tertiary-container": "#8c8c88",
+                        "surface-container-highest": "#e5e2e1",
+                        "surface": "#fcf9f8",
+                        "on-primary": "#ffffff",
+                        "primary": "#2a0002",
+                        "on-secondary": "#ffffff",
+                        "surface-container-high": "#eae7e7",
+                        "primary-fixed-dim": "#ffb3ad",
+                        "on-surface": "#1c1b1b",
+                        "on-error": "#ffffff",
+                        "on-background": "#1c1b1b",
+                        "surface-tint": "#954742",
+                        "error": "#ba1a1a",
+                        "surface-variant": "#e5e2e1",
+                        "on-tertiary-fixed": "#1b1c19",
+                        "background": "#fcf9f8",
+                        "inverse-on-surface": "#f3f0ef",
+                        "on-primary-fixed-variant": "#77302d",
+                        "inverse-surface": "#313030",
+                        "tertiary-container": "#242522",
+                        "error-container": "#ffdad6",
+                        "inverse-primary": "#ffb3ad",
+                        "primary-fixed": "#ffdad7",
+                        "tertiary": "#0f100d",
+                        "on-tertiary-fixed-variant": "#474744",
+                        "surface-container": "#f0eded",
+                        "outline": "#877270",
+                        "secondary-fixed": "#ffdea5",
+                        "on-secondary-fixed-variant": "#5d4201",
+                        "secondary": "#775a19",
+                        "surface-container-low": "#f6f3f2",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary-fixed": "#261900",
+                        "tertiary-fixed": "#e4e2dd",
+                        "on-primary-container": "#cc726d",
+                        "on-surface-variant": "#544341",
+                        "on-primary-fixed": "#3d0506",
+                        "tertiary-fixed-dim": "#c8c6c2",
+                        "primary-container": "#4a0e0e",
+                        "outline-variant": "#dac1bf",
+                        "on-tertiary": "#ffffff",
+                        "surface-dim": "#dcd9d9",
+                        "on-secondary-container": "#785a1a",
+                        "secondary-fixed-dim": "#e9c176",
+                        "secondary-container": "#fed488",
+                        "on-error-container": "#93000a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "container-max": "1280px",
+                        "sm": "12px",
+                        "md": "24px",
+                        "xl": "80px",
+                        "xs": "4px",
+                        "lg": "48px",
+                        "base": "8px",
+                        "gutter": "24px"
+                    },
+                    "fontFamily": {
+                        "display-hero": ["EB Garamond"],
+                        "h1": ["Manrope"],
+                        "button": ["Manrope"],
+                        "label-caps": ["Manrope"],
+                        "h2": ["Manrope"],
+                        "body-lg": ["Manrope"],
+                        "display-hero-mobile": ["EB Garamond"],
+                        "body-md": ["Manrope"]
+                    },
+                    "fontSize": {
+                        "display-hero": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "500" }],
+                        "h1": ["32px", { "lineHeight": "1.3", "fontWeight": "700" }],
+                        "button": ["14px", { "lineHeight": "1", "fontWeight": "600" }],
+                        "label-caps": ["12px", { "lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "700" }],
+                        "h2": ["24px", { "lineHeight": "1.4", "fontWeight": "600" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "display-hero-mobile": ["36px", { "lineHeight": "1.2", "fontWeight": "500" }],
+                        "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        /* Custom styles for range slider to match premium aesthetic */
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 20px;
+            width: 20px;
+            border-radius: 50%;
+            background: #2a0002;
+            cursor: pointer;
+            margin-top: -8px; 
+            box-shadow: 0px 4px 10px rgba(42, 0, 2, 0.2);
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: #dac1bf;
+            border-radius: 2px;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body-md min-h-screen antialiased selection:bg-primary-container selection:text-on-primary-container flex flex-col">
+<!-- TopAppBar Shared Component -->
+<header class="w-full top-0 left-0 bg-background dark:bg-background flex justify-between items-center px-gutter py-sm w-full fixed z-50">
+<button class="text-primary dark:text-primary-fixed-dim hover:opacity-80 transition-opacity flex items-center justify-center p-2 -ml-2 rounded-full focus:outline-none focus:ring-2 focus:ring-primary/20">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<div class="font-display-hero-mobile text-display-hero-mobile text-primary dark:text-primary-fixed-dim flex-1 text-center">
+            Mee Events
+        </div>
+<button class="text-primary dark:text-primary-fixed-dim font-button text-button hover:opacity-80 transition-opacity px-2 py-1">
+            Customer ▾
+        </button>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-1 w-full max-w-container-max mx-auto px-4 md:px-gutter pt-[80px] pb-[120px]">
+<!-- Page Header -->
+<div class="mb-lg mt-md">
+<h1 class="font-h1 text-h1 text-primary mb-2">Preferences</h1>
+<p class="font-body-md text-body-md text-on-surface-variant">Customize your experience across Mee Events.</p>
+</div>
+<div class="space-y-lg max-w-2xl">
+<!-- Language Section -->
+<section>
+<h2 class="font-h2 text-h2 text-primary mb-md flex items-center gap-2">
+<span class="material-symbols-outlined text-outline">language</span>
+                    Language
+                </h2>
+<div class="bg-surface-container-lowest rounded-[14px] border border-outline-variant/30 overflow-hidden shadow-sm">
+<!-- Option 1 (Selected) -->
+<label class="flex items-center justify-between p-md border-b border-outline-variant/30 cursor-pointer hover:bg-surface-container-low transition-colors group">
+<div class="flex items-center gap-4">
+<div class="w-5 h-5 rounded-full border-2 border-primary flex items-center justify-center">
+<div class="w-2.5 h-2.5 rounded-full bg-primary"></div>
+</div>
+<span class="font-body-lg text-body-lg text-on-surface font-medium">English</span>
+</div>
+<span class="material-symbols-outlined text-primary">check</span>
+</label>
+<!-- Option 2 -->
+<label class="flex items-center justify-between p-md border-b border-outline-variant/30 cursor-pointer hover:bg-surface-container-low transition-colors group">
+<div class="flex items-center gap-4">
+<div class="w-5 h-5 rounded-full border-2 border-outline group-hover:border-primary transition-colors flex items-center justify-center">
+</div>
+<span class="font-body-lg text-body-lg text-on-surface font-medium">తెలుగు</span>
+</div>
+</label>
+<!-- Option 3 -->
+<label class="flex items-center justify-between p-md cursor-pointer hover:bg-surface-container-low transition-colors group">
+<div class="flex items-center gap-4">
+<div class="w-5 h-5 rounded-full border-2 border-outline group-hover:border-primary transition-colors flex items-center justify-center">
+</div>
+<span class="font-body-lg text-body-lg text-on-surface font-medium">हिन्दी</span>
+</div>
+</label>
+</div>
+</section>
+<!-- Accessibility Section -->
+<section>
+<h2 class="font-h2 text-h2 text-primary mb-md flex items-center gap-2">
+<span class="material-symbols-outlined text-outline">accessibility_new</span>
+                    Accessibility
+                </h2>
+<div class="bg-surface-container-lowest rounded-[14px] border border-outline-variant/30 overflow-hidden shadow-sm p-md space-y-lg">
+<!-- Text Size -->
+<div class="space-y-4">
+<div class="flex justify-between items-center">
+<label class="font-body-lg text-body-lg text-on-surface font-medium">Text size</label>
+<span class="font-label-caps text-label-caps text-on-surface-variant bg-surface-container py-1 px-3 rounded-full">Standard</span>
+</div>
+<div class="relative pt-2 pb-6">
+<input class="w-full h-1 bg-outline-variant rounded-lg appearance-none cursor-pointer" max="2" min="0" type="range" value="1"/>
+<div class="flex justify-between text-on-surface-variant font-label-caps text-label-caps mt-2 px-1 absolute w-full">
+<span>Small</span>
+<span>Standard</span>
+<span>Large</span>
+</div>
+</div>
+</div>
+<hr class="border-outline-variant/30"/>
+<!-- Toggles -->
+<div class="space-y-6">
+<!-- Toggle Item -->
+<div class="flex items-center justify-between">
+<div>
+<h3 class="font-body-lg text-body-lg text-on-surface font-medium">Use device settings</h3>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm mt-1">Sync with your system accessibility preferences</p>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-surface-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-outline-variant after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<!-- Toggle Item -->
+<div class="flex items-center justify-between">
+<div>
+<h3 class="font-body-lg text-body-lg text-on-surface font-medium">Reduce motion</h3>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm mt-1">Minimize animations across the interface</p>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-surface-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-outline-variant after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<!-- Toggle Item -->
+<div class="flex items-center justify-between">
+<div>
+<h3 class="font-body-lg text-body-lg text-on-surface font-medium">Higher contrast</h3>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm mt-1">Increase contrast for better readability</p>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-surface-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-outline-variant after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<!-- Toggle Item -->
+<div class="flex items-center justify-between">
+<div>
+<h3 class="font-body-lg text-body-lg text-on-surface font-medium">Haptic feedback</h3>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm mt-1">Vibrate on key interactions</p>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-surface-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-outline-variant after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+</div>
+</div>
+</section>
+<!-- Theme Section -->
+<section>
+<h2 class="font-h2 text-h2 text-primary mb-md flex items-center gap-2">
+<span class="material-symbols-outlined text-outline">palette</span>
+                    Theme
+                </h2>
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+<!-- Light Theme (Selected) -->
+<label class="cursor-pointer">
+<input checked="" class="sr-only peer" name="theme" type="radio"/>
+<div class="bg-surface-container-lowest border border-outline-variant/30 rounded-xl p-4 text-center peer-checked:border-primary peer-checked:ring-1 peer-checked:ring-primary transition-all hover:bg-surface-container-low shadow-sm">
+<span class="material-symbols-outlined text-on-surface mb-2" style="font-variation-settings: 'FILL' 1;">light_mode</span>
+<div class="font-body-md text-body-md text-on-surface font-medium">Light</div>
+</div>
+</label>
+<!-- Dark Theme -->
+<label class="cursor-pointer">
+<input class="sr-only peer" name="theme" type="radio"/>
+<div class="bg-surface-container-lowest border border-outline-variant/30 rounded-xl p-4 text-center peer-checked:border-primary peer-checked:ring-1 peer-checked:ring-primary transition-all hover:bg-surface-container-low shadow-sm">
+<span class="material-symbols-outlined text-on-surface mb-2">dark_mode</span>
+<div class="font-body-md text-body-md text-on-surface font-medium">Dark</div>
+</div>
+</label>
+<!-- Device Theme -->
+<label class="cursor-pointer">
+<input class="sr-only peer" name="theme" type="radio"/>
+<div class="bg-surface-container-lowest border border-outline-variant/30 rounded-xl p-4 text-center peer-checked:border-primary peer-checked:ring-1 peer-checked:ring-primary transition-all hover:bg-surface-container-low shadow-sm">
+<span class="material-symbols-outlined text-on-surface mb-2">settings_suggest</span>
+<div class="font-body-md text-body-md text-on-surface font-medium">Device</div>
+</div>
+</label>
+</div>
+</section>
+<!-- Primary Action -->
+<div class="pt-lg">
+<button class="w-full bg-primary text-on-primary font-button text-button py-4 px-6 rounded-full hover:opacity-90 transition-opacity shadow-[0px_10px_30px_rgba(74,14,14,0.05)] active:scale-95 transition-transform flex justify-center items-center gap-2">
+<span class="material-symbols-outlined text-sm">done_all</span>
+                    Apply preferences
+                </button>
+</div>
+</div>
+</main>
+<!-- BottomNavBar Shared Component -->
+<!-- Displayed on mobile, logically hidden on desktop via utility classes if implemented fully, but keeping structure per instructions -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pt-base pb-safe bg-surface-container-lowest dark:bg-surface-container-low border-t border-outline-variant/30 shadow-sm rounded-t-xl md:hidden">
+<!-- Home -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors group p-2" href="#">
+<span class="material-symbols-outlined group-active:scale-95 transition-transform">home</span>
+<span class="font-label-caps text-label-caps uppercase tracking-widest mt-1">Home</span>
+</a>
+<!-- Explore -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors group p-2" href="#">
+<span class="material-symbols-outlined group-active:scale-95 transition-transform">explore</span>
+<span class="font-label-caps text-label-caps uppercase tracking-widest mt-1">Explore</span>
+</a>
+<!-- Plan -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors group p-2" href="#">
+<span class="material-symbols-outlined group-active:scale-95 transition-transform">event_note</span>
+<span class="font-label-caps text-label-caps uppercase tracking-widest mt-1">Plan</span>
+</a>
+<!-- Enquiries -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors group p-2" href="#">
+<span class="material-symbols-outlined group-active:scale-95 transition-transform">chat_bubble</span>
+<span class="font-label-caps text-label-caps uppercase tracking-widest mt-1">Enquiries</span>
+</a>
+<!-- Profile (Active State for Preferences) -->
+<a class="flex flex-col items-center justify-center text-primary dark:text-primary-fixed-dim relative after:content-[''] after:w-1 after:h-1 after:bg-secondary after:rounded-full after:mt-1 opacity-70 transition-opacity p-2" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">person</span>
+<span class="font-label-caps text-label-caps uppercase tracking-widest mt-1 font-bold">Profile</span>
+</a>
+</nav>
+</body></html>

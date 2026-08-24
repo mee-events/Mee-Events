@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>00B3 — Components: Navigation and Feedback</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&amp;family=EB+Garamond:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-background": "#1c1b1b",
+                        "on-tertiary-fixed": "#1b1c19",
+                        "primary-fixed": "#ffdad7",
+                        "tertiary-fixed-dim": "#c8c6c2",
+                        "on-error": "#ffffff",
+                        "secondary-fixed": "#ffdea5",
+                        "surface": "#fcf9f8",
+                        "on-tertiary-container": "#8c8c88",
+                        "on-secondary-fixed": "#261900",
+                        "inverse-surface": "#313030",
+                        "primary-fixed-dim": "#ffb3ad",
+                        "primary": "#2a0002",
+                        "on-primary-fixed": "#3d0506",
+                        "surface-container-highest": "#e5e2e1",
+                        "surface-bright": "#fcf9f8",
+                        "on-secondary-fixed-variant": "#5d4201",
+                        "surface-variant": "#e5e2e1",
+                        "background": "#fcf9f8",
+                        "tertiary": "#0f100d",
+                        "surface-dim": "#dcd9d9",
+                        "tertiary-fixed": "#e4e2dd",
+                        "error-container": "#ffdad6",
+                        "on-surface-variant": "#544341",
+                        "secondary": "#775a19",
+                        "outline": "#877270",
+                        "surface-container-high": "#eae7e7",
+                        "tertiary-container": "#242522",
+                        "inverse-primary": "#ffb3ad",
+                        "secondary-fixed-dim": "#e9c176",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "on-secondary": "#ffffff",
+                        "on-surface": "#1c1b1b",
+                        "inverse-on-surface": "#f3f0ef",
+                        "on-tertiary-fixed-variant": "#474744",
+                        "on-tertiary": "#ffffff",
+                        "secondary-container": "#fed488",
+                        "surface-container": "#f0eded",
+                        "error": "#ba1a1a",
+                        "on-error-container": "#93000a",
+                        "surface-tint": "#954742",
+                        "on-secondary-container": "#785a1a",
+                        "primary-container": "#4a0e0e",
+                        "outline-variant": "#dac1bf",
+                        "on-primary-container": "#cc726d",
+                        "on-primary-fixed-variant": "#77302d",
+                        "surface-container-low": "#f6f3f2"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    spacing: {
+                        "container-max": "1280px",
+                        "xl": "80px",
+                        "md": "24px",
+                        "gutter": "24px",
+                        "xs": "4px",
+                        "base": "8px",
+                        "sm": "12px",
+                        "lg": "48px"
+                    },
+                    fontFamily: {
+                        "h1": ["Manrope"],
+                        "body-md": ["Manrope"],
+                        "button": ["Manrope"],
+                        "label-caps": ["Manrope"],
+                        "display-hero-mobile": ["EB Garamond"],
+                        "h2": ["Manrope"],
+                        "body-lg": ["Manrope"],
+                        "display-hero": ["EB Garamond"]
+                    },
+                    fontSize: {
+                        "h1": ["32px", { lineHeight: "1.3", fontWeight: "700" }],
+                        "body-md": ["16px", { lineHeight: "1.6", fontWeight: "400" }],
+                        "button": ["14px", { lineHeight: "1", fontWeight: "600" }],
+                        "label-caps": ["12px", { lineHeight: "1", letterSpacing: "0.05em", fontWeight: "700" }],
+                        "display-hero-mobile": ["36px", { lineHeight: "1.2", fontWeight: "500" }],
+                        "h2": ["24px", { lineHeight: "1.4", fontWeight: "600" }],
+                        "body-lg": ["18px", { lineHeight: "1.6", fontWeight: "400" }],
+                        "display-hero": ["48px", { lineHeight: "1.1", letterSpacing: "-0.02em", fontWeight: "500" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { background-color: #F9F7F2; } /* Warm Ivory Canvas */
+        .glass-card { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); }
+        .bento-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="font-body-md text-on-surface antialiased min-h-screen pb-32">
+<!-- Header / TopAppBar (from JSON) -->
+<header class="bg-surface dark:bg-surface-dim border-b border-outline-variant dark:border-outline docked full-width top-0 z-40 sticky">
+<div class="flex justify-between items-center w-full px-md h-16 max-w-container-max mx-auto">
+<button class="text-primary dark:text-primary-fixed-dim hover:bg-surface-container transition-colors rounded-full p-2">
+<span class="material-symbols-outlined">location_on</span>
+</button>
+<h1 class="font-display-hero-mobile text-display-hero-mobile text-primary dark:text-primary-fixed-dim">Mee Events</h1>
+<button class="text-primary dark:text-primary-fixed-dim hover:bg-surface-container transition-colors rounded-full p-2">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+</div>
+</header>
+<main class="max-w-container-max mx-auto px-md py-lg space-y-xl">
+<div class="mb-lg">
+<h2 class="font-h1 text-h1 text-primary">00B3 — Components: Navigation and Feedback</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant mt-2">A library of standard UI patterns following the Modern Indian Premium aesthetic.</p>
+</div>
+<section class="space-y-md">
+<h3 class="font-h2 text-h2 text-primary border-b border-outline-variant pb-2">1. Navigation (Mobile Shells)</h3>
+<div class="bento-grid">
+<!-- Customer Nav (from JSON mapping) -->
+<div class="bg-surface rounded-xl border border-outline-variant p-md flex flex-col justify-end min-h-[200px] relative overflow-hidden">
+<p class="absolute top-4 left-4 font-label-caps text-label-caps text-on-surface-variant">Customer Bottom Nav</p>
+<nav class="flex justify-around items-center w-full bg-surface h-20 border-t border-outline-variant rounded-t-xl absolute bottom-0 left-0">
+<button class="flex flex-col items-center justify-center text-primary border-t-2 border-secondary pt-1 w-1/5 scale-95 transition-transform duration-150">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="font-label-caps text-label-caps mt-1">Home</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant pt-1 w-1/5 hover:text-primary transition-all">
+<span class="material-symbols-outlined">search</span>
+<span class="font-label-caps text-label-caps mt-1">Explore</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant pt-1 w-1/5 hover:text-primary transition-all">
+<span class="material-symbols-outlined">event_note</span>
+<span class="font-label-caps text-label-caps mt-1">Plan</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant pt-1 w-1/5 hover:text-primary transition-all">
+<span class="material-symbols-outlined">chat_bubble</span>
+<span class="font-label-caps text-label-caps mt-1">Enquiries</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant pt-1 w-1/5 hover:text-primary transition-all">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-caps text-label-caps mt-1">Account</span>
+</button>
+</nav>
+</div>
+<!-- Vendor Nav -->
+<div class="bg-surface rounded-xl border border-outline-variant p-md flex flex-col justify-end min-h-[200px] relative overflow-hidden">
+<p class="absolute top-4 left-4 font-label-caps text-label-caps text-on-surface-variant">Vendor Bottom Nav</p>
+<nav class="flex justify-around items-center w-full bg-surface h-20 border-t border-outline-variant rounded-t-xl absolute bottom-0 left-0">
+<button class="flex flex-col items-center justify-center text-primary border-t-2 border-secondary pt-1 w-1/5 scale-95 transition-transform">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+<span class="font-label-caps text-label-caps mt-1">Dashboard</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant pt-1 w-1/5 hover:text-primary transition-all">
+<span class="material-symbols-outlined">receipt_long</span>
+<span class="font-label-caps text-label-caps mt-1">Orders</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant pt-1 w-1/5 hover:text-primary transition-all">
+<span class="material-symbols-outlined">room_service</span>
+<span class="font-label-caps text-label-caps mt-1">Service</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant pt-1 w-1/5 hover:text-primary transition-all">
+<span class="material-symbols-outlined">account_balance_wallet</span>
+<span class="font-label-caps text-label-caps mt-1">Finance</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant pt-1 w-1/5 hover:text-primary transition-all">
+<span class="material-symbols-outlined">manage_accounts</span>
+<span class="font-label-caps text-label-caps mt-1">Profile</span>
+</button>
+</nav>
+</div>
+<!-- Worker Nav -->
+<div class="bg-surface rounded-xl border border-outline-variant p-md flex flex-col justify-end min-h-[200px] relative overflow-hidden">
+<p class="absolute top-4 left-4 font-label-caps text-label-caps text-on-surface-variant">Worker Bottom Nav</p>
+<nav class="flex justify-around items-center w-full bg-surface h-20 border-t border-outline-variant rounded-t-xl absolute bottom-0 left-0">
+<button class="flex flex-col items-center justify-center text-primary border-t-2 border-secondary pt-1 w-1/4 scale-95 transition-transform">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">assignment</span>
+<span class="font-label-caps text-label-caps mt-1">Tasks</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant pt-1 w-1/4 hover:text-primary transition-all">
+<span class="material-symbols-outlined">calendar_today</span>
+<span class="font-label-caps text-label-caps mt-1">Schedule</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant pt-1 w-1/4 hover:text-primary transition-all">
+<span class="material-symbols-outlined">payments</span>
+<span class="font-label-caps text-label-caps mt-1">Earnings</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant pt-1 w-1/4 hover:text-primary transition-all">
+<span class="material-symbols-outlined">support_agent</span>
+<span class="font-label-caps text-label-caps mt-1">Support</span>
+</button>
+</nav>
+</div>
+</div>
+</section>
+<section class="space-y-md">
+<h3 class="font-h2 text-h2 text-primary border-b border-outline-variant pb-2">2. Sheets &amp; Dialogs</h3>
+<div class="bento-grid">
+<!-- Role Switcher Sheet -->
+<div class="bg-surface rounded-xl border border-outline-variant p-md flex items-center justify-center min-h-[300px] relative bg-surface-container-low">
+<div class="w-full max-w-sm bg-surface rounded-t-xl shadow-lg border border-outline-variant self-end p-md space-y-4">
+<div class="w-12 h-1 bg-outline-variant rounded-full mx-auto mb-4"></div>
+<h4 class="font-h2 text-h2 text-primary text-center">Switch Role</h4>
+<div class="space-y-2">
+<button class="w-full flex items-center justify-between p-3 rounded-lg hover:bg-surface-container transition-colors border border-transparent hover:border-outline-variant">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">person</span>
+<span class="font-button text-button text-on-surface">Customer</span>
+</div>
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</button>
+<button class="w-full flex items-center justify-between p-3 rounded-lg hover:bg-surface-container transition-colors border border-transparent hover:border-outline-variant">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-on-surface-variant">storefront</span>
+<span class="font-button text-button text-on-surface">Vendor</span>
+</div>
+</button>
+<button class="w-full flex items-center justify-between p-3 rounded-lg hover:bg-surface-container transition-colors border border-transparent hover:border-outline-variant">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-on-surface-variant">engineering</span>
+<span class="font-button text-button text-on-surface">Worker</span>
+</div>
+</button>
+</div>
+</div>
+</div>
+<!-- Confirmation Dialog -->
+<div class="bg-surface rounded-xl border border-outline-variant p-md flex items-center justify-center min-h-[300px] bg-surface-container-low">
+<div class="bg-surface p-6 rounded-[14px] shadow-lg border border-outline-variant w-full max-w-sm">
+<div class="flex justify-center mb-4 text-primary">
+<span class="material-symbols-outlined text-4xl">event_available</span>
+</div>
+<h4 class="font-h2 text-h2 text-primary text-center mb-2">Confirm Booking</h4>
+<p class="font-body-md text-body-md text-on-surface-variant text-center mb-6">Are you sure you want to finalize the booking for Royal Palace Hall?</p>
+<div class="flex gap-4">
+<button class="flex-1 py-3 px-4 rounded font-button text-button text-primary border border-outline-variant hover:bg-surface-container transition-colors">Cancel</button>
+<button class="flex-1 py-3 px-4 rounded font-button text-button text-on-primary bg-primary-container hover:bg-primary transition-colors shadow-[0_10px_30px_rgba(74,14,14,0.05)]">Confirm</button>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section class="space-y-md">
+<h3 class="font-h2 text-h2 text-primary border-b border-outline-variant pb-2">3. Feedback &amp; Status</h3>
+<div class="bento-grid">
+<!-- Snackbar & Banners -->
+<div class="bg-surface rounded-xl border border-outline-variant p-md flex flex-col gap-4 justify-center min-h-[250px]">
+<div class="bg-inverse-surface text-inverse-on-surface px-4 py-3 rounded-lg flex items-center justify-between shadow-md">
+<span class="font-body-md text-body-md">Plan saved successfully.</span>
+<button class="font-button text-button text-inverse-primary uppercase tracking-wider">Undo</button>
+</div>
+<div class="bg-error-container text-on-error-container px-4 py-3 rounded-lg flex items-center gap-3">
+<span class="material-symbols-outlined">wifi_off</span>
+<span class="font-body-md text-body-md">You are currently offline.</span>
+</div>
+<div class="bg-surface-variant text-on-surface-variant px-4 py-3 rounded-lg flex items-center justify-between border border-outline-variant">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-secondary">cloud_sync</span>
+<span class="font-body-md text-body-md">Action queued for sync.</span>
+</div>
+</div>
+</div>
+<!-- Empty State & Loading -->
+<div class="bg-surface rounded-xl border border-outline-variant p-md flex flex-col justify-center items-center min-h-[250px] text-center">
+<span class="material-symbols-outlined text-6xl text-outline-variant mb-4">inbox</span>
+<h4 class="font-h2 text-h2 text-primary mb-2">No Enquiries Yet</h4>
+<p class="font-body-md text-body-md text-on-surface-variant mb-4 max-w-[250px]">When you start planning, your venue and vendor enquiries will appear here.</p>
+<button class="py-2 px-6 rounded-full font-button text-button text-on-primary bg-primary-container hover:bg-primary transition-colors">Start Planning</button>
+</div>
+</div>
+</section>
+</main>
+</body></html>

@@ -6,7 +6,8 @@ final serviceRepositoryProvider = Provider<ServiceRepository>((ref) {
   return ServiceRepository();
 });
 
-final packagesByCategoryProvider = FutureProvider.family<List<ServicePackage>, String>((ref, category) async {
-  final repository = ref.watch(serviceRepositoryProvider);
-  return repository.fetchPackagesByCategory(category);
-});
+final packagesByCategoryProvider =
+    FutureProvider.family<List<ServicePackage>, String>((ref, category) async {
+      final repository = ref.watch(serviceRepositoryProvider);
+      return repository.fetchPackagesByCategory(category);
+    });

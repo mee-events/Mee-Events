@@ -1,0 +1,86 @@
+PROJECT CONTEXT
+
+Design a production-ready mobile experience for Mee Events, a Hyderabad-based
+managed event marketplace. This is one shared app with Customer, Vendor, and
+Worker roles. Customer is the default role; approved additional roles are
+available through a role switcher.
+
+BUSINESS RULES
+
+Customers browse Mee Events offerings, build an event plan, submit an enquiry,
+approve a quotation, pay Mee Events, and track event delivery. They do not
+compare or choose operational vendors. Vendor identity is visible only when Mee
+Events marks it as disclosed. Vendors manage private base prices, listings,
+assigned work orders, invoices, and settlements; they never see customer prices,
+margins, or competitor data. Workers manage availability, assigned work,
+attendance, proof of work, and earnings; they never see customer or vendor
+financial data and do not directly contact customers.
+
+VISUAL SYSTEM
+
+Use a premium, calm, trustworthy, photography-led Indian event aesthetic. Use
+warm ivory #F9F7F2 for the canvas, white cards, soft warm neutral surfaces,
+deep burgundy #4A0E0E for primary actions, ink #1A1A1A for main text,
+muted brown-grey #68635E for secondary text, thin #E5DED4 borders, and restrained
+gold #C5A059 accents. Display headings use EB Garamond; interface text uses
+Manrope. Use 14 px card radii, 20 px prominent container radii, generous spacing,
+hairline borders, and minimal shadow. Use authentic Indian event photography,
+not illustrations or generic Western wedding imagery. Vendor green and Worker
+blue may appear only as small role-context accents; all roles remain one brand.
+
+UX RULES
+
+Design at 390 x 844. Use one primary action per screen, 44 px minimum touch
+targets, visible form labels, concise Indian English, Indian Rupee formatting,
+and realistic Hyderabad content. Use progressive disclosure and clear status
+text. Do not use emoji decoration, glassmorphism, neon gradients, generic purple
+AI styling, crowded dashboards, card soup, or lorem ipsum.
+
+OUTPUT EXPECTATION
+
+Create polished, implementation-ready mobile screens with consistent reusable
+components, realistic content, clear hierarchy, and complete navigation context.
+Use the exact screen names requested. Do not add unrelated functionality.
+
+MODULE: WORKER ONBOARDING AND APPROVAL
+
+USER GOAL
+
+Apply for verified event work through Mee Events using a simple, respectful,
+mobile-first process suitable for field workers with varied digital confidence.
+
+REQUIRED EXPERIENCE
+
+Create eight screens with large controls, plain language, save-and-exit, and
+clear progress. Capture skills and service categories; identity and contact;
+experience; home address and preferred Hyderabad work areas; availability and
+shift preference; required evidence; emergency contact; review; declaration;
+submission; status; and changes requested.
+
+Explain location use in plain language: location is requested only when needed
+for attendance verification. Explain that Mee Events assigns work; workers do
+not browse or self-assign to customer events.
+
+Status supports Draft, Submitted, Under review, Changes requested, Resubmitted,
+Approved, Rejected, Suspended, and Revoked. Do not show Worker navigation before
+approval. Changes Requested gives one actionable reason per affected section and
+preserves already accepted information.
+
+Exact screen names (use these titles exactly):
+1. W12A Become a Worker — Overview
+2. W12B Worker Application — Skills
+3. W12C Worker Application — Identity and Experience
+4. W12D Worker Application — Work Area and Availability
+5. W12E Worker Application — Documents and Emergency Contact
+6. W12F Worker Application — Review and Declaration
+7. W12G Worker Application — Status
+8. W12H Worker Application — Changes Requested
+
+Use soft worker blue #3B5F9C only on the role chip. Keep Mee Events burgundy primary.
+
+ACCEPTANCE CRITERIA
+
+- Language is direct and respectful, not HR jargon.
+- Document upload and emergency contact feel safe and private.
+- Approval status and next action are obvious.
+- No customer contact or financial data appears.

@@ -5,15 +5,15 @@ class BootstrapEntry {
   final String route;
   final String roleName;
 
-  const BootstrapEntry({
-    required this.route,
-    required this.roleName,
-  });
+  const BootstrapEntry({required this.route, required this.roleName});
 }
 
 BootstrapEntry resolveBootstrapEntry(PlatformBootstrapResponse response) {
   if (response.branchCode != 'HYD') {
-    return const BootstrapEntry(route: '/unsupported', roleName: 'Unsupported Branch');
+    return const BootstrapEntry(
+      route: '/unsupported',
+      roleName: 'Unsupported Branch',
+    );
   }
 
   switch (response.surface) {

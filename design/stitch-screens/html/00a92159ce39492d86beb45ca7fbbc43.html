@@ -1,0 +1,344 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Mee Events - Privacy and Security</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@500;700&amp;family=Manrope:wght@400;600;700&amp;display=swap" rel="stylesheet">
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary-fixed-dim": "#ffb3ad",
+                        "primary-fixed": "#ffdad7",
+                        "on-error": "#ffffff",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-bright": "#fcf9f8",
+                        "tertiary-fixed-dim": "#c8c6c2",
+                        "on-primary": "#ffffff",
+                        "secondary-fixed-dim": "#e9c176",
+                        "primary-container": "#4a0e0e",
+                        "secondary-fixed": "#ffdea5",
+                        "outline-variant": "#dac1bf",
+                        "surface-variant": "#e5e2e1",
+                        "on-primary-container": "#cc726d",
+                        "on-tertiary-container": "#8c8c88",
+                        "on-secondary-container": "#785a1a",
+                        "tertiary": "#0f100d",
+                        "surface-tint": "#954742",
+                        "on-tertiary-fixed": "#1b1c19",
+                        "background": "#fcf9f8",
+                        "inverse-surface": "#313030",
+                        "surface-container-high": "#eae7e7",
+                        "on-tertiary": "#ffffff",
+                        "tertiary-container": "#242522",
+                        "on-secondary-fixed": "#261900",
+                        "error": "#ba1a1a",
+                        "on-surface": "#1c1b1b",
+                        "tertiary-fixed": "#e4e2dd",
+                        "surface": "#fcf9f8",
+                        "on-secondary-fixed-variant": "#5d4201",
+                        "on-surface-variant": "#544341",
+                        "on-secondary": "#ffffff",
+                        "surface-dim": "#dcd9d9",
+                        "inverse-on-surface": "#f3f0ef",
+                        "on-background": "#1c1b1b",
+                        "error-container": "#ffdad6",
+                        "on-primary-fixed": "#3d0506",
+                        "outline": "#877270",
+                        "secondary": "#775a19",
+                        "on-primary-fixed-variant": "#77302d",
+                        "surface-container": "#f0eded",
+                        "on-tertiary-fixed-variant": "#474744",
+                        "on-error-container": "#93000a",
+                        "surface-container-highest": "#e5e2e1",
+                        "secondary-container": "#fed488",
+                        "surface-container-low": "#f6f3f2",
+                        "inverse-primary": "#ffb3ad",
+                        "primary": "#2a0002"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "md": "24px",
+                        "xs": "4px",
+                        "sm": "12px",
+                        "base": "8px",
+                        "container-max": "1280px",
+                        "xl": "80px",
+                        "gutter": "24px",
+                        "lg": "48px"
+                    },
+                    "fontFamily": {
+                        "h1": ["Manrope"],
+                        "display-hero": ["EB Garamond"],
+                        "body-lg": ["Manrope"],
+                        "h2": ["Manrope"],
+                        "body-md": ["Manrope"],
+                        "label-caps": ["Manrope"],
+                        "display-hero-mobile": ["EB Garamond"],
+                        "button": ["Manrope"]
+                    },
+                    "fontSize": {
+                        "h1": ["32px", { "lineHeight": "1.3", "fontWeight": "700" }],
+                        "display-hero": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "500" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "h2": ["24px", { "lineHeight": "1.4", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "label-caps": ["12px", { "lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "700" }],
+                        "display-hero-mobile": ["36px", { "lineHeight": "1.2", "fontWeight": "500" }],
+                        "button": ["14px", { "lineHeight": "1", "fontWeight": "600" }]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom toggles */
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: #2a0002;
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #2a0002;
+        }
+        .toggle-checkbox:checked + .toggle-label:after {
+            transform: translateX(100%);
+            border-color: white;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-background text-on-background min-h-screen pb-24 md:pb-0 pt-16">
+<!-- TopAppBar (Hidden on mobile contextually, but present as semantic shell for desktop) -->
+<nav class="hidden md:flex justify-between items-center w-full px-md h-16 max-w-container-max mx-auto docked full-width top-0 bg-surface dark:bg-surface-dim border-b border-outline-variant fixed z-50">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary dark:text-primary-fixed-dim" style="font-variation-settings: 'FILL' 0;">menu</span>
+<span class="text-h1 font-display-hero-mobile text-primary dark:text-primary-fixed-dim tracking-tight">Mee Events</span>
+</div>
+<div class="flex items-center gap-md">
+<!-- Desktop Nav items reflecting BottomNavBar options -->
+<a class="text-on-surface-variant dark:text-on-surface-variant hover:text-secondary transition-colors duration-200 text-label-caps font-label-caps flex items-center gap-xs" href="#">
+<span class="material-symbols-outlined">home</span>Home
+            </a>
+<a class="text-on-surface-variant dark:text-on-surface-variant hover:text-secondary transition-colors duration-200 text-label-caps font-label-caps flex items-center gap-xs" href="#">
+<span class="material-symbols-outlined">search</span>Explore
+            </a>
+<a class="text-on-surface-variant dark:text-on-surface-variant hover:text-secondary transition-colors duration-200 text-label-caps font-label-caps flex items-center gap-xs" href="#">
+<span class="material-symbols-outlined">event_note</span>Plan
+            </a>
+<a class="text-on-surface-variant dark:text-on-surface-variant hover:text-secondary transition-colors duration-200 text-label-caps font-label-caps flex items-center gap-xs" href="#">
+<span class="material-symbols-outlined">chat_bubble</span>Enquiries
+            </a>
+<a class="text-secondary dark:text-secondary-fixed font-bold hover:text-secondary transition-colors duration-200 text-label-caps font-label-caps flex items-center gap-xs relative after:content-[''] after:absolute after:-bottom-1 after:left-1/2 after:-translate-x-1/2 after:w-1 after:h-1 after:bg-secondary after:rounded-full" href="#">
+<span class="material-symbols-outlined">person</span>Profile
+            </a>
+<button class="text-primary dark:text-primary-fixed-dim text-label-caps font-label-caps flex items-center">
+                Customer ▾
+            </button>
+</div>
+</nav>
+<!-- Mobile Header (Contextual back button for sub-page) -->
+<header class="md:hidden fixed top-0 w-full bg-surface z-40 border-b border-outline-variant h-16 flex items-center px-md justify-between">
+<a class="text-on-surface flex items-center" href="#">
+<span class="material-symbols-outlined">arrow_back</span>
+</a>
+<h1 class="text-h2 font-h2-mobile text-on-surface">Privacy &amp; Security</h1>
+<div class="w-6"></div> <!-- Spacer for centering -->
+</header>
+<main class="max-w-container-max mx-auto px-md md:px-lg py-md md:py-xl md:mt-8">
+<!-- Desktop Page Title -->
+<div class="hidden md:block mb-xl">
+<h1 class="font-display-hero text-display-hero text-on-surface mb-sm">Privacy &amp; Security</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl">Manage your data permissions, account security, and active sessions.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-12 gap-gutter">
+<!-- Left Column: Security & Sessions -->
+<div class="col-span-1 md:col-span-7 flex flex-col gap-lg">
+<!-- Authentication Method Card -->
+<section class="bg-surface-container-lowest rounded-xl border border-outline-variant p-md relative overflow-hidden group">
+<div class="absolute inset-0 bg-primary opacity-0 group-hover:opacity-[0.02] transition-opacity duration-300"></div>
+<div class="flex items-start justify-between mb-md relative z-10">
+<div>
+<h2 class="font-h2 text-h2 text-on-surface flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary">security</span>
+                                Authentication Method
+                            </h2>
+<p class="font-body-md text-body-md text-on-surface-variant mt-xs">Mee Events uses secure, passwordless login via One-Time Password (OTP).</p>
+</div>
+<div class="bg-surface-container py-xs px-sm rounded-full flex items-center gap-xs">
+<span class="material-symbols-outlined text-[16px] text-secondary">verified_user</span>
+<span class="font-label-caps text-label-caps text-on-surface-variant">Active</span>
+</div>
+</div>
+<div class="bg-error-container/30 rounded-lg p-sm border border-error/20 flex gap-sm items-start relative z-10">
+<span class="material-symbols-outlined text-error mt-1">warning</span>
+<div>
+<h3 class="font-button text-button text-error mb-xs">Never share an OTP</h3>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm">Mee Events staff will never ask for your OTP. Do not share it with anyone under any circumstances.</p>
+</div>
+</div>
+</section>
+<!-- Fraud Warning Card -->
+<section class="bg-surface-container-lowest rounded-xl border border-outline-variant p-md relative overflow-hidden group">
+<div class="absolute inset-0 bg-primary opacity-0 group-hover:opacity-[0.02] transition-opacity duration-300"></div>
+<div class="flex items-start justify-between mb-sm relative z-10">
+<div>
+<h2 class="font-h2 text-h2 text-on-surface flex items-center gap-sm">
+<span class="material-symbols-outlined text-surface-tint">payments</span>
+                                Payment Security
+                            </h2>
+</div>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant mb-md relative z-10">
+                        All payments are processed securely through our platform. <strong class="text-on-surface font-semibold">Mee Events support never requests payment credentials, credit card details, or direct bank transfers over the phone or via email.</strong>
+</p>
+</section>
+<!-- Active Sessions -->
+<section class="bg-surface-container-lowest rounded-xl border border-outline-variant p-md">
+<h2 class="font-h2 text-h2 text-on-surface mb-md flex items-center gap-sm">
+<span class="material-symbols-outlined text-on-surface-variant">devices</span>
+                        Active Sessions
+                    </h2>
+<div class="flex flex-col gap-sm">
+<!-- Current Device -->
+<div class="flex items-center justify-between p-sm border border-outline-variant rounded-lg bg-surface-bright">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center">
+<span class="material-symbols-outlined text-on-surface-variant">phone_iphone</span>
+</div>
+<div>
+<p class="font-button text-button text-on-surface">This phone</p>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm">Hyderabad — Approximate location — Active now</p>
+</div>
+</div>
+<span class="font-label-caps text-label-caps text-secondary px-sm py-xs bg-secondary-fixed/30 rounded-full">Current Device</span>
+</div>
+</div>
+<button class="mt-md w-full md:w-auto font-button text-button text-error border border-error px-md py-sm rounded-lg hover:bg-error-container/30 transition-colors flex items-center justify-center gap-xs" onclick="document.getElementById('signOutModal').classList.remove('hidden')">
+<span class="material-symbols-outlined text-[18px]">logout</span>
+                        Sign out from all devices
+                    </button>
+</section>
+</div>
+<!-- Right Column: Permissions & Data -->
+<div class="col-span-1 md:col-span-5 flex flex-col gap-lg">
+<!-- Data & Permissions -->
+<section class="bg-surface-container-lowest rounded-xl border border-outline-variant p-md">
+<h2 class="font-h2 text-h2 text-on-surface mb-md">Data &amp; Permissions</h2>
+<div class="flex flex-col gap-md">
+<!-- Testimonial Permission (Off) -->
+<div class="flex items-start justify-between pb-md border-b border-outline-variant">
+<div class="pr-md">
+<p class="font-button text-button text-on-surface">Testimonial Permission</p>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm mt-xs">Allow Mee Events to use your event photos in promotional materials.</p>
+</div>
+<!-- Toggle (Off state) -->
+<div class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in mt-1">
+<input class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer border-outline-variant z-10 transition-transform duration-200 ease-in-out" id="toggle_test" name="toggle_test" type="checkbox">
+<label class="toggle-label block overflow-hidden h-6 rounded-full bg-surface-variant cursor-pointer transition-colors duration-200 ease-in-out" for="toggle_test"></label>
+</div>
+</div>
+<!-- Marketing (Off) -->
+<div class="flex items-start justify-between pb-md border-b border-outline-variant">
+<div class="pr-md">
+<p class="font-button text-button text-on-surface">Marketing Communications</p>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm mt-xs">Receive updates about new vendors, offers, and inspiration.</p>
+</div>
+<!-- Toggle (Off state) -->
+<div class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in mt-1">
+<input class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer border-outline-variant z-10 transition-transform duration-200 ease-in-out" id="toggle_marketing" name="toggle_marketing" type="checkbox">
+<label class="toggle-label block overflow-hidden h-6 rounded-full bg-surface-variant cursor-pointer transition-colors duration-200 ease-in-out" for="toggle_marketing"></label>
+</div>
+</div>
+<!-- App Permissions -->
+<div class="flex items-center justify-between pb-sm">
+<div>
+<p class="font-button text-button text-on-surface">Device Permissions</p>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm mt-xs">Manage camera, location, and notification access.</p>
+</div>
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">open_in_new</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Gallery Sharing -->
+<section class="bg-surface-container-lowest rounded-xl border border-outline-variant p-md">
+<h2 class="font-h2 text-h2 text-on-surface mb-sm flex items-center gap-sm">
+<span class="material-symbols-outlined text-on-surface-variant">share</span>
+                        Gallery Sharing
+                    </h2>
+<p class="font-body-md text-body-md text-on-surface-variant mb-md">Manage public or guest links to your event galleries.</p>
+<div class="bg-surface-bright border border-dashed border-outline-variant rounded-lg p-md flex flex-col items-center justify-center text-center">
+<span class="material-symbols-outlined text-tertiary-fixed-dim text-4xl mb-sm">link_off</span>
+<p class="font-button text-button text-on-surface">None active</p>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm mt-xs">Your galleries are currently private.</p>
+</div>
+</section>
+<!-- Download Data -->
+<section class="bg-surface-container-lowest rounded-xl border border-outline-variant p-md">
+<h2 class="font-h2 text-h2 text-on-surface mb-sm flex items-center gap-sm">
+<span class="material-symbols-outlined text-on-surface-variant">download</span>
+                        Your Data
+                    </h2>
+<p class="font-body-md text-body-md text-on-surface-variant mb-md">Request a copy of your personal data stored on Mee Events.</p>
+<button class="w-full font-button text-button text-primary border border-primary px-md py-sm rounded-lg hover:bg-primary-fixed/30 transition-colors flex items-center justify-center gap-xs">
+                        Request Data Archive
+                    </button>
+</section>
+</div>
+</div>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-sm py-base bg-surface border-t border-outline-variant rounded-t-xl shadow-lg">
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant gap-xs" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="text-label-caps font-label-caps">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant gap-xs" href="#">
+<span class="material-symbols-outlined">search</span>
+<span class="text-label-caps font-label-caps">Explore</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant gap-xs" href="#">
+<span class="material-symbols-outlined">event_note</span>
+<span class="text-label-caps font-label-caps">Plan</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant gap-xs" href="#">
+<span class="material-symbols-outlined">chat_bubble</span>
+<span class="text-label-caps font-label-caps">Enquiries</span>
+</a>
+<a class="flex flex-col items-center justify-center text-secondary dark:text-secondary-fixed-dim gap-xs scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">person</span>
+<span class="text-label-caps font-label-caps">Profile</span>
+</a>
+</nav>
+<!-- Modal for Sign Out Confirmation (Hidden by default) -->
+<div class="hidden fixed inset-0 z-[100] flex items-end md:items-center justify-center px-0 md:px-md" id="signOutModal">
+<div class="absolute inset-0 bg-inverse-surface/50 backdrop-blur-sm" onclick="document.getElementById('signOutModal').classList.add('hidden')"></div>
+<div class="bg-surface-container-lowest rounded-t-2xl md:rounded-xl shadow-lg border-t md:border border-outline-variant p-lg max-w-sm w-full relative z-10 pb-10 md:pb-lg">
+<h3 class="font-h2 text-h2 text-on-surface mb-sm">Sign out from all devices?</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-lg">You will need to request a new OTP to log back in on any device.</p>
+<div class="flex justify-end gap-sm">
+<button class="font-button text-button text-on-surface px-md py-sm rounded-lg hover:bg-surface-variant transition-colors" onclick="document.getElementById('signOutModal').classList.add('hidden')">Cancel</button>
+<button class="font-button text-button text-on-primary bg-error px-md py-sm rounded-lg hover:bg-on-error-container transition-colors">Confirm Sign Out</button>
+</div>
+</div>
+</div>
+</body></html>

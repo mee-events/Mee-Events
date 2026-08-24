@@ -10,10 +10,10 @@ Product intent for future deploy stages:
 
 ## Triggers
 
-| Event            | Behavior                       |
-| ---------------- | ------------------------------ |
-| `pull_request`   | Runs all applicable jobs       |
-| `push` to `main` | Runs TypeScript + Flutter jobs |
+| Event                       | Behavior                       |
+| --------------------------- | ------------------------------ |
+| `pull_request`              | Runs all applicable jobs       |
+| `push` to `master` / `main` | Runs TypeScript + Flutter jobs |
 
 **Concurrency:** `ci-${{ github.ref }}` with `cancel-in-progress: true`.
 
@@ -49,7 +49,7 @@ Local parity: `corepack pnpm verify` (same sequence via root scripts).
   4. `flutter test`
   5. Debug APK: `flutter build apk --debug --flavor dev` with
      `--dart-define=APP_ENV=dev` and
-     `--dart-define=API_BASE_URL=http://10.0.2.2:3000/api/v1`
+     `--dart-define=API_BASE_URL=http://10.0.2.2:3002/api/v1`
 
 ### 3. `dependency-review`
 

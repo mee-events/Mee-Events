@@ -5,6 +5,7 @@ import { IdentityModule } from "../identity/identity.module";
 import { AccessTokenGuard } from "../platform-foundation/security/access-token.guard";
 import { PostgresEnquiryRepository } from "./adapters/postgres-enquiry.repository";
 import { EnquiryService } from "./application/enquiry.service";
+import { LeadUpdatedOutboxProcessor } from "./application/lead-updated-outbox.processor";
 import { ENQUIRY_REPOSITORY } from "./ports/enquiry-repository";
 import { EnquiryController } from "./presentation/enquiry.controller";
 
@@ -13,6 +14,7 @@ import { EnquiryController } from "./presentation/enquiry.controller";
   controllers: [EnquiryController],
   providers: [
     EnquiryService,
+    LeadUpdatedOutboxProcessor,
     AccessTokenGuard,
     CapabilityGuard,
     { provide: ENQUIRY_REPOSITORY, useClass: PostgresEnquiryRepository },

@@ -30,7 +30,13 @@ class MeErrorState extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(config.icon, size: AppIconSize.hero, color: AppColors.muted),
+            Icon(
+              config.icon,
+              size: AppIconSize.hero,
+              color: kind == MeErrorKind.generic
+                  ? AppColors.error
+                  : AppColors.mutedSoft,
+            ),
             const SizedBox(height: AppSpacing.md),
             Text(title ?? config.title, style: AppTypography.titleMd),
             const SizedBox(height: AppSpacing.xs),
@@ -51,7 +57,9 @@ class MeErrorState extends StatelessWidget {
     );
   }
 
-  static ({IconData icon, String title, String message}) _configFor(MeErrorKind kind) {
+  static ({IconData icon, String title, String message}) _configFor(
+    MeErrorKind kind,
+  ) {
     switch (kind) {
       case MeErrorKind.network:
         return (
@@ -76,11 +84,7 @@ class MeErrorState extends StatelessWidget {
 }
 
 class MeRetry extends StatelessWidget {
-  const MeRetry({
-    super.key,
-    required this.onRetry,
-    this.label = 'Retry',
-  });
+  const MeRetry({super.key, required this.onRetry, this.label = 'Retry'});
 
   final VoidCallback onRetry;
   final String label;

@@ -25,8 +25,7 @@ class ManagerEventScreen extends ConsumerWidget {
         error: (error, _) => MeErrorState(
           title: 'Could not load event',
           message: error.toString(),
-          onRetry: () =>
-              ref.invalidate(managerEventDashboardProvider(eventId)),
+          onRetry: () => ref.invalidate(managerEventDashboardProvider(eventId)),
         ),
         data: (data) {
           if (data == null) {
@@ -51,8 +50,7 @@ class ManagerEventScreen extends ConsumerWidget {
                 onPressed: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (_) =>
-                          ManagerProgressScreen(eventId: eventId),
+                      builder: (_) => ManagerProgressScreen(eventId: eventId),
                     ),
                   );
                 },

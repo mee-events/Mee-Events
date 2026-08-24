@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:mee_events/core/widgets/image/app_image.dart';
+import 'package:mee_events/design_system/components/motion/me_pressable.dart';
 import 'package:mee_events/theme/app_colors.dart';
+import 'package:mee_events/theme/app_elevation.dart';
 import 'package:mee_events/theme/app_icon_size.dart';
+import 'package:mee_events/theme/app_opacity.dart';
 import 'package:mee_events/theme/app_radius.dart';
 import 'package:mee_events/theme/app_spacing.dart';
 import 'package:mee_events/theme/app_typography.dart';
@@ -13,12 +17,16 @@ class MeSurfaceCard extends StatelessWidget {
     this.onTap,
     this.padding,
     this.margin,
+    this.clipBehavior = Clip.none,
+    this.selected = false,
   });
 
   final Widget child;
   final VoidCallback? onTap;
   final EdgeInsetsGeometry? padding;
   final EdgeInsetsGeometry? margin;
+  final Clip clipBehavior;
+  final bool selected;
 
   @override
   Widget build(BuildContext context) {
@@ -26,20 +34,23 @@ class MeSurfaceCard extends StatelessWidget {
       margin: margin,
       padding: padding ?? const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
-        color: AppColors.surfaceCard,
+        color: selected ? AppColors.primarySoft : AppColors.surfaceCard,
         borderRadius: AppRadius.cardAll,
-        border: Border.all(color: AppColors.hairlineSoft),
+        border: Border.all(
+          color: selected ? AppColors.primary : AppColors.hairlineSoft,
+          width: selected ? 1.75 : 1,
+        ),
+        boxShadow: AppElevation.lowShadow,
       ),
+      clipBehavior: clipBehavior,
       child: child,
     );
     if (onTap == null) return content;
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: AppRadius.cardAll,
-        child: content,
-      ),
+    return MePressable(
+      onTap: onTap,
+      borderRadius: AppRadius.cardAll,
+      splashColor: AppColors.primarySoft,
+      child: content,
     );
   }
 }
@@ -83,16 +94,26 @@ class MeEventCard extends StatelessWidget {
                 Text(title, style: AppTypography.titleMd),
                 if (subtitle != null) ...[
                   const SizedBox(height: AppSpacing.xs),
-                  Text(subtitle!, style: AppTypography.bodySm.copyWith(color: AppColors.muted)),
+                  Text(
+                    subtitle!,
+                    style: AppTypography.bodySm.copyWith(
+                      color: AppColors.muted,
+                    ),
+                  ),
                 ],
                 if (meta != null) ...[
                   const SizedBox(height: AppSpacing.xs),
-                  Text(meta!, style: AppTypography.captionSm.copyWith(color: AppColors.mutedSoft)),
+                  Text(
+                    meta!,
+                    style: AppTypography.captionSm.copyWith(
+                      color: AppColors.mutedSoft,
+                    ),
+                  ),
                 ],
               ],
             ),
           ),
-          if (trailing != null) trailing!,
+          ?trailing,
         ],
       ),
     );
@@ -117,6 +138,7 @@ class MeCategoryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return MeSurfaceCard(
       onTap: onTap,
+      selected: selected,
       padding: const EdgeInsets.all(AppSpacing.md),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -132,6 +154,7 @@ class MeCategoryCard extends StatelessWidget {
             textAlign: TextAlign.center,
             style: AppTypography.caption.copyWith(
               color: selected ? AppColors.primary : AppColors.ink,
+              fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
             ),
           ),
         ],
@@ -219,14 +242,20 @@ class MeOrderCard extends StatelessWidget {
           Row(
             children: [
               Expanded(child: Text(title, style: AppTypography.titleMd)),
-              if (status != null) status!,
+              ?status,
             ],
           ),
           const SizedBox(height: AppSpacing.xs),
-          Text(reference, style: AppTypography.captionSm.copyWith(color: AppColors.muted)),
+          Text(
+            reference,
+            style: AppTypography.captionSm.copyWith(color: AppColors.muted),
+          ),
           if (subtitle != null) ...[
             const SizedBox(height: AppSpacing.sm),
-            Text(subtitle!, style: AppTypography.bodySm.copyWith(color: AppColors.muted)),
+            Text(
+              subtitle!,
+              style: AppTypography.bodySm.copyWith(color: AppColors.muted),
+            ),
           ],
         ],
       ),
@@ -262,7 +291,12 @@ class MePaymentCard extends StatelessWidget {
               children: [
                 Text(title, style: AppTypography.titleMd),
                 if (subtitle != null)
-                  Text(subtitle!, style: AppTypography.captionSm.copyWith(color: AppColors.muted)),
+                  Text(
+                    subtitle!,
+                    style: AppTypography.captionSm.copyWith(
+                      color: AppColors.muted,
+                    ),
+                  ),
               ],
             ),
           ),
@@ -303,12 +337,20 @@ class MeDashboardCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: AppTypography.captionSm.copyWith(color: AppColors.muted)),
+          Text(
+            label,
+            style: AppTypography.captionSm.copyWith(color: AppColors.muted),
+          ),
           const SizedBox(height: AppSpacing.sm),
           Text(value, style: AppTypography.displaySm.copyWith(color: accent)),
           if (detail != null) ...[
             const SizedBox(height: AppSpacing.xs),
-            Text(detail!, style: AppTypography.captionSm.copyWith(color: AppColors.mutedSoft)),
+            Text(
+              detail!,
+              style: AppTypography.captionSm.copyWith(
+                color: AppColors.mutedSoft,
+              ),
+            ),
           ],
         ],
       ),
@@ -317,3 +359,110 @@ class MeDashboardCard extends StatelessWidget {
 }
 
 enum MeDashboardTone { neutral, brand, success, warning }
+
+/// Image-led card for discovery surfaces (Home spotlight, Explore, Category).
+class MeMediaCard extends StatelessWidget {
+  const MeMediaCard({
+    super.key,
+    required this.imageUrl,
+    required this.title,
+    this.subtitle,
+    this.badge,
+    this.onTap,
+    this.aspectRatio = 16 / 10,
+    this.width,
+  });
+
+  final String imageUrl;
+  final String title;
+  final String? subtitle;
+  final Widget? badge;
+  final VoidCallback? onTap;
+  final double aspectRatio;
+  final double? width;
+
+  @override
+  Widget build(BuildContext context) {
+    final card = Container(
+      width: width,
+      decoration: BoxDecoration(
+        borderRadius: AppRadius.cardAll,
+        boxShadow: AppElevation.mediumShadow,
+      ),
+      child: ClipRRect(
+        borderRadius: AppRadius.cardAll,
+        child: AspectRatio(
+          aspectRatio: aspectRatio,
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              AppImage(imageUrl: imageUrl, fit: BoxFit.cover),
+              Positioned.fill(
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        AppColors.scrim.withValues(alpha: AppOpacity.invisible),
+                        AppColors.scrim.withValues(alpha: AppOpacity.scrim),
+                        AppColors.ink.withValues(alpha: AppOpacity.heavy),
+                      ],
+                      stops: const [0.4, 0.72, 1.0],
+                    ),
+                  ),
+                ),
+              ),
+              if (badge != null)
+                Positioned(
+                  top: AppSpacing.md,
+                  left: AppSpacing.md,
+                  child: badge!,
+                ),
+              Positioned(
+                left: AppSpacing.lg,
+                right: AppSpacing.lg,
+                bottom: AppSpacing.lg,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      title,
+                      style: AppTypography.displaySm.copyWith(
+                        color: AppColors.onPrimary,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    if (subtitle != null) ...[
+                      const SizedBox(height: AppSpacing.xs),
+                      Text(
+                        subtitle!,
+                        style: AppTypography.bodySm.copyWith(
+                          color: AppColors.onPrimary.withValues(
+                            alpha: AppOpacity.heavy,
+                          ),
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    if (onTap == null) return card;
+    return MePressable(
+      onTap: onTap,
+      borderRadius: AppRadius.cardAll,
+      splashColor: AppColors.primarySoft,
+      child: card,
+    );
+  }
+}

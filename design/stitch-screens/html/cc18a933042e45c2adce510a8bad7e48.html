@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Notification Centre - Mee Events</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@500&amp;family=Manrope:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-bright": "#fcf9f8",
+                    "on-tertiary-container": "#8c8c88",
+                    "surface-container-highest": "#e5e2e1",
+                    "surface": "#fcf9f8",
+                    "on-primary": "#ffffff",
+                    "primary": "#2a0002",
+                    "on-secondary": "#ffffff",
+                    "surface-container-high": "#eae7e7",
+                    "primary-fixed-dim": "#ffb3ad",
+                    "on-surface": "#1c1b1b",
+                    "on-error": "#ffffff",
+                    "on-background": "#1c1b1b",
+                    "surface-tint": "#954742",
+                    "error": "#ba1a1a",
+                    "surface-variant": "#e5e2e1",
+                    "on-tertiary-fixed": "#1b1c19",
+                    "background": "#fcf9f8",
+                    "inverse-on-surface": "#f3f0ef",
+                    "on-primary-fixed-variant": "#77302d",
+                    "inverse-surface": "#313030",
+                    "tertiary-container": "#242522",
+                    "error-container": "#ffdad6",
+                    "inverse-primary": "#ffb3ad",
+                    "primary-fixed": "#ffdad7",
+                    "tertiary": "#0f100d",
+                    "on-tertiary-fixed-variant": "#474744",
+                    "surface-container": "#f0eded",
+                    "outline": "#877270",
+                    "secondary-fixed": "#ffdea5",
+                    "on-secondary-fixed-variant": "#5d4201",
+                    "secondary": "#775a19",
+                    "surface-container-low": "#f6f3f2",
+                    "surface-container-lowest": "#ffffff",
+                    "on-secondary-fixed": "#261900",
+                    "tertiary-fixed": "#e4e2dd",
+                    "on-primary-container": "#cc726d",
+                    "on-surface-variant": "#544341",
+                    "on-primary-fixed": "#3d0506",
+                    "tertiary-fixed-dim": "#c8c6c2",
+                    "primary-container": "#4a0e0e",
+                    "outline-variant": "#dac1bf",
+                    "on-tertiary": "#ffffff",
+                    "surface-dim": "#dcd9d9",
+                    "on-secondary-container": "#785a1a",
+                    "secondary-fixed-dim": "#e9c176",
+                    "secondary-container": "#fed488",
+                    "on-error-container": "#93000a"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "container-max": "1280px",
+                    "sm": "12px",
+                    "md": "24px",
+                    "xl": "80px",
+                    "xs": "4px",
+                    "lg": "48px",
+                    "base": "8px",
+                    "gutter": "24px"
+            },
+            "fontFamily": {
+                    "display-hero": [
+                            "EB Garamond"
+                    ],
+                    "h1": [
+                            "Manrope"
+                    ],
+                    "button": [
+                            "Manrope"
+                    ],
+                    "label-caps": [
+                            "Manrope"
+                    ],
+                    "h2": [
+                            "Manrope"
+                    ],
+                    "body-lg": [
+                            "Manrope"
+                    ],
+                    "display-hero-mobile": [
+                            "EB Garamond"
+                    ],
+                    "body-md": [
+                            "Manrope"
+                    ]
+            },
+            "fontSize": {
+                    "display-hero": [
+                            "48px",
+                            {
+                                    "lineHeight": "1.1",
+                                    "letterSpacing": "-0.02em",
+                                    "fontWeight": "500"
+                            }
+                    ],
+                    "h1": [
+                            "32px",
+                            {
+                                    "lineHeight": "1.3",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "button": [
+                            "14px",
+                            {
+                                    "lineHeight": "1",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "label-caps": [
+                            "12px",
+                            {
+                                    "lineHeight": "1",
+                                    "letterSpacing": "0.05em",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "h2": [
+                            "24px",
+                            {
+                                    "lineHeight": "1.4",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "body-lg": [
+                            "18px",
+                            {
+                                    "lineHeight": "1.6",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "display-hero-mobile": [
+                            "36px",
+                            {
+                                    "lineHeight": "1.2",
+                                    "fontWeight": "500"
+                            }
+                    ],
+                    "body-md": [
+                            "16px",
+                            {
+                                    "lineHeight": "1.6",
+                                    "fontWeight": "400"
+                            }
+                    ]
+            }
+    },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #F9F7F2; /* Warm Ivory Canvas */
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.filled {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="text-on-background min-h-screen flex flex-col font-body-md pb-32 md:pb-0">
+<!-- TopAppBar -->
+<header class="bg-background w-full top-0 left-0 hidden md:flex flex justify-between items-center px-gutter py-sm w-full shadow-sm sticky z-40">
+<div class="flex items-center gap-4">
+<button class="text-primary hover:opacity-80 transition-opacity">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<h1 class="font-display-hero text-display-hero text-primary">Mee Events</h1>
+</div>
+<div>
+<button class="font-button text-button text-primary hover:opacity-80 transition-opacity flex items-center gap-2">
+                Customer <span class="material-symbols-outlined">arrow_drop_down</span>
+</button>
+</div>
+</header>
+<!-- Mobile Header -->
+<header class="bg-background w-full top-0 left-0 md:hidden flex justify-between items-center px-gutter py-sm w-full sticky z-40 border-b border-outline-variant/30">
+<div class="flex items-center gap-4">
+<button class="text-primary hover:opacity-80 transition-opacity">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<h1 class="font-h2 text-h2 text-primary">Notifications</h1>
+</div>
+<div>
+<button class="text-primary hover:opacity-80 transition-opacity">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</div>
+</header>
+<!-- Main Content -->
+<main class="flex-grow flex flex-col items-center w-full px-gutter md:px-lg max-w-container-max mx-auto py-md md:py-lg">
+<!-- Desktop Header & Actions -->
+<div class="w-full hidden md:flex justify-between items-end mb-md">
+<div>
+<h2 class="font-h1 text-h1 text-on-surface mb-xs">Notifications</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Stay updated on your event planning progress.</p>
+</div>
+<div class="flex items-center gap-4">
+<button class="font-button text-button text-primary hover:opacity-80 transition-opacity flex items-center gap-2">
+<span class="material-symbols-outlined">done_all</span> Mark all as read
+                </button>
+<button class="w-10 h-10 rounded-full border border-outline-variant flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</div>
+</div>
+<!-- Filter Chips -->
+<div class="w-full overflow-x-auto pb-4 mb-md hide-scrollbar">
+<div class="flex gap-3 min-w-max">
+<button class="px-4 py-2 rounded-full bg-secondary text-on-secondary font-button text-button transition-colors">
+                    All
+                </button>
+<button class="px-4 py-2 rounded-full bg-surface-container-highest text-on-surface font-button text-button hover:bg-surface-variant transition-colors border border-outline-variant/30">
+                    Action needed
+                </button>
+<button class="px-4 py-2 rounded-full bg-surface-container-highest text-on-surface font-button text-button hover:bg-surface-variant transition-colors border border-outline-variant/30">
+                    Event updates
+                </button>
+<button class="px-4 py-2 rounded-full bg-surface-container-highest text-on-surface font-button text-button hover:bg-surface-variant transition-colors border border-outline-variant/30">
+                    Payments
+                </button>
+<button class="px-4 py-2 rounded-full bg-surface-container-highest text-on-surface font-button text-button hover:bg-surface-variant transition-colors border border-outline-variant/30">
+                    Support
+                </button>
+</div>
+</div>
+<!-- Mobile Mark all as read (if needed, placed below chips on mobile) -->
+<div class="w-full flex md:hidden justify-end mb-4">
+<button class="font-button text-button text-primary hover:opacity-80 transition-opacity flex items-center gap-2 text-sm">
+<span class="material-symbols-outlined text-[20px]">done_all</span> Mark all as read
+            </button>
+</div>
+<!-- Notifications List -->
+<div class="w-full bg-surface-container-lowest rounded-[14px] border border-[#E5DED4] overflow-hidden">
+<!-- Notification Item 1 (Unread, Action Needed) -->
+<div class="flex items-start p-md md:p-6 border-b border-[#E5DED4] bg-surface-bright hover:bg-surface-container-low transition-colors cursor-pointer group relative">
+<!-- Unread Indicator -->
+<div class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-secondary rounded-r-full"></div>
+<div class="flex-shrink-0 mr-4 mt-1">
+<div class="w-10 h-10 rounded-full bg-error-container text-on-error-container flex items-center justify-center">
+<span class="material-symbols-outlined">assignment_late</span>
+</div>
+</div>
+<div class="flex-grow">
+<div class="flex justify-between items-start mb-1">
+<span class="font-label-caps text-label-caps text-error tracking-widest uppercase">Action needed</span>
+<span class="font-body-md text-body-md text-on-surface-variant text-sm">5h ago</span>
+</div>
+<h3 class="font-h2 text-h2 text-on-surface mb-2 group-hover:text-primary transition-colors text-xl">Menu preferences due 28 August 2026</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-3">Please finalize your catering menu selections to ensure availability of seasonal ingredients.</p>
+<button class="bg-primary text-on-primary font-button text-button px-4 py-2 rounded-md hover:bg-primary-container transition-colors">
+                        Review Menu
+                    </button>
+</div>
+</div>
+<!-- Notification Item 2 (Unread, Event Update) -->
+<div class="flex items-start p-md md:p-6 border-b border-[#E5DED4] bg-surface-bright hover:bg-surface-container-low transition-colors cursor-pointer group relative">
+<!-- Unread Indicator -->
+<div class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-secondary rounded-r-full"></div>
+<div class="flex-shrink-0 mr-4 mt-1">
+<div class="w-10 h-10 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center">
+<span class="material-symbols-outlined">palette</span>
+</div>
+</div>
+<div class="flex-grow">
+<div class="flex justify-between items-start mb-1">
+<span class="font-label-caps text-label-caps text-secondary tracking-widest uppercase">Event update</span>
+<span class="font-body-md text-body-md text-on-surface-variant text-sm">2h ago</span>
+</div>
+<h3 class="font-h2 text-h2 text-on-surface mb-2 group-hover:text-primary transition-colors text-xl">Décor Concept Version 2 is ready</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">The design team has uploaded the revised floral arrangements and stage designs based on your feedback.</p>
+</div>
+</div>
+<!-- Notification Item 3 (Read, Payment) -->
+<div class="flex items-start p-md md:p-6 border-b border-[#E5DED4] bg-surface-container-lowest hover:bg-surface-container-low transition-colors cursor-pointer group opacity-80">
+<div class="flex-shrink-0 mr-4 mt-1">
+<div class="w-10 h-10 rounded-full bg-tertiary-container text-on-tertiary-container flex items-center justify-center">
+<span class="material-symbols-outlined">receipt_long</span>
+</div>
+</div>
+<div class="flex-grow">
+<div class="flex justify-between items-start mb-1">
+<span class="font-label-caps text-label-caps text-on-surface-variant tracking-widest uppercase">Payments</span>
+<span class="font-body-md text-body-md text-on-surface-variant text-sm">Yesterday</span>
+</div>
+<h3 class="font-h2 text-h2 text-on-surface mb-2 group-hover:text-primary transition-colors text-xl font-medium">Payment receipt available</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Your recent milestone payment has been processed successfully. The receipt is now available in your documents.</p>
+</div>
+</div>
+<!-- Notification Item 4 (Read, Support) -->
+<div class="flex items-start p-md md:p-6 bg-surface-container-lowest hover:bg-surface-container-low transition-colors cursor-pointer group opacity-80">
+<div class="flex-shrink-0 mr-4 mt-1">
+<div class="w-10 h-10 rounded-full bg-surface-container-high text-on-surface-variant flex items-center justify-center">
+<span class="material-symbols-outlined">support_agent</span>
+</div>
+</div>
+<div class="flex-grow">
+<div class="flex justify-between items-start mb-1">
+<span class="font-label-caps text-label-caps text-on-surface-variant tracking-widest uppercase">Support</span>
+<span class="font-body-md text-body-md text-on-surface-variant text-sm">3 days ago</span>
+</div>
+<h3 class="font-h2 text-h2 text-on-surface mb-2 group-hover:text-primary transition-colors text-xl font-medium">Query resolved: Guest Accommodation</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Your dedicated planner has updated the block booking details for the Taj Falaknuma Palace.</p>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar (Mobile Only, active logic: None matched perfectly, but it's a top-levelish view. Based on rules, hiding on deep transaction, but notifications might be root. We'll include it with Profile active as fallback for user-centric area, or suppress. The instructions say to suppress if not logical. Let's suppress it as Notifications is usually accessed via a top bar icon and acts as a modal/sub-page with a "Back" button on mobile.) -->
+<!-- Suppressed BottomNavBar based on "Task-Focused" / "temporary departure" rule -->
+</body></html>

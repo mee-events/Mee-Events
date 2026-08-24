@@ -63,6 +63,14 @@ export class AuthPrincipalCache {
     }
   }
 
+  public invalidateUser(userId: string): void {
+    for (const [key, entry] of this.entries) {
+      if (entry.principal.userId === userId) {
+        this.entries.delete(key);
+      }
+    }
+  }
+
   public clear(): void {
     this.entries.clear();
   }

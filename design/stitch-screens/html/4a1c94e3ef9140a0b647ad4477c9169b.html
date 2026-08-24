@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Post-Event Support Request - Mee Events</title>
+<!-- Material Icons -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@500&amp;family=Manrope:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "outline-variant": "#dac1bf",
+                    "surface-container": "#f0eded",
+                    "surface-container-high": "#eae7e7",
+                    "on-primary-fixed-variant": "#77302d",
+                    "on-tertiary-container": "#8c8c88",
+                    "on-surface-variant": "#544341",
+                    "on-surface": "#1c1b1b",
+                    "tertiary-fixed": "#e4e2dd",
+                    "secondary-fixed": "#ffdea5",
+                    "outline": "#877270",
+                    "primary-container": "#4a0e0e",
+                    "primary-fixed-dim": "#ffb3ad",
+                    "on-secondary-container": "#785a1a",
+                    "tertiary-fixed-dim": "#c8c6c2",
+                    "secondary": "#775a19",
+                    "on-tertiary": "#ffffff",
+                    "surface-variant": "#e5e2e1",
+                    "background": "#fcf9f8",
+                    "surface-container-highest": "#e5e2e1",
+                    "surface-container-lowest": "#ffffff",
+                    "on-background": "#1c1b1b",
+                    "primary": "#2a0002",
+                    "on-secondary": "#ffffff",
+                    "inverse-primary": "#ffb3ad",
+                    "error": "#ba1a1a",
+                    "surface-container-low": "#f6f3f2",
+                    "on-primary-container": "#cc726d",
+                    "on-error-container": "#93000a",
+                    "tertiary": "#0f100d",
+                    "on-secondary-fixed": "#261900",
+                    "primary-fixed": "#ffdad7",
+                    "on-error": "#ffffff",
+                    "surface-dim": "#dcd9d9",
+                    "on-secondary-fixed-variant": "#5d4201",
+                    "surface-bright": "#fcf9f8",
+                    "secondary-container": "#fed488",
+                    "inverse-surface": "#313030",
+                    "error-container": "#ffdad6",
+                    "surface-tint": "#954742",
+                    "tertiary-container": "#242522",
+                    "on-primary": "#ffffff",
+                    "inverse-on-surface": "#f3f0ef",
+                    "on-tertiary-fixed": "#1b1c19",
+                    "on-tertiary-fixed-variant": "#474744",
+                    "on-primary-fixed": "#3d0506",
+                    "surface": "#fcf9f8",
+                    "secondary-fixed-dim": "#e9c176"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "lg": "48px",
+                    "container-max": "1280px",
+                    "xs": "4px",
+                    "sm": "12px",
+                    "gutter": "24px",
+                    "md": "24px",
+                    "xl": "80px",
+                    "base": "8px"
+            },
+            "fontFamily": {
+                    "body-md": ["Manrope"],
+                    "label-caps": ["Manrope"],
+                    "body-lg": ["Manrope"],
+                    "h1": ["Manrope"],
+                    "display-hero-mobile": ["EB Garamond"],
+                    "display-hero": ["EB Garamond"],
+                    "button": ["Manrope"],
+                    "h2": ["Manrope"]
+            },
+            "fontSize": {
+                    "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "label-caps": ["12px", {"lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "700"}],
+                    "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "h1": ["32px", {"lineHeight": "1.3", "fontWeight": "700"}],
+                    "display-hero-mobile": ["36px", {"lineHeight": "1.2", "fontWeight": "500"}],
+                    "display-hero": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "500"}],
+                    "button": ["14px", {"lineHeight": "1", "fontWeight": "600"}],
+                    "h2": ["24px", {"lineHeight": "1.4", "fontWeight": "600"}]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-background text-on-background antialiased min-h-screen flex flex-col font-body-md text-body-md pb-24 md:pb-0">
+<!-- TopAppBar -->
+<header class="w-full top-0 left-0 bg-background flex justify-between items-center px-gutter py-sm w-full sticky z-40 transition-shadow duration-300" id="topAppBar">
+<div class="flex items-center gap-sm">
+<button class="hover:opacity-80 transition-opacity text-primary flex items-center justify-center p-2 rounded-full hover:bg-surface-variant">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">menu</span>
+</button>
+<h1 class="font-display-hero-mobile text-display-hero-mobile text-primary md:font-display-hero md:text-display-hero">Mee Events</h1>
+</div>
+<!-- Desktop Nav -->
+<nav class="hidden md:flex gap-md items-center">
+<a class="text-on-surface-variant hover:text-primary transition-colors font-button text-button" href="#">Home</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors font-button text-button" href="#">Explore</a>
+<a class="text-primary font-bold border-b-2 border-primary pb-1 font-button text-button" href="#">Plan</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors font-button text-button" href="#">Enquiries</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors font-button text-button" href="#">Profile</a>
+</nav>
+<div class="flex items-center gap-sm">
+<button class="hover:opacity-80 transition-opacity text-primary font-button text-button flex items-center gap-1">
+                Customer <span class="material-symbols-outlined text-sm">arrow_drop_down</span>
+</button>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-grow w-full max-w-container-max mx-auto px-gutter py-lg md:py-xl flex flex-col md:flex-row gap-lg">
+<!-- Sidebar / Context (Desktop) -->
+<aside class="w-full md:w-1/3 hidden md:block shrink-0">
+<div class="sticky top-[120px]">
+<div class="mb-md">
+<a class="inline-flex items-center gap-2 text-on-surface-variant hover:text-primary font-button text-button transition-colors" href="#">
+<span class="material-symbols-outlined text-sm">arrow_back</span> Back to Event History
+                    </a>
+</div>
+<h2 class="font-h1 text-h1 text-primary mb-sm">How can we help?</h2>
+<p class="text-on-surface-variant font-body-md text-body-md mb-md">
+                    Please provide detailed information about your post-event support request. Our team is dedicated to resolving your concerns with the highest standard of care.
+                </p>
+<div class="bg-surface-container-low p-md rounded-xl border border-outline-variant/50">
+<div class="flex items-start gap-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-primary mt-1">info</span>
+<div>
+<h4 class="font-button text-button text-primary mb-1">Important Notice</h4>
+<p class="font-body-md text-body-md text-sm">Mee Events will review the request. Refunds, credits or adjustments are not guaranteed and are subject to the terms agreed upon in your service contract.</p>
+</div>
+</div>
+</div>
+</div>
+</aside>
+<!-- Form Area -->
+<div class="w-full md:w-2/3">
+<div class="md:hidden mb-md">
+<a class="inline-flex items-center gap-2 text-on-surface-variant hover:text-primary font-button text-button transition-colors" href="#">
+<span class="material-symbols-outlined text-sm">arrow_back</span> Back
+                </a>
+</div>
+<h2 class="font-h2 text-h2 text-primary mb-lg md:hidden">Create Post-Event Support Request</h2>
+<form class="bg-surface-container-lowest rounded-xl border border-outline-variant p-md md:p-lg space-y-md shadow-sm" id="supportForm">
+<!-- Category -->
+<div class="space-y-xs">
+<label class="font-label-caps text-label-caps uppercase text-on-surface" for="category">Category *</label>
+<div class="relative">
+<select class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg px-4 py-3 font-body-md text-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary appearance-none transition-colors cursor-pointer" id="category" name="category" required="">
+<option disabled="" selected="" value="">Select a category</option>
+<option value="payment">Payment or invoice question</option>
+<option value="missing">Missing deliverable</option>
+<option value="gallery">Gallery or video concern</option>
+<option value="service">Service concern</option>
+<option value="lost">Lost or misplaced item</option>
+<option value="damage">Damage concern</option>
+<option value="other">Other</option>
+</select>
+<span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none">expand_more</span>
+</div>
+</div>
+<!-- Related Function -->
+<div class="space-y-xs">
+<label class="font-label-caps text-label-caps uppercase text-on-surface" for="function">Related Function *</label>
+<div class="relative">
+<select class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg px-4 py-3 font-body-md text-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary appearance-none transition-colors cursor-pointer" id="function" name="function" required="">
+<option disabled="" selected="" value="">Select related event</option>
+<option value="mehndi">Mehndi (12 Dec 2026)</option>
+<option value="sangeet">Sangeet (12 Dec 2026)</option>
+<option value="wedding">Wedding (13 Dec 2026)</option>
+<option value="reception">Reception (14 Dec 2026)</option>
+<option value="whole">Whole event</option>
+</select>
+<span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none">expand_more</span>
+</div>
+</div>
+<!-- Description -->
+<div class="space-y-xs">
+<label class="font-label-caps text-label-caps uppercase text-on-surface" for="description">Description of Issue *</label>
+<textarea class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg px-4 py-3 font-body-md text-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors resize-none placeholder:text-on-surface-variant/50" id="description" name="description" placeholder="Please provide specific details about the issue..." required="" rows="4"></textarea>
+</div>
+<!-- Desired Outcome -->
+<div class="space-y-xs">
+<label class="font-label-caps text-label-caps uppercase text-on-surface" for="outcome">Desired Outcome *</label>
+<textarea class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg px-4 py-3 font-body-md text-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors resize-none placeholder:text-on-surface-variant/50" id="outcome" name="outcome" placeholder="What would be an ideal resolution for you?" required="" rows="2"></textarea>
+</div>
+<!-- Urgency -->
+<div class="space-y-xs">
+<label class="font-label-caps text-label-caps uppercase text-on-surface block mb-2">Urgency Level *</label>
+<div class="grid grid-cols-3 gap-sm">
+<label class="cursor-pointer">
+<input class="peer sr-only" name="urgency" required="" type="radio" value="low"/>
+<div class="text-center py-2 px-4 rounded-lg border border-outline-variant text-on-surface-variant font-button text-button peer-checked:bg-secondary-container peer-checked:border-secondary peer-checked:text-on-secondary-container transition-colors">Low</div>
+</label>
+<label class="cursor-pointer">
+<input class="peer sr-only" name="urgency" type="radio" value="medium"/>
+<div class="text-center py-2 px-4 rounded-lg border border-outline-variant text-on-surface-variant font-button text-button peer-checked:bg-secondary-container peer-checked:border-secondary peer-checked:text-on-secondary-container transition-colors">Medium</div>
+</label>
+<label class="cursor-pointer">
+<input class="peer sr-only" name="urgency" type="radio" value="high"/>
+<div class="text-center py-2 px-4 rounded-lg border border-outline-variant text-on-surface-variant font-button text-button peer-checked:bg-primary-container peer-checked:border-primary peer-checked:text-on-primary-container transition-colors">High</div>
+</label>
+</div>
+</div>
+<!-- Divider -->
+<hr class="border-outline-variant/30 my-md"/>
+<!-- Contact Method -->
+<div class="space-y-xs">
+<label class="font-label-caps text-label-caps uppercase text-on-surface block mb-2">Preferred Contact Method</label>
+<div class="flex gap-md">
+<label class="flex items-center gap-2 cursor-pointer">
+<input checked="" class="text-primary focus:ring-primary cursor-pointer w-4 h-4 border-outline-variant" name="contact" type="radio" value="email"/>
+<span class="font-body-md text-body-md text-on-surface">Email</span>
+</label>
+<label class="flex items-center gap-2 cursor-pointer">
+<input class="text-primary focus:ring-primary cursor-pointer w-4 h-4 border-outline-variant" name="contact" type="radio" value="phone"/>
+<span class="font-body-md text-body-md text-on-surface">Phone Call</span>
+</label>
+</div>
+</div>
+<!-- Attachments (Optional) -->
+<div class="space-y-xs pt-sm">
+<label class="font-label-caps text-label-caps uppercase text-on-surface block">Attachments (Optional)</label>
+<div class="border-2 border-dashed border-outline-variant rounded-xl p-md text-center hover:bg-surface-container-low transition-colors cursor-pointer group">
+<span class="material-symbols-outlined text-outline text-3xl mb-2 group-hover:text-primary transition-colors">cloud_upload</span>
+<p class="font-button text-button text-on-surface">Click to upload or drag and drop</p>
+<p class="font-body-md text-body-md text-sm text-on-surface-variant mt-1">PNG, JPG, PDF up to 10MB</p>
+<input class="hidden" id="fileUpload" multiple="" type="file"/>
+</div>
+</div>
+<!-- Mobile Notice -->
+<div class="md:hidden bg-surface-container-low p-sm rounded-lg border border-outline-variant/50 mt-sm">
+<p class="font-body-md text-body-md text-xs text-on-surface-variant">Mee Events will review the request. Refunds, credits or adjustments are not guaranteed and are subject to the terms agreed upon in your service contract.</p>
+</div>
+<!-- Actions -->
+<div class="pt-md flex flex-col sm:flex-row gap-sm sm:justify-end border-t border-outline-variant/30 mt-md">
+<button class="px-6 py-3 rounded-lg border border-primary text-primary font-button text-button hover:bg-primary/5 transition-colors text-center" type="button">Cancel</button>
+<button class="px-6 py-3 rounded-lg bg-primary text-on-primary font-button text-button disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary/90 transition-colors shadow-sm text-center" disabled="" id="submitBtn" type="submit">
+                        Send to Mee Events
+                    </button>
+</div>
+</form>
+</div>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 w-full z-50 rounded-t-xl bg-surface-container-lowest flex justify-around items-center px-4 pt-base pb-safe shadow-[0_-4px_20px_rgba(74,14,14,0.05)] border-t-0">
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-colors py-2 w-16" href="#">
+<span class="material-symbols-outlined mb-1">home</span>
+<span class="font-label-caps text-[10px] uppercase tracking-widest">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-colors py-2 w-16" href="#">
+<span class="material-symbols-outlined mb-1">explore</span>
+<span class="font-label-caps text-[10px] uppercase tracking-widest">Explore</span>
+</a>
+<a class="flex flex-col items-center justify-center text-primary relative after:content-[''] after:w-1 after:h-1 after:bg-secondary after:rounded-full after:mt-1 py-2 w-16 opacity-100" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">event_note</span>
+<span class="font-label-caps text-[10px] uppercase tracking-widest font-bold">Plan</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-colors py-2 w-16" href="#">
+<span class="material-symbols-outlined mb-1">chat_bubble</span>
+<span class="font-label-caps text-[10px] uppercase tracking-widest">Enquiries</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-colors py-2 w-16" href="#">
+<span class="material-symbols-outlined mb-1">person</span>
+<span class="font-label-caps text-[10px] uppercase tracking-widest">Profile</span>
+</a>
+</nav>
+<script>
+        // Simple form validation to enable/disable submit button
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('supportForm');
+            const submitBtn = document.getElementById('submitBtn');
+            const requiredFields = form.querySelectorAll('[required]');
+
+            function checkValidity() {
+                let isValid = true;
+                requiredFields.forEach(field => {
+                    if (field.type === 'radio') {
+                        const name = field.name;
+                        const radios = form.querySelectorAll(`input[name="${name}"]`);
+                        const isChecked = Array.from(radios).some(r => r.checked);
+                        if (!isChecked) isValid = false;
+                    } else if (!field.value.trim()) {
+                        isValid = false;
+                    }
+                });
+                submitBtn.disabled = !isValid;
+            }
+
+            form.addEventListener('input', checkValidity);
+            form.addEventListener('change', checkValidity);
+            
+            // Top App Bar Shadow on Scroll
+            const topAppBar = document.getElementById('topAppBar');
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 10) {
+                    topAppBar.classList.add('shadow-sm');
+                } else {
+                    topAppBar.classList.remove('shadow-sm');
+                }
+            });
+        });
+    </script>
+</body></html>

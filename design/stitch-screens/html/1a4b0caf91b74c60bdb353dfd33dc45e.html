@@ -1,0 +1,254 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Explore - Mee Events</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@500&amp;family=Manrope:wght@400;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary-container": "#4a0e0e",
+                        "outline-variant": "#dac1bf",
+                        "on-surface-variant": "#544341",
+                        "on-tertiary-container": "#8c8c88",
+                        "secondary-fixed-dim": "#e9c176",
+                        "surface-container-low": "#f6f3f2",
+                        "on-tertiary-fixed-variant": "#474744",
+                        "surface-container-highest": "#e5e2e1",
+                        "on-error-container": "#93000a",
+                        "on-primary-fixed-variant": "#77302d",
+                        "on-surface": "#1c1b1b",
+                        "tertiary-fixed-dim": "#c8c6c2",
+                        "tertiary": "#0f100d",
+                        "on-primary": "#ffffff",
+                        "primary-fixed-dim": "#ffb3ad",
+                        "on-error": "#ffffff",
+                        "on-secondary-container": "#785a1a",
+                        "surface-container-lowest": "#ffffff",
+                        "primary-fixed": "#ffdad7",
+                        "outline": "#877270",
+                        "primary": "#2a0002",
+                        "inverse-primary": "#ffb3ad",
+                        "on-tertiary": "#ffffff",
+                        "tertiary-container": "#242522",
+                        "on-tertiary-fixed": "#1b1c19",
+                        "on-secondary-fixed": "#261900",
+                        "error-container": "#ffdad6",
+                        "on-primary-fixed": "#3d0506",
+                        "surface-container": "#f0eded",
+                        "background": "#fcf9f8",
+                        "surface-tint": "#954742",
+                        "surface": "#fcf9f8",
+                        "on-secondary": "#ffffff",
+                        "inverse-on-surface": "#f3f0ef",
+                        "secondary-fixed": "#ffdea5",
+                        "surface-dim": "#dcd9d9",
+                        "error": "#ba1a1a",
+                        "surface-variant": "#e5e2e1",
+                        "tertiary-fixed": "#e4e2dd",
+                        "surface-bright": "#fcf9f8",
+                        "secondary-container": "#fed488",
+                        "surface-container-high": "#eae7e7",
+                        "inverse-surface": "#313030",
+                        "on-secondary-fixed-variant": "#5d4201",
+                        "secondary": "#775a19",
+                        "on-background": "#1c1b1b",
+                        "on-primary-container": "#cc726d"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "sm": "12px",
+                        "gutter": "24px",
+                        "xs": "4px",
+                        "xl": "80px",
+                        "container-max": "1280px",
+                        "md": "24px",
+                        "base": "8px",
+                        "lg": "48px"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Manrope"],
+                        "display-hero-mobile": ["EB Garamond"],
+                        "display-hero": ["EB Garamond"],
+                        "h2": ["Manrope"],
+                        "label-caps": ["Manrope"],
+                        "body-lg": ["Manrope"],
+                        "h1": ["Manrope"],
+                        "button": ["Manrope"]
+                    },
+                    "fontSize": {
+                        "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "display-hero-mobile": ["36px", { "lineHeight": "1.2", "fontWeight": "500" }],
+                        "display-hero": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "500" }],
+                        "h2": ["24px", { "lineHeight": "1.4", "fontWeight": "600" }],
+                        "label-caps": ["12px", { "lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "h1": ["32px", { "lineHeight": "1.3", "fontWeight": "700" }],
+                        "button": ["14px", { "lineHeight": "1", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: #F9F7F2; /* Warm Ivory Canvas */
+        }
+        .soft-border {
+            border-color: #E5DED4;
+        }
+        .luxury-shadow:hover {
+            box-shadow: 0px 10px 30px rgba(74, 14, 14, 0.05);
+        }
+        .aspect-ratio-box {
+            position: relative;
+        }
+        .aspect-ratio-box::before {
+            content: "";
+            display: block;
+            padding-top: 100%; /* 1:1 Aspect Ratio */
+        }
+        .aspect-ratio-content {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+        /* Hide scrollbar for horizontal scrolling but keep functionality */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="text-on-surface font-body-md min-h-screen flex flex-col pb-24 md:pb-0">
+<!-- TopAppBar -->
+<header class="bg-surface dark:bg-background docked full-width top-0 z-40 fixed">
+<div class="flex justify-between items-center px-gutter py-sm w-full max-w-container-max mx-auto border-b border-outline-variant/30 hidden md:flex">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-surface-container overflow-hidden cursor-pointer">
+<img class="w-full h-full object-cover" alt="Customer Profile" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDOwj60CxE1ph4-EPhRbIQcEED_r44ZhUx19nl2ynxwaK48fLxOyZjHIi5ySNcnIsLi8M348JLNA_GH-bHHUOr4FspeTbgLbSgDlx6QQQW8mWdOUDRC3luJp1QVexHIDbN3WKg2mIWJQhOTx20tNz9sioJ_BoH4zVx4pvPkbywG02ytysy2cZMGlpv42Q7hAsDU4lNZdB9lzQV_gmLjpLmypzfByst0jPqxHovP6K63Cl6zM7FC3zLD">
+</div>
+<span class="font-display-hero text-display-hero text-primary dark:text-primary-fixed">Mee Events</span>
+</div>
+<div class="flex items-center gap-6">
+<button class="text-on-surface hover:text-primary transition-colors"><span class="material-symbols-outlined">search</span></button>
+<button class="text-on-surface hover:text-primary transition-colors"><span class="material-symbols-outlined">favorite</span></button>
+<button class="text-on-surface hover:text-primary transition-colors"><span class="material-symbols-outlined">notifications</span></button>
+</div>
+</div>
+<!-- Mobile Top Nav -->
+<div class="flex md:hidden justify-between items-center px-gutter py-sm w-full bg-surface border-b border-outline-variant/30">
+<div class="w-8 h-8 rounded-full bg-surface-container overflow-hidden">
+<img class="w-full h-full object-cover" alt="Customer Profile" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDOwj60CxE1ph4-EPhRbIQcEED_r44ZhUx19nl2ynxwaK48fLxOyZjHIi5ySNcnIsLi8M348JLNA_GH-bHHUOr4FspeTbgLbSgDlx6QQQW8mWdOUDRC3luJp1QVexHIDbN3WKg2mIWJQhOTx20tNz9sioJ_BoH4zVx4pvPkbywG02ytysy2cZMGlpv42Q7hAsDU4lNZdB9lzQV_gmLjpLmypzfByst0jPqxHovP6K63Cl6zM7FC3zLD">
+</div>
+<span class="font-display-hero-mobile text-display-hero-mobile text-primary">Mee Events</span>
+<div class="flex items-center gap-4">
+<button class="text-on-surface"><span class="material-symbols-outlined">search</span></button>
+<button class="text-on-surface"><span class="material-symbols-outlined">favorite</span></button>
+<button class="text-on-surface"><span class="material-symbols-outlined">notifications</span></button>
+</div>
+</div>
+</header>
+<main class="flex-grow max-w-container-max mx-auto w-full px-gutter pt-md pb-xl space-y-xl">
+<!-- Welcome Section -->
+<section class="text-center md:text-left space-y-4 pt-sm">
+<h1 class="font-h1 text-[28px] md:text-h1 text-primary">Discover the Perfect Event</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mx-auto md:mx-0">Explore our curated selection of occasions and premium services designed to bring your vision to life with impeccable detail and modern Indian elegance.</p>
+</section>
+<!-- Browse by Occasion (Bento Grid) -->
+<section>
+<div class="flex justify-between items-end mb-md">
+<h2 class="font-h2 text-h2 text-on-surface">Browse by Occasion</h2>
+<button class="font-button text-button text-primary hover:text-primary-container flex items-center gap-1 group">
+                    View All <span class="material-symbols-outlined text-[18px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</button>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-4 gap-sm md:gap-md auto-rows-[200px]">
+<!-- Large Item: Wedding -->
+<div class="md:col-span-2 md:row-span-2 rounded-[14px] overflow-hidden group cursor-pointer relative soft-border border bg-surface luxury-shadow transition-all duration-300">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="A grand, traditional Indian wedding ceremony set in a luxurious heritage palace courtyard in Hyderabad. Warm, golden-hour lighting washes over the scene, highlighting intricate floral decorations in deep reds and marigolds against the pale stone architecture. The aesthetic is modern premium Indian, capturing the elegance and vibrant celebratory mood with high-resolution clarity." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA9H5Xcz_jVG0srQ4NNe-CUR7eXz4J0FyxWJnfO8LHegZ51Es2q3Q_9lqLCorNBtsyrRlYf12adl78sOv2fEnH0EBJ3pBsKN1MrQevVsIiX4TijWCjdRoknEwUGs99Buv6k0a16ZEHCJfNMjICRUg872y472sCweDMtQ6NCAaXo2wamEiuy1HrPBu3_S8WP26iQk2ZHtTAY5mwgxhMgEBGssVquyy1X9OA94zCQ5mk0ih7wJ4CiNhqN">
+<div class="absolute inset-0 bg-gradient-to-t from-primary/80 to-transparent"></div>
+<div class="absolute bottom-0 left-0 p-md w-full">
+<span class="bg-surface/90 backdrop-blur text-primary font-label-caps text-[10px] px-2 py-1 rounded-full uppercase tracking-wider mb-2 inline-block">Popular</span>
+<h3 class="font-h2 text-[28px] text-on-primary">Wedding</h3>
+<p class="font-body-md text-on-primary/80 mt-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300 hidden md:block">Complete planning from pre-wedding rituals to the grand reception.</p>
+</div>
+</div>
+<!-- Medium Items -->
+<div class="rounded-[14px] overflow-hidden group cursor-pointer relative soft-border border bg-surface luxury-shadow transition-all duration-300">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="An elegant, modern engagement party setting. A beautifully decorated stage with soft pastel floral arrangements, glowing string lights, and elegant white seating. The atmosphere is intimate and sophisticated, featuring a warm ivory and gold color palette typical of premium contemporary Indian events." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDhiBRDtYFGQnqf4-V04zArK-qibzX_h44b1fV0Zn6iKRomIpEP2hIprLTwUH62vR74YjakNgTmPm-H3y9PGC-w5Zj4LvTJ21-vKUSRiyBQHU8L6UqOgBhWA_DY7uDqA61Ft9RXOARyWvX09o8uosK-ZkN0wwqtv5D5qHAYi5UvmRH67zfhyDkPAeiK0l1-Nf_5rFotAI30k6ZJ0DK97aGwxFKKxjPYiURYl4UlpUHQN8i9U4sXjrrc">
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+<div class="absolute bottom-0 left-0 p-4 w-full">
+<h3 class="font-h2 text-[20px] text-on-primary">Engagement</h3>
+</div>
+</div>
+<div class="rounded-[14px] overflow-hidden group cursor-pointer relative soft-border border bg-surface luxury-shadow transition-all duration-300">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="A high-end corporate gala dinner setup. Sleek, minimalist tables with dark velvet linens, subtle gold centerpieces, and modern ambient lighting. The scene conveys professionalism mixed with luxury, utilizing a sophisticated, warm color palette appropriate for a premium event management portfolio." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAo_cT-eG4HrKSBuTGklZmE9Jdt-uQ2Nfs_JQtfox4nEgrotGMLjQypajHojWDyT8T92kvZ5mCxgbZzOjVRHGy4ld9nioulVNidQBv_K5vtK7P2npk21lz_j603_kT7pJLJNMZsH3cijBT-LUO2HlbuQYAHvvzg5YsoiLv0ykbXw9229hIhgfiPk0z1dApXjYHQ9uEeBxs2LYGdcCG3eT5_PfHdxQ6kZ5z1KLGcgAhkDOFyDkMUfJLN">
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+<div class="absolute bottom-0 left-0 p-4 w-full">
+<h3 class="font-h2 text-[20px] text-on-primary">Corporate Event</h3>
+</div>
+</div>
+<div class="rounded-[14px] overflow-hidden group cursor-pointer relative soft-border border bg-surface luxury-shadow transition-all duration-300">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="A vibrant yet sophisticated birthday party setup. Colorful but refined balloon arches in jewel tones, a beautifully arranged dessert table with elegant pastries, and soft, natural daylight filtering through large windows. The mood is joyful and celebratory, maintaining a polished, high-end aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDyg2SWD3Nrcvc_Yh0sZa46KFvAv7aAvWmcjdvv2CNZIwiDAEx4YOm5K2qHChpyeJgIva331MPyVk5B6EPR-n11xP-ZWNtidU9RsOU7YzBaXwENlUEqbdjjEaj0m-nMfIRaanrkuLMel90ddwgUsZr1-s1pQ5O9Y-k_ibYGAX8tO40coVfr9xt2u97j8lhQHHCz6qvFVQ6SmuxpwJPqgXNDs65cZDhtOiJ89v7CiKkP8CJja4xOVmPv">
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+<div class="absolute bottom-0 left-0 p-4 w-full">
+<h3 class="font-h2 text-[20px] text-on-primary">Birthday</h3>
+</div>
+</div>
+<div class="rounded-[14px] overflow-hidden group cursor-pointer relative soft-border border bg-surface luxury-shadow transition-all duration-300 bg-surface-container-low flex flex-col items-center justify-center text-center p-4">
+<div class="w-12 h-12 rounded-full bg-primary-container text-on-primary flex items-center justify-center mb-3">
+<span class="material-symbols-outlined">celebration</span>
+</div>
+<h3 class="font-h2 text-[18px] text-on-surface mb-1">More Occasions</h3>
+<p class="font-label-caps text-[10px] text-on-surface-variant">House Warming, Festival &amp; More</p>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden bg-surface dark:bg-surface-container-lowest text-primary dark:text-primary-fixed-dim font-label-caps text-label-caps font-display-hero text-display-hero docked full-width bottom-0 rounded-t-xl border-t border-outline-variant dark:border-on-surface-variant shadow-sm fixed bottom-0 w-full z-50 flex justify-around items-center px-4 py-3 pb-safe">
+<a class="flex flex-col items-center justify-center text-primary dark:text-secondary-fixed-dim font-bold active:scale-90 transition-transform w-1/4" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">explore</span>
+<span class="">Explore</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-tertiary-container dark:text-on-tertiary-fixed-variant hover:bg-surface-container-high transition-colors active:scale-90 transition-transform w-1/4 rounded-lg py-1" href="#">
+<span class="material-symbols-outlined mb-1">event_note</span>
+<span class="">My Plan</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-tertiary-container dark:text-on-tertiary-fixed-variant hover:bg-surface-container-high transition-colors active:scale-90 transition-transform w-1/4 rounded-lg py-1" href="#">
+<span class="material-symbols-outlined mb-1">confirmation_number</span>
+<span class="">Bookings</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-tertiary-container dark:text-on-tertiary-fixed-variant hover:bg-surface-container-high transition-colors active:scale-90 transition-transform w-1/4 rounded-lg py-1" href="#">
+<span class="material-symbols-outlined mb-1">person</span>
+<span class="">Profile</span>
+</a>
+</nav>
+<!-- Bottom Safe Area padding for fixed nav -->
+<style>
+        .pb-safe { padding-bottom: env(safe-area-inset-bottom, 12px); }
+    </style>
+
+
+</body></html>

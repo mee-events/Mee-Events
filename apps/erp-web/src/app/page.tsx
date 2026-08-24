@@ -23,6 +23,7 @@ const navigation = [
       { short: "IN", label: "Inventory", href: "/inventory" as const },
       { short: "FN", label: "Finance", href: "/finance" as const },
       { short: "RP", label: "Reports", href: "#team" },
+      { short: "CT", label: "Catalog Taxonomy", href: "/catalog" as const },
     ],
   },
 ];
@@ -271,11 +272,15 @@ export default function Home() {
               i
             </div>
             <div>
-              <strong>This is the Employee CRM + ERP foundation.</strong>
+              <strong>
+                Overview metrics below are illustrative sample data.
+              </strong>
               <p>
-                The records below are local sample data. Employee login and the
-                live <Link href="/leads">leads inbox</Link> are connected to the
-                central database; the remaining modules follow slice by slice.
+                Live work lives in the <Link href="/leads">leads inbox</Link>,{" "}
+                <Link href="/quotes">quotes</Link>, and event modules —
+                connected to the central database. Use{" "}
+                <Link href="/login">employee login</Link> (
+                <code>+919000000001</code>) for the sync demo.
               </p>
             </div>
             <span>
@@ -292,9 +297,9 @@ export default function Home() {
                 See the whole business—from first enquiry to final settlement.
               </p>
             </div>
-            <a className="primary-action" href="#approvals">
-              Review approval queue <span aria-hidden="true">→</span>
-            </a>
+            <Link className="primary-action" href="/leads">
+              Open live leads inbox <span aria-hidden="true">→</span>
+            </Link>
           </section>
 
           <section

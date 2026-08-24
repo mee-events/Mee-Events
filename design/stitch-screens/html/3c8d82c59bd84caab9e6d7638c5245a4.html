@@ -1,0 +1,367 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Mee Events - Conversations</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600;700&amp;family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "primary-fixed-dim": "#ffb3ad",
+                      "primary": "#2a0002",
+                      "on-primary-fixed-variant": "#77302d",
+                      "on-background": "#1c1b1b",
+                      "tertiary": "#0f100d",
+                      "on-primary-fixed": "#3d0506",
+                      "tertiary-fixed-dim": "#c8c6c2",
+                      "outline": "#877270",
+                      "error-container": "#ffdad6",
+                      "on-surface": "#1c1b1b",
+                      "surface-container": "#f0eded",
+                      "error": "#ba1a1a",
+                      "on-secondary-fixed": "#261900",
+                      "surface-variant": "#e5e2e1",
+                      "surface-container-high": "#eae7e7",
+                      "on-primary": "#ffffff",
+                      "on-tertiary-fixed-variant": "#474744",
+                      "outline-variant": "#dac1bf",
+                      "surface-bright": "#fcf9f8",
+                      "on-secondary-fixed-variant": "#5d4201",
+                      "surface-tint": "#954742",
+                      "inverse-surface": "#313030",
+                      "surface-container-low": "#f6f3f2",
+                      "tertiary-container": "#242522",
+                      "surface-dim": "#dcd9d9",
+                      "surface-container-highest": "#e5e2e1",
+                      "primary-fixed": "#ffdad7",
+                      "tertiary-fixed": "#e4e2dd",
+                      "on-surface-variant": "#544341",
+                      "secondary-fixed-dim": "#e9c176",
+                      "primary-container": "#4a0e0e",
+                      "on-secondary-container": "#785a1a",
+                      "secondary-fixed": "#ffdea5",
+                      "on-tertiary-container": "#8c8c88",
+                      "surface": "#fcf9f8",
+                      "on-error-container": "#93000a",
+                      "surface-container-lowest": "#ffffff",
+                      "secondary": "#775a19",
+                      "inverse-primary": "#ffb3ad",
+                      "on-primary-container": "#cc726d",
+                      "secondary-container": "#fed488",
+                      "inverse-on-surface": "#f3f0ef",
+                      "background": "#fcf9f8",
+                      "on-secondary": "#ffffff",
+                      "on-tertiary": "#ffffff",
+                      "on-tertiary-fixed": "#1b1c19",
+                      "on-error": "#ffffff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "lg": "48px",
+                      "xl": "80px",
+                      "container-max": "1280px",
+                      "sm": "12px",
+                      "gutter": "24px",
+                      "md": "24px",
+                      "xs": "4px",
+                      "base": "8px",
+                      "safe": "env(safe-area-inset-bottom)"
+              },
+              "fontFamily": {
+                      "display-hero-mobile": [
+                              "EB Garamond"
+                      ],
+                      "body-lg": [
+                              "Manrope"
+                      ],
+                      "button": [
+                              "Manrope"
+                      ],
+                      "h1": [
+                              "Manrope"
+                      ],
+                      "h2": [
+                              "Manrope"
+                      ],
+                      "label-caps": [
+                              "Manrope"
+                      ],
+                      "body-md": [
+                              "Manrope"
+                      ],
+                      "display-hero": [
+                              "EB Garamond"
+                      ]
+              },
+              "fontSize": {
+                      "display-hero-mobile": [
+                              "36px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "button": [
+                              "14px",
+                              {
+                                      "lineHeight": "1",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "h1": [
+                              "32px",
+                              {
+                                      "lineHeight": "1.3",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "h2": [
+                              "24px",
+                              {
+                                      "lineHeight": "1.4",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "label-caps": [
+                              "12px",
+                              {
+                                      "lineHeight": "1",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "display-hero": [
+                              "48px",
+                              {
+                                      "lineHeight": "1.1",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "500"
+                              }
+                      ]
+              }
+            }
+          }
+        }
+    </script>
+<style>
+        body {
+            background-color: #F9F7F2; /* Warm Ivory Canvas */
+        }
+        .bento-card {
+            background-color: #FFFFFF;
+            border: 1px solid #E5DED4;
+            border-radius: 14px;
+            transition: all 0.2s ease-in-out;
+        }
+        .bento-card:hover {
+            box-shadow: 0px 10px 30px rgba(74, 14, 14, 0.05);
+            transform: translateY(-2px);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="text-on-background font-body-md antialiased pb-24 md:pb-0 pt-16">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-40 bg-surface dark:bg-surface-dim border-b border-outline-variant dark:border-outline"><div class="flex justify-between items-center w-full px-md h-16 max-w-container-max mx-auto"><div class="flex items-center gap-4"><div class="w-10 h-10 rounded-full overflow-hidden border border-outline-variant cursor-pointer"><img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCh3RZeSHXQvZ_3t_dAyZ-Lx5CB1rYYKZLKj5f8JPYtzlkxs-APko92Fscr1x5BfMN8Ua9pOm6-nZ_Ups8K-Cf4YfsyStSsw8qJGG1TUYRRu_6OUZdgU0eyxz4GVGFG3ZKP2LTEQpmhRxb9GsO1SGJ8mkxSQMjkcd6GLFlnwkhDhXKqSsBEmv3yOLdjF2GHfEiSiAVXpN8G6mliUlDSD98VL-MYzynke0_GmlmVuk6wvuRvSRJRZ4mm" class="w-full h-full object-cover" alt="Profile"></div></div><div class="absolute left-1/2 transform -translate-x-1/2"><h1 class="font-display-hero-mobile text-[24px] text-primary">Mee Events</h1></div><div class="flex items-center gap-2"><button class="p-2 text-on-surface-variant hover:bg-surface-container rounded-full transition-colors"><span class="material-symbols-outlined">search</span></button><button class="p-2 text-on-surface-variant hover:bg-surface-container rounded-full transition-colors"><span class="material-symbols-outlined">favorite</span></button><button class="p-2 text-on-surface-variant hover:bg-surface-container rounded-full transition-colors"><span class="material-symbols-outlined">notifications</span></button></div></div></header>
+<!-- Main Content Canvas -->
+<main class="max-w-container-max mx-auto px-4 md:px-lg pt-lg pb-xl">
+<div class="flex justify-between items-end mb-lg">
+<div>
+<p class="font-label-caps text-label-caps text-on-surface-variant mb-2">COMMUNICATIONS</p>
+<h2 class="font-display-hero-mobile text-display-hero-mobile md:font-display-hero md:text-display-hero text-primary">Conversations</h2>
+</div>
+<button class="bg-primary-container text-on-primary font-button text-button px-6 py-3 rounded-full hover:opacity-90 transition-opacity flex items-center gap-2">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">add</span>
+                New message
+            </button>
+</div>
+<!-- Categories / Conversation List -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-gutter">
+<!-- Left Column: Filter/Categories (Desktop mainly) -->
+<div class="hidden md:block col-span-3">
+<div class="sticky top-24">
+<h3 class="font-label-caps text-label-caps text-on-surface-variant mb-6">FILTER BY</h3>
+<ul class="space-y-4">
+<li class=""><a class="font-body-md text-primary font-bold flex justify-between items-center group" href="#"><span class="border-b border-primary pb-1">All Threads</span> <span class="bg-primary-fixed-dim text-primary text-xs px-2 py-0.5 rounded-full">12</span></a></li>
+<li class=""><a class="font-body-md text-on-surface-variant hover:text-primary transition-colors flex justify-between items-center" href="#">Unread <span class="bg-secondary-fixed text-on-secondary-fixed text-xs px-2 py-0.5 rounded-full">3</span></a></li>
+<li class=""><a class="font-body-md text-on-surface-variant hover:text-primary transition-colors" href="#">Archived</a></li>
+</ul>
+</div>
+</div>
+<!-- Right Column: Conversation Cards -->
+<div class="col-span-1 md:col-span-9 space-y-6">
+<!-- Thread 1: Event planning -->
+<div class="bento-card p-6 cursor-pointer relative overflow-hidden group">
+<div class="absolute right-0 top-0 w-2 h-full bg-secondary-container"></div>
+<div class="flex flex-col md:flex-row gap-4 items-start md:items-center">
+<div class="relative">
+<div class="w-12 h-12 rounded-full overflow-hidden border 1px solid #E5DED4">
+<img class="w-full h-full object-cover" data-alt="A professional headshot of a smiling Indian woman in modern corporate attire, warm lighting, high-resolution portrait photography, set against a soft ivory background reflecting a premium hospitality brand." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCh3RZeSHXQvZ_3t_dAyZ-Lx5CB1rYYKZLKj5f8JPYtzlkxs-APko92Fscr1x5BfMN8Ua9pOm6-nZ_Ups8K-Cf4YfsyStSsw8qJGG1TUYRRu_6OUZdgU0eyxz4GVGFG3ZKP2LTEQpmhRxb9GsO1SGJ8mkxSQMjkcd6GLFlnwkhDhXKqSsBEmv3yOLdjF2GHfEiSiAVXpN8G6mliUlDSD98VL-MYzynke0_GmlmVuk6wvuRvSRJRZ4mm">
+</div>
+<div class="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white"></div>
+</div>
+<div class="flex-grow">
+<div class="flex justify-between items-start mb-1">
+<h3 class="font-display-hero-mobile text-h2 text-primary m-0 leading-none">Event planning</h3>
+<span class="font-label-caps text-label-caps text-on-surface-variant">10:42 AM</span>
+</div>
+<div class="flex items-center gap-2 mb-2">
+<span class="font-label-caps text-label-caps text-secondary">Priya — Mee Events</span>
+<span class="w-1 h-1 bg-outline-variant rounded-full"></span>
+<span class="font-label-caps text-label-caps text-on-surface-variant bg-surface-container px-2 py-1 rounded-full">Milestone: Venue Selection</span>
+</div>
+<p class="font-body-md text-on-surface-variant line-clamp-1 font-semibold text-on-background">Updated Taj Krishna floor plan</p>
+</div>
+<div class="flex items-center gap-4 mt-2 md:mt-0">
+<span class="material-symbols-outlined text-outline">attach_file</span>
+<div class="bg-error text-on-error w-6 h-6 rounded-full flex items-center justify-center font-label-caps text-[10px]">2</div>
+</div>
+</div>
+</div>
+<!-- Thread 2: Décor and production -->
+<div class="bento-card p-6 cursor-pointer group">
+<div class="flex flex-col md:flex-row gap-4 items-start md:items-center">
+<div class="w-12 h-12 rounded-full overflow-hidden border 1px solid #E5DED4 bg-surface-container flex items-center justify-center text-primary font-h2">
+                            M
+                        </div>
+<div class="flex-grow">
+<div class="flex justify-between items-start mb-1">
+<h3 class="font-display-hero-mobile text-h2 text-primary m-0 leading-none">Décor</h3>
+<span class="font-label-caps text-label-caps text-on-surface-variant">Yesterday</span>
+</div>
+<div class="flex items-center gap-2 mb-2">
+<span class="font-label-caps text-label-caps text-secondary">Mee Events Décor Desk</span>
+<span class="w-1 h-1 bg-outline-variant rounded-full"></span>
+<span class="font-label-caps text-label-caps text-on-surface-variant bg-surface-container px-2 py-1 rounded-full">Milestone: Floral Design</span>
+</div>
+<p class="font-body-md text-on-surface-variant line-clamp-1">Concept Version 2 is ready</p>
+</div>
+<div class="flex items-center gap-4 mt-2 md:mt-0">
+<!-- Read state, no badge -->
+</div>
+</div>
+</div>
+<!-- Thread 3: Menu and hospitality -->
+<div class="bento-card p-6 cursor-pointer relative overflow-hidden group">
+<div class="absolute right-0 top-0 w-2 h-full bg-secondary-container"></div>
+<div class="flex flex-col md:flex-row gap-4 items-start md:items-center">
+<div class="relative">
+<div class="w-12 h-12 rounded-full overflow-hidden border 1px solid #E5DED4">
+<img class="w-full h-full object-cover" data-alt="A professional headshot of a smiling Indian man in a chef's coat or premium hospitality uniform, warm lighting, high-resolution portrait photography, set against a soft ivory background reflecting a premium hospitality brand." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDxlNL399yutUz4LoWEYI_5TW9dxK5BjiZ2EU13Mhf05y6bdgtL-bxNPDEpnaWy3qD6lvwhjjddOAdg4mBanogIrM4P263qTy7ASdDOacetG3o-CQIZGyEDN5_MlGexvsgnXFha91GHBBfLUPZxsqOFw_86UJ2AfX7zcuNkfjFLuxn5L2q2iHH-Mk4vSRp97hQfDPsMoZbLBHlpUdKus5n6wIKK1FZdGr5QY9Lg-QrMse40CiSEEu2b">
+</div>
+</div>
+<div class="flex-grow">
+<div class="flex justify-between items-start mb-1">
+<h3 class="font-display-hero-mobile text-h2 text-primary m-0 leading-none">Hospitality</h3>
+<span class="font-label-caps text-label-caps text-on-surface-variant">Mon</span>
+</div>
+<div class="flex items-center gap-2 mb-2">
+<span class="font-label-caps text-label-caps text-secondary">Mee Events Hospitality Desk</span>
+<span class="w-1 h-1 bg-outline-variant rounded-full"></span>
+<span class="font-label-caps text-label-caps text-on-surface-variant bg-surface-container px-2 py-1 rounded-full">Milestone: Tasting Menu</span>
+</div>
+<p class="font-body-md text-on-surface-variant line-clamp-1 font-semibold text-on-background">Menu-preference task is awaiting the Customer</p>
+</div>
+<div class="flex items-center gap-4 mt-2 md:mt-0">
+<div class="bg-error text-on-error w-6 h-6 rounded-full flex items-center justify-center font-label-caps text-[10px]">1</div>
+</div>
+</div>
+</div>
+<!-- Thread 4: Payments and documents -->
+<div class="bento-card p-6 cursor-pointer group">
+<div class="flex flex-col md:flex-row gap-4 items-start md:items-center">
+<div class="w-12 h-12 rounded-full overflow-hidden border 1px solid #E5DED4">
+<img class="w-full h-full object-cover" data-alt="A professional headshot of a smiling Indian woman in modern corporate attire, warm lighting, high-resolution portrait photography, set against a soft ivory background reflecting a premium hospitality brand." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAkPU1IxoFKsnmurDYW_zEKzEPefnViGeiDKYuTTrCUAi4YZllyNRDRhJyXzn14GRQ-IoQ3l1txgaOHVqfNyxFSQhtD7x6RQIIX49bDCje7nN9pIS5hGh2cEWzvTob7GSu2eHaXGy7HV3G9_7iKj7lzJX4X4BHjFjotWjGx-_mxU97HMRdYPLv7s9waNhMQO_C2-zu7IIL-SQIw6WHgwy23HUFlNBRAlbxiDXgX0ARDn_WlHlDCO6hB">
+</div>
+<div class="flex-grow">
+<div class="flex justify-between items-start mb-1">
+<h3 class="font-display-hero-mobile text-h2 text-primary m-0 leading-none">Payments</h3>
+<span class="font-label-caps text-label-caps text-on-surface-variant">Oct 12</span>
+</div>
+<div class="flex items-center gap-2 mb-2">
+<span class="font-label-caps text-label-caps text-secondary">Mee Events Finance</span>
+</div>
+<p class="font-body-md text-on-surface-variant line-clamp-1">Next payment ₹3,54,000 due 15 Oct 2026</p>
+</div>
+<div class="flex items-center gap-4 mt-2 md:mt-0">
+<span class="material-symbols-outlined text-outline">description</span>
+</div>
+</div>
+</div>
+<!-- Thread 5: Event-day support -->
+<div class="bento-card p-6 cursor-pointer group opacity-70 hover:opacity-100">
+<div class="flex flex-col md:flex-row gap-4 items-start md:items-center">
+<div class="w-12 h-12 rounded-full overflow-hidden border 1px solid #E5DED4 bg-surface-container flex items-center justify-center text-primary font-h2">
+                            S
+                        </div>
+<div class="flex-grow">
+<div class="flex justify-between items-start mb-1">
+<h3 class="font-display-hero-mobile text-h2 text-primary m-0 leading-none">Event-day support</h3>
+<span class="font-label-caps text-label-caps text-on-surface-variant">5 Dec 2026</span>
+</div>
+<div class="flex items-center gap-2 mb-2">
+<span class="font-label-caps text-label-caps text-secondary">Mee Events Event-Day Support</span>
+</div>
+<p class="font-body-md text-on-surface-variant line-clamp-1 italic">Event-day support activates seven days before your first function.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-safe bg-surface dark:bg-surface-dim h-20 border-t border-outline-variant dark:border-outline shadow-sm rounded-t-xl">
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant pt-1 hover:text-primary dark:hover:text-primary-fixed-dim transition-all" href="#">
+<span class="material-symbols-outlined mb-1 text-[24px]">home</span>
+<span class="font-label-caps text-label-caps">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant pt-1 hover:text-primary dark:hover:text-primary-fixed-dim transition-all" href="#">
+<span class="material-symbols-outlined mb-1 text-[24px]">search</span>
+<span class="font-label-caps text-label-caps">Explore</span>
+</a>
+<a class="flex flex-col items-center justify-center text-primary dark:text-primary-fixed-dim border-t-2 border-secondary pt-1 scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined mb-1 text-[24px]" style="font-variation-settings: 'FILL' 1;">event_note</span>
+<span class="font-label-caps text-label-caps font-bold">Plan</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant pt-1 hover:text-primary dark:hover:text-primary-fixed-dim transition-all" href="#">
+<span class="material-symbols-outlined mb-1 text-[24px]">chat_bubble</span>
+<span class="font-label-caps text-label-caps">Enquiries</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant pt-1 hover:text-primary dark:hover:text-primary-fixed-dim transition-all" href="#">
+<span class="material-symbols-outlined mb-1 text-[24px]">person</span>
+<span class="font-label-caps text-label-caps">Profile</span>
+</a>
+</nav>
+
+
+
+
+</body></html>

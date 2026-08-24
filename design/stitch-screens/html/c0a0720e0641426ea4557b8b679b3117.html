@@ -1,0 +1,330 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Quotation Detail - Version 2</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600;700&amp;family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-background": "#1c1b1b",
+                        "outline": "#877270",
+                        "primary": "#2a0002",
+                        "background": "#fcf9f8",
+                        "surface-bright": "#fcf9f8",
+                        "tertiary-fixed": "#e4e2dd",
+                        "on-secondary-container": "#785a1a",
+                        "on-primary-container": "#cc726d",
+                        "surface-container": "#f0eded",
+                        "error-container": "#ffdad6",
+                        "on-secondary-fixed": "#261900",
+                        "on-secondary-fixed-variant": "#5d4201",
+                        "secondary-container": "#fed488",
+                        "on-primary-fixed-variant": "#77302d",
+                        "inverse-surface": "#313030",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-dim": "#dcd9d9",
+                        "secondary-fixed": "#ffdea5",
+                        "inverse-on-surface": "#f3f0ef",
+                        "surface-variant": "#e5e2e1",
+                        "surface-container-high": "#eae7e7",
+                        "on-error": "#ffffff",
+                        "error": "#ba1a1a",
+                        "on-error-container": "#93000a",
+                        "on-secondary": "#ffffff",
+                        "secondary": "#775a19",
+                        "tertiary": "#0f100d",
+                        "primary-fixed": "#ffdad7",
+                        "on-surface-variant": "#544341",
+                        "on-tertiary-container": "#8c8c88",
+                        "surface-container-low": "#f6f3f2",
+                        "primary-container": "#4a0e0e",
+                        "outline-variant": "#dac1bf",
+                        "tertiary-container": "#242522",
+                        "on-tertiary-fixed-variant": "#474744",
+                        "on-tertiary-fixed": "#1b1c19",
+                        "on-tertiary": "#ffffff",
+                        "inverse-primary": "#ffb3ad",
+                        "surface": "#fcf9f8",
+                        "surface-container-highest": "#e5e2e1",
+                        "primary-fixed-dim": "#ffb3ad",
+                        "on-primary": "#ffffff",
+                        "surface-tint": "#954742",
+                        "on-surface": "#1c1b1b",
+                        "secondary-fixed-dim": "#e9c176",
+                        "on-primary-fixed": "#3d0506",
+                        "tertiary-fixed-dim": "#c8c6c2"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "md": "24px",
+                        "lg": "48px",
+                        "container-max": "1280px",
+                        "gutter": "24px",
+                        "sm": "12px",
+                        "xs": "4px",
+                        "xl": "80px",
+                        "base": "8px"
+                    },
+                    "fontFamily": {
+                        "h1": ["Manrope"],
+                        "body-lg": ["Manrope"],
+                        "display-hero-mobile": ["EB Garamond"],
+                        "button": ["Manrope"],
+                        "body-md": ["Manrope"],
+                        "label-caps": ["Manrope"],
+                        "display-hero": ["EB Garamond"],
+                        "h2": ["Manrope"]
+                    },
+                    "fontSize": {
+                        "h1": ["32px", { "lineHeight": "1.3", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "display-hero-mobile": ["36px", { "lineHeight": "1.2", "fontWeight": "500" }],
+                        "button": ["14px", { "lineHeight": "1", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "label-caps": ["12px", { "lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "700" }],
+                        "display-hero": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "500" }],
+                        "h2": ["24px", { "lineHeight": "1.4", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { background-color: #F9F7F2; } /* Warm Ivory Canvas */
+        .glass-card { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid #E5DED4; }
+        .interactive-shadow:hover { box-shadow: 0px 10px 30px rgba(74, 14, 14, 0.05); }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="font-body-md text-body-md text-on-surface antialiased bg-[#F9F7F2] min-h-screen flex flex-col relative pb-[100px]">
+<!-- Top Navigation (Contextual: Task-Focused, so standard top bar) -->
+<header class="sticky top-0 z-40 bg-surface-container-lowest/90 backdrop-blur-md border-b border-outline-variant"><div class="max-w-container-max mx-auto px-gutter py-sm flex justify-between items-center h-16"><div class="flex items-center"><button class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center overflow-hidden border border-outline-variant hover:bg-surface-container-high transition-colors"><span class="material-symbols-outlined text-on-surface">person</span></button></div><div class="absolute left-1/2 -translate-x-1/2"><h1 class="font-display-hero-mobile text-[24px] text-primary">Mee Events</h1></div><div class="flex items-center gap-2"><button class="p-2 rounded-full hover:bg-surface-container-low transition-colors text-on-surface"><span class="material-symbols-outlined">search</span></button><button class="p-2 rounded-full hover:bg-surface-container-low transition-colors text-on-surface"><span class="material-symbols-outlined">favorite</span></button><button class="p-2 rounded-full hover:bg-surface-container-low transition-colors text-on-surface"><span class="material-symbols-outlined">notifications</span></button></div></div></header>
+<main class="flex-grow w-full max-w-container-max mx-auto px-4 md:px-gutter py-lg"><div class="flex items-center justify-between mb-6 pb-4 border-b border-outline-variant/30"><div class="flex items-center gap-4"><button aria-label="Go back" class="p-2 rounded-full hover:bg-surface-container-low transition-colors"><span class="material-symbols-outlined text-on-surface">arrow_back</span></button><div class="flex items-center gap-3"><h2 class="font-h2 text-h2 text-primary">Quotation</h2><span class="bg-surface-container text-on-surface-variant font-label-caps text-label-caps px-3 py-1 rounded-full uppercase">Version 2</span></div></div><div class="relative group"><button class="p-2 rounded-full hover:bg-surface-container-low transition-colors text-on-surface"><span class="material-symbols-outlined">more_vert</span></button><div class="absolute right-0 mt-2 w-48 bg-surface-container-lowest rounded-lg shadow-lg border border-outline-variant opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50"><button class="w-full text-left px-4 py-3 font-button text-button hover:bg-surface-container-low transition-colors flex items-center gap-2 rounded-t-lg text-primary"><span class="material-symbols-outlined text-[18px]">download</span> Download PDF</button><button class="w-full text-left px-4 py-3 font-button text-button hover:bg-surface-container-low transition-colors flex items-center gap-2 rounded-b-lg text-primary"><span class="material-symbols-outlined text-[18px]">history</span> View version history</button></div></div></div>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-lg">
+<!-- Left Column: Primary Details -->
+<div class="lg:col-span-8 flex flex-col gap-lg">
+<!-- Hero Info Section -->
+<section class="flex flex-col gap-6">
+<div>
+<p class="font-label-caps text-label-caps text-on-surface-variant uppercase mb-2">Prepared by</p>
+<h2 class="font-display-hero-mobile md:font-display-hero text-display-hero-mobile md:text-display-hero text-primary">Mee Events</h2>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div class="p-md bg-surface-container-lowest rounded-[14px] border border-[#E5DED4] interactive-shadow transition-shadow">
+<p class="font-label-caps text-label-caps text-on-surface-variant uppercase mb-1">Quotation Ref</p>
+<p class="font-button text-button text-primary">MEE-QT-2026-0418</p>
+</div>
+<div class="p-md bg-surface-container-lowest rounded-[14px] border border-[#E5DED4] interactive-shadow transition-shadow">
+<p class="font-label-caps text-label-caps text-on-surface-variant uppercase mb-1">Enquiry Ref</p>
+<p class="font-button text-button text-primary">MEE-HYD-260731-1044</p>
+</div>
+<div class="p-md bg-surface-container-lowest rounded-[14px] border border-[#E5DED4] interactive-shadow transition-shadow">
+<p class="font-label-caps text-label-caps text-on-surface-variant uppercase mb-1">Issued</p>
+<p class="font-button text-button text-primary">10 Aug 2026</p>
+</div>
+<div class="p-md bg-surface-container-lowest rounded-[14px] border border-[#E5DED4] interactive-shadow transition-shadow">
+<p class="font-label-caps text-label-caps text-on-surface-variant uppercase mb-1">Valid Through</p>
+<p class="font-button text-button text-primary">17 Aug 2026</p>
+</div>
+</div>
+</section>
+<!-- Event Summary Card -->
+<section class="bg-surface-container-lowest rounded-[14px] border border-[#E5DED4] overflow-hidden interactive-shadow transition-shadow">
+<div class="relative h-48 md:h-64 bg-surface-container">
+<div class="w-full h-full bg-cover bg-center absolute inset-0" data-alt="A grand wedding stage setup with lavish floral decorations in vibrant pinks and golds, warm inviting lighting, highly detailed, photorealistic, cinematic shot, luxurious event design aesthetic." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuB8T1byHFIgRQKo-rlUCIYSFbFcsNtawi7nmHGTbjHkOhuxbd1u9f2LPs4g75TSAUuNDLkpbPN8ka2IMNAopHcjaZGxQJhfntBGe0KBjSz-Cf_vS8jSsaPNtsswfujqwg-ZYnQti1J5BgApRjwddrlgI0aIT76FQYYiygy5Gnig7NjMC44uLDANvpqd0yCKnX2yXUAI2-LtwzuixD8YjI3XkgBGquEaQr6RUWd0l_fzts7K4VYc1IYx')"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-primary/80 to-transparent"></div>
+<div class="absolute bottom-0 left-0 p-md w-full text-surface-container-lowest">
+<h3 class="font-h1 text-h1-mobile md:text-h1 mb-1">Aarav &amp; Ananya Wedding</h3>
+<p class="font-body-md text-body-md opacity-90 flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">location_on</span> Taj Krishna, Hyderabad</p>
+</div>
+</div>
+<div class="p-md grid grid-cols-2 md:grid-cols-4 gap-6">
+<div>
+<p class="font-label-caps text-label-caps text-on-surface-variant uppercase mb-1">Dates</p>
+<p class="font-button text-button text-primary">12–14 Dec 2026</p>
+</div>
+<div>
+<p class="font-label-caps text-label-caps text-on-surface-variant uppercase mb-1">Guests</p>
+<p class="font-button text-button text-primary">250</p>
+</div>
+<div>
+<p class="font-label-caps text-label-caps text-on-surface-variant uppercase mb-1">Events</p>
+<p class="font-button text-button text-primary">4 Functions</p>
+</div>
+<div>
+<p class="font-label-caps text-label-caps text-on-surface-variant uppercase mb-1">Status</p>
+<span class="inline-block bg-secondary-container text-on-secondary-container font-label-caps text-label-caps px-2 py-1 rounded-full uppercase">Pending Approval</span>
+</div>
+</div>
+</section>
+<!-- Expandable Sections (Accordions) -->
+<section class="flex flex-col gap-4">
+<h3 class="font-h2 text-h2 text-primary mb-2">Terms &amp; Information</h3>
+<!-- Accordion Item 1 -->
+<details class="group bg-surface-container-lowest rounded-[14px] border border-[#E5DED4] overflow-hidden">
+<summary class="flex justify-between items-center cursor-pointer p-md font-button text-button text-primary list-none [&amp;::-webkit-details-marker]:hidden hover:bg-surface-container-low transition-colors">
+<span class="flex items-center gap-3"><span class="material-symbols-outlined text-outline">list_alt</span> Detailed inclusions</span>
+<span class="material-symbols-outlined transition-transform duration-300 group-open:rotate-180 text-outline">expand_more</span>
+</summary>
+<div class="p-md pt-0 text-on-surface-variant border-t border-[#E5DED4] mt-2 pt-4">
+<ul class="list-disc pl-5 space-y-2">
+<li class="">Venue rentals for all listed events.</li>
+<li class="">Standard floral decor and lighting setups.</li>
+<li class="">Catering services as per approved menu selections.</li>
+<li class="">Basic audio-visual equipment for speeches and background music.</li>
+</ul>
+</div>
+</details>
+<!-- Accordion Item 2 -->
+<details class="group bg-surface-container-lowest rounded-[14px] border border-[#E5DED4] overflow-hidden">
+<summary class="flex justify-between items-center cursor-pointer p-md font-button text-button text-primary list-none [&amp;::-webkit-details-marker]:hidden hover:bg-surface-container-low transition-colors">
+<span class="flex items-center gap-3"><span class="material-symbols-outlined text-outline">block</span> Exclusions</span>
+<span class="material-symbols-outlined transition-transform duration-300 group-open:rotate-180 text-outline">expand_more</span>
+</summary>
+<div class="p-md pt-0 text-on-surface-variant border-t border-[#E5DED4] mt-2 pt-4">
+<ul class="list-disc pl-5 space-y-2">
+<li class="">Travel and accommodation for guests.</li>
+<li class="">Alcohol and bar services (unless explicitly stated).</li>
+<li class="">Wardrobe and personal styling.</li>
+<li class="">External vendor fees not contracted through Mee Events.</li>
+</ul>
+</div>
+</details>
+<!-- Accordion Item 3 -->
+<details class="group bg-surface-container-lowest rounded-[14px] border border-[#E5DED4] overflow-hidden">
+<summary class="flex justify-between items-center cursor-pointer p-md font-button text-button text-primary list-none [&amp;::-webkit-details-marker]:hidden hover:bg-surface-container-low transition-colors">
+<span class="flex items-center gap-3"><span class="material-symbols-outlined text-outline">info</span> Event assumptions</span>
+<span class="material-symbols-outlined transition-transform duration-300 group-open:rotate-180 text-outline">expand_more</span>
+</summary>
+<div class="p-md pt-0 text-on-surface-variant border-t border-[#E5DED4] mt-2 pt-4">
+<p class="">Pricing is based on the guaranteed guest count of 250. Significant deviations may require a revised quotation. Setup access to the venue is assumed to be available 12 hours prior to the event start time.</p>
+</div>
+</details>
+<!-- Accordion Item 4 -->
+<details class="group bg-surface-container-lowest rounded-[14px] border border-[#E5DED4] overflow-hidden">
+<summary class="flex justify-between items-center cursor-pointer p-md font-button text-button text-primary list-none [&amp;::-webkit-details-marker]:hidden hover:bg-surface-container-low transition-colors">
+<span class="flex items-center gap-3"><span class="material-symbols-outlined text-outline">cancel</span> Cancellation terms</span>
+<span class="material-symbols-outlined transition-transform duration-300 group-open:rotate-180 text-outline">expand_more</span>
+</summary>
+<div class="p-md pt-0 text-on-surface-variant border-t border-[#E5DED4] mt-2 pt-4">
+<p class="">Cancellation within 90 days of the event incurs a 25% fee of the total quoted amount. Within 30 days, a 50% fee applies. Deposits are non-refundable.</p>
+</div>
+</details>
+<!-- Accordion Item 5 -->
+<details class="group bg-surface-container-lowest rounded-[14px] border border-[#E5DED4] overflow-hidden">
+<summary class="flex justify-between items-center cursor-pointer p-md font-button text-button text-primary list-none [&amp;::-webkit-details-marker]:hidden hover:bg-surface-container-low transition-colors">
+<span class="flex items-center gap-3"><span class="material-symbols-outlined text-outline">payments</span> Payment terms</span>
+<span class="material-symbols-outlined transition-transform duration-300 group-open:rotate-180 text-outline">expand_more</span>
+</summary>
+<div class="p-md pt-0 text-on-surface-variant border-t border-[#E5DED4] mt-2 pt-4">
+<ul class="list-disc pl-5 space-y-2">
+<li class="">25% advance to block dates.</li>
+<li class="">50% due 60 days prior to the event.</li>
+<li class="">25% balance due 14 days prior to the event.</li>
+</ul>
+</div>
+</details>
+<!-- Accordion Item 6 -->
+<details class="group bg-surface-container-lowest rounded-[14px] border border-[#E5DED4] overflow-hidden">
+<summary class="flex justify-between items-center cursor-pointer p-md font-button text-button text-primary list-none [&amp;::-webkit-details-marker]:hidden hover:bg-surface-container-low transition-colors">
+<span class="flex items-center gap-3"><span class="material-symbols-outlined text-outline">support_agent</span> Service and support information</span>
+<span class="material-symbols-outlined transition-transform duration-300 group-open:rotate-180 text-outline">expand_more</span>
+</summary>
+<div class="p-md pt-0 text-on-surface-variant border-t border-[#E5DED4] mt-2 pt-4">
+<p class="">A dedicated Mee Events manager will be assigned upon approval. Support is available via phone and email during business hours, with 24/7 support during event week.</p>
+</div>
+</details>
+</section>
+</div>
+<!-- Right Column: Pricing Summary -->
+<div class="lg:col-span-4">
+<div class="sticky top-24 bg-surface-container-lowest rounded-[14px] border border-[#E5DED4] p-md interactive-shadow flex flex-col gap-6">
+<h3 class="font-h2 text-h2 text-primary">Cost Breakdown</h3>
+<!-- Grouped Items -->
+<div class="flex flex-col gap-4">
+<div class="flex justify-between items-start pb-4 border-b border-[#E5DED4]">
+<div>
+<h4 class="font-button text-button text-primary">Mehndi arrangements</h4>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm">Decor, Sound, Basic Catering</p>
+</div>
+<span class="font-button text-button text-primary whitespace-nowrap">₹ 1,40,000</span>
+</div>
+<div class="flex justify-between items-start pb-4 border-b border-[#E5DED4]">
+<div>
+<h4 class="font-button text-button text-primary">Sangeet arrangements</h4>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm">Stage, Lighting, DJ, Bar Setup</p>
+</div>
+<span class="font-button text-button text-primary whitespace-nowrap">₹ 1,80,000</span>
+</div>
+<div class="flex justify-between items-start pb-4 border-b border-[#E5DED4]">
+<div>
+<h4 class="font-button text-button text-primary">Wedding arrangements</h4>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm">Mandap, Floral, Seating, Premium Catering</p>
+</div>
+<span class="font-button text-button text-primary whitespace-nowrap">₹ 4,70,000</span>
+</div>
+<div class="flex justify-between items-start pb-4 border-b border-[#E5DED4]">
+<div>
+<h4 class="font-button text-button text-primary">Reception arrangements</h4>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm">Venue hire, Decor, Entertainment</p>
+</div>
+<span class="font-button text-button text-primary whitespace-nowrap">₹ 2,10,000</span>
+</div>
+</div>
+<!-- Totals -->
+<div class="bg-surface p-4 rounded-lg flex flex-col gap-3">
+<div class="flex justify-between items-center text-on-surface-variant">
+<span class="font-body-md">Subtotal</span>
+<span class="font-button text-primary">₹ 10,00,000</span>
+</div>
+<div class="flex justify-between items-center text-on-surface-variant">
+<span class="font-body-md">GST 18%</span>
+<span class="font-button text-primary">₹ 1,80,000</span>
+</div>
+<div class="w-full h-px bg-[#E5DED4] my-1"></div>
+<div class="flex justify-between items-center">
+<span class="font-h2 text-h2 text-primary">Grand Total</span>
+<span class="font-h2 text-h2 text-primary">₹ 11,80,000</span>
+</div>
+</div>
+<div class="p-3 bg-surface-container-low rounded-lg border border-outline-variant/30 flex gap-3 items-start">
+<span class="material-symbols-outlined text-on-surface-variant text-[20px] mt-0.5">info</span>
+<p class="text-[13px] font-body-md text-on-surface-variant leading-relaxed">
+                            Prices shown are from Mee Events and include the services described in this quotation. Internal vendor pricing is private.
+                        </p>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Sticky Bottom Actions -->
+<div class="fixed bottom-0 left-0 w-full z-50 bg-surface-container-lowest/90 backdrop-blur-md border-t border-outline-variant py-4 px-4 md:px-gutter shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
+<div class="max-w-container-max mx-auto flex flex-col sm:flex-row justify-end items-center gap-4">
+<button class="w-full sm:w-auto px-6 py-3 rounded-full border border-primary text-primary font-button text-button hover:bg-surface-container-low transition-colors">
+                Request revision
+            </button>
+<button class="w-full sm:w-auto px-8 py-3 rounded-full bg-primary text-on-primary font-button text-button hover:bg-primary-container transition-colors shadow-sm">
+                Approve quotation
+            </button>
+</div>
+</div>
+
+
+</body></html>

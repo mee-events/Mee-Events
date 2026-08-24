@@ -28,9 +28,9 @@ class OperationsDashboardScreen extends ConsumerWidget {
           message: 'Sign in to view event execution operations.',
           actionLabel: 'Sign in',
           onAction: () {
-            Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const LoginScreen()),
-            );
+            Navigator.of(
+              context,
+            ).push(MaterialPageRoute(builder: (_) => const LoginScreen()));
           },
         ),
       );

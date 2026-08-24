@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Conversation Thread - Mee Events</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600;700&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "primary-fixed-dim": "#ffb3ad",
+                    "primary": "#2a0002",
+                    "on-primary-fixed-variant": "#77302d",
+                    "on-background": "#1c1b1b",
+                    "tertiary": "#0f100d",
+                    "on-primary-fixed": "#3d0506",
+                    "tertiary-fixed-dim": "#c8c6c2",
+                    "outline": "#877270",
+                    "error-container": "#ffdad6",
+                    "on-surface": "#1c1b1b",
+                    "surface-container": "#f0eded",
+                    "error": "#ba1a1a",
+                    "on-secondary-fixed": "#261900",
+                    "surface-variant": "#e5e2e1",
+                    "surface-container-high": "#eae7e7",
+                    "on-primary": "#ffffff",
+                    "on-tertiary-fixed-variant": "#474744",
+                    "outline-variant": "#dac1bf",
+                    "surface-bright": "#fcf9f8",
+                    "on-secondary-fixed-variant": "#5d4201",
+                    "surface-tint": "#954742",
+                    "inverse-surface": "#313030",
+                    "surface-container-low": "#f6f3f2",
+                    "tertiary-container": "#242522",
+                    "surface-dim": "#dcd9d9",
+                    "surface-container-highest": "#e5e2e1",
+                    "primary-fixed": "#ffdad7",
+                    "tertiary-fixed": "#e4e2dd",
+                    "on-surface-variant": "#544341",
+                    "secondary-fixed-dim": "#e9c176",
+                    "primary-container": "#4a0e0e",
+                    "on-secondary-container": "#785a1a",
+                    "secondary-fixed": "#ffdea5",
+                    "on-tertiary-container": "#8c8c88",
+                    "surface": "#fcf9f8",
+                    "on-error-container": "#93000a",
+                    "surface-container-lowest": "#ffffff",
+                    "secondary": "#775a19",
+                    "inverse-primary": "#ffb3ad",
+                    "on-primary-container": "#cc726d",
+                    "secondary-container": "#fed488",
+                    "inverse-on-surface": "#f3f0ef",
+                    "background": "#fcf9f8",
+                    "on-secondary": "#ffffff",
+                    "on-tertiary": "#ffffff",
+                    "on-tertiary-fixed": "#1b1c19",
+                    "on-error": "#ffffff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "lg": "48px",
+                    "xl": "80px",
+                    "container-max": "1280px",
+                    "sm": "12px",
+                    "gutter": "24px",
+                    "md": "24px",
+                    "xs": "4px",
+                    "base": "8px"
+            },
+            "fontFamily": {
+                    "display-hero-mobile": ["EB Garamond", "serif"],
+                    "body-lg": ["Manrope", "sans-serif"],
+                    "button": ["Manrope", "sans-serif"],
+                    "h1": ["Manrope", "sans-serif"],
+                    "h2": ["Manrope", "sans-serif"],
+                    "label-caps": ["Manrope", "sans-serif"],
+                    "body-md": ["Manrope", "sans-serif"],
+                    "display-hero": ["EB Garamond", "serif"]
+            },
+            "fontSize": {
+                    "display-hero-mobile": ["36px", {"lineHeight": "1.2", "fontWeight": "500"}],
+                    "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "button": ["14px", {"lineHeight": "1", "fontWeight": "600"}],
+                    "h1": ["32px", {"lineHeight": "1.3", "fontWeight": "700"}],
+                    "h2": ["24px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                    "label-caps": ["12px", {"lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "700"}],
+                    "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "display-hero": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "500"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        /* Hide scrollbar for cleaner look in chat */
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #dac1bf;
+            border-radius: 4px;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background h-[884px] flex flex-col font-body-md overflow-hidden relative selection:bg-primary-fixed-dim selection:text-primary">
+<!-- Thread Header -->
+<header class="flex-none bg-surface border-b border-outline-variant h-[72px] flex items-center px-4 z-20 shadow-sm relative shrink-0">
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container transition-colors text-on-surface mr-2">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">arrow_back</span>
+</button>
+<div class="flex-1 flex flex-col justify-center min-w-0">
+<h1 class="font-display-hero-mobile text-[22px] leading-none text-primary truncate">Event planning</h1>
+<p class="font-label-caps text-[10px] text-on-surface-variant mt-1 flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary inline-block"></span>
+                Priya - Mee Events
+            </p>
+</div>
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container transition-colors text-primary ml-2">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">info</span>
+</button>
+</header>
+<!-- Chat Scroll Area -->
+<main class="flex-1 overflow-y-auto w-full px-4 pt-6 pb-[140px] flex flex-col gap-6 scroll-smooth bg-background">
+<!-- Date Separator -->
+<div class="flex justify-center w-full my-2">
+<span class="bg-surface-container px-3 py-1 rounded-full font-label-caps text-[10px] text-on-surface-variant border border-outline-variant/50">
+                TUESDAY, 10:45 AM
+            </span>
+</div>
+<!-- Incoming Message (Priya) -->
+<div class="flex gap-3 items-end max-w-[85%] self-start group">
+<div class="w-8 h-8 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center font-button text-[12px] shrink-0 border border-outline-variant/30 relative">
+                P
+                <span class="absolute bottom-0 right-0 w-2 h-2 rounded-full bg-green-500 border border-white"></span>
+</div>
+<div class="flex flex-col gap-1 items-start">
+<div class="bg-surface border border-outline-variant rounded-2xl rounded-bl-sm p-3 shadow-sm relative z-10 text-on-surface">
+<p class="font-body-md text-[15px] leading-relaxed">Hi there! I'm thrilled to start working on the initial mood boards for the Sangeet ceremony. Have you had a chance to look at the color palettes we discussed?</p>
+</div>
+<span class="font-label-caps text-[9px] text-on-surface-variant opacity-0 group-hover:opacity-100 transition-opacity ml-1">10:45 AM</span>
+</div>
+</div>
+<!-- Outgoing Message (Customer) -->
+<div class="flex gap-2 items-end max-w-[85%] self-end group justify-end">
+<div class="flex flex-col gap-1 items-end">
+<div class="bg-primary text-on-primary rounded-2xl rounded-br-sm p-3 shadow-[0px_8px_20px_rgba(42,0,2,0.15)] relative z-10">
+<p class="font-body-md text-[15px] leading-relaxed">Yes! We absolutely loved the deep emerald and gold combination. It feels very regal.</p>
+</div>
+<div class="flex items-center gap-1 mr-1">
+<span class="font-label-caps text-[9px] text-on-surface-variant opacity-0 group-hover:opacity-100 transition-opacity">11:02 AM</span>
+<span class="material-symbols-outlined text-[14px] text-secondary">done_all</span>
+</div>
+</div>
+</div>
+<!-- System Update Card -->
+<div class="w-full flex justify-center my-4">
+<div class="w-full max-w-[340px] bg-surface-container-lowest border border-outline-variant rounded-xl p-4 shadow-sm relative overflow-hidden">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-secondary rounded-l-xl"></div>
+<div class="flex items-start gap-3 pl-2">
+<div class="w-8 h-8 rounded-full bg-secondary-container/50 text-secondary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[18px]">auto_awesome</span>
+</div>
+<div class="flex-1">
+<h3 class="font-h2 text-[16px] text-primary leading-tight mb-1">Décor Concept Version 2 is ready</h3>
+<p class="font-body-md text-[13px] text-on-surface-variant leading-snug mb-3">The emerald and gold palette has been applied to the stage backdrop designs.</p>
+<div class="flex items-center gap-4">
+<a class="font-button text-[13px] text-secondary flex items-center gap-1 hover:underline underline-offset-2 transition-all" href="#">
+                                Review Concept
+                                <span class="material-symbols-outlined text-[16px]">arrow_right_alt</span>
+</a>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Incoming Message with Content (Priya) -->
+<div class="flex gap-3 items-end max-w-[90%] self-start group">
+<div class="w-8 h-8 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center font-button text-[12px] shrink-0 border border-outline-variant/30">
+                P
+            </div>
+<div class="flex flex-col gap-1 items-start w-full">
+<div class="bg-surface border border-outline-variant rounded-2xl rounded-bl-sm p-2 shadow-sm text-on-surface w-full">
+<p class="font-body-md text-[15px] px-2 pt-1 pb-2">I've attached the updated concepts here along with a breakdown of the floral arrangements we plan to use.</p>
+<!-- Horizontal Image Scroller -->
+<div class="flex gap-2 overflow-x-auto pb-2 px-1 snap-x no-scrollbar">
+<div class="w-40 h-32 shrink-0 snap-center rounded-lg overflow-hidden border border-outline-variant relative group/img cursor-pointer">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover/img:scale-105" data-alt="A highly detailed render of a grand Indian wedding Sangeet stage set against a warm ivory backdrop. The stage features striking emerald green velvet draping heavily embellished with gold zari work. Soft, warm ambient lighting highlights the rich textures, creating a luxurious and celebratory mood." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBhVw7KtxKjIXER3uK5oQnE9k24YDg8awGXFUEcN1cyk5vBxW_sqkHI31m40CwSbThiLqTgefxZMVZ74M6wszj7UT9FU_CaGFZ00XB-lxm8VaV6CMGXJ9b1X1MqWHWgnTxXsyn9i-4Wa7c6MqWJFYrFsfPTrRyFOrKjDlmcLuSew-RxoLO6y3_MQZ_ZJ1Zc_DgMIj3iQbmpEtSFjzZyszbiciCjF3l4b0_pQkIK7k5nv4j8_bgWhvKj"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover/img:opacity-100 transition-opacity flex items-end p-2">
+<span class="material-symbols-outlined text-white text-[18px]">zoom_in</span>
+</div>
+</div>
+<div class="w-40 h-32 shrink-0 snap-center rounded-lg overflow-hidden border border-outline-variant relative group/img cursor-pointer">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover/img:scale-105" data-alt="A close-up high-resolution photograph of luxury wedding floral arrangements. The composition features a mix of deep crimson roses, white orchids, and lush emerald green ferns arranged in a traditional yet modern brass vase resting on an ivory linen tablecloth. The lighting is bright and editorial." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBVH2390soxc49ZJ2grqNCGWq4xKoLKG4jdfnM2Av5VoXSNzxI6v2cqm8nNVpZbXmx5D84HCZTd-XDhp9giGyg2hGWKtaMPQjv8wvNX970XymID0tPxmLxU_mIwN15A03AFxMEicLgovnydsxPqCTe78TsgxGBa67cLELnGAdBG3fv7yB_gsMiJJ881agg0kOslCEWQqOkOZrBJuG17IMml9ykS6oZh5uzikNojUVgb4bp1Ek_PwNfU"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover/img:opacity-100 transition-opacity flex items-end p-2">
+<span class="material-symbols-outlined text-white text-[18px]">zoom_in</span>
+</div>
+</div>
+</div>
+<!-- Document Card inside Bubble -->
+<div class="mt-1 mx-1 bg-surface-container rounded-lg border border-outline-variant p-2 flex items-center gap-3 hover:bg-surface-container-high transition-colors cursor-pointer">
+<div class="w-10 h-10 rounded bg-primary text-on-primary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">picture_as_pdf</span>
+</div>
+<div class="flex-1 min-w-0">
+<p class="font-button text-[13px] text-primary truncate leading-tight">Floral_Breakdown_v2.pdf</p>
+<p class="font-label-caps text-[9px] text-on-surface-variant mt-0.5">3.2 MB • Tap to view</p>
+</div>
+<button class="w-8 h-8 rounded-full flex items-center justify-center text-on-surface-variant hover:text-primary hover:bg-surface-container-highest transition-colors">
+<span class="material-symbols-outlined text-[20px]">download</span>
+</button>
+</div>
+</div>
+<span class="font-label-caps text-[9px] text-on-surface-variant opacity-0 group-hover:opacity-100 transition-opacity ml-1">2:15 PM</span>
+</div>
+</div>
+</main>
+<!-- Message Composer (Sticky above Nav) -->
+<div class="absolute bottom-[80px] w-full bg-surface/95 backdrop-blur-md border-t border-outline-variant px-4 py-3 z-30 shadow-[0_-4px_20px_rgba(42,0,2,0.03)] flex flex-col gap-2">
+<p class="text-center font-label-caps text-[10px] text-on-surface-variant tracking-wider">YOU ARE MESSAGING THE MEE EVENTS TEAM</p>
+<div class="flex items-end gap-2">
+<button class="w-11 h-11 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high hover:text-primary transition-all shrink-0">
+<span class="material-symbols-outlined text-[24px]">add_circle</span>
+</button>
+<div class="flex-1 bg-surface-container border border-outline-variant rounded-[24px] min-h-[44px] flex items-end py-1 px-4 relative shadow-inner">
+<textarea class="w-full bg-transparent border-none focus:ring-0 text-on-surface font-body-md text-[15px] p-0 resize-none max-h-32 min-h-[24px] py-1.5 scrollbar-hide" placeholder="Type a message..." rows="1"></textarea>
+</div>
+<button class="w-11 h-11 rounded-full bg-primary text-on-primary flex items-center justify-center hover:bg-primary-container hover:scale-95 transition-all shadow-sm shrink-0">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">send</span>
+</button>
+</div>
+</div>
+<!-- Bottom Navigation Shell (JSON Component) -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-safe bg-surface border-t border-outline-variant h-20 shadow-sm md:hidden">
+<!-- Home -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant pt-1 w-16 group" href="#">
+<div class="h-8 w-16 flex items-center justify-center rounded-full group-hover:bg-surface-container transition-colors mb-1">
+<span class="material-symbols-outlined text-[24px]">home</span>
+</div>
+<span class="font-label-caps text-[10px]">Home</span>
+</a>
+<!-- Explore -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant pt-1 w-16 group" href="#">
+<div class="h-8 w-16 flex items-center justify-center rounded-full group-hover:bg-surface-container transition-colors mb-1">
+<span class="material-symbols-outlined text-[24px]">search</span>
+</div>
+<span class="font-label-caps text-[10px]">Explore</span>
+</a>
+<!-- Plan (Active State) -->
+<a class="flex flex-col items-center justify-center text-primary border-t-2 border-secondary pt-1 w-16 relative" href="#">
+<div class="absolute top-[-2px] left-1/2 -translate-x-1/2 w-8 h-1 bg-secondary rounded-b-full"></div>
+<div class="h-8 w-16 flex items-center justify-center rounded-full bg-surface-container-high transition-colors mb-1">
+<span class="material-symbols-outlined text-[24px]" style="font-variation-settings: 'FILL' 1;">event_note</span>
+</div>
+<span class="font-label-caps text-[10px] font-bold">Plan</span>
+</a>
+<!-- Enquiries -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant pt-1 w-16 group" href="#">
+<div class="h-8 w-16 flex items-center justify-center rounded-full group-hover:bg-surface-container transition-colors mb-1">
+<span class="material-symbols-outlined text-[24px]">chat_bubble</span>
+</div>
+<span class="font-label-caps text-[10px]">Enquiries</span>
+</a>
+<!-- Account -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant pt-1 w-16 group" href="#">
+<div class="h-8 w-16 flex items-center justify-center rounded-full group-hover:bg-surface-container transition-colors mb-1">
+<span class="material-symbols-outlined text-[24px]">person</span>
+</div>
+<span class="font-label-caps text-[10px]">Account</span>
+</a>
+</nav>
+<!-- Desktop Warning / Fallback (Since prompt implied mobile view with Bottom Nav and sticky composer) -->
+<div class="hidden md:flex fixed inset-0 bg-background z-[100] items-center justify-center flex-col text-center p-8">
+<span class="material-symbols-outlined text-primary text-6xl mb-4">smartphone</span>
+<h2 class="font-h1 text-h1 text-primary mb-2">Mobile View Designed</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-md">This conversation thread component was generated specifically for a mobile viewport interface per the BottomNavBar requirements. Please resize your browser window to simulate a mobile device.</p>
+</div>
+<!-- Script to handle textarea auto-resize -->
+<script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const tx = document.getElementsByTagName("textarea");
+            for (let i = 0; i < tx.length; i++) {
+                tx[i].setAttribute("style", "height:" + (tx[i].scrollHeight) + "px;overflow-y:hidden;");
+                tx[i].addEventListener("input", OnInput, false);
+            }
+
+            function OnInput() {
+                this.style.height = "auto";
+                this.style.height = (this.scrollHeight) + "px";
+                
+                // Keep scroll pinned to bottom if typing expands the area
+                const mainArea = document.querySelector('main');
+                mainArea.scrollTop = mainArea.scrollHeight;
+            }
+        });
+    </script>
+</body></html>

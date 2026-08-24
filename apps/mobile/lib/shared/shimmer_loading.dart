@@ -63,7 +63,8 @@ class _ShimmerLoadingState extends State<ShimmerLoading>
                   begin: const Alignment(-1.0, -0.3),
                   end: const Alignment(1.0, 0.3),
                   transform: _SlidingGradientTransform(
-                      slidePercent: _controller.value * 3.0 - 1.5),
+                    slidePercent: _controller.value * 3.0 - 1.5,
+                  ),
                 ).createShader(bounds);
               },
               child: widget.child ?? Container(color: AppColors.hairlineSoft),
@@ -76,9 +77,7 @@ class _ShimmerLoadingState extends State<ShimmerLoading>
 }
 
 class _SlidingGradientTransform extends GradientTransform {
-  const _SlidingGradientTransform({
-    required this.slidePercent,
-  });
+  const _SlidingGradientTransform({required this.slidePercent});
 
   final double slidePercent;
 

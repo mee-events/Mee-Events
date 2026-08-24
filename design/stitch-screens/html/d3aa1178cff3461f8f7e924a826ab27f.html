@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Mee Events - Customer Home: Event Services Final</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&amp;family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-container-high": "#eae7e7",
+                      "inverse-surface": "#313030",
+                      "tertiary-container": "#242522",
+                      "on-background": "#1c1b1b",
+                      "on-primary-container": "#cc726d",
+                      "on-primary": "#ffffff",
+                      "tertiary-fixed": "#e4e2dd",
+                      "primary-fixed-dim": "#ffb3ad",
+                      "secondary-fixed": "#ffdea5",
+                      "outline": "#877270",
+                      "primary-container": "#4a0e0e",
+                      "surface-variant": "#e5e2e1",
+                      "surface-bright": "#fcf9f8",
+                      "secondary-container": "#fed488",
+                      "on-secondary-fixed-variant": "#5d4201",
+                      "surface-dim": "#dcd9d9",
+                      "surface-tint": "#954742",
+                      "on-primary-fixed-variant": "#77302d",
+                      "surface-container-lowest": "#ffffff",
+                      "on-secondary-fixed": "#261900",
+                      "on-secondary": "#ffffff",
+                      "on-tertiary": "#ffffff",
+                      "primary-fixed": "#ffdad7",
+                      "outline-variant": "#dac1bf",
+                      "surface-container": "#f0eded",
+                      "on-primary-fixed": "#3d0506",
+                      "surface-container-highest": "#e5e2e1",
+                      "surface": "#fcf9f8",
+                      "on-error-container": "#93000a",
+                      "inverse-on-surface": "#f3f0ef",
+                      "secondary-fixed-dim": "#e9c176",
+                      "tertiary-fixed-dim": "#c8c6c2",
+                      "on-secondary-container": "#785a1a",
+                      "on-surface": "#1c1b1b",
+                      "on-surface-variant": "#544341",
+                      "secondary": "#775a19",
+                      "surface-container-low": "#f6f3f2",
+                      "on-tertiary-container": "#8c8c88",
+                      "primary": "#2a0002",
+                      "inverse-primary": "#ffb3ad",
+                      "background": "#fcf9f8",
+                      "on-error": "#ffffff",
+                      "error-container": "#ffdad6",
+                      "on-tertiary-fixed-variant": "#474744",
+                      "on-tertiary-fixed": "#1b1c19",
+                      "error": "#ba1a1a",
+                      "tertiary": "#0f100d"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "sm": "12px",
+                      "xs": "4px",
+                      "base": "8px",
+                      "md": "24px",
+                      "xl": "80px",
+                      "gutter": "24px",
+                      "lg": "48px",
+                      "container-max": "1280px"
+              },
+              "fontFamily": {
+                      "body-lg": [
+                              "Manrope"
+                      ],
+                      "h2": [
+                              "Manrope"
+                      ],
+                      "h1": [
+                              "Manrope"
+                      ],
+                      "button": [
+                              "Manrope"
+                      ],
+                      "body-md": [
+                              "Manrope"
+                      ],
+                      "display-hero-mobile": [
+                              "EB Garamond"
+                      ],
+                      "label-caps": [
+                              "Manrope"
+                      ],
+                      "display-hero": [
+                              "EB Garamond"
+                      ]
+              },
+              "fontSize": {
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "h2": [
+                              "24px",
+                              {
+                                      "lineHeight": "1.4",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "h1": [
+                              "32px",
+                              {
+                                      "lineHeight": "1.3",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "button": [
+                              "14px",
+                              {
+                                      "lineHeight": "1",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "display-hero-mobile": [
+                              "36px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "label-caps": [
+                              "12px",
+                              {
+                                      "lineHeight": "1",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "display-hero": [
+                              "48px",
+                              {
+                                      "lineHeight": "1.1",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "500"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .carousel-snap {
+            scroll-snap-type: x mandatory;
+        }
+        .carousel-item {
+            scroll-snap-align: center;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .carousel-snap {
+                scroll-behavior: auto !important;
+            }
+        }
+      </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex flex-col pt-[72px] pb-[88px] md:pb-0">
+<!-- TopAppBar (Hidden on Mobile, visible on MD+) -->
+<header class="hidden md:flex justify-between items-center w-full px-gutter h-[72px] max-w-container-max mx-auto bg-surface border-b border-outline-variant/30 docked full-width top-0 fixed z-40">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-surface-container overflow-hidden cursor-pointer">
+<img alt="Profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC8VUY6uvg7j2oFiNEyWTvmCc85CwSjjqnBJ7dADJUZn2c07oZu3Lf-2U4CyG1sF_y639xcUcahrEUSmR5fwFlsVQNTtQR3oL2N5I9hHnb_1Geh2Bu8TfsYU6Rv70gMxWAabiickbUjyf6bHs56oKHyAKEjTyXdpWd0-pSlnbxB-HDYzipVQ3s-jLex-yuVOa8d_oXn2xKVVjJKTBwvFfYTNlsee-7lXl8n-erkIp0RNHUOLhM-Wr3b"/>
+</div>
+<span class="font-display-hero text-h1 text-primary">Mee Events</span>
+</div>
+<div class="flex items-center gap-6">
+<a class="text-primary hover:opacity-80 transition-opacity" href="{{DATA:SCREEN:SCREEN_165}}"><span class="material-symbols-outlined">search</span></a>
+<a class="text-primary hover:opacity-80 transition-opacity" href="{{DATA:SCREEN:SCREEN_6}}"><span class="material-symbols-outlined">favorite</span></a>
+<a class="text-primary hover:opacity-80 transition-opacity" href="{{DATA:SCREEN:SCREEN_54}}"><span class="material-symbols-outlined">notifications</span></a>
+</div>
+</header>
+<!-- Mobile Header (Visible on Mobile only) -->
+<header class="md:hidden flex justify-between items-center w-full px-gutter h-[72px] bg-surface fixed top-0 z-40 border-b border-outline-variant/30">
+<div class="w-8 h-8 rounded-full bg-surface-container overflow-hidden">
+<img alt="Profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCcI8cWqizKOUGTGo6BbrQSd_JyTWxYd8PdbI_aZZfSiWP1vWy4oPE_mgdmwhmglQ-YQNPJK-Lu9Dd4FiAEqpahwroWv-CZAaZ32hlji3KMKj_0kbSS8lE4zCBWrAq61ObYFXlrAD4KDPNfOvA7hODu1muz8I7LO_UCagprE7VBA1idmDOLYB0FVoZr5eUVaaw812dSjJAw83cYxvsuHZ758AQU4WbOHNRGv_TPyxmHplt1JNPytIx0"/>
+</div>
+<span class="font-display-hero-mobile text-h2 text-primary absolute left-1/2 -translate-x-1/2">Mee Events</span>
+<div class="flex items-center gap-4">
+<a class="text-primary" href="{{DATA:SCREEN:SCREEN_165}}"><span class="material-symbols-outlined">search</span></a>
+<a class="text-primary" href="{{DATA:SCREEN:SCREEN_6}}"><span class="material-symbols-outlined">favorite</span></a>
+<a class="text-primary" href="{{DATA:SCREEN:SCREEN_54}}"><span class="material-symbols-outlined">notifications</span></a>
+</div>
+</header>
+<main class="flex-grow max-w-container-max mx-auto w-full">
+<!-- Banner Carousel -->
+<section class="w-full px-md py-md mt-sm md:mt-md">
+<div class="relative w-full rounded-[20px] overflow-hidden shadow-[0px_10px_30px_rgba(74,14,14,0.1)] group">
+<div class="flex overflow-x-auto carousel-snap no-scrollbar scroll-smooth w-full aspect-video" id="carousel">
+<!-- Slide 1 -->
+<div class="carousel-item flex-none w-full h-full relative">
+<img alt="Birthday" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC3WLwzStXLHfML02A2O72shknU1pHMsjvtPyK_SIbPdwZVVozHJ9H2Y9WzZQDfOEfqbLep2tom-HNnLy43gVxJEMBNfodHeZBUWRBbE1Xf15rdRI__Zt7wiX6BIJmhIiJTCaaZf07bqYGk9sCOz4YBUlqk4FoZtUi5jFkwpzmkMmOwEzlGVDrjiVzB4pK6xhlOAgsnWrYWzBUn3kvFJ_FusgKCIMrXs_LYxqt34t69n-o9f0_KAXWZ"/>
+<div class="absolute inset-0 bg-gradient-to-t from-primary/80 to-transparent"></div>
+<div class="absolute bottom-md left-md">
+<h2 class="font-display-hero-mobile text-on-primary">Birthday</h2>
+</div>
+</div>
+<!-- Slide 2 -->
+<div class="carousel-item flex-none w-full h-full relative">
+<img alt="Engagement" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCobNRxp-HXe8UebGmzGzh3-NYAj8L7HLhjFCag9_ZH8gGsPBxVUNRUFvH2Wm38_KrmJn4lUTkP4bjdF6XtPoObBQmbTccU7GyjENKU-E06nDqUibwzlhgcSQFNbgpdDfsDaxG7xBuYiw8eWIk6bNil_TAEfaUE5bQ2o_XpCjnOoRLp09I1SXDR1z7AJqIGKXPl2MbeQM6mrtNDrNII2JKg28Hs3uIOUGEqxaH_Q2cBy0BjLquV4t5W"/>
+<div class="absolute inset-0 bg-gradient-to-t from-primary/80 to-transparent"></div>
+<div class="absolute bottom-md left-md">
+<h2 class="font-display-hero-mobile text-on-primary">Engagement</h2>
+</div>
+</div>
+<!-- Slide 3 -->
+<div class="carousel-item flex-none w-full h-full relative">
+<img alt="Pre-Wedding" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBlW_ibPJNlnqP9RfbiRVsmNyNA3rzjci4eeniUouAS211a1FDDMrO2US4dTRTLBguVY0QVzhUdNFzKZuj9Uor0bGm5-OWITgb9Ytfj6-3yd98_IBewWPQybn_suFL_kxIX3zK0NxT86BOMA4UHeRbv71bJhuSo6SoqpgUYzbYxhObLx_jrfxb4132HGmObeMbHVps5g-kz9ginHl38dhr3a4hQtAqBiETTesZPrdYjyj7k2VleW1Bi"/>
+<div class="absolute inset-0 bg-gradient-to-t from-primary/80 to-transparent"></div>
+<div class="absolute bottom-md left-md">
+<h2 class="font-display-hero-mobile text-on-primary">Pre-Wedding</h2>
+</div>
+</div>
+<!-- Slide 4 -->
+<div class="carousel-item flex-none w-full h-full relative">
+<img alt="Sangeet" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD6Vp5AK6Mz4iN_Pj3WWDEpVj2vbDLXB3U5lgT8l6pHeOJL-YEdh9sV4411QdsFJhZMsarct_pU1yYkaTXMnwNFlcwU1NuRsMmi62PLUe0UzNlIH_MTJ7oO0ow-bXN2yvD3fJDft7qAslfsLN29leXYVO-AnFqcI4dy5KHmJIskSL8yjrafFF1u1yWhr6kZPHJCab2MofTb_d4n3iI1Jl5_kcPxk6g3aalOEOJYBoD7KQ6bSTrvY1u5"/>
+<div class="absolute inset-0 bg-gradient-to-t from-primary/80 to-transparent"></div>
+<div class="absolute bottom-md left-md">
+<h2 class="font-display-hero-mobile text-on-primary">Sangeet</h2>
+</div>
+</div>
+<!-- Slide 5 -->
+<div class="carousel-item flex-none w-full h-full relative">
+<img alt="Wedding" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAsvVAcrPCe3_ChkYBFSUVOcVNbzRYzdWpKn8lTiPxZu25U8B0xRmoCUHKPPm_pQ--ysbam50PxchifROevowLX-imGV6Ot0UVk2k83w8pOnYdpya80pr8RHU-CVA3IU8hLRGQ36fPyl0KAf0ZbIOS6OlEwjpBZ_R1DvgQ1rIn8_HZ70zLFNyL0Lzt_9yWoUx10pY-Fj_sTfc-ImIpUjX_jcXZskn6j39t7M066i8QXL_BFZTUYM_b2"/>
+<div class="absolute inset-0 bg-gradient-to-t from-primary/80 to-transparent"></div>
+<div class="absolute bottom-md left-md">
+<h2 class="font-display-hero-mobile text-on-primary">Wedding</h2>
+</div>
+</div>
+</div>
+<!-- Pagination Dots -->
+<div class="absolute bottom-sm left-1/2 -translate-x-1/2 flex gap-2 z-10">
+<button class="w-2 h-2 rounded-full bg-on-primary/100 transition-all"></button>
+<button class="w-2 h-2 rounded-full bg-on-primary/50 transition-all"></button>
+<button class="w-2 h-2 rounded-full bg-on-primary/50 transition-all"></button>
+<button class="w-2 h-2 rounded-full bg-on-primary/50 transition-all"></button>
+<button class="w-2 h-2 rounded-full bg-on-primary/50 transition-all"></button>
+</div>
+</div>
+</section>
+<!-- Customer Notification Bar -->
+<section class="w-full px-md mb-lg">
+<div class="bg-secondary-fixed/20 border border-secondary-fixed-dim rounded-lg p-sm flex items-center justify-between">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-secondary" data-icon="info">info</span>
+<p class="font-body-md text-body-md text-on-secondary-container text-sm md:text-base">
+<span class="font-bold">MEE UPDATE:</span> Menu preferences are due by 28 August 2026.
+                    </p>
+</div>
+<div class="flex items-center gap-xs text-secondary">
+<div class="flex gap-1 mr-2">
+<div class="w-1.5 h-1.5 rounded-full bg-secondary"></div>
+<div class="w-1.5 h-1.5 rounded-full bg-secondary/30"></div>
+<div class="w-1.5 h-1.5 rounded-full bg-secondary/30"></div>
+</div>
+<span class="material-symbols-outlined cursor-pointer" data-icon="chevron_right">chevron_right</span>
+</div>
+</div>
+</section>
+<!-- Birthday Services Section -->
+<section class="w-full px-md mb-xl">
+<div class="mb-md">
+<p class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest mb-xs">CURATED SERVICES</p>
+<h2 class="font-display-hero-mobile md:font-display-hero text-h2 md:text-h1 text-primary">Birthday Services</h2>
+<p class="font-body-md text-body-md text-on-surface-variant mt-2 max-w-2xl">Elevate your celebration with our bespoke birthday experiences, crafted to create unforgettable moments for you and your guests.</p>
+</div>
+<div class="flex gap-md overflow-x-auto no-scrollbar pb-sm">
+<!-- Card 1 -->
+<div class="flex-shrink-0 w-64 md:w-72 bg-surface rounded-[14px] border border-outline-variant overflow-hidden hover:shadow-[0px_10px_30px_rgba(74,14,14,0.05)] transition-all group">
+<div class="w-full h-40 bg-surface-container relative">
+<img class="w-full h-full object-cover" data-alt="A grand birthday party entrance setup with opulent floral arrangements, dramatic lighting, and a luxurious velvet carpet. The aesthetic is premium Modern Indian, featuring warm ivory and deep burgundy tones, captured in a high-resolution editorial style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA9yTwaYMT0SYKGNT7JWNvl5DLwIgS_9osjPeR9YS-bktaeOrcTAgDhh-bNMXf2Eh0fCj3r_CnHXGOIo_ZR8dyLa00-IMGqEtG6QJse7V2JeORO2rSd_9bZI20oirNTx0L5PbsYhJvtrFu9pyzKkDlZttXVzVUCl48TGtI48g4_XugIQpsmtZaCflL6oAkFjzDnUFhoWhdSPnKN_9Jxy0mZnOpw-hVJLMUQm1lhvq-Md4zLzXY9VNoh"/>
+</div>
+<div class="p-md">
+<h3 class="font-h2 text-h2 text-on-surface mb-xs text-lg">Special Entry</h3>
+<p class="font-body-md text-sm text-on-surface-variant">Dramatic arrivals designed for impact.</p>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="flex-shrink-0 w-64 md:w-72 bg-surface rounded-[14px] border border-outline-variant overflow-hidden hover:shadow-[0px_10px_30px_rgba(74,14,14,0.05)] transition-all group">
+<div class="w-full h-40 bg-surface-container relative">
+<img class="w-full h-full object-cover" data-alt="An elegant, modern birthday stage decoration utilizing high-end organic balloon garlands in soft ivory, gold, and burgundy. Integrated with delicate floral accents and warm spotlights for a sophisticated, celebratory atmosphere." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBGAtPeZqg7a3EEWEHEsEj0QL0SGbS6uuyK1MuaKNgF5W_DhZfdLxSZId1x5jm_3nPwiv6ezQymly8S9wu3e6pOHyu42p76Lsxb2Z-jZ5I7Xd5Ls-SzrtQ093GHDghudQ-rjD0RKOV8oIfDhnm6l0Lxl6HHoWDKF1VT6FdMi6R91vC9ZwJTkVnKvTu9D-9pRFcW2mvajnawFnFYXuN0FHOPUFIhd7NGOP_Khnrj_YIw3AZGC7BE69NT"/>
+</div>
+<div class="p-md">
+<h3 class="font-h2 text-h2 text-on-surface mb-xs text-lg">Balloon Stage Decoration</h3>
+<p class="font-body-md text-sm text-on-surface-variant">Sophisticated organic arrangements.</p>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="flex-shrink-0 w-64 md:w-72 bg-surface rounded-[14px] border border-outline-variant overflow-hidden hover:shadow-[0px_10px_30px_rgba(74,14,14,0.05)] transition-all group">
+<div class="w-full h-40 bg-surface-container relative">
+<img class="w-full h-full object-cover" data-alt="A beautifully styled area for sophisticated party games, featuring elegant wooden props, soft ambient lighting, and luxurious seating arrangements. The aesthetic is warm, inviting, and premium, suitable for a high-end celebration." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCAg7lQRVHJ7P4tt-ZucP66tOD47Hu6bObsn-RaRXh1Z0bAE2I_Zax5rBUU8kcAcfcv4TH5ZsvRh1-W_yekEYm9aSdfLN1EZ00MTBR-ylCC7Rz_ef4OP-N3C0WwaYWFPJK0Dg9PPpwqySMZjOzTc5GNx7h3bYwSy-Ytiln7qcuUhjtzHGO6XO6gI8P_zyONs_0BF8qxKFwaLD91ebrnn86Qf_8CBLU7iM2LnAHpkFjHTwgqI_stWPfK"/>
+</div>
+<div class="p-md">
+<h3 class="font-h2 text-h2 text-on-surface mb-xs text-lg">Fun &amp; Games</h3>
+<p class="font-body-md text-sm text-on-surface-variant">Curated entertainment for all ages.</p>
+</div>
+</div>
+<!-- Card 4 -->
+<div class="flex-shrink-0 w-64 md:w-72 bg-surface rounded-[14px] border border-outline-variant overflow-hidden hover:shadow-[0px_10px_30px_rgba(74,14,14,0.05)] transition-all group">
+<div class="w-full h-40 bg-surface-container relative">
+<img class="w-full h-full object-cover" data-alt="A premium live food stall setup at a celebration, featuring a modern rustic aesthetic with warm wood, glowing pendant lights, and beautifully presented gourmet dishes. The atmosphere is vibrant and inviting, reflecting high-end Indian hospitality." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBdEJ_yxdgVF4qsHyfa2Pkl_uIlDNl0qsuWkTnJYKBR36tLdTlOL8PQlubvZ_jdfYWChIVxbNxZp-l7v4lg4FLETVUYrJPkzar9KVJT6ainpFnrDaDpRK2GSK1q4jQQ1Xg9CF9H1kGsCXC5eVlJgf-IXj3WQHy2VkfRMZgsrvk8IkzotIvGaHvUwnu8v5fL_h4hiw3Qx11jFSxVc_jG6nrTOxUpJmm_uNZRgEmKEtgTncnTYcTAm8FQ"/>
+</div>
+<div class="p-md">
+<h3 class="font-h2 text-h2 text-on-surface mb-xs text-lg">Birthday Live Food Stalls</h3>
+<p class="font-body-md text-sm text-on-surface-variant">Interactive culinary experiences.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Engagement Services Section -->
+<section class="w-full px-md mb-xl">
+<div class="mb-md">
+<p class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest mb-xs">CURATED SERVICES</p>
+<h2 class="font-display-hero-mobile md:font-display-hero text-h2 md:text-h1 text-primary">Engagement Services</h2>
+<p class="font-body-md text-body-md text-on-surface-variant mt-2 max-w-2xl">Begin your journey to forever with elegant, tailored services designed specifically for intimate and grand engagement ceremonies.</p>
+</div>
+<div class="flex gap-md overflow-x-auto no-scrollbar pb-sm">
+<!-- Card 1 -->
+<div class="flex-shrink-0 w-64 md:w-72 bg-surface rounded-[14px] border border-outline-variant overflow-hidden hover:shadow-[0px_10px_30px_rgba(74,14,14,0.05)] transition-all group">
+<div class="w-full h-40 bg-surface-container relative">
+<img class="w-full h-full object-cover" data-alt="A beautifully decorated modern Indian home interior prepared for an engagement ceremony. Features delicate marigold cascades, warm brass diyas, and soft ivory fabrics creating an intimate, premium atmosphere." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBSingsJfobvUFRTRCed1RXheqABiVY_nKvxZVq0A0AzjRoVnRbd8ywhBW8AXhKwXBjN3CxTYNleMc0GkgL2IBZVKBeXEI_4hocUSf-36h3jm2l768X9t0xBg6ur61qFfHiSMDx-v9wYfrKtf_KKD0IiGx6yBVFEbBZHBEx4baO0XTKPKdwYbyIp5tcw_q4dXS7HCzbfhSeqNNVpMN4nfLgbeZkKkZXdiTZEfrui5g4KROls6nAPGWL"/>
+</div>
+<div class="p-md">
+<h3 class="font-h2 text-h2 text-on-surface mb-xs text-lg">House Decoration</h3>
+<p class="font-body-md text-sm text-on-surface-variant">Transform your home elegantly.</p>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="flex-shrink-0 w-64 md:w-72 bg-surface rounded-[14px] border border-outline-variant overflow-hidden hover:shadow-[0px_10px_30px_rgba(74,14,14,0.05)] transition-all group">
+<div class="w-full h-40 bg-surface-container relative">
+<img class="w-full h-full object-cover" data-alt="A curated display of luxury wedding gifts and trousseau items, arranged on elegant trays with silk ribbons and delicate floral touches. The aesthetic is high-end, utilizing a color palette of gold, deep burgundy, and ivory." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBxwDozpcvRTRUA7Ed4wjS8ZswlF_pOasQXb8ecMPS3jEp4K9_WgyRZwQ3sbIhbM-n9ApVUuS3pswHkty3DKLwGZuvI9EBf5R9Nsw3lVdHToNOj1YXmRBG8mL-kDA0dQmVBqJdFI8KIhq3S42LEXdml9Vw9qFlDjFDuNy6r76mzHiSGGvye0NEDmTQhwlnIssXu_S88S0MPaIo4S8NThEVoGCTplMRATIRpcWBCMyBJFiHHqed8yRKR"/>
+</div>
+<div class="p-md">
+<h3 class="font-h2 text-h2 text-on-surface mb-xs text-lg">Wedding Items &amp; Gifts</h3>
+<p class="font-body-md text-sm text-on-surface-variant">Exquisite gifting solutions.</p>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="flex-shrink-0 w-64 md:w-72 bg-surface rounded-[14px] border border-outline-variant overflow-hidden hover:shadow-[0px_10px_30px_rgba(74,14,14,0.05)] transition-all group">
+<div class="w-full h-40 bg-surface-container relative">
+<img class="w-full h-full object-cover" data-alt="A close-up of intricate, fresh flower garlands (varmalas) made of premium roses, orchids, and jasmine, resting on a textured ivory surface. The lighting is soft and editorial, highlighting the natural beauty of the blooms." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAZnIQsNkv8HTLSz-R_QccDELG96Pj77lmnyp0jg7LERa59rHrOCCrJAE0vDVxQ6N0OSRpGqnn_v1d54Z0_GylTr8xjGOVbiIPqorMpCIYX2Fdzu2E-X6BjZHjfPS1uKbSEYtdQfsuUh69WkCIAjr8e7nbq_1FSTkuJMwFESfhsLd_HQdBNM7TMSjW-Jhv_4JrDxRAIjE4ffZtpkAv1XjFXvwsrYBxsMzZrc-bZdncYB-S62MguIRDK"/>
+</div>
+<div class="p-md">
+<h3 class="font-h2 text-h2 text-on-surface mb-xs text-lg">Flower Garlands</h3>
+<p class="font-body-md text-sm text-on-surface-variant">Premium bespoke floral art.</p>
+</div>
+</div>
+<!-- Card 4 -->
+<div class="flex-shrink-0 w-64 md:w-72 bg-surface rounded-[14px] border border-outline-variant overflow-hidden hover:shadow-[0px_10px_30px_rgba(74,14,14,0.05)] transition-all group">
+<div class="w-full h-40 bg-surface-container relative">
+<img class="w-full h-full object-cover" data-alt="A serene portrait of a bride receiving intricate mehndi (henna) designs, bathed in soft, warm light. The setting implies luxury and meticulous care, with a modern Indian aesthetic blending tradition and contemporary elegance." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB2Iujai-8rXc2NCnGCSxcNrFL0vO5J7ke0GpHrYJpz8Kg8FTXGeuvOvbOd6iXR1KWRb0vD-TIbZJsPvsaG3bbK7EPF3o0CzUYZQQ8XZlBDQR1ktShPqp68_n-vInX_3hphj-uu4WIa_-CrB-fqdxJJTpWfH_7DTN2rgDb4iRhrPXVJTDeBLTw77REK7nA5TTyIakXkdhOFMXnpmZ_x3YGVjPJh4GFZU9ezBRfSqc1Db5ZlENnJzf_1"/>
+</div>
+<div class="p-md">
+<h3 class="font-h2 text-h2 text-on-surface mb-xs text-lg">Mehndi &amp; Makeup</h3>
+<p class="font-body-md text-sm text-on-surface-variant">Expert artists for your big day.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Wedding Services Section -->
+<section class="w-full px-md mb-xl">
+<div class="mb-md">
+<p class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest mb-xs">CURATED SERVICES</p>
+<h2 class="font-display-hero-mobile md:font-display-hero text-h2 md:text-h1 text-primary">Wedding Services</h2>
+<p class="font-body-md text-body-md text-on-surface-variant mt-2 max-w-2xl">Experience the pinnacle of celebration with our comprehensive wedding services, designed to reflect the grandeur and cultural richness of modern Indian nuptials.</p>
+</div>
+<div class="flex gap-md overflow-x-auto no-scrollbar pb-sm">
+<!-- Card 1 -->
+<div class="flex-shrink-0 w-64 md:w-72 bg-surface rounded-[14px] border border-outline-variant overflow-hidden hover:shadow-[0px_10px_30px_rgba(74,14,14,0.05)] transition-all group">
+<div class="w-full h-40 bg-surface-container relative">
+<img class="w-full h-full object-cover" data-alt="A majestic bride and groom entry setting, featuring cold pyros, traditional musicians in modern elegant attire, and a stunning floral canopy. The scene is dramatic, opulent, and steeped in premium Indian event aesthetics." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBN6k26GSF3AkmCHlJHBO6Vgxq1F4RlWG3Xa-ubVOPoKFbjyfAcfizmdx--mIy-fYddeuvLBZwohDHxwp6hnB5YdXDIUmMh6gXbWUliB5NU7ATtyqCjvONvOO63XSwqoyxGzzHq52b_0rk9e1RlKVMqLHxm6tXlslODW8W8mzwCyZ4pg06_X39m_6n_bBuJGjKQycCJGCI-Ph9UIrbfnipMr-ovGcz626KdKDYxEjN5bzS-B7euTkyM"/>
+</div>
+<div class="p-md">
+<h3 class="font-h2 text-h2 text-on-surface mb-xs text-lg">Bride &amp; Groom Entry</h3>
+<p class="font-body-md text-sm text-on-surface-variant">Unforgettable majestic arrivals.</p>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="flex-shrink-0 w-64 md:w-72 bg-surface rounded-[14px] border border-outline-variant overflow-hidden hover:shadow-[0px_10px_30px_rgba(74,14,14,0.05)] transition-all group">
+<div class="w-full h-40 bg-surface-container relative">
+<img class="w-full h-full object-cover" data-alt="Spectacular event special effects captured mid-action, showcasing low lying fog and elegant sparkulars around a grand dance floor. The lighting is moody and sophisticated, highlighting the luxurious atmosphere of the venue." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDyzQLYFvsnPeTkZ00u64iLO9wGtsmD0uxdhL4U3MDC36bhED-Tfe4V_2nxnQ6KCQLmIvIdyOQFfzChjGOaak9z0gtqnTnhDc9ksbI-pGsEJ5AiqGsyNk-mq2ciZtWHKdHj-dV1OaYgVhIm-gNdrlH79B5WV9UCZV9bCEpPMWiR_5tB7pPkqGsHl0CgjRn2qRAINMRAT2bcnTdCatBAffMvejFlsNNvnH_m01Q6uXe4KxmME3-zj7mZ"/>
+</div>
+<div class="p-md">
+<h3 class="font-h2 text-h2 text-on-surface mb-xs text-lg">Event Special Effects</h3>
+<p class="font-body-md text-sm text-on-surface-variant">Atmospheric magic and lighting.</p>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="flex-shrink-0 w-64 md:w-72 bg-surface rounded-[14px] border border-outline-variant overflow-hidden hover:shadow-[0px_10px_30px_rgba(74,14,14,0.05)] transition-all group">
+<div class="w-full h-40 bg-surface-container relative">
+<img class="w-full h-full object-cover" data-alt="A high-end stage setup for event entertainment, featuring elegant performers in sophisticated attire under warm, professional stage lighting. The aesthetic is premium, reflecting grand, culturally rich celebrations." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDZUsSOZJKYbSKcgU9W0WE20lUTHU0TowTjKpHazFHpLghnRH_oRlNSHDODKFQBwvpPFsC99HYfPeNA91SN2dfvBLjV_DpXe7Ul_6t47cxk03tfozGwZ2GyQgPwYhrVKKRhC13PrZaGxHds1RgJs2My92Ed_R1RJisj87e-pNBpQ97RfoTxGf_kiagJDvMGrN_AeL12XeoM98iURtXmyuAvfww-l-bH8aVQhFfuwJQ-5IwPhmdnWXYj"/>
+</div>
+<div class="p-md">
+<h3 class="font-h2 text-h2 text-on-surface mb-xs text-lg">Event Entertainment</h3>
+<p class="font-body-md text-sm text-on-surface-variant">Captivating performances.</p>
+</div>
+</div>
+<!-- Card 4 -->
+<div class="flex-shrink-0 w-64 md:w-72 bg-surface rounded-[14px] border border-outline-variant overflow-hidden hover:shadow-[0px_10px_30px_rgba(74,14,14,0.05)] transition-all group">
+<div class="w-full h-40 bg-surface-container relative">
+<img class="w-full h-full object-cover" data-alt="A modern interpretation of traditional Indian wedding concepts, showing a minimalist yet deeply cultural mandap design. Featuring rich velvet fabrics in burgundy, sleek brass elements, and abundant fresh jasmine flowers." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAysiTcHftPfoSQYp1Pnx1fSJveydUAulytnLqBgEXC8-y9XxMklrPzWjhVt0ECn4YmgcCKyUkLgNnS7R3pEkkl65HdYvLglWNGAb8_C0D-BaF8yX9UR_QvS0aleTLj2NVnmZN0zyEx-auH4ImJgz8swGH9GTYjRy1egPW5dNvHmtkhjNl0h5hoRjun_L3lsDYWFxYiea_0JTaKdvAjgZA6vsQUY_In0Nqi80TANPLEVwKhsR0HU_JN"/>
+</div>
+<div class="p-md">
+<h3 class="font-h2 text-h2 text-on-surface mb-xs text-lg">Traditional Wedding Concepts</h3>
+<p class="font-body-md text-sm text-on-surface-variant">Heritage meets modern luxury.</p>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar (Visible on Mobile only) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-sm py-base bg-surface border-t border-outline-variant shadow-lg h-[88px] pb-6">
+<!-- Home (Active) -->
+<div class="flex flex-col items-center justify-center text-secondary dark:text-secondary-fixed-dim gap-xs opacity-80 transition-opacity scale-95 transition-transform duration-150 cursor-pointer">
+<span class="material-symbols-outlined" data-icon="home" data-weight="fill" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="text-label-caps font-label-caps">Home</span>
+<div class="w-1 h-1 bg-secondary rounded-full mt-1"></div>
+</div>
+<!-- Explore (Inactive) -->
+<div class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant gap-xs hover:bg-surface-container-high transition-all p-2 rounded-lg cursor-pointer">
+<span class="material-symbols-outlined" data-icon="search">search</span>
+<span class="text-label-caps font-label-caps">Explore</span>
+</div>
+<!-- Plan (Inactive) -->
+<div class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant gap-xs hover:bg-surface-container-high transition-all p-2 rounded-lg cursor-pointer">
+<span class="material-symbols-outlined" data-icon="event_note">event_note</span>
+<span class="text-label-caps font-label-caps">Plan</span>
+</div>
+<!-- Enquiries (Inactive) -->
+<div class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant gap-xs hover:bg-surface-container-high transition-all p-2 rounded-lg cursor-pointer">
+<span class="material-symbols-outlined" data-icon="chat_bubble">chat_bubble</span>
+<span class="text-label-caps font-label-caps">Enquiries</span>
+</div>
+<!-- Profile (Inactive) -->
+<div class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant gap-xs hover:bg-surface-container-high transition-all p-2 rounded-lg cursor-pointer">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="text-label-caps font-label-caps">Profile</span>
+</div>
+</nav>
+<script>
+  // Simple carousel script
+  document.addEventListener('DOMContentLoaded', () => {
+    const carousel = document.getElementById('carousel');
+    const dots = carousel.parentElement.querySelectorAll('button');
+    let currentIndex = 0;
+    let intervalId;
+    let isPaused = false;
+    
+    // Check for reduced motion
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const updateDots = (index) => {
+      dots.forEach((dot, i) => {
+        if (i === index) {
+          dot.classList.remove('bg-on-primary/50');
+          dot.classList.add('bg-on-primary/100');
+        } else {
+          dot.classList.add('bg-on-primary/50');
+          dot.classList.remove('bg-on-primary/100');
+        }
+      });
+    };
+
+    const scrollToSlide = (index) => {
+      const scrollLeft = index * carousel.offsetWidth;
+      carousel.scrollTo({
+        left: scrollLeft,
+        behavior: prefersReducedMotion ? 'auto' : 'smooth'
+      });
+      updateDots(index);
+    };
+
+    const nextSlide = () => {
+      if(isPaused) return;
+      currentIndex = (currentIndex + 1) % dots.length;
+      scrollToSlide(currentIndex);
+    };
+
+    // Auto advance
+    const startAutoAdvance = () => {
+      intervalId = setInterval(nextSlide, 3500);
+    };
+
+    startAutoAdvance();
+
+    // Pause on touch/hover
+    carousel.addEventListener('touchstart', () => { isPaused = true; });
+    carousel.addEventListener('touchend', () => { isPaused = false; });
+    carousel.addEventListener('mouseenter', () => { isPaused = true; });
+    carousel.addEventListener('mouseleave', () => { isPaused = false; });
+
+    // Update index on manual scroll
+    carousel.addEventListener('scroll', () => {
+      const newIndex = Math.round(carousel.scrollLeft / carousel.offsetWidth);
+      if(newIndex !== currentIndex && newIndex >= 0 && newIndex < dots.length) {
+         currentIndex = newIndex;
+         updateDots(currentIndex);
+      }
+    }, { passive: true });
+    
+    // Dot click
+    dots.forEach((dot, i) => {
+      dot.addEventListener('click', () => {
+        currentIndex = i;
+        scrollToSlide(currentIndex);
+        // Reset timer
+        clearInterval(intervalId);
+        startAutoAdvance();
+      });
+    });
+  });
+</script>
+</body></html>

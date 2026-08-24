@@ -1,0 +1,86 @@
+PROJECT CONTEXT
+
+Design a production-ready mobile experience for Mee Events, a Hyderabad-based
+managed event marketplace. This is one shared app with Customer, Vendor, and
+Worker roles. Customer is the default role; approved additional roles are
+available through a role switcher.
+
+BUSINESS RULES
+
+Customers browse Mee Events offerings, build an event plan, submit an enquiry,
+approve a quotation, pay Mee Events, and track event delivery. They do not
+compare or choose operational vendors. Vendor identity is visible only when Mee
+Events marks it as disclosed. Vendors manage private base prices, listings,
+assigned work orders, invoices, and settlements; they never see customer prices,
+margins, or competitor data. Workers manage availability, assigned work,
+attendance, proof of work, and earnings; they never see customer or vendor
+financial data and do not directly contact customers.
+
+VISUAL SYSTEM
+
+Use a premium, calm, trustworthy, photography-led Indian event aesthetic. Use
+warm ivory #F9F7F2 for the canvas, white cards, soft warm neutral surfaces,
+deep burgundy #4A0E0E for primary actions, ink #1A1A1A for main text,
+muted brown-grey #68635E for secondary text, thin #E5DED4 borders, and restrained
+gold #C5A059 accents. Display headings use EB Garamond; interface text uses
+Manrope. Use 14 px card radii, 20 px prominent container radii, generous spacing,
+hairline borders, and minimal shadow. Use authentic Indian event photography,
+not illustrations or generic Western wedding imagery. Vendor green and Worker
+blue may appear only as small role-context accents; all roles remain one brand.
+
+UX RULES
+
+Design at 390 x 844. Use one primary action per screen, 44 px minimum touch
+targets, visible form labels, concise Indian English, Indian Rupee formatting,
+and realistic Hyderabad content. Use progressive disclosure and clear status
+text. Do not use emoji decoration, glassmorphism, neon gradients, generic purple
+AI styling, crowded dashboards, card soup, or lorem ipsum.
+
+OUTPUT EXPECTATION
+
+Create polished, implementation-ready mobile screens with consistent reusable
+components, realistic content, clear hierarchy, and complete navigation context.
+Use the exact screen names requested. Do not add unrelated functionality.
+
+MODULE: VENDOR FULFILMENT AND BUSINESS
+
+USER GOAL
+
+Respond to assigned Mee Events work, execute the agreed scope, provide evidence,
+submit an invoice, and track vendor settlement.
+
+REQUIRED EXPERIENCE
+
+Work Orders separates offers, accepted/upcoming, active, completed, and cancelled.
+Work Order Offer shows only necessary event, program, locality, schedule, scope,
+vendor payable or commercial amount where authorised, response deadline, terms,
+and Accept or Decline. Do not show customer pricing, margin, unnecessary customer
+data, or competing vendors.
+
+Active Work Order Detail includes reporting contact at Mee Events, schedule,
+scope, checklist, delivery or setup notes, status update, evidence, and help.
+Progress and Evidence supports photos, delivery confirmation, notes, and
+submission status. Incident or Help captures category, severity, description,
+photos, immediate safety action, and Mee Events operations escalation.
+
+Submit Invoice captures invoice number, work order reference, amount within the
+authorised scope, tax details, invoice upload, notes, and declaration. Earnings
+and Settlements shows pending invoice approval, approved payable, processing,
+paid, failed or held settlement, period filters, and transaction references.
+
+Business Profile shows identity, approved categories, service areas,
+verification status, bank/settlement profile status, documents, support, and
+read-only vendor visibility status: Hidden or Disclosed. Make it clear only Mee
+Events controls visibility.
+
+Exact screen names (use these titles exactly):
+1. V11A Work Orders
+2. V11B Work Order Offer
+3. V11C Active Work Order Detail
+4. V11D Vendor Progress and Evidence
+5. V11E Vendor Incident or Help
+6. V11F Submit Invoice
+7. V11G Vendor Earnings and Settlements
+8. V11H Vendor Business Profile
+
+Use soft vendor green #167463 only on the role chip. Keep Mee Events burgundy primary.

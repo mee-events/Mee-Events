@@ -2,7 +2,13 @@ import 'package:mee_events/api/api_client.dart';
 import 'package:mee_events/models/auth_session.dart';
 import 'package:mee_events/models/bootstrap_response.dart';
 import 'package:mee_events/models/catalog_item.dart';
+import 'package:mee_events/models/catalog_product.dart';
+import 'package:mee_events/models/catalog_selection.dart';
+import 'package:mee_events/models/catalog_service.dart';
+import 'package:mee_events/models/catalog_subcategory.dart';
+import 'package:mee_events/features/customer/search/search_models.dart';
 import 'package:mee_events/models/enquiry.dart';
+import 'package:mee_events/models/occasion_stage.dart';
 import 'package:mee_events/models/event_record.dart';
 import 'package:mee_events/models/manager_ops.dart';
 import 'package:mee_events/models/quotation.dart';
@@ -17,7 +23,7 @@ class MobileApi {
 
   const MobileApi({required this.apiClient});
 
-  Future<PlatformBootstrapResponse> getPlatformBootstrap(String accessToken) async {
+  Future<PlatformBootstrapResponse> getPlatformBootstrap() async {
     return apiClient.request<PlatformBootstrapResponse>(
       '/platform/bootstrap',
       method: 'GET',
@@ -42,12 +48,26 @@ class MobileApi {
     return apiClient.request<AuthSession>(
       '/auth/otp/verify',
       method: 'POST',
-      body: {
-        'challengeId': challengeId,
-        'code': code,
-        'deviceId': deviceId,
-      },
+      body: {'challengeId': challengeId, 'code': code, 'deviceId': deviceId},
       fromJson: AuthSession.fromJson,
+    );
+  }
+
+  Future<SessionTokens> refreshSession(String refreshToken) {
+    return apiClient.request<SessionTokens>(
+      '/auth/refresh',
+      method: 'POST',
+      body: {'refreshToken': refreshToken},
+      fromJson: SessionTokens.fromJson,
+    );
+  }
+
+  Future<SwitchRoleResult> switchRole(String role) {
+    return apiClient.request<SwitchRoleResult>(
+      '/auth/switch-role',
+      method: 'POST',
+      body: {'role': role},
+      fromJson: SwitchRoleResult.fromJson,
     );
   }
 
@@ -81,6 +101,122 @@ class MobileApi {
         .toList();
   }
 
+  Future<List<CatalogService>> listCatalogServices({String? department}) async {
+    final query = department != null ? '?department=$department' : '';
+    final response = await apiClient.request<Map<String, dynamic>>(
+      '/catalog/services$query',
+      method: 'GET',
+    );
+    final items = response['services'] as List<dynamic>;
+    return items
+        .map((item) => CatalogService.fromJson(item as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<List<OccasionStage>> getOccasionStages(String occasionCode) async {
+    final response = await apiClient.request<Map<String, dynamic>>(
+      '/catalog/occasions/$occasionCode/stages',
+      method: 'GET',
+    );
+    final items = response['stages'] as List<dynamic>;
+    return items
+        .map((item) => OccasionStage.fromJson(item as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<List<CatalogService>> getServicesForOccasion(
+    String occasionCode,
+  ) async {
+    final response = await apiClient.request<Map<String, dynamic>>(
+      '/catalog/occasions/$occasionCode/services',
+      method: 'GET',
+    );
+    final items = response['services'] as List<dynamic>;
+    return items
+        .map((item) => CatalogService.fromJson(item as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<List<CatalogSelection>> getEventSelections(
+    String eventTypeCode,
+  ) async {
+    final response = await apiClient.request<Map<String, dynamic>>(
+      '/catalog/event-types/$eventTypeCode/selections',
+      method: 'GET',
+    );
+    final items = response['selections'] as List<dynamic>;
+    return items
+        .map((item) => CatalogSelection.fromJson(item as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<CatalogService> getCatalogService(String code) {
+    return apiClient.request<CatalogService>(
+      '/catalog/services/$code',
+      method: 'GET',
+      fromJson: CatalogService.fromJson,
+    );
+  }
+
+  Future<List<CatalogSubcategory>> getServiceSubcategories(
+    String serviceCode,
+  ) async {
+    final response = await apiClient.request<Map<String, dynamic>>(
+      '/catalog/services/$serviceCode/subcategories',
+      method: 'GET',
+    );
+    final items = response['subcategories'] as List<dynamic>;
+    return items
+        .map(
+          (item) => CatalogSubcategory.fromJson(item as Map<String, dynamic>),
+        )
+        .toList();
+  }
+
+  Future<List<CatalogProduct>> getServiceProducts(
+    String serviceCode, {
+    String? subcategory,
+  }) async {
+    final query = subcategory != null ? '?subcategory=$subcategory' : '';
+    final response = await apiClient.request<Map<String, dynamic>>(
+      '/catalog/services/$serviceCode/products$query',
+      method: 'GET',
+    );
+    final items = response['products'] as List<dynamic>;
+    return items
+        .map((item) => CatalogProduct.fromJson(item as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<CatalogProduct> getCatalogProduct(String productCode) {
+    return apiClient.request<CatalogProduct>(
+      '/catalog/products/$productCode',
+      method: 'GET',
+      fromJson: CatalogProduct.fromJson,
+    );
+  }
+
+  Future<SearchResponse> search(String q, {String? cursor, int? limit}) async {
+    final params = <String, String>{'q': q};
+    if (cursor != null && cursor.isNotEmpty) params['cursor'] = cursor;
+    if (limit != null) params['limit'] = '$limit';
+    final query = Uri(queryParameters: params).query;
+    final response = await apiClient.request<Map<String, dynamic>>(
+      '/search?$query',
+      method: 'GET',
+    );
+    return SearchResponse.fromJson(response);
+  }
+
+  Future<List<String>> trendingSearches() async {
+    final response = await apiClient.request<Map<String, dynamic>>(
+      '/search/trending',
+      method: 'GET',
+    );
+    final items = response['items'] as List<dynamic>? ?? const [];
+    return items.map((item) => item.toString()).toList();
+  }
+
   Future<Enquiry> createEnquiry({
     required String eventTypeCode,
     String? eventDate,
@@ -88,11 +224,13 @@ class MobileApi {
     int? guestCount,
     String? notes,
     List<String> serviceCategoryCodes = const [],
+    List<Map<String, dynamic>> planItems = const [],
   }) {
     final body = <String, dynamic>{
       'eventTypeCode': eventTypeCode,
       'serviceCategoryCodes': serviceCategoryCodes,
       'contactPreference': 'phone',
+      if (planItems.isNotEmpty) 'planItems': planItems,
     };
     if (eventDate != null) body['eventDate'] = eventDate;
     if (location != null && location.isNotEmpty) body['location'] = location;
@@ -323,10 +461,7 @@ class MobileApi {
     return apiClient.request<Map<String, dynamic>>(
       '/manager/events/$eventId/progress',
       method: 'POST',
-      body: {
-        'updateKind': updateKind,
-        'summary': summary,
-      },
+      body: {'updateKind': updateKind, 'summary': summary},
     );
   }
 
@@ -346,8 +481,7 @@ class MobileApi {
     final items = response['assignments'] as List<dynamic>? ?? [];
     return items
         .map(
-          (item) =>
-              VendorAssignmentItem.fromJson(item as Map<String, dynamic>),
+          (item) => VendorAssignmentItem.fromJson(item as Map<String, dynamic>),
         )
         .toList();
   }
@@ -389,10 +523,7 @@ class MobileApi {
     return apiClient.request<VendorAssignmentItem>(
       '/vendors/me/assignments/$assignmentId/progress',
       method: 'POST',
-      body: {
-        'summary': summary,
-        if (status != null) 'status': status,
-      },
+      body: {'summary': summary, 'status': ?status},
       fromJson: VendorAssignmentItem.fromJson,
     );
   }
@@ -412,9 +543,7 @@ class MobileApi {
     );
     final items = response['tasks'] as List<dynamic>? ?? [];
     return items
-        .map(
-          (item) => WorkerTaskItem.fromJson(item as Map<String, dynamic>),
-        )
+        .map((item) => WorkerTaskItem.fromJson(item as Map<String, dynamic>))
         .toList();
   }
 
@@ -453,9 +582,8 @@ class MobileApi {
       '/workers/me/tasks/$taskId/check-in',
       method: 'POST',
       body: {
-        if (gpsPlaceholder != null) 'gpsPlaceholder': gpsPlaceholder,
-        if (locationPlaceholder != null)
-          'locationPlaceholder': locationPlaceholder,
+        'gpsPlaceholder': ?gpsPlaceholder,
+        'locationPlaceholder': ?locationPlaceholder,
       },
       fromJson: WorkerTaskItem.fromJson,
     );
@@ -472,8 +600,8 @@ class MobileApi {
       method: 'POST',
       body: {
         'summary': summary,
-        if (status != null) 'status': status,
-        if (percentComplete != null) 'percentComplete': percentComplete,
+        'status': ?status,
+        'percentComplete': ?percentComplete,
       },
       fromJson: WorkerTaskItem.fromJson,
     );
@@ -486,10 +614,7 @@ class MobileApi {
     return apiClient.request<WorkerTaskItem>(
       '/workers/me/tasks/$taskId/check-out',
       method: 'POST',
-      body: {
-        'markCompleted': true,
-        if (completionNotes != null) 'completionNotes': completionNotes,
-      },
+      body: {'markCompleted': true, 'completionNotes': ?completionNotes},
       fromJson: WorkerTaskItem.fromJson,
     );
   }
@@ -542,9 +667,8 @@ class MobileApi {
       method: 'PATCH',
       body: {
         'status': status,
-        if (vehiclePlaceholder != null)
-          'vehiclePlaceholder': vehiclePlaceholder,
-        if (venuePlaceholder != null) 'venuePlaceholder': venuePlaceholder,
+        'vehiclePlaceholder': ?vehiclePlaceholder,
+        'venuePlaceholder': ?venuePlaceholder,
       },
       fromJson: InventoryAllocationItem.fromJson,
     );
@@ -556,10 +680,7 @@ class MobileApi {
     return apiClient.request<InventoryAllocationItem>(
       '/inventory/me/allocations/$allocationId/return',
       method: 'POST',
-      body: {
-        'returnedQuantity': 1,
-        'conditionOnReturn': 'good',
-      },
+      body: {'returnedQuantity': 1, 'conditionOnReturn': 'good'},
       fromJson: InventoryAllocationItem.fromJson,
     );
   }
@@ -640,7 +761,8 @@ class MobileApi {
         .map(
           (item) => FinanceSettlementItem(
             id: (item as Map<String, dynamic>)['id'] as String? ?? '',
-            label: item['vendorBusinessName'] as String? ??
+            label:
+                item['vendorBusinessName'] as String? ??
                 item['vendorId'] as String? ??
                 '',
             amount: item['amount'] as String? ?? '0',
@@ -660,7 +782,8 @@ class MobileApi {
         .map(
           (item) => FinanceSettlementItem(
             id: (item as Map<String, dynamic>)['id'] as String? ?? '',
-            label: item['workerDisplayName'] as String? ??
+            label:
+                item['workerDisplayName'] as String? ??
                 item['workerId'] as String? ??
                 '',
             amount: item['amount'] as String? ?? '0',
@@ -752,9 +875,7 @@ class MobileApi {
     );
     final items = response['logs'] as List<dynamic>? ?? [];
     return items
-        .map(
-          (item) => AttendanceLogItem.fromJson(item as Map<String, dynamic>),
-        )
+        .map((item) => AttendanceLogItem.fromJson(item as Map<String, dynamic>))
         .toList();
   }
 
@@ -779,9 +900,7 @@ class MobileApi {
     );
     final items = response['issues'] as List<dynamic>? ?? [];
     return items
-        .map(
-          (item) => EventIssueItem.fromJson(item as Map<String, dynamic>),
-        )
+        .map((item) => EventIssueItem.fromJson(item as Map<String, dynamic>))
         .toList();
   }
 

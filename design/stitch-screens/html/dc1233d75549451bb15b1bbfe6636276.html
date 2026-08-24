@@ -1,0 +1,395 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Mee Events - Mehndi Decoration</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@500&amp;family=Manrope:wght@400;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "primary-container": "#4a0e0e",
+                      "outline-variant": "#dac1bf",
+                      "on-surface-variant": "#544341",
+                      "on-tertiary-container": "#8c8c88",
+                      "secondary-fixed-dim": "#e9c176",
+                      "surface-container-low": "#f6f3f2",
+                      "on-tertiary-fixed-variant": "#474744",
+                      "surface-container-highest": "#e5e2e1",
+                      "on-error-container": "#93000a",
+                      "on-primary-fixed-variant": "#77302d",
+                      "on-surface": "#1c1b1b",
+                      "tertiary-fixed-dim": "#c8c6c2",
+                      "tertiary": "#0f100d",
+                      "on-primary": "#ffffff",
+                      "primary-fixed-dim": "#ffb3ad",
+                      "on-error": "#ffffff",
+                      "on-secondary-container": "#785a1a",
+                      "surface-container-lowest": "#ffffff",
+                      "primary-fixed": "#ffdad7",
+                      "outline": "#877270",
+                      "primary": "#2a0002",
+                      "inverse-primary": "#ffb3ad",
+                      "on-tertiary": "#ffffff",
+                      "tertiary-container": "#242522",
+                      "on-tertiary-fixed": "#1b1c19",
+                      "on-secondary-fixed": "#261900",
+                      "error-container": "#ffdad6",
+                      "on-primary-fixed": "#3d0506",
+                      "surface-container": "#f0eded",
+                      "background": "#fcf9f8",
+                      "surface-tint": "#954742",
+                      "surface": "#fcf9f8",
+                      "on-secondary": "#ffffff",
+                      "inverse-on-surface": "#f3f0ef",
+                      "secondary-fixed": "#ffdea5",
+                      "surface-dim": "#dcd9d9",
+                      "error": "#ba1a1a",
+                      "surface-variant": "#e5e2e1",
+                      "tertiary-fixed": "#e4e2dd",
+                      "surface-bright": "#fcf9f8",
+                      "secondary-container": "#fed488",
+                      "surface-container-high": "#eae7e7",
+                      "inverse-surface": "#313030",
+                      "on-secondary-fixed-variant": "#5d4201",
+                      "secondary": "#775a19",
+                      "on-background": "#1c1b1b",
+                      "on-primary-container": "#cc726d"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px",
+                      "card": "14px"
+              },
+              "spacing": {
+                      "sm": "12px",
+                      "gutter": "24px",
+                      "xs": "4px",
+                      "xl": "80px",
+                      "container-max": "1280px",
+                      "md": "24px",
+                      "base": "8px",
+                      "lg": "48px"
+              },
+              "fontFamily": {
+                      "body-md": [
+                              "Manrope"
+                      ],
+                      "display-hero-mobile": [
+                              "EB Garamond"
+                      ],
+                      "display-hero": [
+                              "EB Garamond"
+                      ],
+                      "h2": [
+                              "Manrope"
+                      ],
+                      "label-caps": [
+                              "Manrope"
+                      ],
+                      "body-lg": [
+                              "Manrope"
+                      ],
+                      "h1": [
+                              "Manrope"
+                      ],
+                      "button": [
+                              "Manrope"
+                      ]
+              },
+              "fontSize": {
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "display-hero-mobile": [
+                              "36px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "display-hero": [
+                              "48px",
+                              {
+                                      "lineHeight": "1.1",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "h2": [
+                              "24px",
+                              {
+                                      "lineHeight": "1.4",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "label-caps": [
+                              "12px",
+                              {
+                                      "lineHeight": "1",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "h1": [
+                              "32px",
+                              {
+                                      "lineHeight": "1.3",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "button": [
+                              "14px",
+                              {
+                                      "lineHeight": "1",
+                                      "fontWeight": "600"
+                              }
+                      ]
+              }
+            }
+          }
+        }
+    </script>
+<style>
+        body {
+            background-color: #F9F7F2; /* Warm Ivory Canvas */
+        }
+        .soft-border {
+            border-color: #E5DED4;
+        }
+        .hover-shadow:hover {
+            box-shadow: 0px 10px 30px rgba(74, 14, 14, 0.05);
+        }
+        .chip-scroll::-webkit-scrollbar {
+            display: none;
+        }
+        .chip-scroll {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="text-on-background font-body-md antialiased pb-24 md:pb-0">
+<!-- Top App Bar (Task-Focused: Back Action) -->
+<header class="bg-surface sticky top-0 z-40 border-b border-outline-variant/30 px-gutter py-sm w-full max-w-container-max mx-auto flex justify-between items-center h-16">
+<button class="text-on-surface-variant flex items-center hover:text-primary transition-colors">
+<span class="material-symbols-outlined mr-2">arrow_back</span>
+<span class="font-button text-button hidden sm:inline">Back</span>
+</button>
+<h1 class="font-h1 text-h1-mobile md:text-h1 text-primary text-center flex-grow">Mehndi Decoration</h1>
+<div class="flex items-center gap-4">
+<button class="text-on-surface-variant hover:text-primary transition-colors flex items-center gap-1">
+<span class="material-symbols-outlined">filter_list</span>
+<span class="font-button text-button hidden sm:inline">Filters</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors flex items-center gap-1">
+<span class="material-symbols-outlined">sort</span>
+<span class="font-button text-button hidden sm:inline">Sort</span>
+</button>
+</div>
+</header>
+<main class="max-w-container-max mx-auto px-gutter pt-md pb-xl">
+<!-- Results Header & Chips -->
+<div class="mb-lg">
+<div class="flex items-center justify-between mb-4">
+<p class="font-body-md text-body-md text-on-surface-variant">Showing 24 premium decoration setups</p>
+</div>
+<!-- Variant Chips -->
+<div class="flex gap-3 overflow-x-auto chip-scroll pb-2 -mx-gutter px-gutter md:mx-0 md:px-0">
+<button class="whitespace-nowrap px-4 py-2 rounded-full bg-secondary text-on-secondary font-button text-button transition-colors border border-transparent">All Styles</button>
+<button class="whitespace-nowrap px-4 py-2 rounded-full bg-surface text-on-surface-variant border border-solid soft-border font-button text-button hover:bg-surface-container-low transition-colors">Floral</button>
+<button class="whitespace-nowrap px-4 py-2 rounded-full bg-surface text-on-surface-variant border border-solid soft-border font-button text-button hover:bg-surface-container-low transition-colors">Marigold</button>
+<button class="whitespace-nowrap px-4 py-2 rounded-full bg-surface text-on-surface-variant border border-solid soft-border font-button text-button hover:bg-surface-container-low transition-colors">Traditional</button>
+<button class="whitespace-nowrap px-4 py-2 rounded-full bg-surface text-on-surface-variant border border-solid soft-border font-button text-button hover:bg-surface-container-low transition-colors">Contemporary</button>
+<button class="whitespace-nowrap px-4 py-2 rounded-full bg-surface text-on-surface-variant border border-solid soft-border font-button text-button hover:bg-surface-container-low transition-colors">Indoor</button>
+<button class="whitespace-nowrap px-4 py-2 rounded-full bg-surface text-on-surface-variant border border-solid soft-border font-button text-button hover:bg-surface-container-low transition-colors">Outdoor</button>
+</div>
+</div>
+<!-- Grid Layout -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+<!-- Card 1 -->
+<article class="bg-surface rounded-card border border-solid soft-border overflow-hidden hover-shadow transition-shadow flex flex-col group cursor-pointer">
+<div class="relative w-full aspect-[4/3] overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A lush, premium Mehndi decoration setup featuring elaborate cascades of fresh yellow marigolds and white jasmine. The setting is outdoors in a manicured garden under a bright, sunny sky. Ornate brass props and plush, deep green velvet seating create a luxurious traditional Indian wedding aesthetic. The lighting is natural and vibrant, highlighting the intricate floral arrangements." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAW2S3Zvd7TI2ozgOKCtS1aU4qrpsyHsvKmhInCxglNeTEs979uIjCOcaWUvgb85AjE-jVLpG69FOMhxHTmAhvZCTE3Hk_9RqnMvvv7BDD52F5kxLLWAaJdcfFHPyN7X48CtezAqmNQibQ1_FT0kYg7q4SAPHiP6ua_6ZV-HCMcZqz1pXpTW7h1IAR7yWg_pml0ziMZwyWpn284wxtMe_PmX6mNUxlkya1j2DfNuf_HrXvyXVTulywb">
+<div class="absolute top-3 left-3 bg-secondary text-on-secondary px-3 py-1 rounded-full font-label-caps text-label-caps uppercase tracking-wider">
+                        Featured
+                    </div>
+<button class="absolute top-3 right-3 w-8 h-8 bg-surface/80 backdrop-blur-sm rounded-full flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-sm">favorite</span>
+</button>
+</div>
+<div class="p-md flex flex-col flex-grow">
+<div class="flex justify-between items-start mb-2">
+<h2 class="font-h2 text-h2 text-on-surface line-clamp-2 pr-4">Grand Marigold Cascade &amp; Vintage Brass</h2>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant mb-4 line-clamp-2">An opulent traditional setup featuring cascading marigold curtains, vintage brass urns, and comfortable floor seating with plush cushions.</p>
+<div class="space-y-2 mb-6">
+<div class="flex items-center gap-2 text-on-surface-variant font-body-md text-sm">
+<span class="material-symbols-outlined text-[18px]">group</span>
+<span>Up to 150 guests</span>
+</div>
+<div class="flex items-center gap-2 text-on-surface-variant font-body-md text-sm">
+<span class="material-symbols-outlined text-[18px]">check_circle</span>
+<span>Backdrop, Seating, Props included</span>
+</div>
+<div class="flex items-center gap-2 text-on-surface-variant font-body-md text-sm">
+<span class="material-symbols-outlined text-[18px]">calendar_today</span>
+<span class="text-secondary font-semibold">Available this weekend</span>
+</div>
+</div>
+<div class="mt-auto pt-4 border-t border-solid soft-border flex items-center justify-between">
+<div>
+<p class="font-label-caps text-label-caps text-on-surface-variant uppercase mb-1">Starting Price</p>
+<p class="font-h2 text-h2 text-primary">From ₹85,000</p>
+</div>
+<button class="px-6 py-2 rounded-full border border-primary text-primary font-button text-button hover:bg-primary hover:text-on-primary transition-colors">
+                            View details
+                        </button>
+</div>
+</div>
+</article>
+<!-- Card 2 -->
+<article class="bg-surface rounded-card border border-solid soft-border overflow-hidden hover-shadow transition-shadow flex flex-col group cursor-pointer">
+<div class="relative w-full aspect-[4/3] overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A modern, pastel-themed indoor Mehndi decoration. Soft pink and peach drapes are elegantly arranged alongside delicate baby's breath and pale roses. The setting is a bright, airy banquet hall with polished marble floors. A contemporary white jhoola (swing) sits in the center. High-key, soft white lighting creates a clean, elegant, and modern Indian wedding aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBYO0ssv6KaAMqUFCj2NbTEM45xjGgBspMZBmyUG6HEkoYL8NhHYx0Gsl6yrH219jrZZpkpYflpYA849qQwkXa12n8fx-1hgw9e6dGmvNHy79DnDeABB6zZIPinFaaR8VgMLllBbApYR3-fOcTd0vf_-8XkXR7Nho1c-Qn1r-o_ffMP0juV-0pqJmpKGWbQclRiwmqKk8a2W1xNcLukM-SHqYN1LY3xML54RQyeQj6tDvnOURoN7lhV">
+<button class="absolute top-3 right-3 w-8 h-8 bg-surface/80 backdrop-blur-sm rounded-full flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-sm">favorite</span>
+</button>
+</div>
+<div class="p-md flex flex-col flex-grow">
+<div class="flex justify-between items-start mb-2">
+<h2 class="font-h2 text-h2 text-on-surface line-clamp-2 pr-4">Pastel Elegance &amp; Contemporary Drapes</h2>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant mb-4 line-clamp-2">A soft, modern aesthetic using pastel chiffons, delicate baby's breath floral arrangements, and a contemporary swing (jhoola) setup.</p>
+<div class="space-y-2 mb-6">
+<div class="flex items-center gap-2 text-on-surface-variant font-body-md text-sm">
+<span class="material-symbols-outlined text-[18px]">group</span>
+<span>Up to 75 guests</span>
+</div>
+<div class="flex items-center gap-2 text-on-surface-variant font-body-md text-sm">
+<span class="material-symbols-outlined text-[18px]">check_circle</span>
+<span>Backdrop, Swing, Lighting included</span>
+</div>
+<div class="flex items-center gap-2 text-on-surface-variant font-body-md text-sm">
+<span class="material-symbols-outlined text-[18px]">event_available</span>
+<span>Check availability</span>
+</div>
+</div>
+<div class="mt-auto pt-4 border-t border-solid soft-border flex items-center justify-between">
+<div>
+<p class="font-label-caps text-label-caps text-on-surface-variant uppercase mb-1">Starting Price</p>
+<p class="font-h2 text-h2 text-primary">From ₹65,000</p>
+</div>
+<button class="px-6 py-2 rounded-full border border-primary text-primary font-button text-button hover:bg-primary hover:text-on-primary transition-colors">
+                            View details
+                        </button>
+</div>
+</div>
+</article>
+<!-- Card 3 -->
+<article class="bg-surface rounded-card border border-solid soft-border overflow-hidden hover-shadow transition-shadow flex flex-col group cursor-pointer">
+<div class="relative w-full aspect-[4/3] overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A vibrant, bohemian-inspired outdoor Mehndi setup under a large canopy of trees. Multicolored tassels, dreamcatchers, and bright, mismatched floor cushions create a relaxed, festive atmosphere. Low wooden tables are adorned with small terracotta pots of bright pink bougainvillea. Dappled sunlight filters through the leaves, creating a warm, inviting, and eclectic wedding celebration scene." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC9tPfJOA2vYZmqhzyKwJwy9r8t40idgFJ_rQa7BT5sozFr078Nngdz5KE70KRgY8iAniQ8_Rh-p5cyVkY5d9ykmdXtDj0b5atmCZ3V_lXKhwYLTsk1LjjjZzk4n0oXeQA4oPwTIREPbPcYDwKkA4Rr6Yu29RF8AsAKAbngTRjGLd44StFF5UJ07uSRdI8IPK3krLss9nsD-4OZ0g_mvjTlrpP-owLNBwF2Oti6UWOdp6zohHgWEBcV">
+<button class="absolute top-3 right-3 w-8 h-8 bg-surface/80 backdrop-blur-sm rounded-full flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-sm">favorite</span>
+</button>
+</div>
+<div class="p-md flex flex-col flex-grow">
+<div class="flex justify-between items-start mb-2">
+<h2 class="font-h2 text-h2 text-on-surface line-clamp-2 pr-4">Bohemian Canopy &amp; Tassels</h2>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant mb-4 line-clamp-2">A relaxed, vibrant outdoor setting featuring colorful tassels, dreamcatchers, low seating, and bright bougainvillea accents under a natural canopy.</p>
+<div class="space-y-2 mb-6">
+<div class="flex items-center gap-2 text-on-surface-variant font-body-md text-sm">
+<span class="material-symbols-outlined text-[18px]">group</span>
+<span>Up to 100 guests</span>
+</div>
+<div class="flex items-center gap-2 text-on-surface-variant font-body-md text-sm">
+<span class="material-symbols-outlined text-[18px]">check_circle</span>
+<span>Canopy styling, Low tables, Rugs included</span>
+</div>
+<div class="flex items-center gap-2 text-on-surface-variant font-body-md text-sm">
+<span class="material-symbols-outlined text-[18px]">calendar_today</span>
+<span class="text-secondary font-semibold">Limited dates in Nov</span>
+</div>
+</div>
+<div class="mt-auto pt-4 border-t border-solid soft-border flex items-center justify-between">
+<div>
+<p class="font-label-caps text-label-caps text-on-surface-variant uppercase mb-1">Starting Price</p>
+<p class="font-h2 text-h2 text-primary">From ₹48,000</p>
+</div>
+<button class="px-6 py-2 rounded-full border border-primary text-primary font-button text-button hover:bg-primary hover:text-on-primary transition-colors">
+                            View details
+                        </button>
+</div>
+</div>
+</article>
+<!-- Card 4 -->
+<article class="bg-surface rounded-card border border-solid soft-border overflow-hidden hover-shadow transition-shadow flex flex-col group cursor-pointer">
+<div class="relative w-full aspect-[4/3] overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="An intimate indoor Mehndi setup featuring a vibrant Phulkari embroidered backdrop. Rich jewel-toned cushions in deep emerald, sapphire, and ruby red are arranged on a traditional charpai. Small brass oil lamps and earthen pots add rustic charm. The lighting is warm and intimate, focused on the central seating area, evoking a deeply traditional and cozy Indian pre-wedding ceremony." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDl2OptZAsNizYxJ1qFHe-OyELgFB8hS3LPwXSHG8uwpzCJ6nDx8V2g77VVtrxxJhUHjmOy8x63EdsrEz-SuFmXSPfW3PgpzLlq-XWlHGwUePOl5pGDnT5bm5hF3nqPP35Sp5SHI9n2N-MB_7skFpSEr9zFJAMP6Ymk11n1SkWkSLgbg8qul5jI9QuB21gEpFPg2k8i-Xkf9VacGWU9qbzbkzF7KaVTNoM076ioXcVkstA-DsY3hU-Y">
+<button class="absolute top-3 right-3 w-8 h-8 bg-surface/80 backdrop-blur-sm rounded-full flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-sm">favorite</span>
+</button>
+</div>
+<div class="p-md flex flex-col flex-grow">
+<div class="flex justify-between items-start mb-2">
+<h2 class="font-h2 text-h2 text-on-surface line-clamp-2 pr-4">Intimate Phulkari Heritage</h2>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant mb-4 line-clamp-2">Perfect for smaller gatherings, this setup uses authentic Phulkari backdrops, traditional charpais, and rich jewel-toned cushions for a rustic feel.</p>
+<div class="space-y-2 mb-6">
+<div class="flex items-center gap-2 text-on-surface-variant font-body-md text-sm">
+<span class="material-symbols-outlined text-[18px]">group</span>
+<span>Up to 40 guests</span>
+</div>
+<div class="flex items-center gap-2 text-on-surface-variant font-body-md text-sm">
+<span class="material-symbols-outlined text-[18px]">check_circle</span>
+<span>Phulkari backdrop, Charpai, Lamps included</span>
+</div>
+<div class="flex items-center gap-2 text-on-surface-variant font-body-md text-sm">
+<span class="material-symbols-outlined text-[18px]">event_available</span>
+<span>Check availability</span>
+</div>
+</div>
+<div class="mt-auto pt-4 border-t border-solid soft-border flex items-center justify-between">
+<div>
+<p class="font-label-caps text-label-caps text-on-surface-variant uppercase mb-1">Starting Price</p>
+<p class="font-h2 text-h2 text-primary">From ₹35,000</p>
+</div>
+<button class="px-6 py-2 rounded-full border border-primary text-primary font-button text-button hover:bg-primary hover:text-on-primary transition-colors">
+                            View details
+                        </button>
+</div>
+</div>
+</article>
+</div>
+<!-- Pagination / Load More -->
+<div class="mt-xl flex justify-center">
+<button class="px-8 py-3 rounded-full bg-primary-container text-on-primary-container font-button text-button hover:bg-primary hover:text-on-primary transition-colors">
+                Load more decorations
+            </button>
+</div>
+</main>
+</body></html>

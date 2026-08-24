@@ -1,7 +1,7 @@
 import type { VerifyOtpResponse } from "@me-event/api-contracts";
 import type { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
-import { createHmac } from "node:crypto";
+import { createHmac, randomUUID } from "node:crypto";
 import { beforeEach, describe, expect, it } from "vitest";
 import { InMemoryIdentityRepository } from "../src/modules/identity/adapters/in-memory-identity.repository";
 import { AuthService } from "../src/modules/identity/application/auth.service";
@@ -89,6 +89,43 @@ describe("AuthService sessions", () => {
     expect(challenge.debugCode).toMatch(/^\d{6}$/);
   });
 
+  it("enforces OTP resend cooldown for the same mobile", async () => {
+    await service.requestOtp({
+      mobileNumber: "+919876543210",
+    });
+
+    await expect(
+      service.requestOtp({
+        mobileNumber: "+919876543210",
+      }),
+    ).rejects.toMatchObject({
+      code: "OTP_RESEND_COOLDOWN",
+      status: 429,
+    });
+  });
+
+  it("limits OTP requests per mobile across a shared time window", async () => {
+    const mobileNumber = "+919876543210";
+    const now = Date.now();
+    for (let index = 0; index < 5; index += 1) {
+      await repository.saveChallenge({
+        id: randomUUID(),
+        mobileNumber,
+        codeDigest: "digest",
+        createdAt: new Date(now - index * 1000),
+        expiresAt: new Date(now - 1000),
+        resendAfter: new Date(now - 1000),
+        attemptsRemaining: 5,
+        consumedAt: new Date(now - 1000),
+      });
+    }
+
+    await expect(service.requestOtp({ mobileNumber })).rejects.toMatchObject({
+      code: "OTP_REQUEST_LIMIT",
+      status: 429,
+    });
+  });
+
   it("creates a user, session, and audit trail on first login", async () => {
     const result = await login();
 
@@ -111,6 +148,7 @@ describe("AuthService sessions", () => {
 
     expect(rotated.refreshToken).not.toBe(login1.refreshToken);
     expect(rotated.accessToken).not.toHaveLength(0);
+    expect(rotated.activeRole).toBe("customer");
 
     const rotatedAgain = await service.refreshSession({
       refreshToken: rotated.refreshToken,

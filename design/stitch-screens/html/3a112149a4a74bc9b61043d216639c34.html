@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Eligibility Check - Mee Events</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600;700&amp;family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary-fixed-dim": "#ffb3ad",
+                        "primary-fixed": "#ffdad7",
+                        "on-error": "#ffffff",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-bright": "#fcf9f8",
+                        "tertiary-fixed-dim": "#c8c6c2",
+                        "on-primary": "#ffffff",
+                        "secondary-fixed-dim": "#e9c176",
+                        "primary-container": "#4a0e0e",
+                        "secondary-fixed": "#ffdea5",
+                        "outline-variant": "#dac1bf",
+                        "surface-variant": "#e5e2e1",
+                        "on-primary-container": "#cc726d",
+                        "on-tertiary-container": "#8c8c88",
+                        "on-secondary-container": "#785a1a",
+                        "tertiary": "#0f100d",
+                        "surface-tint": "#954742",
+                        "on-tertiary-fixed": "#1b1c19",
+                        "background": "#fcf9f8",
+                        "inverse-surface": "#313030",
+                        "surface-container-high": "#eae7e7",
+                        "on-tertiary": "#ffffff",
+                        "tertiary-container": "#242522",
+                        "on-secondary-fixed": "#261900",
+                        "error": "#ba1a1a",
+                        "on-surface": "#1c1b1b",
+                        "tertiary-fixed": "#e4e2dd",
+                        "surface": "#fcf9f8",
+                        "on-secondary-fixed-variant": "#5d4201",
+                        "on-surface-variant": "#544341",
+                        "on-secondary": "#ffffff",
+                        "surface-dim": "#dcd9d9",
+                        "inverse-on-surface": "#f3f0ef",
+                        "on-background": "#1c1b1b",
+                        "error-container": "#ffdad6",
+                        "on-primary-fixed": "#3d0506",
+                        "outline": "#877270",
+                        "secondary": "#775a19",
+                        "on-primary-fixed-variant": "#77302d",
+                        "surface-container": "#f0eded",
+                        "on-tertiary-fixed-variant": "#474744",
+                        "on-error-container": "#93000a",
+                        "surface-container-highest": "#e5e2e1",
+                        "secondary-container": "#fed488",
+                        "surface-container-low": "#f6f3f2",
+                        "inverse-primary": "#ffb3ad",
+                        "primary": "#2a0002"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "md": "24px",
+                        "xs": "4px",
+                        "sm": "12px",
+                        "base": "8px",
+                        "container-max": "1280px",
+                        "xl": "80px",
+                        "gutter": "24px",
+                        "lg": "48px"
+                    },
+                    "fontFamily": {
+                        "h1": ["Manrope"],
+                        "display-hero": ["EB Garamond"],
+                        "body-lg": ["Manrope"],
+                        "h2": ["Manrope"],
+                        "body-md": ["Manrope"],
+                        "label-caps": ["Manrope"],
+                        "display-hero-mobile": ["EB Garamond"],
+                        "button": ["Manrope"]
+                    },
+                    "fontSize": {
+                        "h1": ["32px", { "lineHeight": "1.3", "fontWeight": "700" }],
+                        "display-hero": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "500" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "h2": ["24px", { "lineHeight": "1.4", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "label-caps": ["12px", { "lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "700" }],
+                        "display-hero-mobile": ["36px", { "lineHeight": "1.2", "fontWeight": "500" }],
+                        "button": ["14px", { "lineHeight": "1", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { background-color: #F9F7F2; } /* Warm Ivory Canvas */
+        .card-shadow:hover { box-shadow: 0px 10px 30px rgba(74, 14, 14, 0.05); }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="antialiased text-on-surface flex flex-col min-h-screen">
+<!-- TopAppBar (Web) -->
+<header class="hidden md:flex bg-surface border-b border-outline-variant docked full-width top-0 w-full z-50 flat no shadows h-16">
+<div class="flex justify-between items-center w-full px-md h-16 max-w-container-max mx-auto">
+<div class="flex items-center gap-sm text-primary">
+<span class="material-symbols-outlined text-2xl" data-icon="menu">menu</span>
+<span class="text-h1 font-display-hero-mobile text-primary tracking-tight">Mee Events</span>
+</div>
+<!-- Desktop Nav Cluster -->
+<nav class="hidden lg:flex items-center gap-lg">
+<a class="text-on-surface-variant font-label-caps text-label-caps hover:text-secondary transition-colors duration-200 uppercase tracking-widest" href="#">Home</a>
+<a class="text-on-surface-variant font-label-caps text-label-caps hover:text-secondary transition-colors duration-200 uppercase tracking-widest" href="#">Explore</a>
+<a class="text-on-surface-variant font-label-caps text-label-caps hover:text-secondary transition-colors duration-200 uppercase tracking-widest" href="#">Plan</a>
+<a class="text-on-surface-variant font-label-caps text-label-caps hover:text-secondary transition-colors duration-200 uppercase tracking-widest" href="#">Enquiries</a>
+<!-- Active State Logic for Profile -->
+<a class="text-secondary font-bold font-label-caps text-label-caps relative uppercase tracking-widest flex items-center justify-center" href="#">
+                    Profile
+                    <span class="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-[#e9c176]"></span>
+</a>
+</nav>
+<div class="flex items-center gap-sm">
+<button class="font-button text-button text-primary hover:text-secondary transition-colors duration-200">Customer ▾</button>
+</div>
+</div>
+</header>
+<!-- TopAppBar (Mobile) -->
+<header class="flex md:hidden bg-surface border-b border-outline-variant docked full-width top-0 w-full z-50 flat no shadows h-16">
+<div class="flex justify-between items-center w-full px-md h-16 max-w-container-max mx-auto">
+<span class="material-symbols-outlined text-primary text-2xl" data-icon="menu">menu</span>
+<span class="text-h1 font-display-hero-mobile text-primary tracking-tight">Mee Events</span>
+<button class="font-button text-button text-primary hover:text-secondary transition-colors duration-200">Customer ▾</button>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-grow w-full max-w-container-max mx-auto px-6 md:px-lg py-lg md:py-xl flex flex-col items-center justify-center min-h-[calc(100vh-140px)]">
+<!-- Eligibility Container -->
+<div class="w-full max-w-2xl bg-surface-container-lowest rounded-[14px] border border-[#E5DED4] p-6 md:p-12 card-shadow transition-shadow duration-300 relative overflow-hidden">
+<!-- Header Section -->
+<div class="text-center mb-10">
+<div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-error-container text-error mb-6">
+<span class="material-symbols-outlined text-4xl" data-icon="block" data-weight="fill" style="font-variation-settings: 'FILL' 1;">block</span>
+</div>
+<h1 class="font-display-hero text-display-hero text-primary mb-2">Eligibility Check</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant">We need to resolve a few things before you can proceed.</p>
+<div class="mt-4 inline-block bg-[#F9F7F2] text-error border border-error/20 rounded-full px-4 py-1.5 font-label-caps text-label-caps uppercase tracking-wider">
+                    Not currently eligible
+                </div>
+</div>
+<!-- Status Checklist -->
+<div class="space-y-6">
+<!-- Active Events -->
+<div class="flex items-start gap-4 pb-6 border-b border-[#E5DED4]">
+<div class="mt-1 text-primary-fixed-dim">
+<span class="material-symbols-outlined" data-icon="check_circle">check_circle</span>
+</div>
+<div>
+<h3 class="font-h2 text-h2 text-primary mb-1">Active events</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">None currently ongoing.</p>
+</div>
+</div>
+<!-- Pending Payments -->
+<div class="flex items-start gap-4 pb-6 border-b border-[#E5DED4]">
+<div class="mt-1 text-primary-fixed-dim">
+<span class="material-symbols-outlined" data-icon="check_circle">check_circle</span>
+</div>
+<div>
+<h3 class="font-h2 text-h2 text-primary mb-1">Pending payments</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">All balances are settled.</p>
+</div>
+</div>
+<!-- Unresolved Support Case (The Blocker) -->
+<div class="flex items-start gap-4 pb-2">
+<div class="mt-1 text-error">
+<span class="material-symbols-outlined" data-icon="error">error</span>
+</div>
+<div class="w-full flex flex-col md:flex-row md:items-center justify-between gap-4">
+<div>
+<h3 class="font-h2 text-h2 text-primary mb-1">Unresolved support case</h3>
+<p class="font-body-md text-body-md text-on-surface-variant font-mono text-sm">Ref: MEE-SUP-2026-0187</p>
+</div>
+<button class="shrink-0 bg-transparent text-primary-container border border-primary-container hover:bg-primary-container hover:text-on-primary transition-colors duration-300 font-button text-button px-6 py-3 rounded-DEFAULT uppercase tracking-wider">
+                            View support case
+                        </button>
+</div>
+</div>
+</div>
+<!-- Footer Action -->
+<div class="mt-12 text-center">
+<button class="w-full md:w-auto bg-surface-variant text-on-surface-variant font-button text-button px-8 py-4 rounded-DEFAULT uppercase tracking-wider opacity-50 cursor-not-allowed" disabled="">
+                    Proceed to OTP
+                </button>
+<p class="mt-4 font-label-caps text-label-caps text-on-surface-variant/70 uppercase">Please resolve the issues above to continue</p>
+</div>
+</div>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden bg-surface border-t border-outline-variant fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-sm py-base rounded-t-xl shadow-lg">
+<a class="flex flex-col items-center justify-center text-on-surface-variant gap-xs hover:bg-surface-container-high transition-all p-2 rounded-lg" href="#">
+<span class="material-symbols-outlined text-2xl" data-icon="home">home</span>
+<span class="font-label-caps text-[10px] uppercase tracking-wider">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant gap-xs hover:bg-surface-container-high transition-all p-2 rounded-lg" href="#">
+<span class="material-symbols-outlined text-2xl" data-icon="search">search</span>
+<span class="font-label-caps text-[10px] uppercase tracking-wider">Explore</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant gap-xs hover:bg-surface-container-high transition-all p-2 rounded-lg" href="#">
+<span class="material-symbols-outlined text-2xl" data-icon="event_note">event_note</span>
+<span class="font-label-caps text-[10px] uppercase tracking-wider">Plan</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant gap-xs hover:bg-surface-container-high transition-all p-2 rounded-lg" href="#">
+<span class="material-symbols-outlined text-2xl" data-icon="chat_bubble">chat_bubble</span>
+<span class="font-label-caps text-[10px] uppercase tracking-wider">Enquiries</span>
+</a>
+<!-- Active State Logic for Profile -->
+<a class="flex flex-col items-center justify-center text-secondary gap-xs scale-95 transition-transform duration-150 p-2 rounded-lg relative" href="#">
+<span class="material-symbols-outlined text-2xl" data-icon="person" data-weight="fill" style="font-variation-settings: 'FILL' 1;">person</span>
+<span class="font-label-caps text-[10px] uppercase tracking-wider font-bold">Profile</span>
+</a>
+</nav>
+</body></html>

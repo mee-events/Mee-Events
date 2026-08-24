@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Adjustment or Refund Status - Mee Events</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@500&amp;family=Manrope:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "outline-variant": "#dac1bf",
+                        "surface-container": "#f0eded",
+                        "surface-container-high": "#eae7e7",
+                        "on-primary-fixed-variant": "#77302d",
+                        "on-tertiary-container": "#8c8c88",
+                        "on-surface-variant": "#544341",
+                        "on-surface": "#1c1b1b",
+                        "tertiary-fixed": "#e4e2dd",
+                        "secondary-fixed": "#ffdea5",
+                        "outline": "#877270",
+                        "primary-container": "#4a0e0e",
+                        "primary-fixed-dim": "#ffb3ad",
+                        "on-secondary-container": "#785a1a",
+                        "tertiary-fixed-dim": "#c8c6c2",
+                        "secondary": "#775a19",
+                        "on-tertiary": "#ffffff",
+                        "surface-variant": "#e5e2e1",
+                        "background": "#fcf9f8",
+                        "surface-container-highest": "#e5e2e1",
+                        "surface-container-lowest": "#ffffff",
+                        "on-background": "#1c1b1b",
+                        "primary": "#2a0002",
+                        "on-secondary": "#ffffff",
+                        "inverse-primary": "#ffb3ad",
+                        "error": "#ba1a1a",
+                        "surface-container-low": "#f6f3f2",
+                        "on-primary-container": "#cc726d",
+                        "on-error-container": "#93000a",
+                        "tertiary": "#0f100d",
+                        "on-secondary-fixed": "#261900",
+                        "primary-fixed": "#ffdad7",
+                        "on-error": "#ffffff",
+                        "surface-dim": "#dcd9d9",
+                        "on-secondary-fixed-variant": "#5d4201",
+                        "surface-bright": "#fcf9f8",
+                        "secondary-container": "#fed488",
+                        "inverse-surface": "#313030",
+                        "error-container": "#ffdad6",
+                        "surface-tint": "#954742",
+                        "tertiary-container": "#242522",
+                        "on-primary": "#ffffff",
+                        "inverse-on-surface": "#f3f0ef",
+                        "on-tertiary-fixed": "#1b1c19",
+                        "on-tertiary-fixed-variant": "#474744",
+                        "on-primary-fixed": "#3d0506",
+                        "surface": "#fcf9f8",
+                        "secondary-fixed-dim": "#e9c176"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "lg": "48px",
+                        "container-max": "1280px",
+                        "xs": "4px",
+                        "sm": "12px",
+                        "gutter": "24px",
+                        "md": "24px",
+                        "xl": "80px",
+                        "base": "8px"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Manrope"],
+                        "label-caps": ["Manrope"],
+                        "body-lg": ["Manrope"],
+                        "h1": ["Manrope"],
+                        "display-hero-mobile": ["EB Garamond"],
+                        "display-hero": ["EB Garamond"],
+                        "button": ["Manrope"],
+                        "h2": ["Manrope"]
+                    },
+                    "fontSize": {
+                        "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "label-caps": ["12px", { "lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "h1": ["32px", { "lineHeight": "1.3", "fontWeight": "700" }],
+                        "display-hero-mobile": ["36px", { "lineHeight": "1.2", "fontWeight": "500" }],
+                        "display-hero": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "500" }],
+                        "button": ["14px", { "lineHeight": "1", "fontWeight": "600" }],
+                        "h2": ["24px", { "lineHeight": "1.4", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-background text-on-background min-h-screen pb-32 md:pb-0">
+<!-- TopAppBar -->
+<header class="w-full top-0 left-0 bg-background dark:bg-background z-50">
+<div class="flex justify-between items-center px-gutter py-sm w-full mx-auto max-w-container-max">
+<button aria-label="Menu" class="text-primary dark:text-primary-fixed-dim flex items-center justify-center p-2 hover:opacity-80 transition-opacity active:scale-95 transition-transform">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">menu</span>
+</button>
+<h1 class="font-display-hero-mobile text-display-hero-mobile text-primary dark:text-primary-fixed-dim">Mee Events</h1>
+<button class="font-button text-button text-primary dark:text-primary-fixed-dim flex items-center gap-1 hover:opacity-80 transition-opacity active:scale-95 transition-transform">
+                Customer <span class="material-symbols-outlined text-sm">arrow_drop_down</span>
+</button>
+</div>
+</header>
+<!-- Main Content -->
+<main class="max-w-container-max mx-auto px-gutter py-lg md:py-xl">
+<!-- Header Section -->
+<div class="mb-lg">
+<div class="flex items-center gap-2 mb-xs">
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest">Support Case MEE-SUP-2026-0187</span>
+</div>
+<h2 class="font-h1 text-h1 text-on-background mb-sm">Adjustment Status</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Aarav &amp; Ananya Wedding</p>
+<div class="inline-flex items-center gap-2 mt-4 px-3 py-2 bg-surface-container-high text-on-surface-variant rounded-md text-sm border border-outline-variant/50">
+<span class="material-symbols-outlined text-[16px]">info</span>
+<span class="font-body-md">Shown only after Mee Events approves an adjustment.</span>
+</div>
+</div>
+<!-- Status Card Bento -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-md">
+<!-- Primary Status Card -->
+<div class="md:col-span-8 bg-surface-container-lowest border border-outline-variant rounded-xl p-md md:p-lg flex flex-col md:flex-row gap-lg justify-between items-start md:items-center shadow-[0px_10px_30px_rgba(74,14,14,0.02)] hover:shadow-[0px_10px_30px_rgba(74,14,14,0.05)] transition-shadow">
+<div>
+<div class="flex items-center gap-2 mb-md">
+<div class="w-10 h-10 rounded-full bg-[#E8F5E9] flex items-center justify-center text-[#2E7D32]">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<h3 class="font-h2 text-h2 text-[#2E7D32]">Adjustment approved</h3>
+</div>
+<div class="font-display-hero-mobile text-display-hero-mobile text-on-background mb-xs">₹25,000</div>
+<p class="font-body-md text-body-md text-on-surface-variant">Refund to original payment method.</p>
+</div>
+<div class="w-full md:w-auto">
+<img class="w-full md:w-48 h-32 object-cover rounded-lg border border-outline-variant/50" data-alt="A stylized, high-end abstract graphic representing a successful transaction or refund. Minimalist warm ivory background with soft geometric shapes in deep burgundy and muted gold intersecting elegantly. A subtle sense of positive momentum or flow, maintaining a modern Indian premium aesthetic, very clean and professional, free of text or literal currency symbols." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC05_eVQOLDo8IIWnJZLhY268rrrKOtO4QqKnkHFQ3Qrj6NSUXhHOZKNcS2bhX7EPj9KcChk3JwH6PZNA1zg6cggwJtDgTVqs1JPooapDcH89yzjLCIsk9zWgPcdEMS9JsbTbYD2Va-J76O3tExslz4ZXHWCEb7SsVTGJZzjMtAI2Rf9Rw12-ET0u_gbeuBHfLOrAeL-gGEVOc5sbVHYnfvEqa0x3y-Wb18BYC-HY91Jdkiq1hGL12p"/>
+</div>
+</div>
+<!-- Timeline/Details Card -->
+<div class="md:col-span-4 bg-surface-container-low border border-outline-variant/50 rounded-xl p-md">
+<h4 class="font-h2 text-h2 text-on-background mb-md text-lg">Transaction Details</h4>
+<div class="space-y-md relative before:absolute before:inset-y-0 before:left-2.5 before:w-px before:bg-outline-variant/50">
+<div class="relative pl-8">
+<div class="absolute left-1.5 top-1.5 w-2 h-2 rounded-full bg-secondary"></div>
+<div class="font-label-caps text-label-caps text-on-surface-variant mb-1">Approved</div>
+<div class="font-body-md text-body-md text-on-background">26 December 2026</div>
+</div>
+<div class="relative pl-8">
+<div class="absolute left-1.5 top-1.5 w-2 h-2 rounded-full bg-outline-variant"></div>
+<div class="font-label-caps text-label-caps text-on-surface-variant mb-1">Processing</div>
+<div class="font-body-md text-body-md text-on-background">Expected by 31 December 2026</div>
+</div>
+</div>
+<div class="mt-lg pt-md border-t border-outline-variant/30">
+<div class="font-label-caps text-label-caps text-on-surface-variant mb-1">Reference Number</div>
+<div class="font-body-md text-body-md text-on-background font-mono text-sm">MEE-ADJ-2026-0187</div>
+</div>
+</div>
+</div>
+<!-- Support Section -->
+<div class="mt-xl flex flex-col md:flex-row items-center justify-between border-t border-outline-variant/30 pt-lg gap-md">
+<p class="font-body-md text-body-md text-on-surface-variant text-center md:text-left">
+                If the refund does not appear by the expected date, or if you encounter issues.
+            </p>
+<button class="bg-primary text-on-primary font-button text-button px-6 py-3 rounded hover:opacity-90 transition-opacity w-full md:w-auto text-center">
+                Contact Mee Events support
+            </button>
+</div>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pt-base pb-safe bg-surface-container-lowest dark:bg-surface-container-low border-t border-outline-variant/30 shadow-sm rounded-t-xl md:hidden">
+<button class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors group">
+<span class="material-symbols-outlined mb-1">home</span>
+<span class="font-label-caps text-label-caps uppercase tracking-widest text-[10px]">Home</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors group">
+<span class="material-symbols-outlined mb-1">explore</span>
+<span class="font-label-caps text-label-caps uppercase tracking-widest text-[10px]">Explore</span>
+</button>
+<!-- Active Tab: Plan -->
+<button class="flex flex-col items-center justify-center text-primary dark:text-primary-fixed-dim relative after:content-[''] after:absolute after:-bottom-2 after:w-1 after:h-1 after:bg-secondary after:rounded-full opacity-70 transition-opacity">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">event_note</span>
+<span class="font-label-caps text-label-caps uppercase tracking-widest text-[10px]">Plan</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors group">
+<span class="material-symbols-outlined mb-1">chat_bubble</span>
+<span class="font-label-caps text-label-caps uppercase tracking-widest text-[10px]">Enquiries</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors group">
+<span class="material-symbols-outlined mb-1">person</span>
+<span class="font-label-caps text-label-caps uppercase tracking-widest text-[10px]">Profile</span>
+</button>
+</nav>
+</body></html>

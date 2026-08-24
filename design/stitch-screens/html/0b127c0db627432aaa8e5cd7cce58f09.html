@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Mee Events - Post-Event Support Centre</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&amp;family=EB+Garamond:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "outline-variant": "#dac1bf",
+                        "surface-container": "#f0eded",
+                        "surface-container-high": "#eae7e7",
+                        "on-primary-fixed-variant": "#77302d",
+                        "on-tertiary-container": "#8c8c88",
+                        "on-surface-variant": "#544341",
+                        "on-surface": "#1c1b1b",
+                        "tertiary-fixed": "#e4e2dd",
+                        "secondary-fixed": "#ffdea5",
+                        "outline": "#877270",
+                        "primary-container": "#4a0e0e",
+                        "primary-fixed-dim": "#ffb3ad",
+                        "on-secondary-container": "#785a1a",
+                        "tertiary-fixed-dim": "#c8c6c2",
+                        "secondary": "#775a19",
+                        "on-tertiary": "#ffffff",
+                        "surface-variant": "#e5e2e1",
+                        "background": "#fcf9f8",
+                        "surface-container-highest": "#e5e2e1",
+                        "surface-container-lowest": "#ffffff",
+                        "on-background": "#1c1b1b",
+                        "primary": "#2a0002",
+                        "on-secondary": "#ffffff",
+                        "inverse-primary": "#ffb3ad",
+                        "error": "#ba1a1a",
+                        "surface-container-low": "#f6f3f2",
+                        "on-primary-container": "#cc726d",
+                        "on-error-container": "#93000a",
+                        "tertiary": "#0f100d",
+                        "on-secondary-fixed": "#261900",
+                        "primary-fixed": "#ffdad7",
+                        "on-error": "#ffffff",
+                        "surface-dim": "#dcd9d9",
+                        "on-secondary-fixed-variant": "#5d4201",
+                        "surface-bright": "#fcf9f8",
+                        "secondary-container": "#fed488",
+                        "inverse-surface": "#313030",
+                        "error-container": "#ffdad6",
+                        "surface-tint": "#954742",
+                        "tertiary-container": "#242522",
+                        "on-primary": "#ffffff",
+                        "inverse-on-surface": "#f3f0ef",
+                        "on-tertiary-fixed": "#1b1c19",
+                        "on-tertiary-fixed-variant": "#474744",
+                        "on-primary-fixed": "#3d0506",
+                        "surface": "#fcf9f8",
+                        "secondary-fixed-dim": "#e9c176"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px",
+                        "2xl": "14px"
+                    },
+                    "spacing": {
+                        "lg": "48px",
+                        "container-max": "1280px",
+                        "xs": "4px",
+                        "sm": "12px",
+                        "gutter": "24px",
+                        "md": "24px",
+                        "xl": "80px",
+                        "base": "8px"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Manrope"],
+                        "label-caps": ["Manrope"],
+                        "body-lg": ["Manrope"],
+                        "h1": ["Manrope"],
+                        "display-hero-mobile": ["EB Garamond"],
+                        "display-hero": ["EB Garamond"],
+                        "button": ["Manrope"],
+                        "h2": ["Manrope"]
+                    },
+                    "fontSize": {
+                        "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "label-caps": ["12px", { "lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "h1": ["32px", { "lineHeight": "1.3", "fontWeight": "700" }],
+                        "display-hero-mobile": ["36px", { "lineHeight": "1.2", "fontWeight": "500" }],
+                        "display-hero": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "500" }],
+                        "button": ["14px", { "lineHeight": "1", "fontWeight": "600" }],
+                        "h2": ["24px", { "lineHeight": "1.4", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { background-color: #F9F7F2; } /* Warm Ivory Canvas */
+        .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border: 1px solid #E5DED4; }
+        .interactive-shadow:hover { box-shadow: 0px 10px 30px rgba(74, 14, 14, 0.05); transform: translateY(-2px); transition: all 0.3s ease; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="text-on-surface font-body-md antialiased pb-24 md:pb-0">
+<!-- TopAppBar (Web & Mobile) -->
+<header class="bg-background dark:bg-background w-full top-0 left-0 flex justify-between items-center px-gutter py-sm w-full sticky z-50">
+<div class="flex items-center gap-4">
+<button class="hover:opacity-80 transition-opacity active:scale-95 transition-transform text-primary dark:text-primary-fixed-dim">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">menu</span>
+</button>
+<h1 class="font-display-hero-mobile text-display-hero-mobile text-primary dark:text-primary-fixed-dim tracking-tight">Mee Events</h1>
+</div>
+<!-- Desktop Nav Cluster -->
+<nav class="hidden md:flex items-center gap-8">
+<a class="text-on-surface-variant dark:text-outline-variant font-button text-button hover:opacity-80 transition-opacity" href="#">Home</a>
+<a class="text-on-surface-variant dark:text-outline-variant font-button text-button hover:opacity-80 transition-opacity" href="#">Explore</a>
+<a class="text-primary dark:text-primary-fixed-dim font-bold relative after:content-[''] after:absolute after:-bottom-1 after:left-1/2 after:-translate-x-1/2 after:w-1 after:h-1 after:bg-secondary after:rounded-full font-button text-button hover:opacity-80 transition-opacity" href="#">Plan</a>
+<a class="text-on-surface-variant dark:text-outline-variant font-button text-button hover:opacity-80 transition-opacity" href="#">Enquiries</a>
+<a class="text-on-surface-variant dark:text-outline-variant font-button text-button hover:opacity-80 transition-opacity" href="#">Profile</a>
+</nav>
+<div class="flex items-center gap-3">
+<div class="hidden sm:flex items-center bg-surface-container-lowest px-3 py-1.5 rounded-full border border-outline-variant/50">
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase">Customer</span>
+<span class="material-symbols-outlined text-[16px] ml-1 text-on-surface-variant">arrow_drop_down</span>
+</div>
+<!-- Optional: Notification icon or similar could go here -->
+</div>
+</header>
+<main class="max-w-container-max mx-auto px-gutter pt-lg pb-xl">
+<!-- Page Header -->
+<div class="mb-lg">
+<h2 class="font-h1 text-h1 text-primary mb-2">Post-Event Support</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl">We are committed to ensuring your experience remains flawless even after your celebration. How can we assist you today?</p>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+<!-- Left Column: Actions & Categories -->
+<div class="lg:col-span-4 space-y-md">
+<!-- Primary Action Card -->
+<div class="glass-card rounded-2xl p-md interactive-shadow">
+<h3 class="font-h2 text-h2 text-primary mb-xs">Need Assistance?</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-md">Submit a new request and our dedicated support team will respond promptly.</p>
+<button class="w-full bg-primary-container text-on-tertiary font-button text-button py-3 px-6 rounded-lg hover:opacity-90 transition-opacity flex justify-center items-center gap-2">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">add_circle</span>
+                        Create support request
+                    </button>
+</div>
+<!-- Support Categories Bento -->
+<div class="glass-card rounded-2xl p-md">
+<h3 class="font-h2 text-h2 text-primary mb-md">Support Categories</h3>
+<div class="grid grid-cols-1 gap-3">
+<button class="flex items-center justify-between p-3 rounded-lg border border-outline-variant hover:bg-surface-container-lowest transition-colors text-left w-full group">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">receipt_long</span>
+<span class="font-body-md text-body-md text-on-surface">Payment or invoice question</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+</button>
+<button class="flex items-center justify-between p-3 rounded-lg border border-outline-variant hover:bg-surface-container-lowest transition-colors text-left w-full group">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">inventory_2</span>
+<span class="font-body-md text-body-md text-on-surface">Missing deliverable</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+</button>
+<button class="flex items-center justify-between p-3 rounded-lg border border-outline-variant hover:bg-surface-container-lowest transition-colors text-left w-full group">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">photo_library</span>
+<span class="font-body-md text-body-md text-on-surface">Gallery concern</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+</button>
+<button class="flex items-center justify-between p-3 rounded-lg border border-outline-variant hover:bg-surface-container-lowest transition-colors text-left w-full group">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">room_service</span>
+<span class="font-body-md text-body-md text-on-surface">Service concern</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+</button>
+<button class="flex items-center justify-between p-3 rounded-lg border border-outline-variant hover:bg-surface-container-lowest transition-colors text-left w-full group">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">find_in_page</span>
+<span class="font-body-md text-body-md text-on-surface">Lost item</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+</button>
+<button class="flex items-center justify-between p-3 rounded-lg border border-outline-variant hover:bg-surface-container-lowest transition-colors text-left w-full group">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">warning</span>
+<span class="font-body-md text-body-md text-on-surface">Damage concern</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+</button>
+<button class="flex items-center justify-between p-3 rounded-lg border border-outline-variant hover:bg-surface-container-lowest transition-colors text-left w-full group">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">more_horiz</span>
+<span class="font-body-md text-body-md text-on-surface">Other</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Right Column: Active Cases & FAQs -->
+<div class="lg:col-span-8 space-y-md">
+<!-- Existing Support Cases -->
+<div class="glass-card rounded-2xl p-md">
+<h3 class="font-h2 text-h2 text-primary mb-md">Your Support Cases</h3>
+<div class="space-y-4">
+<!-- Case Item 1 -->
+<div class="border border-outline-variant rounded-xl p-4 hover:bg-surface-container-lowest transition-colors cursor-pointer">
+<div class="flex justify-between items-start mb-2">
+<div>
+<span class="font-label-caps text-label-caps text-on-surface-variant bg-surface px-2 py-1 rounded-full uppercase tracking-widest mr-2 border border-outline-variant/30">Missing Deliverable</span>
+<span class="font-body-md text-body-md text-on-surface font-semibold">Gallery preview</span>
+</div>
+<span class="font-label-caps text-label-caps text-secondary bg-secondary-container/20 px-2 py-1 rounded-full uppercase">Reviewing</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm mb-3">Case #MEE-SUP-2026-0187 • Opened Dec 22, 2026</p>
+<div class="bg-surface p-3 rounded-lg border border-outline-variant/50 flex gap-3 items-start">
+<span class="material-symbols-outlined text-primary mt-1">support_agent</span>
+<div>
+<p class="font-label-caps text-label-caps text-on-surface-variant uppercase mb-1">Latest Update from Mee Events (Dec 23)</p>
+<p class="font-body-md text-body-md text-on-surface text-sm">We are currently reviewing the gallery export progress and will provide a status update shortly.</p>
+</div>
+</div>
+</div>
+<!-- Case Item 2 -->
+<div class="border border-outline-variant rounded-xl p-4 hover:bg-surface-container-lowest transition-colors cursor-pointer opacity-75">
+<div class="flex justify-between items-start mb-2">
+<div>
+<span class="font-label-caps text-label-caps text-on-surface-variant bg-surface px-2 py-1 rounded-full uppercase tracking-widest mr-2 border border-outline-variant/30">Invoice Question</span>
+<span class="font-body-md text-body-md text-on-surface font-semibold">Payment receipt question</span>
+</div>
+<span class="font-label-caps text-label-caps text-on-surface-variant bg-surface-variant px-2 py-1 rounded-full uppercase">Resolved</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm mb-0">Case #MEE-SUP-2026-0162 • Closed Dec 18, 2026</p>
+</div>
+</div>
+</div>
+<!-- FAQ Section -->
+<div class="glass-card rounded-2xl p-md">
+<h3 class="font-h2 text-h2 text-primary mb-md">Frequently Asked Questions</h3>
+<div class="space-y-0">
+<div class="border-b border-outline-variant py-4">
+<button class="flex justify-between items-center w-full text-left group">
+<span class="font-body-lg text-body-lg text-on-surface group-hover:text-primary transition-colors">How long does it take to receive wedding photos and videos?</span>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors">add</span>
+</button>
+</div>
+<div class="border-b border-outline-variant py-4">
+<button class="flex justify-between items-center w-full text-left group">
+<span class="font-body-lg text-body-lg text-on-surface group-hover:text-primary transition-colors">How do I request an extra copy of my invoice?</span>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors">add</span>
+</button>
+</div>
+<div class="py-4">
+<button class="flex justify-between items-center w-full text-left group">
+<span class="font-body-lg text-body-lg text-on-surface group-hover:text-primary transition-colors">What is the process for reporting a lost item at the venue?</span>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors">add</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden bg-surface-container-lowest dark:bg-surface-container-low border-t border-outline-variant/30 fixed bottom-0 w-full z-50 rounded-t-xl shadow-sm fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pt-base pb-safe">
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors py-2" href="#">
+<span class="material-symbols-outlined mb-1 text-[24px]">home</span>
+<span class="font-label-caps text-label-caps uppercase tracking-widest text-[10px]">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors py-2" href="#">
+<span class="material-symbols-outlined mb-1 text-[24px]">explore</span>
+<span class="font-label-caps text-label-caps uppercase tracking-widest text-[10px]">Explore</span>
+</a>
+<a class="flex flex-col items-center justify-center text-primary dark:text-primary-fixed-dim relative after:content-[''] after:w-1 after:h-1 after:bg-secondary after:rounded-full after:mt-1 hover:text-primary dark:hover:text-primary-fixed-dim transition-colors active:opacity-70 transition-opacity py-2" href="#">
+<span class="material-symbols-outlined mb-1 text-[24px]">event_note</span>
+<span class="font-label-caps text-label-caps uppercase tracking-widest text-[10px]">Plan</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors py-2" href="#">
+<span class="material-symbols-outlined mb-1 text-[24px]">chat_bubble</span>
+<span class="font-label-caps text-label-caps uppercase tracking-widest text-[10px]">Enquiries</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors py-2" href="#">
+<span class="material-symbols-outlined mb-1 text-[24px]">person</span>
+<span class="font-label-caps text-label-caps uppercase tracking-widest text-[10px]">Profile</span>
+</a>
+</nav>
+</body></html>

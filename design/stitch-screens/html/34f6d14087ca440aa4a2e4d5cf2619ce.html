@@ -1,0 +1,239 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Task Detail: Confirm Menu Preferences</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@500&amp;family=Manrope:wght@400;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary-fixed-dim": "#ffb3ad",
+                        "primary": "#2a0002",
+                        "on-primary-fixed-variant": "#77302d",
+                        "on-background": "#1c1b1b",
+                        "tertiary": "#0f100d",
+                        "on-primary-fixed": "#3d0506",
+                        "tertiary-fixed-dim": "#c8c6c2",
+                        "outline": "#877270",
+                        "error-container": "#ffdad6",
+                        "on-surface": "#1c1b1b",
+                        "surface-container": "#f0eded",
+                        "error": "#ba1a1a",
+                        "on-secondary-fixed": "#261900",
+                        "surface-variant": "#e5e2e1",
+                        "surface-container-high": "#eae7e7",
+                        "on-primary": "#ffffff",
+                        "on-tertiary-fixed-variant": "#474744",
+                        "outline-variant": "#dac1bf",
+                        "surface-bright": "#fcf9f8",
+                        "on-secondary-fixed-variant": "#5d4201",
+                        "surface-tint": "#954742",
+                        "inverse-surface": "#313030",
+                        "surface-container-low": "#f6f3f2",
+                        "tertiary-container": "#242522",
+                        "surface-dim": "#dcd9d9",
+                        "surface-container-highest": "#e5e2e1",
+                        "primary-fixed": "#ffdad7",
+                        "tertiary-fixed": "#e4e2dd",
+                        "on-surface-variant": "#544341",
+                        "secondary-fixed-dim": "#e9c176",
+                        "primary-container": "#4a0e0e",
+                        "on-secondary-container": "#785a1a",
+                        "secondary-fixed": "#ffdea5",
+                        "on-tertiary-container": "#8c8c88",
+                        "surface": "#fcf9f8",
+                        "on-error-container": "#93000a",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary": "#775a19",
+                        "inverse-primary": "#ffb3ad",
+                        "on-primary-container": "#cc726d",
+                        "secondary-container": "#fed488",
+                        "inverse-on-surface": "#f3f0ef",
+                        "background": "#fcf9f8",
+                        "on-secondary": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "on-tertiary-fixed": "#1b1c19",
+                        "on-error": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "lg": "48px",
+                        "xl": "80px",
+                        "container-max": "1280px",
+                        "sm": "12px",
+                        "gutter": "24px",
+                        "md": "24px",
+                        "xs": "4px",
+                        "base": "8px"
+                    },
+                    "fontFamily": {
+                        "display-hero-mobile": ["EB Garamond"],
+                        "body-lg": ["Manrope"],
+                        "button": ["Manrope"],
+                        "h1": ["Manrope"],
+                        "h2": ["Manrope"],
+                        "label-caps": ["Manrope"],
+                        "body-md": ["Manrope"],
+                        "display-hero": ["EB Garamond"]
+                    },
+                    "fontSize": {
+                        "display-hero-mobile": ["36px", { "lineHeight": "1.2", "fontWeight": "500" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "button": ["14px", { "lineHeight": "1", "fontWeight": "600" }],
+                        "h1": ["32px", { "lineHeight": "1.3", "fontWeight": "700" }],
+                        "h2": ["24px", { "lineHeight": "1.4", "fontWeight": "600" }],
+                        "label-caps": ["12px", { "lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "display-hero": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "500" }]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body { background-color: #F9F7F2; } /* Warm Ivory Canvas */
+        .card-border { border-color: #E5DED4; }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid #E5DED4;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="text-on-background font-body-md antialiased pb-32">
+<!-- TopAppBar -->
+<header class="bg-surface dark:bg-surface-dim docked full-width top-0 border-b border-outline-variant dark:border-outline flat no shadows z-40 sticky"><div class="flex justify-between items-center w-full px-md h-16 max-w-container-max mx-auto"><div class="flex items-center gap-4"><div class="w-10 h-10 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center font-semibold cursor-pointer">JD</div></div><div class="absolute left-1/2 -translate-x-1/2"><span class="font-display-hero text-2xl tracking-tight text-primary">Mee Events</span></div><div class="flex items-center gap-2"><button class="p-2 text-on-surface-variant hover:bg-surface-container rounded-full transition-colors"><span class="material-symbols-outlined">search</span></button><button class="p-2 text-on-surface-variant hover:bg-surface-container rounded-full transition-colors"><span class="material-symbols-outlined">favorite</span></button><button class="p-2 text-on-surface-variant hover:bg-surface-container rounded-full transition-colors relative"><span class="material-symbols-outlined">notifications</span><span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full"></span></button></div></div></header>
+<div class="bg-surface border-b border-outline-variant px-md py-3 sticky top-16 z-30"><div class="max-w-container-max mx-auto flex items-center gap-4"><button class="text-primary hover:bg-surface-container transition-colors p-2 rounded-full flex items-center justify-center"><span class="material-symbols-outlined">arrow_back</span></button><h1 class="font-h2 text-h2 text-primary">Task Detail</h1></div></div><main class="max-w-container-max mx-auto px-4 md:px-gutter mt-lg">
+<!-- Task Header & Meta -->
+<section class="mb-lg">
+<div class="flex items-center gap-2 mb-2">
+<span class="inline-flex items-center px-2 py-1 rounded bg-[#E5DED4] text-on-surface-variant font-label-caps text-label-caps uppercase">Action Required</span>
+<span class="inline-flex items-center px-2 py-1 rounded bg-error-container text-on-error-container font-label-caps text-label-caps uppercase flex gap-1">
+<span class="material-symbols-outlined text-[14px]">warning</span> High Priority
+                </span>
+</div>
+<h2 class="font-h1 text-h1 text-primary mb-4">Confirm menu preferences</h2>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 bg-surface rounded-xl p-md border card-border">
+<div>
+<p class="font-label-caps text-label-caps text-on-surface-variant uppercase mb-1">Due Date</p>
+<p class="font-body-md font-semibold">28 August 2026</p>
+</div>
+<div><p class="font-label-caps text-label-caps text-on-surface-variant uppercase mb-1">Function &amp; Venue</p><p class="font-body-md font-semibold">Wedding</p><p class="font-body-md text-sm text-on-surface-variant">Taj Krishna, Hyderabad</p></div>
+<div>
+<p class="font-label-caps text-label-caps text-on-surface-variant uppercase mb-1">Guest Count</p>
+<p class="font-body-md font-semibold">250</p>
+</div>
+<div>
+<p class="font-label-caps text-label-caps text-on-surface-variant uppercase mb-1">Assigned By</p>
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center font-label-caps text-[10px]">PR</div>
+<p class="font-body-md font-semibold">Priya (Mee Events)</p>
+</div>
+</div>
+</div>
+<div class="mt-6 p-md bg-surface-container-low rounded-xl border border-outline-variant">
+<p class="font-label-caps text-label-caps text-primary uppercase mb-2 flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px]">info</span> Instructions from Priya
+                </p>
+<p class="font-body-md text-on-surface-variant">These preferences will help Mee Events finalise your hospitality plan.</p>
+</div>
+</section>
+<!-- Form Section -->
+<section class="bg-surface rounded-xl p-md md:p-lg border card-border shadow-sm">
+<h3 class="font-h2 text-h2 text-primary mb-6 border-b border-outline-variant pb-4">Menu Selection Details</h3>
+<form>
+<!-- Dietary Preference Chips -->
+<div class="mb-8">
+<label class="block font-label-caps text-label-caps text-on-surface-variant uppercase mb-3">Primary Catering Style (Select one)</label>
+<div class="flex flex-wrap gap-3">
+<button class="px-4 py-2 rounded-full border border-primary text-primary font-button text-button hover:bg-surface-container transition-colors" type="button">Pure Vegetarian</button>
+<button class="px-4 py-2 rounded-full bg-secondary-container text-on-secondary-container border border-secondary font-button text-button ring-2 ring-offset-2 ring-primary" type="button">Mixed (Veg &amp; Non-Veg)</button>
+<button class="px-4 py-2 rounded-full border border-outline text-on-surface-variant font-button text-button hover:bg-surface-container transition-colors" type="button">Jain Options Required</button>
+</div>
+</div>
+<!-- Guest Estimates -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+<div>
+<label class="block font-label-caps text-label-caps text-on-surface-variant uppercase mb-2" for="veg-estimate">Vegetarian Guest Estimate</label>
+<input class="w-full bg-surface border card-border rounded-lg px-4 py-3 font-body-md focus:ring-2 focus:ring-primary focus:border-primary outline-none" id="veg-estimate" placeholder="e.g. 150" type="number">
+</div>
+<div>
+<label class="block font-label-caps text-label-caps text-on-surface-variant uppercase mb-2" for="nonveg-estimate">Non-Vegetarian Estimate</label>
+<input class="w-full bg-surface border card-border rounded-lg px-4 py-3 font-body-md focus:ring-2 focus:ring-primary focus:border-primary outline-none" id="nonveg-estimate" placeholder="e.g. 100" type="number">
+</div>
+</div>
+<!-- Allergy Notes -->
+<div class="mb-8">
+<label class="block font-label-caps text-label-caps text-on-surface-variant uppercase mb-2 flex justify-between" for="allergy-notes">
+<span class="">Specific Dietary Requirements &amp; Allergies</span>
+<span class="text-outline normal-case font-body-md text-sm">Optional</span>
+</label>
+<textarea class="w-full bg-surface border card-border rounded-lg px-4 py-3 font-body-md focus:ring-2 focus:ring-primary focus:border-primary outline-none resize-y" id="allergy-notes" placeholder="List any severe nut allergies, gluten-free requirements, etc." rows="4"></textarea>
+</div>
+<!-- File Attachment -->
+<div class="mb-8">
+<label class="block font-label-caps text-label-caps text-on-surface-variant uppercase mb-2">Attach Reference Menu or Notes</label>
+<div class="border-2 border-dashed card-border rounded-xl p-6 text-center hover:bg-surface-container-low transition-colors cursor-pointer">
+<span class="material-symbols-outlined text-outline mb-2 text-3xl">upload_file</span>
+<p class="font-button text-button text-primary mb-1">Click to upload or drag and drop</p>
+<p class="font-body-md text-sm text-on-surface-variant">PDF, DOCX, or JPG (max. 10MB)</p>
+</div>
+</div>
+<!-- Actions -->
+<div class="flex flex-col-reverse md:flex-row justify-end items-center gap-4 pt-6 border-t border-outline-variant">
+<button class="w-full md:w-auto px-6 py-3 rounded-full bg-transparent border border-primary text-primary font-button text-button hover:bg-surface-container transition-colors" type="button">
+                        Save draft
+                    </button>
+<!-- Disabled State -->
+<button class="w-full md:w-auto px-6 py-3 rounded-full bg-surface-variant text-on-surface-variant opacity-50 cursor-not-allowed font-button text-button flex items-center justify-center gap-2" disabled="" type="button">
+<span class="">Submit preferences</span>
+<span class="material-symbols-outlined text-[18px]">lock</span>
+</button>
+</div>
+<p class="text-center text-sm text-on-surface-variant mt-4 font-body-md italic hidden">Preferences submitted to Mee Events</p>
+</form>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="bg-surface dark:bg-surface-dim docked full-width bottom-0 rounded-t-xl border-t border-outline-variant dark:border-outline shadow-sm fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-safe h-20 md:hidden">
+<div class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant pt-1 hover:text-primary dark:hover:text-primary-fixed-dim transition-all cursor-pointer">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">home</span>
+<span class="font-label-caps text-label-caps mt-1">Home</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant pt-1 hover:text-primary dark:hover:text-primary-fixed-dim transition-all cursor-pointer">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">search</span>
+<span class="font-label-caps text-label-caps mt-1">Explore</span>
+</div>
+<!-- Active Tab: Plan -->
+<div class="flex flex-col items-center justify-center text-primary dark:text-primary-fixed-dim border-t-2 border-secondary pt-1 hover:text-primary dark:hover:text-primary-fixed-dim transition-all cursor-pointer scale-95 transition-transform duration-150">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">event_note</span>
+<span class="font-label-caps text-label-caps mt-1">Plan</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant pt-1 hover:text-primary dark:hover:text-primary-fixed-dim transition-all cursor-pointer">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">chat_bubble</span>
+<span class="font-label-caps text-label-caps mt-1">Enquiries</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant pt-1 hover:text-primary dark:hover:text-primary-fixed-dim transition-all cursor-pointer">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">person</span>
+<span class="font-label-caps text-label-caps mt-1">Profile</span>
+</div>
+</nav>
+
+
+</body></html>

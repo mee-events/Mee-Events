@@ -1,0 +1,282 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Mee Events - Testimonial Permissions</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@500&amp;family=Manrope:wght@400;600;700&amp;display=swap" rel="stylesheet">
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "outline-variant": "#dac1bf",
+                    "surface-container": "#f0eded",
+                    "surface-container-high": "#eae7e7",
+                    "on-primary-fixed-variant": "#77302d",
+                    "on-tertiary-container": "#8c8c88",
+                    "on-surface-variant": "#544341",
+                    "on-surface": "#1c1b1b",
+                    "tertiary-fixed": "#e4e2dd",
+                    "secondary-fixed": "#ffdea5",
+                    "outline": "#877270",
+                    "primary-container": "#4a0e0e",
+                    "primary-fixed-dim": "#ffb3ad",
+                    "on-secondary-container": "#785a1a",
+                    "tertiary-fixed-dim": "#c8c6c2",
+                    "secondary": "#775a19",
+                    "on-tertiary": "#ffffff",
+                    "surface-variant": "#e5e2e1",
+                    "background": "#fcf9f8",
+                    "surface-container-highest": "#e5e2e1",
+                    "surface-container-lowest": "#ffffff",
+                    "on-background": "#1c1b1b",
+                    "primary": "#2a0002",
+                    "on-secondary": "#ffffff",
+                    "inverse-primary": "#ffb3ad",
+                    "error": "#ba1a1a",
+                    "surface-container-low": "#f6f3f2",
+                    "on-primary-container": "#cc726d",
+                    "on-error-container": "#93000a",
+                    "tertiary": "#0f100d",
+                    "on-secondary-fixed": "#261900",
+                    "primary-fixed": "#ffdad7",
+                    "on-error": "#ffffff",
+                    "surface-dim": "#dcd9d9",
+                    "on-secondary-fixed-variant": "#5d4201",
+                    "surface-bright": "#fcf9f8",
+                    "secondary-container": "#fed488",
+                    "inverse-surface": "#313030",
+                    "error-container": "#ffdad6",
+                    "surface-tint": "#954742",
+                    "tertiary-container": "#242522",
+                    "on-primary": "#ffffff",
+                    "inverse-on-surface": "#f3f0ef",
+                    "on-tertiary-fixed": "#1b1c19",
+                    "on-tertiary-fixed-variant": "#474744",
+                    "on-primary-fixed": "#3d0506",
+                    "surface": "#fcf9f8",
+                    "secondary-fixed-dim": "#e9c176"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "lg": "48px",
+                    "container-max": "1280px",
+                    "xs": "4px",
+                    "sm": "12px",
+                    "gutter": "24px",
+                    "md": "24px",
+                    "xl": "80px",
+                    "base": "8px",
+                    "safe": "env(safe-area-inset-bottom, 16px)"
+            },
+            "fontFamily": {
+                    "body-md": ["Manrope"],
+                    "label-caps": ["Manrope"],
+                    "body-lg": ["Manrope"],
+                    "h1": ["Manrope"],
+                    "display-hero-mobile": ["EB Garamond"],
+                    "display-hero": ["EB Garamond"],
+                    "button": ["Manrope"],
+                    "h2": ["Manrope"]
+            },
+            "fontSize": {
+                    "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "label-caps": ["12px", {"lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "700"}],
+                    "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "h1": ["32px", {"lineHeight": "1.3", "fontWeight": "700"}],
+                    "display-hero-mobile": ["36px", {"lineHeight": "1.2", "fontWeight": "500"}],
+                    "display-hero": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "500"}],
+                    "button": ["14px", {"lineHeight": "1", "fontWeight": "600"}],
+                    "h2": ["24px", {"lineHeight": "1.4", "fontWeight": "600"}]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        /* Custom scrollbar for webkit */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #fcf9f8; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #dac1bf; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #877270; 
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body-md antialiased overflow-hidden min-h-screen relative flex flex-col">
+<!-- TopAppBar (Hidden on mobile, visible on desktop) -->
+<header class="hidden md:flex justify-between items-center px-gutter py-4 w-full top-0 left-0 bg-background border-b border-outline-variant/30 z-50 sticky">
+  <div class="flex items-center">
+    <button class="w-10 h-10 rounded-full overflow-hidden border border-outline-variant/50 hover:opacity-90 transition-opacity">
+      <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&amp;fit=crop&amp;w=80&amp;h=80" alt="Profile" class="w-full h-full object-cover">
+    </button>
+  </div>
+  <div class="absolute left-1/2 -translate-x-1/2">
+    <span class="font-display-hero-mobile text-2xl text-primary">Mee Events</span>
+  </div>
+  <div class="flex items-center gap-6">
+    <a href="#" class="text-on-surface-variant hover:text-primary transition-colors">
+      <span class="material-symbols-outlined">search</span>
+    </a>
+    <a href="#" class="text-on-surface-variant hover:text-primary transition-colors">
+      <span class="material-symbols-outlined">favorite</span>
+    </a>
+    <a href="#" class="text-on-surface-variant hover:text-primary transition-colors relative">
+      <span class="material-symbols-outlined">notifications</span>
+      <span class="absolute -top-1 -right-1 w-2 h-2 bg-error rounded-full"></span>
+    </a>
+  </div>
+</header>
+<!-- Background Canvas Context (Simulated completed feedback page behind modal) -->
+<div class="absolute inset-0 z-0 bg-cover bg-center" data-alt="A breathtaking, high-end Indian wedding reception set in a palatial courtyard in Hyderabad at dusk. The scene is illuminated by warm, glowing string lights and crystal chandeliers hanging from ancient trees. The color palette features deep burgundies, soft ivories, and subtle gold accents. The atmosphere is celebratory, luxurious, and cinematic, with a soft depth of field blurring the background softly. Modern editorial photography style." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCIU3P-jTifPurizEauN2Z9-I2wX1KZr1t4DUfW0qa3iax5DiMSS1Uhi-yW-rbT3Ld42aWtcbJz09atobQEd0OmW39nWGiDFnEkgigVfDBa5fhl4mZ1uq7c5Y-XTfYoFYH-ULS3DrllfTJLuQa2B-ygr0J20P5sqfimOMDQTb1NKgGPtmwwlU42Z2OjqzOE40HGwDWSE2oBHUeAnAXtwq4VtjXk244Y-7rp6m83LWLl0EtDqtRxVlsR');">
+<!-- Subtle dark overlay to make background recede -->
+<div class="absolute inset-0 bg-background/80 backdrop-blur-sm"></div>
+</div>
+<!-- Modal Overlay -->
+<div class="fixed inset-0 z-40 flex items-end md:items-center justify-center bg-on-surface/30 backdrop-blur-md pt-12 md:pt-0">
+<!-- Modal Container -->
+<main class="w-full md:w-[640px] max-h-[795px] overflow-y-auto bg-surface-container-lowest border-t md:border border-outline-variant/30 rounded-t-2xl md:rounded-2xl shadow-[0px_10px_30px_rgba(74,14,14,0.05)] transform transition-transform pb-32 md:pb-0 flex flex-col relative"><div class="hidden md:flex items-center gap-4 px-10 py-4 border-b border-outline-variant/20 bg-surface-container-lowest sticky top-0 z-20">
+  <button class="p-2 -ml-2 hover:bg-primary/5 rounded-full transition-colors">
+    <span class="material-symbols-outlined text-primary">arrow_back</span>
+  </button>
+  <span class="font-label-caps text-label-caps uppercase tracking-widest text-on-surface-variant">Feedback Permissions</span>
+</div>
+<!-- Mobile Handle -->
+<div class="md:hidden w-full flex justify-center pt-4 pb-2 sticky top-0 bg-surface-container-lowest z-10 rounded-t-2xl border-b">
+<div class="w-12 h-1.5 bg-outline-variant/50 rounded-full"></div>
+</div>
+<div class="p-6 md:p-10 flex-grow">
+<!-- Header Section -->
+<div class="mb-8 text-center md:text-left">
+<div class="w-12 h-12 bg-primary-fixed-dim/20 rounded-full flex items-center justify-center mb-6 mx-auto md:mx-0">
+<span class="material-symbols-outlined text-primary text-2xl" style="font-variation-settings: 'FILL' 0;">auto_awesome</span>
+</div>
+<h1 class="font-h1 text-h1 text-on-surface mb-3">Would you allow Mee Events to feature your feedback?</h1>
+<!-- Clear Separation Notice -->
+<div class="inline-flex items-start gap-3 p-4 bg-surface-container-low rounded-xl border border-outline-variant/30 mt-2 text-left">
+<span class="material-symbols-outlined text-secondary mt-0.5" style="font-variation-settings: 'FILL' 1;">lock</span>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm">
+                            Your detailed feedback has been saved privately to help us improve. The options below only apply if you wish to share parts of your experience publicly on our platform to inspire other couples.
+                        </p>
+</div>
+</div>
+<!-- Form Controls -->
+<form class="space-y-4 mb-10">
+<!-- Option 1 -->
+<label class="flex items-start gap-4 p-5 rounded-xl border border-outline-variant/50 hover:border-primary/40 hover:bg-surface-container-lowest transition-all cursor-pointer group bg-surface-bright shadow-sm">
+<div class="relative flex items-center justify-center mt-0.5">
+<input class="peer sr-only" type="checkbox">
+<div class="w-6 h-6 rounded-md border-2 border-outline peer-checked:bg-primary peer-checked:border-primary transition-colors flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary text-[16px] opacity-0 peer-checked:opacity-100 transition-opacity" style="font-variation-settings: 'FILL' 1;">check</span>
+</div>
+</div>
+<div class="flex-1">
+<span class="block font-button text-button text-on-surface mb-1">Use my written feedback</span>
+<span class="block font-body-md text-[14px] text-on-surface-variant leading-tight">Allow us to quote the highlights of your review on our inspiration boards.</span>
+</div>
+</label>
+<!-- Option 2 -->
+<label class="flex items-start gap-4 p-5 rounded-xl border border-outline-variant/50 hover:border-primary/40 hover:bg-surface-container-lowest transition-all cursor-pointer group bg-surface-bright shadow-sm">
+<div class="relative flex items-center justify-center mt-0.5">
+<input class="peer sr-only" type="checkbox">
+<div class="w-6 h-6 rounded-md border-2 border-outline peer-checked:bg-primary peer-checked:border-primary transition-colors flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary text-[16px] opacity-0 peer-checked:opacity-100 transition-opacity" style="font-variation-settings: 'FILL' 1;">check</span>
+</div>
+</div>
+<div class="flex-1">
+<span class="block font-button text-button text-on-surface mb-1">Use my first name</span>
+<span class="block font-body-md text-[14px] text-on-surface-variant leading-tight">Display your first name alongside your feedback to add authenticity.</span>
+</div>
+</label>
+<!-- Option 3 -->
+<label class="flex items-start gap-4 p-5 rounded-xl border border-outline-variant/50 hover:border-primary/40 hover:bg-surface-container-lowest transition-all cursor-pointer group bg-surface-bright shadow-sm">
+<div class="relative flex items-center justify-center mt-0.5">
+<input class="peer sr-only" type="checkbox">
+<div class="w-6 h-6 rounded-md border-2 border-outline peer-checked:bg-primary peer-checked:border-primary transition-colors flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary text-[16px] opacity-0 peer-checked:opacity-100 transition-opacity" style="font-variation-settings: 'FILL' 1;">check</span>
+</div>
+</div>
+<div class="flex-1">
+<span class="block font-button text-button text-on-surface mb-1">Use event photos selected by me</span>
+<span class="block font-body-md text-[14px] text-on-surface-variant leading-tight">We will follow up to request specific photos you'd be proud to share.</span>
+</div>
+</label>
+<!-- Option 4 -->
+<label class="flex items-start gap-4 p-5 rounded-xl border border-outline-variant/50 hover:border-primary/40 hover:bg-surface-container-lowest transition-all cursor-pointer group bg-surface-bright shadow-sm">
+<div class="relative flex items-center justify-center mt-0.5">
+<input class="peer sr-only" type="checkbox">
+<div class="w-6 h-6 rounded-md border-2 border-outline peer-checked:bg-primary peer-checked:border-primary transition-colors flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary text-[16px] opacity-0 peer-checked:opacity-100 transition-opacity" style="font-variation-settings: 'FILL' 1;">check</span>
+</div>
+</div>
+<div class="flex-1">
+<span class="block font-button text-button text-on-surface mb-1">Let me review before publication</span>
+<span class="block font-body-md text-[14px] text-on-surface-variant leading-tight">We will send you a preview of how your feature will look before it goes live.</span>
+</div>
+</label>
+</form>
+<!-- Actions -->
+<div class="flex flex-col sm:flex-row-reverse gap-4 pt-4 border-t border-outline-variant/30">
+<button class="w-full sm:w-auto px-8 py-4 bg-primary text-on-primary font-button text-button rounded-full hover:opacity-90 transition-opacity flex justify-center items-center shadow-[0px_10px_30px_rgba(74,14,14,0.15)]" type="button">
+                        Save permissions
+                    </button>
+<button class="w-full sm:w-auto px-8 py-4 bg-transparent text-primary border border-primary font-button text-button rounded-full hover:bg-primary/5 transition-colors flex justify-center items-center" type="button">
+                        Keep feedback private
+                    </button>
+</div>
+</div>
+</main>
+</div>
+<!-- BottomNavBar (Visible on mobile, hidden on desktop) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pt-base pb-safe bg-surface-container-lowest dark:bg-surface-container-low border-t border-outline-variant/30 shadow-sm rounded-t-xl">
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors py-2 gap-1" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">home</span>
+<span class="font-label-caps text-label-caps uppercase tracking-widest">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors py-2 gap-1" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">explore</span>
+<span class="font-label-caps text-label-caps uppercase tracking-widest">Explore</span>
+</a>
+<!-- Active State: Plan -->
+<a class="flex flex-col items-center justify-center text-primary dark:text-primary-fixed-dim relative after:content-[''] after:w-1 after:h-1 after:bg-secondary after:rounded-full after:mt-1 Active: opacity-70 transition-opacity py-2 gap-1" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">event_note</span>
+<span class="font-label-caps text-label-caps uppercase tracking-widest">Plan</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors py-2 gap-1" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">chat_bubble</span>
+<span class="font-label-caps text-label-caps uppercase tracking-widest">Enquiries</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors py-2 gap-1" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">person</span>
+<span class="font-label-caps text-label-caps uppercase tracking-widest">Profile</span>
+</a>
+</nav>
+
+
+</body></html>

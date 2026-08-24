@@ -2,42 +2,50 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'app_colors.dart';
 
-/// Airbnb-inspired Typography System
+/// EB Garamond display + Manrope UI (Stitch KEEP).
 class AppTypography {
-  static final TextStyle _sansBase = GoogleFonts.inter(
+  static final TextStyle _sansBase = GoogleFonts.manrope(color: AppColors.ink);
+  static final TextStyle _displayBase = GoogleFonts.ebGaramond(
     color: AppColors.ink,
   );
 
-  // Displays (Modest weights, relies on photography for heft)
-  static final TextStyle displayXl = _sansBase.copyWith(
-    fontSize: 28,
-    fontWeight: FontWeight.w700,
-    height: 1.43,
-    letterSpacing: 0,
-  );
-
-  static final TextStyle displayLg = _sansBase.copyWith(
-    fontSize: 22,
-    fontWeight: FontWeight.w500,
-    height: 1.18,
-    letterSpacing: -0.44,
-  );
-
-  static final TextStyle displayMd = _sansBase.copyWith(
-    fontSize: 21,
-    fontWeight: FontWeight.w700,
-    height: 1.43,
-    letterSpacing: 0,
-  );
-
-  static final TextStyle displaySm = _sansBase.copyWith(
-    fontSize: 20,
+  // Displays
+  static final TextStyle displayXl = _displayBase.copyWith(
+    fontSize: 34,
     fontWeight: FontWeight.w600,
-    height: 1.20,
-    letterSpacing: -0.18,
+    height: 1.15,
+    letterSpacing: -0.7,
+  );
+
+  static final TextStyle displayLg = _displayBase.copyWith(
+    fontSize: 28,
+    fontWeight: FontWeight.w600,
+    height: 1.18,
+    letterSpacing: -0.45,
+  );
+
+  static final TextStyle displayMd = _displayBase.copyWith(
+    fontSize: 24,
+    fontWeight: FontWeight.w600,
+    height: 1.2,
+    letterSpacing: -0.3,
+  );
+
+  static final TextStyle displaySm = _displayBase.copyWith(
+    fontSize: 21,
+    fontWeight: FontWeight.w600,
+    height: 1.2,
+    letterSpacing: -0.2,
   );
 
   // Titles
+  static final TextStyle titleLg = _sansBase.copyWith(
+    fontSize: 19,
+    fontWeight: FontWeight.w600,
+    height: 1.22,
+    letterSpacing: 0,
+  );
+
   static final TextStyle titleMd = _sansBase.copyWith(
     fontSize: 16,
     fontWeight: FontWeight.w600,
@@ -46,9 +54,9 @@ class AppTypography {
   );
 
   static final TextStyle titleSm = _sansBase.copyWith(
-    fontSize: 16,
-    fontWeight: FontWeight.w500,
-    height: 1.25,
+    fontSize: 15,
+    fontWeight: FontWeight.w600,
+    height: 1.3,
     letterSpacing: 0,
   );
 
@@ -83,10 +91,10 @@ class AppTypography {
   );
 
   static final TextStyle badge = _sansBase.copyWith(
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: FontWeight.w600,
-    height: 1.18,
-    letterSpacing: 0,
+    height: 1.2,
+    letterSpacing: 0.35,
   );
 
   // Rating Display

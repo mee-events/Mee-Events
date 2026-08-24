@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Aarav &amp; Ananya - Wedding Gallery</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600&amp;family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "outline-variant": "#dac1bf",
+                    "surface-container": "#f0eded",
+                    "surface-container-high": "#eae7e7",
+                    "on-primary-fixed-variant": "#77302d",
+                    "on-tertiary-container": "#8c8c88",
+                    "on-surface-variant": "#544341",
+                    "on-surface": "#1c1b1b",
+                    "tertiary-fixed": "#e4e2dd",
+                    "secondary-fixed": "#ffdea5",
+                    "outline": "#877270",
+                    "primary-container": "#4a0e0e",
+                    "primary-fixed-dim": "#ffb3ad",
+                    "on-secondary-container": "#785a1a",
+                    "tertiary-fixed-dim": "#c8c6c2",
+                    "secondary": "#775a19",
+                    "on-tertiary": "#ffffff",
+                    "surface-variant": "#e5e2e1",
+                    "background": "#fcf9f8",
+                    "surface-container-highest": "#e5e2e1",
+                    "surface-container-lowest": "#ffffff",
+                    "on-background": "#1c1b1b",
+                    "primary": "#2a0002",
+                    "on-secondary": "#ffffff",
+                    "inverse-primary": "#ffb3ad",
+                    "error": "#ba1a1a",
+                    "surface-container-low": "#f6f3f2",
+                    "on-primary-container": "#cc726d",
+                    "on-error-container": "#93000a",
+                    "tertiary": "#0f100d",
+                    "on-secondary-fixed": "#261900",
+                    "primary-fixed": "#ffdad7",
+                    "on-error": "#ffffff",
+                    "surface-dim": "#dcd9d9",
+                    "on-secondary-fixed-variant": "#5d4201",
+                    "surface-bright": "#fcf9f8",
+                    "secondary-container": "#fed488",
+                    "inverse-surface": "#313030",
+                    "error-container": "#ffdad6",
+                    "surface-tint": "#954742",
+                    "tertiary-container": "#242522",
+                    "on-primary": "#ffffff",
+                    "inverse-on-surface": "#f3f0ef",
+                    "on-tertiary-fixed": "#1b1c19",
+                    "on-tertiary-fixed-variant": "#474744",
+                    "on-primary-fixed": "#3d0506",
+                    "surface": "#fcf9f8",
+                    "secondary-fixed-dim": "#e9c176"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "lg": "48px",
+                    "container-max": "1280px",
+                    "xs": "4px",
+                    "sm": "12px",
+                    "gutter": "24px",
+                    "md": "24px",
+                    "xl": "80px",
+                    "base": "8px",
+                    "safe": "env(safe-area-inset-bottom, 16px)"
+            },
+            "fontFamily": {
+                    "body-md": ["Manrope", "sans-serif"],
+                    "label-caps": ["Manrope", "sans-serif"],
+                    "body-lg": ["Manrope", "sans-serif"],
+                    "h1": ["Manrope", "sans-serif"],
+                    "display-hero-mobile": ["EB Garamond", "serif"],
+                    "display-hero": ["EB Garamond", "serif"],
+                    "button": ["Manrope", "sans-serif"],
+                    "h2": ["Manrope", "sans-serif"]
+            },
+            "fontSize": {
+                    "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "label-caps": ["12px", {"lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "700"}],
+                    "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "h1": ["32px", {"lineHeight": "1.3", "fontWeight": "700"}],
+                    "display-hero-mobile": ["36px", {"lineHeight": "1.2", "fontWeight": "500"}],
+                    "display-hero": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "500"}],
+                    "button": ["14px", {"lineHeight": "1", "fontWeight": "600"}],
+                    "h2": ["24px", {"lineHeight": "1.4", "fontWeight": "600"}]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        /* Custom scrollbar for gallery rows if needed */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-background text-on-surface font-body-md antialiased min-h-screen flex flex-col selection:bg-primary-fixed selection:text-primary">
+<!-- TopAppBar -->
+<header class="w-full top-0 left-0 bg-background dark:bg-background z-40 fixed">
+<div class="flex justify-between items-center px-gutter py-sm w-full max-w-container-max mx-auto">
+<!-- Leading Icon (Mobile primarily) -->
+<button aria-label="Menu" class="md:hidden flex items-center justify-center p-2 text-on-surface-variant hover:opacity-80 transition-opacity active:scale-95 transition-transform">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">menu</span>
+</button>
+<!-- Headline/Brand -->
+<div class="flex-1 md:flex-none text-center md:text-left">
+<a class="font-display-hero-mobile text-display-hero-mobile text-primary dark:text-primary-fixed-dim hover:opacity-80 transition-opacity inline-block" href="#">
+                    Mee Events
+                </a>
+</div>
+<!-- Desktop Navigation Cluster (Hidden on mobile) -->
+<nav class="hidden md:flex items-center gap-8 absolute left-1/2 -translate-x-1/2">
+<a class="font-button text-button text-on-surface-variant dark:text-outline-variant hover:text-primary transition-colors" href="#">Home</a>
+<a class="font-button text-button text-on-surface-variant dark:text-outline-variant hover:text-primary transition-colors" href="#">Explore</a>
+<a class="font-button text-button text-primary dark:text-primary-fixed-dim font-bold relative after:content-[''] after:absolute after:-bottom-2 after:left-1/2 after:-translate-x-1/2 after:w-1 after:h-1 after:bg-secondary after:rounded-full" href="#">Plan</a>
+<a class="font-button text-button text-on-surface-variant dark:text-outline-variant hover:text-primary transition-colors" href="#">Enquiries</a>
+</nav>
+<!-- Trailing Action -->
+<div class="flex items-center gap-4">
+<a class="hidden md:block font-button text-button text-on-surface-variant dark:text-outline-variant hover:text-primary transition-colors" href="#">Customer ▾</a>
+<a class="md:hidden font-button text-button text-on-surface-variant hover:opacity-80 transition-opacity" href="#">Customer ▾</a>
+</div>
+</div>
+</header>
+<!-- Main Canvas -->
+<main class="flex-grow pt-[80px] pb-[100px] md:pb-lg w-full max-w-container-max mx-auto px-4 md:px-gutter">
+<!-- Hero Section -->
+<section class="flex flex-col items-center text-center py-lg md:py-xl max-w-2xl mx-auto">
+<!-- Metadata Badges -->
+<div class="flex items-center gap-3 mb-6">
+<span class="bg-secondary text-on-secondary font-label-caps text-label-caps uppercase tracking-widest px-3 py-1.5 rounded-full flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">lock</span>
+                    Private
+                </span>
+<span class="text-on-surface-variant font-label-caps text-label-caps uppercase tracking-widest">
+                    10 JANUARY 2027
+                </span>
+<span class="text-outline hidden sm:inline-block">•</span>
+<span class="text-on-surface-variant font-label-caps text-label-caps uppercase tracking-widest hidden sm:inline-block">
+                    1,240 Photos
+                </span>
+</div>
+<!-- Title & Context -->
+<p class="font-body-md text-body-md text-secondary mb-2 uppercase tracking-widest">Aarav &amp; Ananya Wedding</p>
+<h1 class="font-display-hero-mobile text-display-hero-mobile md:font-display-hero md:text-display-hero text-primary mb-8 leading-tight">
+                Your wedding gallery is ready.
+            </h1>
+<!-- Primary Action -->
+<button class="bg-primary text-on-primary font-button text-button rounded py-4 px-8 w-full sm:w-auto hover:bg-primary-container hover:shadow-[0px_10px_30px_rgba(74,14,14,0.05)] transition-all duration-300 active:scale-95">
+                Open gallery
+            </button>
+</section>
+<!-- Highlight Film Card -->
+<section class="mb-lg md:mb-xl">
+<div class="group relative w-full aspect-video md:aspect-[21/9] rounded-xl overflow-hidden bg-surface-variant border border-outline-variant/50 cursor-pointer shadow-sm hover:shadow-[0px_10px_30px_rgba(74,14,14,0.1)] transition-all duration-500">
+<!-- Background Image (Placeholder) -->
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105" data-alt="Cinematic wide shot of a traditional Indian wedding ceremony under a floral mandap at sunset, rich burgundy and gold tones, soft warm lighting, high-end editorial wedding cinematography style." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBfYJoHL9mxfCwCbxzA9QXrHo6ozLwWsiMvzm-1RK_wmQcgVjAvlwvdEORvceGiPm5PHo2KzpJTXRtGGyajZf2KceG2azLyCoSv4OmYCoIz97cNJZKrlc7IObjqA0H8OhXI9_99cAYUir-Iy3IVtBR8LMcRlKdN0LrY5vl4QLyCIMvL2lkshzlz_5sWNQVGkDkFusYqp-KVJSsgv-eFUz6Ahurg1JqmFMrSaU1k7mFmfiMMwageGGDB')"></div>
+<!-- Dark Overlay for contrast -->
+<div class="absolute inset-0 bg-gradient-to-t from-primary/80 via-primary/20 to-transparent"></div>
+<!-- Content -->
+<div class="absolute inset-0 flex flex-col justify-end p-6 md:p-8">
+<div class="flex items-center justify-between">
+<div>
+<p class="font-label-caps text-label-caps text-secondary-fixed uppercase tracking-widest mb-2">Featured</p>
+<h2 class="font-h2 text-h2 text-on-primary">Highlight Film</h2>
+<p class="font-body-md text-body-md text-on-primary/80 mt-1">4:32 mins</p>
+</div>
+<!-- Play Button -->
+<div class="w-14 h-14 rounded-full bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-white group-hover:bg-white group-hover:text-primary transition-colors duration-300">
+<span class="material-symbols-outlined text-[32px]" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Gallery Collections (Bento Grid) -->
+<section class="mb-lg md:mb-xl">
+<div class="flex items-center justify-between mb-8">
+<h3 class="font-h2 text-h2 text-primary">Collections</h3>
+<span class="font-body-md text-body-md text-on-surface-variant">5 Folders</span>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 auto-rows-[200px] md:auto-rows-[280px]">
+<!-- Wedding (Large Card spanning 2 cols/rows) -->
+<div class="group relative col-span-2 row-span-2 rounded-xl overflow-hidden bg-surface-variant border border-outline-variant/50 cursor-pointer shadow-sm hover:shadow-[0px_10px_30px_rgba(74,14,14,0.05)] transition-all duration-300">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105" data-alt="Candid portrait of an Indian bride and groom sharing a laugh during the Phera ceremony, luxurious traditional attire, warm glowing firelight, elegant editorial wedding aesthetic." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuA-paOmNU4Tz89TmuuR4Cs0pPDl4YNjQWfU48IPIz5VYBZJYL5n2cJnwVanYgTORfN1_Vb8zrvz2hIpj0745zthQTw6IZsaJYLSzxmXOuv2hGdYXmF6QH3oKdeN0CvK9eVqw7_6K8ptpG_Yy9MpJxH4seMV_wTbC8aIm6ipKOmaT2hky3iTk8P7wKGnOhvsgy7C_J33vTMyFgD-VBbYLTsD9hBccotQ-mcR-HHgqNw63mmy99tZRymJ')"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-primary-container/90 via-primary-container/20 to-transparent"></div>
+<div class="absolute bottom-0 left-0 p-6 w-full flex justify-between items-end">
+<div>
+<h4 class="font-h1 text-h1 text-on-primary mb-1">Wedding</h4>
+<p class="font-body-md text-body-md text-on-primary/80">452 items</p>
+</div>
+<div class="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 translate-y-2 group-hover:translate-y-0">
+<span class="material-symbols-outlined">arrow_forward</span>
+</div>
+</div>
+</div>
+<!-- Mehndi -->
+<div class="group relative rounded-xl overflow-hidden bg-surface-variant border border-outline-variant/50 cursor-pointer shadow-sm hover:shadow-[0px_10px_30px_rgba(74,14,14,0.05)] transition-all duration-300">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105" data-alt="Close up of intricate bridal Mehndi design on hands, surrounded by colorful marigold flowers, vibrant modern Indian wedding setting, soft natural daylight, shallow depth of field." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCGgUIL9er5XgclWp6FDSxME0_wlQOKpWsHWRuvdtxD0zDDBbHwor60t1CULgr7uzP86uonDpvrP4L-FhS2PJm9KDDoOF7i9M97l1OY7HQ9Bk-4snYLDyN67DdsYujSOTT_DmIVoWurTRw_BeBJ9jicO9aq6HuJHGQBGFlmx8dSvy0c35yToV889DJD0FPCj3-JOjjdxWI5E7q-K61-dSILtbeX4QxMQnsmUjwc8Obe_GHB48-vBTCW')"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-primary-container/80 via-transparent to-transparent"></div>
+<div class="absolute bottom-0 left-0 p-4 w-full">
+<h4 class="font-h2 text-h2 text-on-primary mb-0.5">Mehndi</h4>
+<p class="font-label-caps text-label-caps text-on-primary/80 uppercase">185 items</p>
+</div>
+</div>
+<!-- Sangeet -->
+<div class="group relative rounded-xl overflow-hidden bg-surface-variant border border-outline-variant/50 cursor-pointer shadow-sm hover:shadow-[0px_10px_30px_rgba(74,14,14,0.05)] transition-all duration-300">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105" data-alt="Dynamic action shot of a couple dancing at a glamorous Indian Sangeet night, dramatic stage lighting, rich saturated colors, high energy, premium event photography." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAv0gHVtkOFyoHVL7XeT6z7pgW3ICfDo7DA2jHXlRWP7J5kFac4m5WUnNCdfGTiAK8hrpCXIA097kTZcmuB0cxaTyzR5nvh3risRXMd3YGFdwe6MCmRgNY-ou6opz0fWauASdEv38IUd5YgGCxJXC_c2iUEV3kp5MurtTVxRN1x37u3YVKDrv9oIL6IB278xzjLKcJUhE-ISvtyKwRw-AoypGJtpsWfo8ofi4Zm1NhlyC-yeX-wgv_9')"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-primary-container/80 via-transparent to-transparent"></div>
+<div class="absolute bottom-0 left-0 p-4 w-full">
+<h4 class="font-h2 text-h2 text-on-primary mb-0.5">Sangeet</h4>
+<p class="font-label-caps text-label-caps text-on-primary/80 uppercase">310 items</p>
+</div>
+</div>
+<!-- Reception -->
+<div class="group relative rounded-xl overflow-hidden bg-surface-variant border border-outline-variant/50 cursor-pointer shadow-sm hover:shadow-[0px_10px_30px_rgba(74,14,14,0.05)] transition-all duration-300">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105" data-alt="Elegant wide shot of a lavish Indian wedding reception hall, crystal chandeliers, warm ivory and gold decor, sophisticated premium event design, soft ambient lighting." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCr3rAmDOIOd6U-_KZ1GpICgslW3wyxDb0anL2xgJhBAUJYO9NmcuzvuSdUZxWKk7On8KptQFAjND7ZKHmC0aTbyGEEb29pTUE2SbVKsIOwXXp3V0MCeT7ENrgAlp-cM42B_WNcMXrrHIVgwYwgaPAdCvKAW2kP9q40y6s4J6BFI3tccrYDzaynf0DsLmGbtY7xBo02nfX4cZxfJMr0PN537wIhhdRmCEt4MzbdtO1hs38WsCUTEa-P')"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-primary-container/80 via-transparent to-transparent"></div>
+<div class="absolute bottom-0 left-0 p-4 w-full">
+<h4 class="font-h2 text-h2 text-on-primary mb-0.5">Reception</h4>
+<p class="font-label-caps text-label-caps text-on-primary/80 uppercase">245 items</p>
+</div>
+</div>
+<!-- Family Favourites -->
+<div class="group relative rounded-xl overflow-hidden bg-surface-variant border border-outline-variant/50 cursor-pointer shadow-sm hover:shadow-[0px_10px_30px_rgba(74,14,14,0.05)] transition-all duration-300">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105" data-alt="Heartwarming candid photo of an extended Indian family laughing together at a wedding celebration, vibrant traditional clothing, joyous atmosphere, soft bright lighting." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBTL2Ja5Z9zgiplcSi5Mqs9NxyJqeqHlQdWSgus5dcjN6LCvBmP4cnzJyUFaeZX3jjkjJlUYeHeIfLh5lqx2fvnFMQUnEJz551t9Ty9WitRDlfFeJVHnL2AYaK79j7f94twZ7dpuFomKkSxuWupu6e0MK-0ZsyuQmr1x--GHMkK_ACz2AvBYdiAH_8bwNBn_BdSUUZb1Lgm--eqZcb4fzxE4S3O2rBUtRIf6F4VOwivP_3Tyj4B95Y4')"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-primary-container/80 via-transparent to-transparent"></div>
+<div class="absolute bottom-0 left-0 p-4 w-full">
+<h4 class="font-h2 text-h2 text-on-primary mb-0.5">Family</h4>
+<p class="font-label-caps text-label-caps text-on-primary/80 uppercase">48 items</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Secondary Actions (List Format) -->
+<section class="max-w-2xl mx-auto bg-surface-container-lowest rounded-xl border border-outline-variant/30 overflow-hidden shadow-sm">
+<a class="flex items-center p-6 border-b border-outline-variant/30 hover:bg-surface-container-low transition-colors group" href="#">
+<div class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center text-primary mr-4 group-hover:bg-primary-container group-hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">download</span>
+</div>
+<div class="flex-grow">
+<h5 class="font-button text-button text-on-surface mb-1">Download selected</h5>
+<p class="font-body-md text-[14px] text-on-surface-variant leading-snug">Save high-resolution images to your device</p>
+</div>
+<span class="material-symbols-outlined text-outline-variant group-hover:text-primary transition-colors">chevron_right</span>
+</a>
+<a class="flex items-center p-6 border-b border-outline-variant/30 hover:bg-surface-container-low transition-colors group" href="#">
+<div class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center text-primary mr-4 group-hover:bg-primary-container group-hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">share</span>
+</div>
+<div class="flex-grow">
+<h5 class="font-button text-button text-on-surface mb-1">Manage sharing</h5>
+<p class="font-body-md text-[14px] text-on-surface-variant leading-snug">Control who has access to this gallery</p>
+</div>
+<span class="material-symbols-outlined text-outline-variant group-hover:text-primary transition-colors">chevron_right</span>
+</a>
+<a class="flex items-center p-6 hover:bg-surface-container-low transition-colors group" href="#">
+<div class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center text-primary mr-4 group-hover:bg-primary-container group-hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">chat_bubble</span>
+</div>
+<div class="flex-grow">
+<h5 class="font-button text-button text-on-surface mb-1">Message Mee Events</h5>
+<p class="font-body-md text-[14px] text-on-surface-variant leading-snug">Request edits or discuss physical albums</p>
+</div>
+<span class="material-symbols-outlined text-outline-variant group-hover:text-primary transition-colors">chevron_right</span>
+</a>
+</section>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 w-full z-50 rounded-t-xl bg-surface-container-lowest dark:bg-surface-container-low border-t border-outline-variant/30 shadow-sm fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pt-base pb-safe">
+<!-- Home -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors Active: opacity-70 transition-opacity w-16 py-2" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 0;">home</span>
+<span class="font-label-caps text-label-caps uppercase tracking-widest text-[10px]">Home</span>
+</a>
+<!-- Explore -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors Active: opacity-70 transition-opacity w-16 py-2" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 0;">explore</span>
+<span class="font-label-caps text-label-caps uppercase tracking-widest text-[10px]">Explore</span>
+</a>
+<!-- Plan (ACTIVE) -->
+<a class="flex flex-col items-center justify-center text-primary dark:text-primary-fixed-dim relative after:content-[''] after:w-1 after:h-1 after:bg-secondary after:rounded-full after:mt-1 hover:text-primary dark:hover:text-primary-fixed-dim transition-colors Active: opacity-70 transition-opacity w-16 py-2" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">event_note</span>
+<span class="font-label-caps text-label-caps uppercase tracking-widest text-[10px]">Plan</span>
+</a>
+<!-- Enquiries -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors Active: opacity-70 transition-opacity w-16 py-2" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 0;">chat_bubble</span>
+<span class="font-label-caps text-label-caps uppercase tracking-widest text-[10px]">Enquiries</span>
+</a>
+<!-- Profile -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors Active: opacity-70 transition-opacity w-16 py-2" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 0;">person</span>
+<span class="font-label-caps text-label-caps uppercase tracking-widest text-[10px]">Profile</span>
+</a>
+</nav>
+</body></html>

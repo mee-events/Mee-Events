@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Hyderabad Events - Home</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&amp;family=Be+Vietnam+Pro:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                            "primary-container": "#c45100",
+                            "surface-bright": "#f7f9ff",
+                            "inverse-surface": "#2d3135",
+                            "surface-container-low": "#f1f4f9",
+                            "on-primary": "#ffffff",
+                            "surface-container-high": "#e5e8ee",
+                            "inverse-on-surface": "#eef1f6",
+                            "on-tertiary-container": "#fffbff",
+                            "tertiary-fixed": "#ffdcc4",
+                            "secondary-container": "#ff6b68",
+                            "on-secondary-fixed": "#410005",
+                            "on-error": "#ffffff",
+                            "on-tertiary": "#ffffff",
+                            "tertiary-fixed-dim": "#ffb780",
+                            "on-primary-fixed-variant": "#7a3000",
+                            "surface-container-lowest": "#ffffff",
+                            "on-surface": "#181c20",
+                            "on-error-container": "#93000a",
+                            "secondary-fixed": "#ffdad7",
+                            "secondary-fixed-dim": "#ffb3ae",
+                            "error-container": "#ffdad6",
+                            "outline-variant": "#e0c0b2",
+                            "primary-fixed-dim": "#ffb693",
+                            "surface-container-highest": "#e0e3e8",
+                            "on-secondary": "#ffffff",
+                            "tertiary": "#8b4c11",
+                            "secondary": "#ad3031",
+                            "on-secondary-fixed-variant": "#8c161d",
+                            "on-surface-variant": "#584238",
+                            "on-primary-fixed": "#351000",
+                            "inverse-primary": "#ffb693",
+                            "background": "#f7f9ff",
+                            "surface-tint": "#a04100",
+                            "surface": "#f7f9ff",
+                            "tertiary-container": "#a96428",
+                            "outline": "#8c7166",
+                            "error": "#ba1a1a",
+                            "on-secondary-container": "#6d000d",
+                            "on-primary-container": "#fffbff",
+                            "surface-container": "#ebeef3",
+                            "surface-dim": "#d7dadf",
+                            "on-tertiary-fixed-variant": "#6f3800",
+                            "on-background": "#181c20",
+                            "primary-fixed": "#ffdbcc",
+                            "primary": "#9c3f00",
+                            "on-tertiary-fixed": "#2f1400",
+                            "surface-variant": "#e0e3e8"
+                    },
+                    "borderRadius": {
+                            "DEFAULT": "0.25rem",
+                            "lg": "0.5rem",
+                            "xl": "0.75rem",
+                            "full": "9999px"
+                    },
+                    "spacing": {
+                            "xs": "4px",
+                            "md": "24px",
+                            "gutter": "24px",
+                            "margin-desktop": "64px",
+                            "margin-mobile": "20px",
+                            "base": "8px",
+                            "lg": "48px",
+                            "sm": "12px",
+                            "xl": "80px"
+                    },
+                    "fontFamily": {
+                            "display-lg": ["Plus Jakarta Sans"],
+                            "headline-md": ["Plus Jakarta Sans"],
+                            "headline-lg-mobile": ["Plus Jakarta Sans"],
+                            "label-md": ["Be Vietnam Pro"],
+                            "body-md": ["Be Vietnam Pro"],
+                            "label-sm": ["Be Vietnam Pro"],
+                            "headline-lg": ["Plus Jakarta Sans"],
+                            "body-lg": ["Be Vietnam Pro"]
+                    },
+                    "fontSize": {
+                            "display-lg": ["56px", {"lineHeight": "64px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                            "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                            "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "600"}],
+                            "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                            "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                            "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                            "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                            "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { background-color: #f7f9ff; } /* Matches surface-bright */
+        .glass-panel { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); border: 1px solid rgba(196, 81, 0, 0.05); }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="text-on-surface antialiased pb-24 md:pb-0">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-surface dark:bg-on-surface flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop h-14 flat no shadows md:shadow-sm transition-all duration-300">
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-primary dark:text-primary-fixed-dim" data-icon="location_on" data-weight="fill" style="font-variation-settings: 'FILL' 1;">location_on</span>
+<span class="font-label-md text-label-md text-on-surface-variant hidden md:inline">Banjara Hills, Hyderabad</span>
+</div>
+<h1 class="font-headline-md text-headline-md md:font-headline-lg md:text-headline-lg text-primary-container dark:text-primary-fixed tracking-tight absolute left-1/2 transform -translate-x-1/2">
+            Hyderabad Events
+        </h1>
+<div class="flex items-center gap-md">
+<!-- Desktop Nav Items -->
+<nav class="hidden md:flex items-center gap-md">
+<a class="text-primary dark:text-primary-fixed font-bold font-label-md text-label-md hover:opacity-80 transition-opacity" href="#">Home</a>
+<a class="text-on-surface-variant dark:text-outline-variant font-label-md text-label-md hover:opacity-80 transition-opacity" href="#">Explore</a>
+<a class="text-on-surface-variant dark:text-outline-variant font-label-md text-label-md hover:opacity-80 transition-opacity" href="#">Plan</a>
+<a class="text-on-surface-variant dark:text-outline-variant font-label-md text-label-md hover:opacity-80 transition-opacity" href="#">Enquiries</a>
+<a class="text-on-surface-variant dark:text-outline-variant font-label-md text-label-md hover:opacity-80 transition-opacity" href="#">Account</a>
+</nav>
+<button class="hover:opacity-80 transition-opacity text-primary dark:text-primary-fixed-dim">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="pt-20 px-margin-mobile md:px-margin-desktop max-w-[1440px] mx-auto min-h-screen flex flex-col gap-xl">
+<!-- Welcome & Date Header -->
+<section class="mt-md text-center flex flex-col items-center gap-xs">
+<p class="font-label-md text-label-md text-tertiary-container uppercase tracking-widest">Nov 2024</p>
+<h2 class="font-display-lg text-display-lg text-on-surface tracking-tight">Namaste, Arjun.</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mt-sm">Crafting unforgettable moments in the heart of Hyderabad. Elegance, tradition, and impeccable service await.</p>
+</section>
+<!-- Hero Section -->
+<section class="w-full relative h-[530px] min-h-[400px] rounded-xl overflow-hidden shadow-sm">
+<div class="absolute inset-0 bg-cover bg-center w-full h-full transform hover:scale-105 transition-transform duration-1000" data-alt="A cinematic, wide-angle shot of a luxurious Indian wedding reception taking place in a grand heritage palace courtyard at twilight in Hyderabad. The scene features warm, glowing ambient lighting from numerous hanging lanterns and brass lamps, illuminating elegant floral arrangements in marigold and muted gold. Guests are subtly blurred in the background, focusing on the opulent architectural details and the warm, celebratory minimal aesthetic. Soft shadows and rich tones convey a sense of high-end luxury and tradition." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCuSlDgG-v9FNTZROElx5XnXemEjV3R8ql9EfQqsGdbNI2Qs5B19T7cZnX4hlpnXieAcLWNq6LAe_OBihhfekDRDmTlRjmSk8FSOPbbiwSubpSSJgbGPwz78-6KBtuMVxdH5yFSsBKDcB7QowZa_ASE8rlH00onRLNADp4VaYKzMr7FDwpILB1dvy8h7eg3wa1yHAuuc5THroBuXbciKFhpdBOV6Ea3bYHqZxmcgOTg_7EjzJNLi9F0')"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-on-surface/80 via-on-surface/30 to-transparent"></div>
+<div class="absolute bottom-0 left-0 w-full p-lg flex flex-col md:flex-row items-end justify-between gap-md">
+<div class="max-w-lg">
+<h3 class="font-headline-lg text-headline-lg text-on-primary mb-xs">Bespoke Celebrations</h3>
+<p class="font-body-md text-body-md text-surface-container-low opacity-90 mb-md">Tailored experiences designed with precision, blending modern luxury with timeless cultural richness.</p>
+</div>
+<button class="bg-primary text-on-primary font-label-md text-label-md px-8 py-4 rounded-full hover:bg-primary-container transition-colors shadow-sm whitespace-nowrap flex items-center gap-xs">
+                    Begin Your Journey
+                    <span class="material-symbols-outlined text-sm" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+</section>
+<!-- Bento Grid: Occasions & Services -->
+<section class="grid grid-cols-1 md:grid-cols-12 gap-md">
+<!-- Signature Collection (Spans 8 columns on md) -->
+<div class="md:col-span-8 bg-surface-container-lowest rounded-xl p-lg flex flex-col justify-between relative overflow-hidden group shadow-sm border border-primary-container/5">
+<div class="relative z-10 max-w-md">
+<span class="inline-block bg-tertiary/10 text-tertiary font-label-sm text-label-sm px-3 py-1 rounded-full mb-sm">Curated</span>
+<h3 class="font-headline-lg text-headline-lg text-on-surface mb-xs">The Signature Collection</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-md">Our most sought-after event packages, featuring exclusive venues in Jubilee and Banjara Hills, complete with elite culinary curation.</p>
+<a class="inline-flex items-center gap-xs font-label-md text-label-md text-primary hover:text-primary-container transition-colors" href="#">
+                        Explore Collection <span class="material-symbols-outlined text-sm" data-icon="arrow_right_alt">arrow_right_alt</span>
+</a>
+</div>
+<div class="absolute right-0 bottom-0 w-1/2 h-full opacity-10 group-hover:opacity-20 transition-opacity pointer-events-none">
+<span class="material-symbols-outlined text-[200px] text-tertiary translate-x-1/4 translate-y-1/4" data-icon="auto_awesome">auto_awesome</span>
+</div>
+</div>
+<!-- Focus: Wedding (Spans 4 columns) -->
+<div class="md:col-span-4 bg-surface-container-highest rounded-xl overflow-hidden relative shadow-sm h-64 md:h-auto">
+<div class="absolute inset-0 bg-cover bg-center w-full h-full" data-alt="A close-up, highly detailed shot of intricate bridal henna (mehndi) on hands, resting against a rich, deeply textured maroon silk fabric embroidered with muted gold thread. The lighting is soft and natural, emphasizing the tactile warmth and traditional elegance of the Indian wedding preparation rituals. The composition is clean and minimalist, focusing purely on the textures and cultural richness without clutter, adhering to a sophisticated editorial style." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBU1m26b9KluvcgFhug-htaq6pEtfIyIEnnkUTmNwX3A7-__Np8NaXEhzs6oWdX15b67TDkhSfg19bmo1k-_Vd2lHz1ikT48vGFfx7gGtx5dTe-6s0MzIhsXAvS9UWRBjtCa0yk2caYWhFPNrhmBWQQOOPz98eDizbKH9RH3BiNMqi_3Tlvcn6K7RZDVeICY9A34vSt2OXNHB3kPD7lrMOUgtLxMiiBLwcLrIcHP0Ny8K24FnMhuEiz')"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-on-surface/90 to-transparent"></div>
+<div class="absolute bottom-0 left-0 p-md w-full">
+<h4 class="font-headline-md text-headline-md text-on-primary">Weddings</h4>
+<p class="font-label-sm text-label-sm text-surface-container-low opacity-80 uppercase tracking-widest mt-xs">Grandeur &amp; Tradition</p>
+</div>
+</div>
+<!-- Services List (Spans 6 columns) -->
+<div class="md:col-span-6 bg-surface-container-lowest rounded-xl p-lg shadow-sm border border-primary-container/5">
+<h3 class="font-headline-md text-headline-md text-on-surface mb-md">Our Services</h3>
+<ul class="space-y-4">
+<li class="flex items-start gap-sm pb-4 border-b border-surface-container-high last:border-0 last:pb-0">
+<span class="material-symbols-outlined text-secondary mt-1" data-icon="restaurant">restaurant</span>
+<div>
+<h5 class="font-label-md text-label-md text-on-surface">Royal Awadhi Catering</h5>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm mt-1">Authentic culinary experiences crafted by heritage chefs.</p>
+</div>
+</li>
+<li class="flex items-start gap-sm pb-4 border-b border-surface-container-high last:border-0 last:pb-0">
+<span class="material-symbols-outlined text-secondary mt-1" data-icon="styler">styler</span>
+<div>
+<h5 class="font-label-md text-label-md text-on-surface">Bespoke Decor &amp; Floral</h5>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm mt-1">Transforming spaces with exotic blooms and custom styling.</p>
+</div>
+</li>
+<li class="flex items-start gap-sm">
+<span class="material-symbols-outlined text-secondary mt-1" data-icon="stadium">stadium</span>
+<div>
+<h5 class="font-label-md text-label-md text-on-surface">Venue Scouting</h5>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm mt-1">Access to exclusive palaces and private estates in Hyderabad.</p>
+</div>
+</li>
+</ul>
+</div>
+<!-- Minimalist Promo (Spans 6 columns) -->
+<div class="md:col-span-6 rounded-xl overflow-hidden relative shadow-sm border border-primary-container/5 bg-tertiary-fixed flex items-center justify-center p-xl text-center">
+<div class="max-w-sm">
+<span class="material-symbols-outlined text-tertiary text-4xl mb-sm" data-icon="workspace_premium">workspace_premium</span>
+<h3 class="font-headline-md text-headline-md text-on-tertiary-fixed mb-xs">Platinum Members</h3>
+<p class="font-body-md text-body-md text-on-tertiary-fixed-variant mb-md">Unlock priority booking and complimentary styling consultations for your next milestone.</p>
+<button class="bg-transparent border-[1.5px] border-tertiary text-tertiary font-label-md text-label-md px-6 py-2 rounded-full hover:bg-tertiary/5 transition-colors">
+                        Learn More
+                    </button>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="w-full py-xl px-margin-mobile flex flex-col items-center gap-md text-center bg-surface-container-low dark:bg-surface-container-highest mt-xl flat no shadows">
+<h2 class="font-headline-lg text-headline-lg text-primary">Hyderabad Events</h2>
+<div class="flex flex-wrap justify-center gap-md">
+<a class="font-label-sm text-label-sm text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors" href="#">Support</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors" href="#">Privacy Policy</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors" href="#">Terms of Service</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors" href="#">Contact Us</a>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant mt-sm">© 2024 Hyderabad Premium Events. All rights reserved.</p>
+</footer>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-2 py-3 bg-surface-container-lowest dark:bg-inverse-surface shadow-[0_-4px_20px_0_rgba(160,65,0,0.05)] rounded-t-xl">
+<a class="flex flex-col items-center justify-center text-primary dark:text-primary-fixed bg-primary-fixed/20 rounded-full px-4 py-1 scale-90 transition-all duration-300" href="#">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-label-sm text-label-sm mt-1">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant opacity-70 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="search">search</span>
+<span class="font-label-sm text-label-sm mt-1 hidden">Explore</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant opacity-70 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="calendar_today">calendar_today</span>
+<span class="font-label-sm text-label-sm mt-1 hidden">Plan</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant opacity-70 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="chat_bubble">chat_bubble</span>
+<span class="font-label-sm text-label-sm mt-1 hidden">Enquiries</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant opacity-70 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-label-sm text-label-sm mt-1 hidden">Account</span>
+</a>
+</nav>
+</body></html>

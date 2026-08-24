@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Accessibility Preferences - Mee Events</title>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@500;600&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Theme Configuration -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "primary-fixed-dim": "#ffb3ad",
+                    "primary-fixed": "#ffdad7",
+                    "on-error": "#ffffff",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-bright": "#fcf9f8",
+                    "tertiary-fixed-dim": "#c8c6c2",
+                    "on-primary": "#ffffff",
+                    "secondary-fixed-dim": "#e9c176",
+                    "primary-container": "#4a0e0e",
+                    "secondary-fixed": "#ffdea5",
+                    "outline-variant": "#dac1bf",
+                    "surface-variant": "#e5e2e1",
+                    "on-primary-container": "#cc726d",
+                    "on-tertiary-container": "#8c8c88",
+                    "on-secondary-container": "#785a1a",
+                    "tertiary": "#0f100d",
+                    "surface-tint": "#954742",
+                    "on-tertiary-fixed": "#1b1c19",
+                    "background": "#fcf9f8",
+                    "inverse-surface": "#313030",
+                    "surface-container-high": "#eae7e7",
+                    "on-tertiary": "#ffffff",
+                    "tertiary-container": "#242522",
+                    "on-secondary-fixed": "#261900",
+                    "error": "#ba1a1a",
+                    "on-surface": "#1c1b1b",
+                    "tertiary-fixed": "#e4e2dd",
+                    "surface": "#fcf9f8",
+                    "on-secondary-fixed-variant": "#5d4201",
+                    "on-surface-variant": "#544341",
+                    "on-secondary": "#ffffff",
+                    "surface-dim": "#dcd9d9",
+                    "inverse-on-surface": "#f3f0ef",
+                    "on-background": "#1c1b1b",
+                    "error-container": "#ffdad6",
+                    "on-primary-fixed": "#3d0506",
+                    "outline": "#877270",
+                    "secondary": "#775a19",
+                    "on-primary-fixed-variant": "#77302d",
+                    "surface-container": "#f0eded",
+                    "on-tertiary-fixed-variant": "#474744",
+                    "on-error-container": "#93000a",
+                    "surface-container-highest": "#e5e2e1",
+                    "secondary-container": "#fed488",
+                    "surface-container-low": "#f6f3f2",
+                    "inverse-primary": "#ffb3ad",
+                    "primary": "#2a0002"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "md": "24px",
+                    "xs": "4px",
+                    "sm": "12px",
+                    "base": "8px",
+                    "container-max": "1280px",
+                    "xl": "80px",
+                    "gutter": "24px",
+                    "lg": "48px"
+            },
+            "fontFamily": {
+                    "h1": [
+                            "Manrope"
+                    ],
+                    "display-hero": [
+                            "EB Garamond"
+                    ],
+                    "body-lg": [
+                            "Manrope"
+                    ],
+                    "h2": [
+                            "Manrope"
+                    ],
+                    "body-md": [
+                            "Manrope"
+                    ],
+                    "label-caps": [
+                            "Manrope"
+                    ],
+                    "display-hero-mobile": [
+                            "EB Garamond"
+                    ],
+                    "button": [
+                            "Manrope"
+                    ]
+            },
+            "fontSize": {
+                    "h1": [
+                            "32px",
+                            {
+                                    "lineHeight": "1.3",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "display-hero": [
+                            "48px",
+                            {
+                                    "lineHeight": "1.1",
+                                    "letterSpacing": "-0.02em",
+                                    "fontWeight": "500"
+                            }
+                    ],
+                    "body-lg": [
+                            "18px",
+                            {
+                                    "lineHeight": "1.6",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "h2": [
+                            "24px",
+                            {
+                                    "lineHeight": "1.4",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "body-md": [
+                            "16px",
+                            {
+                                    "lineHeight": "1.6",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "label-caps": [
+                            "12px",
+                            {
+                                    "lineHeight": "1",
+                                    "letterSpacing": "0.05em",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "display-hero-mobile": [
+                            "36px",
+                            {
+                                    "lineHeight": "1.2",
+                                    "fontWeight": "500"
+                            }
+                    ],
+                    "button": [
+                            "14px",
+                            {
+                                    "lineHeight": "1",
+                                    "fontWeight": "600"
+                            }
+                    ]
+            }
+    },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: theme('colors.background');
+            color: theme('colors.on-surface');
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        /* Custom Checkbox & Radio Styles */
+        .form-checkbox:checked, .form-radio:checked {
+            background-color: theme('colors.primary');
+            border-color: theme('colors.primary');
+        }
+        .form-checkbox:checked:hover, .form-checkbox:checked:focus,
+        .form-radio:checked:hover, .form-radio:checked:focus {
+            background-color: theme('colors.primary-fixed-variant');
+            border-color: theme('colors.primary-fixed-variant');
+        }
+        
+        /* Toggle Switch */
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: theme('colors.primary');
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: theme('colors.primary');
+        }
+        
+        /* Hide scrollbar for clean aesthetic */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: theme('colors.surface-dim');
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: theme('colors.outline-variant');
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="flex flex-col min-h-screen pb-24 md:pb-0 pt-16 md:pt-20">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-surface dark:bg-surface-dim border-b border-outline-variant shadow-sm md:shadow-none transition-colors duration-300">
+<div class="flex justify-between items-center w-full px-md h-16 max-w-container-max mx-auto">
+<div class="flex items-center gap-sm">
+<button aria-label="Menu" class="md:hidden text-primary dark:text-primary-fixed-dim hover:text-secondary transition-colors duration-200">
+<span class="material-symbols-outlined" data-icon="menu">menu</span>
+</button>
+<a class="text-h1 font-display-hero-mobile md:font-display-hero text-primary dark:text-primary-fixed-dim tracking-tight" href="#">Mee Events</a>
+</div>
+<!-- Desktop Navigation -->
+<nav class="hidden md:flex items-center gap-lg">
+<a class="text-on-surface-variant dark:text-on-surface-variant hover:text-secondary transition-colors duration-200 font-label-caps text-label-caps flex items-center gap-xs" href="#">
+<span class="material-symbols-outlined text-[18px]">home</span>
+                    Home
+                </a>
+<a class="text-on-surface-variant dark:text-on-surface-variant hover:text-secondary transition-colors duration-200 font-label-caps text-label-caps flex items-center gap-xs" href="#">
+<span class="material-symbols-outlined text-[18px]">search</span>
+                    Explore
+                </a>
+<a class="text-on-surface-variant dark:text-on-surface-variant hover:text-secondary transition-colors duration-200 font-label-caps text-label-caps flex items-center gap-xs" href="#">
+<span class="material-symbols-outlined text-[18px]">event_note</span>
+                    Plan
+                </a>
+<a class="text-on-surface-variant dark:text-on-surface-variant hover:text-secondary transition-colors duration-200 font-label-caps text-label-caps flex items-center gap-xs" href="#">
+<span class="material-symbols-outlined text-[18px]">chat_bubble</span>
+                    Enquiries
+                </a>
+<a class="text-secondary dark:text-secondary-fixed font-bold font-label-caps text-label-caps flex items-center gap-xs relative after:content-[''] after:absolute after:-bottom-2 after:left-1/2 after:-translate-x-1/2 after:w-1 after:h-1 after:bg-secondary after:rounded-full" href="#">
+<span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">person</span>
+                    Profile
+                </a>
+</nav>
+<div class="flex items-center">
+<button class="text-primary dark:text-primary-fixed-dim hover:text-secondary transition-colors duration-200 font-button text-button flex items-center gap-xs">
+                    Customer ▾
+                </button>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-grow w-full max-w-container-max mx-auto px-md md:px-lg py-lg md:py-xl">
+<div class="max-w-3xl mx-auto">
+<!-- Header Section -->
+<div class="mb-lg">
+<a class="inline-flex items-center gap-xs text-on-surface-variant hover:text-primary transition-colors mb-sm text-button font-button" href="#">
+<span class="material-symbols-outlined text-[20px]">arrow_back</span>
+                    Back to Settings
+                </a>
+<h1 class="text-display-hero-mobile md:text-display-hero font-display-hero-mobile md:font-display-hero text-primary mb-sm">Accessibility</h1>
+<p class="text-body-md font-body-md text-on-surface-variant">Customize your experience to best suit your needs. We are committed to making Mee Events welcoming for everyone.</p>
+</div>
+<form class="space-y-lg">
+<!-- Notice Banner -->
+<div class="bg-surface-container-low border border-outline-variant rounded-xl p-md flex items-start gap-md shadow-sm">
+<div class="text-secondary shrink-0 mt-1">
+<span class="material-symbols-outlined" data-weight="fill" style="font-variation-settings: 'FILL' 1;">info</span>
+</div>
+<div>
+<h3 class="text-h2 font-h2 text-on-surface mb-xs">Important Information</h3>
+<p class="text-body-md font-body-md text-on-surface-variant">Adjusting these accessibility preferences will not affect your account eligibility, event bookings, or marketing preferences in any way.</p>
+</div>
+</div>
+<!-- Vision & Display Options -->
+<section class="bg-surface border border-outline-variant rounded-xl p-md md:p-lg shadow-sm">
+<h2 class="text-h2 font-h2 text-primary mb-md pb-xs border-b border-surface-variant">Vision &amp; Display</h2>
+<div class="space-y-md">
+<!-- Theme Selection -->
+<div>
+<label class="block text-label-caps font-label-caps text-on-surface-variant uppercase tracking-wider mb-sm">Theme Appearance</label>
+<div class="grid grid-cols-3 gap-sm">
+<label class="relative cursor-pointer">
+<input checked="" class="peer sr-only" name="theme" type="radio" value="light"/>
+<div class="rounded-lg border border-outline-variant p-sm text-center peer-checked:bg-surface-container-low peer-checked:border-secondary peer-checked:ring-1 peer-checked:ring-secondary transition-all">
+<span class="material-symbols-outlined block mx-auto mb-xs text-on-surface-variant peer-checked:text-secondary">light_mode</span>
+<span class="text-button font-button text-on-surface">Light</span>
+</div>
+</label>
+<label class="relative cursor-pointer">
+<input class="peer sr-only" name="theme" type="radio" value="dark"/>
+<div class="rounded-lg border border-outline-variant p-sm text-center peer-checked:bg-surface-container-low peer-checked:border-secondary peer-checked:ring-1 peer-checked:ring-secondary transition-all">
+<span class="material-symbols-outlined block mx-auto mb-xs text-on-surface-variant peer-checked:text-secondary">dark_mode</span>
+<span class="text-button font-button text-on-surface">Dark</span>
+</div>
+</label>
+<label class="relative cursor-pointer">
+<input class="peer sr-only" name="theme" type="radio" value="device"/>
+<div class="rounded-lg border border-outline-variant p-sm text-center peer-checked:bg-surface-container-low peer-checked:border-secondary peer-checked:ring-1 peer-checked:ring-secondary transition-all">
+<span class="material-symbols-outlined block mx-auto mb-xs text-on-surface-variant peer-checked:text-secondary">settings_system_daydream</span>
+<span class="text-button font-button text-on-surface">Device</span>
+</div>
+</label>
+</div>
+</div>
+<!-- Text Size -->
+<div>
+<label class="block text-label-caps font-label-caps text-on-surface-variant uppercase tracking-wider mb-sm">Text Size</label>
+<div class="bg-surface-bright border border-outline-variant rounded-lg p-sm flex items-center justify-between">
+<span class="text-body-md font-body-md text-on-surface">A</span>
+<input class="w-full mx-md accent-primary h-1 bg-surface-variant rounded-lg appearance-none cursor-pointer" max="3" min="1" type="range" value="2"/>
+<span class="text-h2 font-h2 text-on-surface">A</span>
+</div>
+<div class="flex justify-between text-label-caps font-label-caps text-on-surface-variant mt-xs px-sm">
+<span>Small</span>
+<span>Standard</span>
+<span>Large</span>
+</div>
+</div>
+<hr class="border-surface-variant my-md"/>
+<!-- Toggles -->
+<div class="flex items-center justify-between py-xs">
+<div>
+<span class="block text-body-lg font-body-lg text-on-surface font-semibold">Higher Contrast</span>
+<span class="block text-body-md font-body-md text-on-surface-variant">Increase color contrast for easier reading.</span>
+</div>
+<div class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
+<input class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 border-surface-variant appearance-none cursor-pointer transition-transform duration-200 ease-in-out z-10" id="toggle_contrast" name="toggle_contrast" type="checkbox"/>
+<label class="toggle-label block overflow-hidden h-6 rounded-full bg-surface-variant cursor-pointer" for="toggle_contrast"></label>
+</div>
+</div>
+</div>
+</section>
+<!-- Screen Reader & Interaction -->
+<section class="bg-surface border border-outline-variant rounded-xl p-md md:p-lg shadow-sm">
+<h2 class="text-h2 font-h2 text-primary mb-md pb-xs border-b border-surface-variant">Screen Reader &amp; Interaction</h2>
+<div class="space-y-sm">
+<div class="flex items-center justify-between py-xs border-b border-surface-variant pb-md mb-md">
+<div>
+<span class="block text-body-lg font-body-lg text-on-surface font-semibold">Screen-reader Optimisation</span>
+<span class="block text-body-md font-body-md text-on-surface-variant">Enhance layout and focus states for screen readers.</span>
+</div>
+<div class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
+<input checked="" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 border-surface-variant appearance-none cursor-pointer transition-transform duration-200 ease-in-out z-10" id="toggle_sr" name="toggle_sr" type="checkbox"/>
+<label class="toggle-label block overflow-hidden h-6 rounded-full bg-surface-variant cursor-pointer" for="toggle_sr"></label>
+</div>
+</div>
+<div class="flex items-center justify-between py-xs border-b border-surface-variant pb-md mb-md">
+<div>
+<span class="block text-body-lg font-body-lg text-on-surface font-semibold">Descriptive Labels</span>
+<span class="block text-body-md font-body-md text-on-surface-variant">Show explicit text descriptions alongside icons and images.</span>
+</div>
+<div class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
+<input checked="" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 border-surface-variant appearance-none cursor-pointer transition-transform duration-200 ease-in-out z-10" id="toggle_labels" name="toggle_labels" type="checkbox"/>
+<label class="toggle-label block overflow-hidden h-6 rounded-full bg-surface-variant cursor-pointer" for="toggle_labels"></label>
+</div>
+</div>
+<div class="flex items-center justify-between py-xs border-b border-surface-variant pb-md mb-md">
+<div>
+<span class="block text-body-lg font-body-lg text-on-surface font-semibold">Reduce Motion</span>
+<span class="block text-body-md font-body-md text-on-surface-variant">Minimize animations and transition effects.</span>
+</div>
+<div class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
+<input class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 border-surface-variant appearance-none cursor-pointer transition-transform duration-200 ease-in-out z-10" id="toggle_motion" name="toggle_motion" type="checkbox"/>
+<label class="toggle-label block overflow-hidden h-6 rounded-full bg-surface-variant cursor-pointer" for="toggle_motion"></label>
+</div>
+</div>
+<div class="flex items-center justify-between py-xs">
+<div>
+<span class="block text-body-lg font-body-lg text-on-surface font-semibold">Haptic Feedback</span>
+<span class="block text-body-md font-body-md text-on-surface-variant">Enable subtle vibrations for key interactions (mobile only).</span>
+</div>
+<div class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
+<input checked="" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 border-surface-variant appearance-none cursor-pointer transition-transform duration-200 ease-in-out z-10" id="toggle_haptic" name="toggle_haptic" type="checkbox"/>
+<label class="toggle-label block overflow-hidden h-6 rounded-full bg-surface-variant cursor-pointer" for="toggle_haptic"></label>
+</div>
+</div>
+</div>
+</section>
+<!-- Action Area -->
+<div class="pt-md flex justify-end">
+<button class="bg-primary text-on-primary font-button text-button py-sm px-lg rounded-full hover:bg-primary-container transition-colors shadow-sm active:scale-95" type="button">
+                        Apply preferences
+                    </button>
+</div>
+</form>
+</div>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-sm py-base bg-surface dark:bg-surface-container-low border-t border-outline-variant shadow-lg rounded-t-xl pb-6">
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant gap-xs hover:bg-surface-container-high transition-all p-2 rounded-lg" href="#">
+<span class="material-symbols-outlined text-[24px]">home</span>
+<span class="text-label-caps font-label-caps">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant gap-xs hover:bg-surface-container-high transition-all p-2 rounded-lg" href="#">
+<span class="material-symbols-outlined text-[24px]">search</span>
+<span class="text-label-caps font-label-caps">Explore</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant gap-xs hover:bg-surface-container-high transition-all p-2 rounded-lg" href="#">
+<span class="material-symbols-outlined text-[24px]">event_note</span>
+<span class="text-label-caps font-label-caps">Plan</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant gap-xs hover:bg-surface-container-high transition-all p-2 rounded-lg" href="#">
+<span class="material-symbols-outlined text-[24px]">chat_bubble</span>
+<span class="text-label-caps font-label-caps">Enquiries</span>
+</a>
+<a class="flex flex-col items-center justify-center text-secondary dark:text-secondary-fixed-dim gap-xs scale-95 transition-transform duration-150 p-2" href="#">
+<span class="material-symbols-outlined text-[24px]" style="font-variation-settings: 'FILL' 1;">person</span>
+<span class="text-label-caps font-label-caps">Profile</span>
+</a>
+</nav>
+<script>
+        // Simple script to handle custom toggle switch visual states
+        document.querySelectorAll('.toggle-checkbox').forEach(toggle => {
+            toggle.addEventListener('change', function() {
+                if(this.checked) {
+                    this.classList.replace('bg-white', 'bg-surface-container-lowest');
+                    this.classList.replace('border-surface-variant', 'border-primary');
+                } else {
+                    this.classList.replace('border-primary', 'border-surface-variant');
+                }
+            });
+            // Initial check state
+             if(toggle.checked) {
+                    toggle.classList.replace('border-surface-variant', 'border-primary');
+            }
+        });
+    </script>
+</body></html>

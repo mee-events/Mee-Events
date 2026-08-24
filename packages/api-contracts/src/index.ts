@@ -42,6 +42,26 @@ export interface RefreshSessionResponse {
   readonly accessToken: string;
   readonly refreshToken: string;
   readonly accessTokenExpiresInSeconds: number;
+  readonly activeRole: PlatformRole;
+}
+
+export const mobileSwitchableRoles = [
+  "customer",
+  "vendor_owner",
+  "vendor_member",
+  "worker",
+] as const;
+export type MobileSwitchableRole = (typeof mobileSwitchableRoles)[number];
+
+export const switchRoleSchema = z.object({
+  role: z.enum(mobileSwitchableRoles),
+});
+export type SwitchRoleRequest = z.infer<typeof switchRoleSchema>;
+
+export interface SwitchRoleResponse {
+  readonly accessToken: string;
+  readonly accessTokenExpiresInSeconds: number;
+  readonly activeRole: MobileSwitchableRole;
 }
 
 export interface LogoutResponse {
@@ -60,12 +80,152 @@ export interface EventTypeSummary {
   readonly code: string;
   readonly displayName: string;
   readonly displayOrder: number;
+  readonly kind?: "occasion" | "service_entry";
+  readonly selectionCount?: number;
+  readonly coverImageUrl?: string | null;
+  readonly thumbnailUrl?: string | null;
+  readonly coverAltText?: string | null;
 }
 
 export interface ServiceCategorySummary {
   readonly code: string;
   readonly displayName: string;
   readonly displayOrder: number;
+}
+
+export interface CatalogServiceSummary {
+  readonly code: string;
+  readonly displayName: string;
+  readonly departmentCode: string;
+  readonly entityKind: "service" | "venue" | "inventory" | "travel";
+  readonly displayOrder: number;
+  readonly iconUrl: string | null;
+  readonly coverImageUrl: string | null;
+  readonly thumbnailUrl?: string | null;
+  readonly coverAltText?: string | null;
+  readonly subcategoryCount?: number;
+  readonly productCount?: number;
+}
+
+export interface OccasionStageSummary {
+  readonly code: string;
+  readonly displayName: string;
+  readonly occasionCode: string;
+  readonly typicalDay: string | null;
+  readonly displayOrder: number;
+}
+
+export interface EventSelectionSummary {
+  readonly sourceOrdinal: string;
+  readonly sourceLabel: string;
+  readonly serviceCode: string | null;
+  readonly serviceDisplayName: string | null;
+  readonly mappingStatus: "mapped" | "requires_decision" | "unmapped";
+}
+
+export interface ServiceSubcategorySummary {
+  readonly code: string;
+  readonly letter: string;
+  readonly displayName: string;
+  readonly productCount: number;
+  readonly displayOrder: number;
+  readonly coverImageUrl?: string | null;
+  readonly thumbnailUrl?: string | null;
+  readonly coverAltText?: string | null;
+}
+
+export interface CatalogProductSummary {
+  readonly code: string;
+  readonly displayName: string;
+  readonly serviceCode: string;
+  readonly subcategoryCode: string;
+  readonly subcategoryLetter: string;
+  readonly coverImageUrl: string | null;
+  readonly thumbnailUrl?: string | null;
+  readonly coverAltText?: string | null;
+  readonly restricted: boolean;
+  readonly addToPlanAllowed: boolean;
+  readonly displayOrder: number;
+}
+
+export interface CatalogProductDetail extends CatalogProductSummary {
+  readonly sourceName: string;
+  readonly description: string | null;
+  readonly gallery: readonly string[];
+}
+
+export interface CatalogReviewProduct {
+  readonly code: string;
+  readonly displayName: string;
+  readonly sourceName: string;
+  readonly serviceCode: string;
+  readonly contentStatus:
+    | "source_imported"
+    | "copy_review"
+    | "approved"
+    | "rejected";
+  readonly customerSelectable: boolean;
+  readonly placeholder: boolean;
+  readonly eligibilityFlags: readonly string[];
+}
+
+export const planItemSchema = z.object({
+  productCode: z.string().trim().min(1).max(200),
+  displayName: z.string().trim().min(1).max(200).optional(),
+  serviceCode: z.string().trim().min(1).max(100).optional(),
+});
+export type PlanItemInput = z.infer<typeof planItemSchema>;
+
+export interface PlanItemSnapshot {
+  readonly productCode: string;
+  readonly displayName: string;
+  readonly serviceCode: string;
+  readonly catalogVersion: number;
+}
+
+export const searchResultTypes = [
+  "occasion",
+  "stage",
+  "service",
+  "venue",
+  "category",
+  "package",
+  "vendor",
+  "theme",
+  "offer",
+  "city",
+  "collection",
+  "blog",
+  "faq",
+  "help",
+  "coupon",
+  "artist",
+  "saved",
+  "product",
+  "other",
+] as const;
+export type SearchResultType = (typeof searchResultTypes)[number];
+
+export interface SearchHit {
+  readonly id: string;
+  readonly code: string;
+  readonly type: SearchResultType;
+  readonly name: string;
+  readonly subtitle: string | null;
+  readonly imageUrl: string | null;
+  readonly score: number;
+  readonly parentOccasionCode?: string | null;
+  readonly parentOccasionName?: string | null;
+}
+
+export interface SearchResponse {
+  readonly query: string;
+  readonly results: readonly SearchHit[];
+  readonly nextCursor: string | null;
+}
+
+export interface TrendingSearchesResponse {
+  readonly items: readonly string[];
 }
 
 export const enquiryStatuses = [
@@ -94,10 +254,12 @@ export const createEnquirySchema = z.object({
   budgetMin: z.number().nonnegative().optional(),
   budgetMax: z.number().nonnegative().optional(),
   notes: z.string().trim().max(4000).optional(),
+  preferredExternalVendor: z.string().trim().max(300).optional(),
   serviceCategoryCodes: z
     .array(z.string().trim().min(1).max(100))
     .max(50)
     .default([]),
+  planItems: z.array(planItemSchema).max(100).default([]),
   contactPreference: z.enum(contactPreferences).default("phone"),
 });
 export type CreateEnquiryRequest = z.infer<typeof createEnquirySchema>;
@@ -119,7 +281,9 @@ export interface EnquiryDetailResponse extends EnquirySummary {
   readonly budgetMin?: number;
   readonly budgetMax?: number;
   readonly notes?: string;
+  readonly preferredExternalVendor?: string;
   readonly serviceCategoryCodes: readonly string[];
+  readonly planItems?: readonly PlanItemSnapshot[];
   readonly contactPreference: ContactPreference;
 }
 
@@ -145,21 +309,170 @@ export const leadSources = [
 ] as const;
 export type LeadSource = (typeof leadSources)[number];
 
-export interface LeadSummary {
+/** ISO-8601 timestamp strings returned by the API (timestamptz). */
+const isoDateTimeString = z.string().min(1);
+const isoDateString = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
+
+/**
+ * Lightweight Kanban card payload (`GET /crm/leads`, `GET /leads`).
+ * Matches NestJS lead list/summary projection.
+ */
+export const leadSummaryResponseSchema = z.object({
+  id: z.string().uuid(),
+  enquiryId: z.string().uuid().optional(),
+  enquiryReferenceCode: z.string().min(1).optional(),
+  customerMobile: z.string().min(1),
+  customerName: z.string().min(1).optional(),
+  eventTypeName: z.string().min(1).optional(),
+  eventDate: isoDateString.optional(),
+  status: z.enum(leadStatuses),
+  source: z.enum(leadSources),
+  ownerUserId: z.string().uuid().optional(),
+  firstResponseDueAt: isoDateTimeString.optional(),
+  firstRespondedAt: isoDateTimeString.optional(),
+  createdAt: isoDateTimeString,
+});
+export type LeadSummaryResponse = z.infer<typeof leadSummaryResponseSchema>;
+
+/** Backward-compatible alias used across ERP + CRM modules. */
+export type LeadSummary = LeadSummaryResponse;
+
+/**
+ * Full slide-over / detail payload (`GET /crm/leads/:id`, `GET /leads/:id`).
+ * Includes enquiry cart fields not present on the lightweight summary.
+ */
+export const leadDetailResponseSchema = leadSummaryResponseSchema.extend({
+  location: z.string().min(1).optional(),
+  guestCount: z.number().int().positive().max(1000000).optional(),
+  notes: z.string().max(4000).optional(),
+  preferredExternalVendor: z.string().max(300).optional(),
+  requestedServices: z.array(z.string().min(1)).default([]),
+  updatedAt: isoDateTimeString.optional(),
+});
+export type LeadDetailResponse = z.infer<typeof leadDetailResponseSchema>;
+
+export const updateCatalogContentStatusSchema = z.object({
+  contentStatus: z.enum([
+    "source_imported",
+    "copy_review",
+    "approved",
+    "rejected",
+  ]),
+  displayName: z.string().trim().min(1).max(200).optional(),
+  reason: z.string().trim().max(2000).optional(),
+});
+export type UpdateCatalogContentStatusRequest = z.infer<
+  typeof updateCatalogContentStatusSchema
+>;
+
+export const catalogMediaEntityTypes = [
+  "occasion",
+  "service",
+  "subcategory",
+  "product",
+] as const;
+export type CatalogMediaEntityType = (typeof catalogMediaEntityTypes)[number];
+
+export const catalogMediaRoles = ["cover", "gallery", "icon"] as const;
+export type CatalogMediaRole = (typeof catalogMediaRoles)[number];
+
+export const catalogMediaReviewStatuses = [
+  "draft",
+  "in_review",
+  "approved",
+  "rejected",
+] as const;
+export type CatalogMediaReviewStatus =
+  (typeof catalogMediaReviewStatuses)[number];
+
+export const catalogMediaSourceKinds = [
+  "internal",
+  "licensed",
+  "bundle_asset",
+  "unspecified",
+] as const;
+export type CatalogMediaSourceKind = (typeof catalogMediaSourceKinds)[number];
+
+export const upsertCatalogMediaSchema = z.object({
+  entityType: z.enum(catalogMediaEntityTypes),
+  entityCode: z.string().trim().min(1).max(200),
+  mediaUrl: z.string().trim().min(1).max(2000),
+  thumbnailUrl: z.string().trim().min(1).max(2000).optional(),
+  mediaRole: z.enum(catalogMediaRoles),
+  displayOrder: z.number().int().min(0).max(10_000).optional(),
+  altText: z.string().trim().min(1).max(500),
+  reviewStatus: z.enum(catalogMediaReviewStatuses).optional(),
+  active: z.boolean().optional(),
+  hyderabadCustomerVisible: z.boolean().optional(),
+  sourceKind: z.enum(catalogMediaSourceKinds).optional(),
+  sourceRef: z.string().trim().max(500).optional(),
+  licenceNote: z.string().trim().max(2000).optional(),
+  reason: z.string().trim().max(2000).optional(),
+});
+export type UpsertCatalogMediaRequest = z.infer<
+  typeof upsertCatalogMediaSchema
+>;
+
+export const updateCatalogMediaSchema = z.object({
+  mediaUrl: z.string().trim().min(1).max(2000).optional(),
+  thumbnailUrl: z.string().trim().min(1).max(2000).nullable().optional(),
+  displayOrder: z.number().int().min(0).max(10_000).optional(),
+  altText: z.string().trim().min(1).max(500).optional(),
+  reviewStatus: z.enum(catalogMediaReviewStatuses).optional(),
+  active: z.boolean().optional(),
+  hyderabadCustomerVisible: z.boolean().optional(),
+  sourceKind: z.enum(catalogMediaSourceKinds).optional(),
+  sourceRef: z.string().trim().max(500).nullable().optional(),
+  licenceNote: z.string().trim().max(2000).nullable().optional(),
+  reason: z.string().trim().max(2000).optional(),
+});
+export type UpdateCatalogMediaRequest = z.infer<
+  typeof updateCatalogMediaSchema
+>;
+
+export interface CatalogReviewMedia {
   readonly id: string;
-  readonly enquiryId?: string;
-  readonly enquiryReferenceCode?: string;
-  readonly customerMobile: string;
-  readonly customerName?: string;
-  readonly eventTypeName?: string;
-  readonly eventDate?: string;
-  readonly status: LeadStatus;
-  readonly source: LeadSource;
-  readonly ownerUserId?: string;
-  readonly firstResponseDueAt?: string;
-  readonly firstRespondedAt?: string;
-  readonly createdAt: string;
+  readonly entityType: CatalogMediaEntityType;
+  readonly entityCode: string;
+  readonly mediaUrl: string;
+  readonly thumbnailUrl: string | null;
+  readonly mediaRole: CatalogMediaRole;
+  readonly displayOrder: number;
+  readonly altText: string;
+  readonly reviewStatus: CatalogMediaReviewStatus;
+  readonly active: boolean;
+  readonly hyderabadCustomerVisible: boolean;
+  readonly sourceKind: CatalogMediaSourceKind;
+  readonly licenceNote: string | null;
+  readonly sourceRef: string | null;
+  readonly version: number;
 }
+
+export interface CatalogMediaCoverage {
+  readonly occasions: {
+    readonly total: number;
+    readonly withApprovedCover: number;
+  };
+  readonly services: {
+    readonly total: number;
+    readonly withApprovedCover: number;
+  };
+  readonly subcategories: {
+    readonly total: number;
+    readonly withApprovedCover: number;
+    readonly withInheritedCover: number;
+  };
+  readonly products: {
+    readonly total: number;
+    readonly withApprovedCover: number;
+    readonly withInheritedCover: number;
+  };
+}
+
+export const updateLeadStatusSchema = z.object({
+  status: z.enum(leadStatuses),
+});
+export type UpdateLeadStatusRequest = z.infer<typeof updateLeadStatusSchema>;
 
 export interface PaginationMeta {
   readonly page: number;
@@ -171,9 +484,9 @@ export interface PaginationMeta {
 }
 
 export interface LeadListResponse {
-  readonly leads: readonly LeadSummary[];
+  readonly leads: readonly LeadSummaryResponse[];
   readonly meta?: PaginationMeta;
-  readonly data?: readonly LeadSummary[];
+  readonly data?: readonly LeadSummaryResponse[];
 }
 
 export const clientSurfaces = [
@@ -3002,6 +3315,8 @@ export const capabilityIds = [
   "platform_user.manage",
   "platform_policy.manage",
   "audit.read",
+  "catalog_review.read",
+  "catalog_review.update",
 ] as const;
 export type CapabilityId = (typeof capabilityIds)[number];
 

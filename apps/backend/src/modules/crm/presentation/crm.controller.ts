@@ -6,6 +6,7 @@ import {
   HttpStatus,
   Param,
   ParseUUIDPipe,
+  Patch,
   Post,
   Query,
   Req,
@@ -15,9 +16,13 @@ import {
 import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
 import {
   leadRequirementsSchema,
+  updateLeadStatusSchema,
+  type LeadDetailResponse,
   type LeadListResponse,
   type LeadRequirementsRequest,
   type LeadSummary,
+  type LeadSummaryResponse,
+  type UpdateLeadStatusRequest,
 } from "@me-event/api-contracts";
 import { ZodValidationPipe } from "../../../common/http/zod-validation.pipe";
 import {
@@ -45,7 +50,7 @@ export class CrmController {
     @Query() query: Record<string, unknown>,
   ): Promise<
     LeadListResponse & {
-      readonly data?: readonly LeadSummary[];
+      readonly data?: readonly LeadSummaryResponse[];
       readonly meta?: PaginationMeta;
     }
   > {
@@ -54,11 +59,29 @@ export class CrmController {
 
   @Get("leads/:id")
   @RequireCapability("crm_lead.read")
-  @ApiOperation({ summary: "Get one lead" })
+  @ApiOperation({ summary: "Get one lead with enquiry detail" })
   public getLead(
     @Param("id", new ParseUUIDPipe()) id: string,
-  ): Promise<LeadSummary> {
+  ): Promise<LeadDetailResponse> {
     return this.crm.getLead(id);
+  }
+
+  @Patch("leads/:id/status")
+  @HttpCode(HttpStatus.OK)
+  @RequireCapability("crm_lead.update")
+  @ApiOperation({ summary: "Update lead pipeline status" })
+  public updateStatus(
+    @Param("id", new ParseUUIDPipe()) id: string,
+    @Body(new ZodValidationPipe(updateLeadStatusSchema))
+    body: UpdateLeadStatusRequest,
+    @Req() request: AuthenticatedPlatformRequest,
+  ): Promise<LeadDetailResponse> {
+    return this.crm.updateStatus(
+      principalOf(request),
+      id,
+      body,
+      requestIdOf(request),
+    );
   }
 
   @Post("leads/:id/claim")

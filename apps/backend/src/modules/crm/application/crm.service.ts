@@ -1,8 +1,11 @@
 import { Inject, Injectable } from "@nestjs/common";
 import type {
+  LeadDetailResponse,
   LeadListResponse,
   LeadRequirementsRequest,
   LeadSummary,
+  LeadSummaryResponse,
+  UpdateLeadStatusRequest,
 } from "@me-event/api-contracts";
 import { randomUUID } from "node:crypto";
 import { resolveBranchId } from "../../../common/branch/branch-context";
@@ -14,7 +17,11 @@ import {
   type PaginationParams,
 } from "../../../common/pagination/pagination";
 import type { AuthenticatedPrincipal } from "../../platform-foundation/domain/platform-foundation";
-import { LEAD_REPOSITORY, type LeadRepository } from "../ports/lead-repository";
+import {
+  LEAD_REPOSITORY,
+  type LeadDetailItem,
+  type LeadRepository,
+} from "../ports/lead-repository";
 
 @Injectable()
 export class CrmService {
@@ -28,7 +35,7 @@ export class CrmService {
     pagination?: PaginationParams,
   ): Promise<
     LeadListResponse & {
-      readonly data?: readonly LeadSummary[];
+      readonly data?: readonly LeadSummaryResponse[];
       readonly meta?: PaginationMeta;
     }
   > {
@@ -52,12 +59,12 @@ export class CrmService {
     );
   }
 
-  public async getLead(leadId: string): Promise<LeadSummary> {
-    const lead = await this.leads.findById(leadId);
+  public async getLead(leadId: string): Promise<LeadDetailResponse> {
+    const lead = await this.leads.findDetailById(leadId);
     if (lead === undefined) {
       throw new DomainError("LEAD_NOT_FOUND", "Lead not found", 404);
     }
-    return lead;
+    return toDetailResponse(lead);
   }
 
   public async claimLead(
@@ -112,4 +119,34 @@ export class CrmService {
     }
     return updated;
   }
+
+  public async updateStatus(
+    principal: AuthenticatedPrincipal,
+    leadId: string,
+    request: UpdateLeadStatusRequest,
+    requestId: string = randomUUID(),
+  ): Promise<LeadDetailResponse> {
+    const existing = await this.leads.findById(leadId);
+    if (existing === undefined) {
+      throw new DomainError("LEAD_NOT_FOUND", "Lead not found", 404);
+    }
+    const updated = await this.leads.updateStatus(
+      leadId,
+      request.status,
+      principal.userId,
+      principal.activeRole,
+      requestId,
+    );
+    if (updated === undefined) {
+      throw new DomainError("LEAD_NOT_FOUND", "Lead not found", 404);
+    }
+    return toDetailResponse(updated);
+  }
+}
+
+function toDetailResponse(lead: LeadDetailItem): LeadDetailResponse {
+  return {
+    ...lead,
+    requestedServices: [...lead.requestedServices],
+  };
 }

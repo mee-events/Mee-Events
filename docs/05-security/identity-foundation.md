@@ -7,7 +7,9 @@
 
 `User` is the immutable account. A normalized E.164 mobile number is an
 authentication identity. Role assignments are independently verified and scoped;
-`lastActiveRole` is a preference constrained to active assignments.
+`lastActiveRole` is a preference constrained to active assignments. Mobile
+role switching (`POST /api/v1/auth/switch-role`) updates this account-level
+value, so every device for the user must refresh to the new role.
 
 `DeviceSession` owns a rotating refresh-token digest and can be revoked without
 affecting other devices. Access tokens are short-lived authorization artifacts.
@@ -29,7 +31,10 @@ affecting other devices. Access tokens are short-lived authorization artifacts.
 ## Required before production
 
 - PostgreSQL repositories and reviewed migrations.
-- Redis-backed rate limits and resend controls across replicas.
+- Redis-backed rate limits and resend controls across replicas (Postgres
+  enforces per-mobile resend cooldown on a single API instance today).
+- External SMS vendor HTTP adapter behind `ExternalOtpProvider` (fail-closed
+  until `SMS_OTP_ENDPOINT` / `SMS_OTP_API_KEY` and vendor wiring are complete).
 - Approved SMS provider, templates, delivery callbacks, and regional compliance.
 - Refresh rotation/reuse detection, logout, revocation, and access-token guard.
 - Audit sink with append-only retention and redaction.

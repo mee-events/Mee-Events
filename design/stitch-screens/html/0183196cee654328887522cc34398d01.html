@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Hyderabad Premium Events - Home</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Manrope:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "tertiary-container": "#646b7d",
+                        "secondary-fixed-dim": "#ffb95f",
+                        "outline": "#6f787d",
+                        "on-tertiary-container": "#e8ecff",
+                        "surface-variant": "#dce2f3",
+                        "on-surface-variant": "#3f484c",
+                        "primary-fixed-dim": "#81d1f0",
+                        "surface-container-low": "#f0f3ff",
+                        "on-tertiary": "#ffffff",
+                        "surface": "#f9f9ff",
+                        "tertiary": "#4c5364",
+                        "on-secondary-container": "#684000",
+                        "on-tertiary-fixed-variant": "#404758",
+                        "primary-container": "#0e7490",
+                        "on-surface": "#151c27",
+                        "secondary-container": "#fea619",
+                        "secondary": "#855300",
+                        "primary": "#005a71",
+                        "on-secondary-fixed-variant": "#653e00",
+                        "inverse-primary": "#81d1f0",
+                        "on-primary-fixed": "#001f29",
+                        "on-primary": "#ffffff",
+                        "error": "#ba1a1a",
+                        "surface-tint": "#006781",
+                        "on-error": "#ffffff",
+                        "on-secondary": "#ffffff",
+                        "on-secondary-fixed": "#2a1700",
+                        "tertiary-fixed-dim": "#c0c6db",
+                        "surface-container": "#e7eefe",
+                        "outline-variant": "#bec8cd",
+                        "error-container": "#ffdad6",
+                        "secondary-fixed": "#ffddb8",
+                        "on-error-container": "#93000a",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary-fixed-variant": "#004d62",
+                        "inverse-on-surface": "#ebf1ff",
+                        "on-tertiary-fixed": "#141b2b",
+                        "tertiary-fixed": "#dce2f7",
+                        "on-background": "#151c27",
+                        "on-primary-container": "#d3f1ff",
+                        "inverse-surface": "#2a313d",
+                        "surface-dim": "#d3daea",
+                        "surface-bright": "#f9f9ff",
+                        "surface-container-high": "#e2e8f8",
+                        "background": "#f9f9ff",
+                        "surface-container-highest": "#dce2f3",
+                        "primary-fixed": "#b9eaff"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    spacing: {
+                        "margin-desktop": "40px",
+                        "md": "24px",
+                        "xs": "8px",
+                        "gutter": "20px",
+                        "margin-mobile": "16px",
+                        "sm": "16px",
+                        "base": "4px",
+                        "xl": "80px",
+                        "lg": "48px"
+                    },
+                    fontFamily: {
+                        "label-sm": ["Inter"],
+                        "headline-lg": ["Manrope"],
+                        "title-lg": ["Inter"],
+                        "headline-md": ["Manrope"],
+                        "headline-lg-mobile": ["Manrope"],
+                        "display-lg": ["Manrope"],
+                        "body-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "label-md": ["Inter"]
+                    },
+                    fontSize: {
+                        "label-sm": ["12px", { lineHeight: "16px", fontWeight: "600" }],
+                        "headline-lg": ["32px", { lineHeight: "40px", letterSpacing: "-0.01em", fontWeight: "600" }],
+                        "title-lg": ["20px", { lineHeight: "28px", fontWeight: "600" }],
+                        "headline-md": ["24px", { lineHeight: "32px", fontWeight: "600" }],
+                        "headline-lg-mobile": ["24px", { lineHeight: "32px", fontWeight: "600" }],
+                        "display-lg": ["48px", { lineHeight: "56px", letterSpacing: "-0.02em", fontWeight: "700" }],
+                        "body-lg": ["18px", { lineHeight: "28px", fontWeight: "400" }],
+                        "body-md": ["16px", { lineHeight: "24px", fontWeight: "400" }],
+                        "label-md": ["14px", { lineHeight: "20px", letterSpacing: "0.01em", fontWeight: "500" }]
+                    }
+                }
+            }
+        };
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface font-body-md antialiased pb-24 md:pb-0 min-h-screen flex flex-col">
+<!-- TopAppBar (Web & Mobile Hybrid) -->
+<header class="flex justify-between items-center w-full px-margin-mobile h-14 bg-surface dark:bg-on-surface sticky top-0 z-40">
+<div class="flex items-center gap-xs text-primary dark:text-primary-fixed-dim hover:opacity-80 transition-opacity cursor-pointer">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">location_on</span>
+<span class="font-label-md text-label-md">Gachibowli, Hyderabad</span>
+<span class="material-symbols-outlined text-sm">expand_more</span>
+</div>
+<div class="font-headline-md text-headline-md-mobile md:text-headline-md text-primary-container dark:text-primary-fixed tracking-tight hidden md:block">
+            Hyderabad Events
+        </div>
+<div class="flex items-center gap-sm">
+<!-- Web Nav -->
+<nav class="hidden md:flex items-center gap-md mr-md">
+<a class="text-primary dark:text-primary-fixed font-bold hover:opacity-80 transition-opacity" href="#">Home</a>
+<a class="text-on-surface-variant dark:text-outline-variant hover:opacity-80 transition-opacity" href="#">Explore</a>
+<a class="text-on-surface-variant dark:text-outline-variant hover:opacity-80 transition-opacity" href="#">Plan</a>
+<a class="text-on-surface-variant dark:text-outline-variant hover:opacity-80 transition-opacity" href="#">Enquiries</a>
+<a class="text-on-surface-variant dark:text-outline-variant hover:opacity-80 transition-opacity" href="#">Account</a>
+</nav>
+<button class="text-primary dark:text-primary-fixed-dim hover:opacity-80 transition-opacity p-2">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">notifications</span>
+</button>
+</div>
+</header>
+<main class="flex-grow w-full max-w-7xl mx-auto px-margin-mobile md:px-margin-desktop py-md">
+<!-- Greeting & Search -->
+<section class="mb-lg">
+<h1 class="font-display-lg text-display-lg text-on-surface mb-md">Hello, Priya</h1>
+<div class="relative w-full max-w-2xl">
+<div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-outline">search</span>
+</div>
+<input class="w-full pl-12 pr-4 py-4 bg-surface-container-low border border-outline-variant rounded-xl focus:outline-none focus:border-primary-container focus:ring-2 focus:ring-primary-fixed-dim transition-all shadow-sm font-body-lg text-body-lg text-on-surface placeholder:text-outline" placeholder="Search events or services" type="text"/>
+<button class="absolute inset-y-1 right-1 px-sm bg-primary-container text-on-primary rounded-lg font-label-md text-label-md hover:bg-primary transition-colors">
+                    Search
+                </button>
+</div>
+</section>
+<!-- Hero Bento -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-sm mb-lg">
+<div class="md:col-span-2 relative rounded-xl overflow-hidden h-[400px] shadow-sm group">
+<img class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" data-alt="A vibrant, high-end birthday celebration setup in a modern venue. The scene features elegant table settings, soft ambient lighting in warm teal and gold hues, and tasteful floral arrangements. Professional photography style, clean aesthetic, communicating premium quality and joyful atmosphere in an upscale event space." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBcIqw6JV5a6bhPBED794tS4HWJZkGWS7nissZDgdM09Y_1iJ9lx42WcKsUIvh98XHFUXsfaycz63NvJLrUn_tpOzngFobhLmOf3WHz9znMhCCAZAiW_a5SWL4C6vad3DJbLojmh6-e3hbbWYYGV3BVpX-jmQgMoH0myEXpceuZbfRi5jWzvbKFF1ki5shdsBgfKZpKeg-gxnYiizi838ynJJiNKR5bzgaaj3yJ_bF7K09WWxtpTFTt"/>
+<div class="absolute inset-0 bg-gradient-to-t from-on-surface/80 to-transparent"></div>
+<div class="absolute bottom-0 left-0 p-md w-full">
+<div class="inline-block px-3 py-1 bg-secondary-container text-on-secondary-container rounded-full font-label-sm text-label-sm mb-sm flex items-center gap-1 w-max">
+<span class="material-symbols-outlined text-[14px]">auto_awesome</span> Featured
+                    </div>
+<h2 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-primary mb-xs">Premium Celebrations</h2>
+<p class="font-body-md text-body-md text-on-primary-container mb-md max-w-md">Curated packages for memorable milestones. Book complete setups seamlessly.</p>
+<button class="bg-primary-container text-on-primary px-md py-sm rounded-lg font-label-md text-label-md hover:bg-primary transition-colors shadow-md flex items-center gap-2">
+                        Plan an Event <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+</div>
+</div>
+<div class="flex flex-col gap-sm">
+<div class="flex-1 bg-surface-container-low rounded-xl p-md flex flex-col justify-between border border-outline-variant shadow-sm hover:shadow-md transition-shadow">
+<div>
+<div class="w-10 h-10 rounded-full bg-primary-fixed text-on-primary-fixed flex items-center justify-center mb-sm">
+<span class="material-symbols-outlined">corporate_fare</span>
+</div>
+<h3 class="font-title-lg text-title-lg text-on-surface mb-xs">Corporate Meets</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Venues &amp; catering for professional gatherings.</p>
+</div>
+<a class="font-label-md text-label-md text-primary-container flex items-center gap-1 mt-sm hover:underline" href="#">
+                        Explore <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+</a>
+</div>
+<div class="flex-1 bg-surface-container-lowest rounded-xl p-md flex flex-col justify-between border border-outline-variant shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
+<div class="absolute -right-4 -bottom-4 w-24 h-24 bg-secondary-fixed-dim/20 rounded-full blur-xl"></div>
+<div>
+<div class="w-10 h-10 rounded-full bg-secondary-fixed text-on-secondary-fixed-variant flex items-center justify-center mb-sm">
+<span class="material-symbols-outlined">church</span>
+</div>
+<h3 class="font-title-lg text-title-lg text-on-surface mb-xs">Weddings</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Trusted planners and premium locations.</p>
+</div>
+<a class="font-label-md text-label-md text-secondary hover:underline flex items-center gap-1 mt-sm" href="#">
+                        View Packages <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+</a>
+</div>
+</div>
+</section>
+<!-- Mee Verified Packages -->
+<section class="mb-lg">
+<div class="flex justify-between items-end mb-md">
+<div>
+<h2 class="font-headline-md text-headline-md text-on-surface flex items-center gap-xs">
+                        Mee Verified Packages 
+                        <span class="material-symbols-outlined text-secondary-container" style="font-variation-settings: 'FILL' 1;">verified</span>
+</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">All-inclusive, vetted services with guaranteed quality.</p>
+</div>
+<button class="hidden md:block font-label-md text-label-md text-primary-container hover:underline">View All</button>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-md">
+<!-- Card 1 -->
+<div class="bg-surface-container-lowest rounded-xl border border-outline-variant overflow-hidden hover:shadow-[0_4px_20px_0_rgba(14,116,144,0.05)] transition-shadow group">
+<div class="relative h-48 w-full p-2">
+<img class="w-full h-full object-cover rounded-lg" data-alt="A beautifully decorated outdoor venue for a small gathering in Hyderabad. Features elegant seating, warm fairy lights strung across trees, and a curated minimalist setup. The lighting is soft and inviting, reflecting a premium, high-quality event service aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCdEKsAaj4OUv184SBLqomCo_oYfot6r1cWC3kWzOcqqLtEKSAit8VPsXv0rJo3uvYH2QI0TfzZWxNgF7qc1lsvwoGDipJPxyepv9OiEmFiv2QYcT97eOE1VNEMgXja3dAfDA1efubIaaNedA0Yw0Wip9r1BhnRfAqUahY92kO2F58YXeHoCbzBs7Se55AOXOCCDEfrzRYN-ApXqIZJ53Z3B8ZjgFW6kRt_YHdsnYvVm6zSvW89H8w6"/>
+<div class="absolute top-4 left-4 bg-surface/90 backdrop-blur px-2 py-1 rounded text-xs font-bold text-on-surface flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-secondary-container" style="font-variation-settings: 'FILL' 1;">star</span> 4.9
+                        </div>
+</div>
+<div class="p-sm">
+<div class="flex justify-between items-start mb-xs">
+<h3 class="font-title-lg text-title-lg text-on-surface">Intimate Gatherings</h3>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant mb-md line-clamp-2">Complete setup for up to 50 guests. Includes catering, basic decor, and venue coordination.</p>
+<div class="flex justify-between items-center pt-sm border-t border-surface-variant">
+<div>
+<span class="font-label-sm text-label-sm text-outline block">Starting from</span>
+<span class="font-title-lg text-title-lg text-on-surface">₹45,000</span>
+</div>
+<button class="bg-[#F59E0B] text-on-secondary px-4 py-2 rounded-lg font-label-md text-label-md hover:bg-amber-600 transition-colors">
+                                Book
+                            </button>
+</div>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="bg-surface-container-lowest rounded-xl border border-outline-variant overflow-hidden hover:shadow-[0_4px_20px_0_rgba(14,116,144,0.05)] transition-shadow group">
+<div class="relative h-48 w-full p-2">
+<img class="w-full h-full object-cover rounded-lg" data-alt="A professional corporate conference setup in a modern hall. Rows of sleek chairs facing a brightly lit stage with a minimalist podium. High-quality audiovisual equipment visible. The aesthetic is clean, corporate, and highly professional, utilizing cool white and teal accents." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCxW9QXS8aJkZQVPX8MwzbxHwlX2O_Y8OfGlJABP1kDVkZX9aUKHCtbvqQznWholzSqS7Jb-2t3i712cKhYic8wrrbYRrUJ622Pgxj3Utjyku-7gMCYpgGLKUnjSLn1ASOQfADafJrAtyVMnsXe_XA4KuuFY6zgVQ1gSotSI_RX4K0vLWZgZsYGwTFB7OuJMdiey0fzhVazTha9YOqWInQD8hyIgnGjJ9VZnqeWP9hQAY0EoO6cwDv0"/>
+</div>
+<div class="p-sm">
+<div class="flex justify-between items-start mb-xs">
+<h3 class="font-title-lg text-title-lg text-on-surface">Corporate Seminar</h3>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant mb-md line-clamp-2">Half-day package for 100 attendees. AV equipment, tea/coffee breaks, and executive lunch included.</p>
+<div class="flex justify-between items-center pt-sm border-t border-surface-variant">
+<div>
+<span class="font-label-sm text-label-sm text-outline block">Starting from</span>
+<span class="font-title-lg text-title-lg text-on-surface">₹85,000</span>
+</div>
+<button class="border border-primary-container text-primary-container px-4 py-2 rounded-lg font-label-md text-label-md hover:bg-surface-container-low transition-colors">
+                                Details
+                            </button>
+</div>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="bg-surface-container-lowest rounded-xl border border-outline-variant overflow-hidden hover:shadow-[0_4px_20px_0_rgba(14,116,144,0.05)] transition-shadow group hidden md:block">
+<div class="relative h-48 w-full p-2">
+<img class="w-full h-full object-cover rounded-lg" data-alt="A vibrant kids birthday party setup with a premium, organized look. Features a tasteful pastel balloon arch, a clean dessert table, and safe, engaging play areas. The lighting is bright and cheerful, reflecting a high-quality, trusted event planning service." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBDcl45TnpQh5abAB3SvZikWt7k35tB3FwFTMEimUIOixcrI83ITzeoSh0cjoT6JYdVve-N4aStJLEQe0UYeYfW48M2xRqTBD4njYoJNv7DK18YmXXy_mJUA1EA3J1bST24YC-zq6WY6mauprK9wfzPs4Y4LDeQvnyWw_HKWSY1eneX8lMMVhFGrmtSd4RBjHQ4tTo3KDUBtq6e6FNcMDchNcz4s0FSDsCT90yv3P_APvn6ShNg1-0a"/>
+</div>
+<div class="p-sm">
+<div class="flex justify-between items-start mb-xs">
+<h3 class="font-title-lg text-title-lg text-on-surface">Premium Birthday</h3>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant mb-md line-clamp-2">Themed decor, entertainment, and premium kids menu. Stress-free execution guaranteed.</p>
+<div class="flex justify-between items-center pt-sm border-t border-surface-variant">
+<div>
+<span class="font-label-sm text-label-sm text-outline block">Starting from</span>
+<span class="font-title-lg text-title-lg text-on-surface">₹30,000</span>
+</div>
+<button class="border border-primary-container text-primary-container px-4 py-2 rounded-lg font-label-md text-label-md hover:bg-surface-container-low transition-colors">
+                                Details
+                            </button>
+</div>
+</div>
+</div>
+</div>
+<button class="md:hidden w-full mt-sm border border-outline-variant text-on-surface py-2 rounded-lg font-label-md text-label-md">View All Packages</button>
+</section>
+</main>
+<!-- Footer (Web Only) -->
+<footer class="hidden md:flex w-full py-xl px-margin-mobile flex-col items-center gap-md text-center bg-surface-container-low dark:bg-surface-container-highest mt-auto border-t border-outline-variant/30">
+<div class="font-headline-lg text-headline-lg text-primary mb-sm">Hyderabad Events</div>
+<div class="flex gap-md mb-sm">
+<a class="font-body-md text-body-md text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors" href="#">Support</a>
+<a class="font-body-md text-body-md text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors" href="#">Privacy Policy</a>
+<a class="font-body-md text-body-md text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors" href="#">Terms of Service</a>
+<a class="font-body-md text-body-md text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors" href="#">Contact Us</a>
+</div>
+<div class="font-label-sm text-label-sm text-outline">
+            © 2024 Hyderabad Premium Events. All rights reserved.
+        </div>
+</footer>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-2 py-3 bg-surface-container-lowest dark:bg-inverse-surface shadow-[0_-4px_20px_0_rgba(160,65,0,0.05)] rounded-t-xl">
+<a class="flex flex-col items-center justify-center text-primary dark:text-primary-fixed bg-primary-fixed/20 rounded-full px-4 py-1 scale-90 transition-all duration-300" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="font-label-sm text-label-sm mt-1">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant opacity-70 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">search</span>
+<span class="font-label-sm text-label-sm mt-1">Explore</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant opacity-70 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">calendar_today</span>
+<span class="font-label-sm text-label-sm mt-1">Plan</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant opacity-70 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">chat_bubble</span>
+<span class="font-label-sm text-label-sm mt-1">Enquiries</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant opacity-70 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-sm text-label-sm mt-1">Account</span>
+</a>
+</nav>
+</body></html>

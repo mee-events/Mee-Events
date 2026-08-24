@@ -1,0 +1,16 @@
+{
+  "eventCategories": 21,
+  "eventSelections": 197,
+  "serviceCategories": 41,
+  "subcategories": 237,
+  "products": 974,
+  "parseAnomalies": 2,
+  "placeholders": 547,
+  "customerSelectable": 360,
+  "mappedSelections": 175,
+  "requiresDecisionSelections": 22,
+  "service33": "indian_festival_event_service",
+  "niagaraProduct": "special_effects.A1",
+  "femaleAnchorProduct": "entertainment.A2",
+  "magicianProduct": "entertainment.B2"
+}

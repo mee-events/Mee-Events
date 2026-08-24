@@ -66,7 +66,7 @@ corepack pnpm dev:erp            # Next.js Employee CRM/ERP
 
 cd apps/mobile
 flutter pub get
-flutter run                      # or: corepack pnpm dev:mobile
+flutter run --flavor dev         # or: corepack pnpm dev:mobile
 # variants: corepack pnpm dev:mobile:android | dev:mobile:ios
 ```
 
@@ -90,6 +90,7 @@ run in CI ([ci-cd.md](./ci-cd.md)).
 
 ## Related
 
+- [local-demo-checklist.md](./local-demo-checklist.md) — enquiry → claim → quote → booking
 - [environment.md](./environment.md)
 - [ci-cd.md](./ci-cd.md)
 - [Database docs](../03-database/README.md)

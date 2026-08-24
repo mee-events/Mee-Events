@@ -10,7 +10,7 @@ to sets of capabilities. Enforcement is server-side via `CapabilityGuard`
 
 | Location                                                                     | Role                                                                               |
 | ---------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
-| `apps/backend/src/modules/platform-foundation/domain/platform-foundation.ts` | **Policy source:** `capabilityIds` (**91** entries) and `ROLE_CAPABILITIES`        |
+| `apps/backend/src/modules/platform-foundation/domain/platform-foundation.ts` | **Policy source:** `capabilityIds` (**93** entries) and `ROLE_CAPABILITIES`        |
 | `packages/api-contracts`                                                     | Shared `capabilityIds` catalog for clients/contracts (aligned with foundation IDs) |
 
 Keep both ID lists in sync when adding capabilities. Only platform-foundation
@@ -42,7 +42,7 @@ explicit subsets in `ROLE_CAPABILITIES`.
 
 ## Example capability families
 
-Illustrative groups (not exhaustive — see source for the full 91):
+Illustrative groups (not exhaustive — see source for the full 93):
 
 | Family               | Examples                                                                               |
 | -------------------- | -------------------------------------------------------------------------------------- |
@@ -54,6 +54,7 @@ Illustrative groups (not exhaustive — see source for the full 91):
 | Operations           | `operations.task.manage`, `operations.complete`, `operations_assigned.read`            |
 | Manager              | `manager_event.manage`, `manager_task.manage`, `manager_dashboard.read`                |
 | Governance           | `audit.read`, `platform_user.manage`                                                   |
+| Catalogue review     | `catalog_review.read`, `catalog_review.update` (administrator only)                    |
 
 ---
 

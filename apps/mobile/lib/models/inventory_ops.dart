@@ -113,8 +113,7 @@ class InventoryAllocationDetail extends InventoryAllocationItem {
             (item) => InventoryTimelineItem(
               id: (item as Map<String, dynamic>)['id'] as String? ?? '',
               title: item['movementType'] as String? ?? '',
-              content:
-                  '${item['fromPlace'] ?? ''} → ${item['toPlace'] ?? ''}',
+              content: '${item['fromPlace'] ?? ''} → ${item['toPlace'] ?? ''}',
             ),
           )
           .toList(),

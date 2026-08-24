@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mee_events/design_system/design_system.dart';
 import 'package:mee_events/features/auth/screens/login_screen.dart';
 import 'package:mee_events/features/auth/session_provider.dart';
-import 'package:mee_events/features/customer/screens/new_enquiry_screen.dart';
+import 'package:mee_events/features/customer/screens/enquiry_detail_screen.dart';
+import 'package:mee_events/features/customer/screens/enquiry_checkout_screen.dart';
 import 'package:mee_events/features/customer/screens/quotation_detail_screen.dart';
 import 'package:mee_events/features/customer/workspace/event_workspace_screen.dart';
 import 'package:mee_events/models/enquiry.dart';
@@ -12,18 +15,41 @@ import 'package:mee_events/theme/app_colors.dart';
 import 'package:mee_events/theme/app_spacing.dart';
 
 /// Live customer enquiries from GET /enquiries, with linked quotations.
-class EnquiriesTab extends ConsumerWidget {
+class EnquiriesTab extends ConsumerStatefulWidget {
   const EnquiriesTab({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<EnquiriesTab> createState() => _EnquiriesTabState();
+}
+
+class _EnquiriesTabState extends ConsumerState<EnquiriesTab> {
+  Timer? _pollTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    _pollTimer = Timer.periodic(const Duration(seconds: 20), (_) {
+      if (!mounted) return;
+      if (ref.read(sessionProvider) == null) return;
+      ref.invalidate(enquiriesProvider);
+      ref.invalidate(quotationsProvider);
+    });
+  }
+
+  @override
+  void dispose() {
+    _pollTimer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final session = ref.watch(sessionProvider);
     final enquiries = ref.watch(enquiriesProvider);
     final quotations = ref.watch(quotationsProvider);
 
     return Scaffold(
       backgroundColor: AppColors.canvas,
-      appBar: const MeAppBar(title: 'Enquiries'),
       body: session == null
           ? MeEmptyState(
               kind: MeEmptyKind.generic,
@@ -54,7 +80,7 @@ class EnquiriesTab extends ConsumerWidget {
                       onAction: () {
                         Navigator.of(context).push(
                           MaterialPageRoute(
-                            builder: (context) => const NewEnquiryScreen(),
+                            builder: (context) => const EnquiryCheckoutScreen(),
                           ),
                         );
                       },
@@ -104,50 +130,54 @@ class _EnquiryCard extends StatelessWidget {
   final Enquiry enquiry;
   final QuotationSummary? quotation;
 
+  void _open(BuildContext context) {
+    final bookingId = quotation?.bookingId;
+    if (bookingId != null) {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => EventWorkspaceScreen(bookingId: bookingId),
+        ),
+      );
+      return;
+    }
+    if (quotation != null) {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) =>
+              QuotationDetailScreen(quotationId: quotation!.id),
+        ),
+      );
+      return;
+    }
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => EnquiryDetailScreen(enquiryId: enquiry.id),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final isActive =
         enquiry.status != 'closed' && enquiry.status != 'cancelled';
-    return InkWell(
-      onTap: quotation == null
-          ? null
-          : () {
-              final bookingId = quotation!.bookingId;
-              if (bookingId != null) {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => EventWorkspaceScreen(
-                      bookingId: bookingId,
-                    ),
-                  ),
-                );
-                return;
-              }
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => QuotationDetailScreen(
-                    quotationId: quotation!.id,
-                  ),
-                ),
-              );
-            },
-      borderRadius: BorderRadius.circular(12),
-      child: MeOrderCard(
-        reference: enquiry.referenceCode,
-        title: enquiry.eventTypeName,
-        subtitle: [
-          if (enquiry.eventDate != null) enquiry.eventDate!,
-          if (enquiry.guestCount != null) '${enquiry.guestCount} guests',
-          if (enquiry.location != null) enquiry.location!,
-          if (quotation != null) 'Quote ${quotation!.referenceCode}',
-          if (quotation?.bookingId != null) 'My Event ready',
-        ].where((part) => part.isNotEmpty).join(' · '),
-        status: MeBadge(
-          label: quotation?.bookingId != null
-              ? 'Booked'
-              : (quotation?.statusLabel ?? enquiry.statusLabel),
-          tone: isActive ? MeStatusTone.success : MeStatusTone.neutral,
-        ),
+    return MeOrderCard(
+      onTap: () => _open(context),
+      reference: enquiry.referenceCode,
+      title: enquiry.eventTypeName,
+      subtitle: [
+        if (enquiry.eventDate != null) enquiry.eventDate!,
+        if (enquiry.guestCount != null) '${enquiry.guestCount} guests',
+        if (enquiry.location != null) enquiry.location!,
+        if (quotation != null) 'Quote ${quotation!.referenceCode}',
+        if (quotation?.bookingId != null) 'My Event ready',
+      ].where((part) => part.isNotEmpty).join(' · '),
+      status: MeBadge(
+        label: quotation?.bookingId != null
+            ? 'Booked'
+            : (quotation?.statusLabel ?? enquiry.statusLabel),
+        tone: quotation?.bookingId != null
+            ? MeStatusTone.success
+            : (isActive ? MeStatusTone.brand : MeStatusTone.neutral),
       ),
     );
   }

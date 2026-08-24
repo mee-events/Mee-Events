@@ -11,6 +11,7 @@ import type {
   IdentityRepository,
   OtpChallengeRecord,
   RefreshDigestMatch,
+  RoleSwitchPersistence,
 } from "../ports/identity-repository";
 
 /** Platform DEFAULT_BRANCH for new user role assignments until multi-branch provisioning. */
@@ -48,6 +49,7 @@ interface ChallengeRow {
   readonly id: string;
   readonly mobile_e164: string;
   readonly code_digest: string;
+  readonly created_at: Date;
   readonly expires_at: Date;
   readonly resend_after: Date;
   readonly attempts_remaining: number;
@@ -62,9 +64,9 @@ export class PostgresIdentityRepository implements IdentityRepository {
     await this.pool.query(
       `INSERT INTO otp_challenges (
          id, mobile_e164, code_digest, expires_at, resend_after,
-         attempts_remaining, consumed_at
+         attempts_remaining, consumed_at, created_at
        )
-       VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
       [
         challenge.id,
         challenge.mobileNumber,
@@ -73,6 +75,7 @@ export class PostgresIdentityRepository implements IdentityRepository {
         challenge.resendAfter,
         challenge.attemptsRemaining,
         challenge.consumedAt ?? null,
+        challenge.createdAt,
       ],
     );
   }
@@ -88,10 +91,47 @@ export class PostgresIdentityRepository implements IdentityRepository {
     if (row === undefined) {
       return undefined;
     }
+    return this.mapChallenge(row);
+  }
+
+  public async findLatestOpenChallengeByMobile(
+    mobileNumber: string,
+  ): Promise<OtpChallengeRecord | undefined> {
+    const result = await this.pool.query<ChallengeRow>(
+      `SELECT * FROM otp_challenges
+       WHERE mobile_e164 = $1
+         AND consumed_at IS NULL
+         AND expires_at > now()
+       ORDER BY expires_at DESC
+       LIMIT 1`,
+      [mobileNumber],
+    );
+    const row = result.rows[0];
+    if (row === undefined) {
+      return undefined;
+    }
+    return this.mapChallenge(row);
+  }
+
+  public async countChallengesSince(
+    mobileNumber: string,
+    since: Date,
+  ): Promise<number> {
+    const result = await this.pool.query<{ readonly count: number }>(
+      `SELECT COUNT(*)::int AS count
+       FROM otp_challenges
+       WHERE mobile_e164 = $1 AND created_at >= $2`,
+      [mobileNumber, since],
+    );
+    return result.rows[0]?.count ?? 0;
+  }
+
+  private mapChallenge(row: ChallengeRow): OtpChallengeRecord {
     return {
       id: row.id,
       mobileNumber: row.mobile_e164,
       codeDigest: row.code_digest,
+      createdAt: row.created_at,
       expiresAt: row.expires_at,
       resendAfter: row.resend_after,
       attemptsRemaining: row.attempts_remaining,
@@ -266,10 +306,59 @@ export class PostgresIdentityRepository implements IdentityRepository {
     );
   }
 
+  public async persistRoleSwitch(
+    input: RoleSwitchPersistence,
+  ): Promise<UserRecord | undefined> {
+    return this.withTransaction(async (client) => {
+      const result = await client.query<UserRow>(
+        `UPDATE app_users
+         SET last_active_role = $2,
+             updated_at = now(),
+             version = version + 1
+         WHERE id = $1 AND version = $3
+         RETURNING *`,
+        [input.userId, input.role, input.expectedVersion],
+      );
+      const row = result.rows[0];
+      if (row === undefined) {
+        return undefined;
+      }
+      await client.query(
+        `INSERT INTO audit_events (
+           request_id, actor_user_id, actor_role, branch_id,
+           entity_type, entity_id, action,
+           before_version, after_version, reason, metadata
+         )
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
+        [
+          input.requestId,
+          input.actorUserId,
+          input.actorRole,
+          null,
+          "app_user",
+          input.userId,
+          "identity.role.switched",
+          input.expectedVersion,
+          row.version,
+          null,
+          JSON.stringify({
+            fromRole: input.fromRole,
+            toRole: input.toRole,
+          }),
+        ],
+      );
+      return this.toUserRecord(
+        row,
+        await this.loadRoleAssignments(row.id, client),
+      );
+    });
+  }
+
   private async loadRoleAssignments(
     userId: string,
+    executor: Pool | PoolClient = this.pool,
   ): Promise<readonly RoleAssignmentRow[]> {
-    const result = await this.pool.query<RoleAssignmentRow>(
+    const result = await executor.query<RoleAssignmentRow>(
       `SELECT role, state, scope_id, verified_at
        FROM role_assignments
        WHERE user_id = $1`,

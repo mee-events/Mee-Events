@@ -1,0 +1,417 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Review your event plan</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@500&amp;family=Manrope:wght@400;600;700&amp;display=swap" rel="stylesheet">
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                            "on-tertiary-container": "#8c8c88",
+                            "surface-container": "#f0eded",
+                            "error-container": "#ffdad6",
+                            "on-tertiary-fixed": "#1b1c19",
+                            "background": "#fcf9f8",
+                            "surface-container-low": "#f6f3f2",
+                            "surface-dim": "#dcd9d9",
+                            "on-secondary": "#ffffff",
+                            "tertiary": "#0f100d",
+                            "inverse-on-surface": "#f3f0ef",
+                            "on-primary-fixed-variant": "#77302d",
+                            "on-tertiary": "#ffffff",
+                            "outline-variant": "#dac1bf",
+                            "on-primary-container": "#cc726d",
+                            "on-error-container": "#93000a",
+                            "on-surface": "#1c1b1b",
+                            "outline": "#877270",
+                            "on-error": "#ffffff",
+                            "surface-container-high": "#eae7e7",
+                            "on-secondary-container": "#785a1a",
+                            "inverse-primary": "#ffb3ad",
+                            "tertiary-fixed": "#e4e2dd",
+                            "error": "#ba1a1a",
+                            "tertiary-fixed-dim": "#c8c6c2",
+                            "surface-container-lowest": "#ffffff",
+                            "surface": "#fcf9f8",
+                            "secondary-container": "#fed488",
+                            "secondary": "#775a19",
+                            "primary": "#2a0002",
+                            "on-surface-variant": "#544341",
+                            "on-secondary-fixed-variant": "#5d4201",
+                            "on-tertiary-fixed-variant": "#474744",
+                            "primary-container": "#4a0e0e",
+                            "tertiary-container": "#242522",
+                            "inverse-surface": "#313030",
+                            "primary-fixed": "#ffdad7",
+                            "surface-container-highest": "#e5e2e1",
+                            "on-background": "#1c1b1b",
+                            "secondary-fixed-dim": "#e9c176",
+                            "primary-fixed-dim": "#ffb3ad",
+                            "surface-bright": "#fcf9f8",
+                            "on-primary": "#ffffff",
+                            "surface-variant": "#e5e2e1",
+                            "on-secondary-fixed": "#261900",
+                            "surface-tint": "#954742",
+                            "on-primary-fixed": "#3d0506",
+                            "secondary-fixed": "#ffdea5"
+                    },
+                    "borderRadius": {
+                            "DEFAULT": "0.25rem",
+                            "lg": "0.5rem",
+                            "xl": "0.75rem",
+                            "full": "9999px"
+                    },
+                    "spacing": {
+                            "lg": "48px",
+                            "md": "24px",
+                            "gutter": "24px",
+                            "container-max": "1280px",
+                            "xs": "4px",
+                            "xl": "80px",
+                            "sm": "12px",
+                            "base": "8px"
+                    },
+                    "fontFamily": {
+                            "display-hero-mobile": ["EB Garamond"],
+                            "h1": ["Manrope"],
+                            "button": ["Manrope"],
+                            "h2": ["Manrope"],
+                            "display-hero": ["EB Garamond"],
+                            "body-md": ["Manrope"],
+                            "body-lg": ["Manrope"],
+                            "label-caps": ["Manrope"]
+                    },
+                    "fontSize": {
+                            "display-hero-mobile": ["36px", { "lineHeight": "1.2", "fontWeight": "500" }],
+                            "h1": ["32px", { "lineHeight": "1.3", "fontWeight": "700" }],
+                            "button": ["14px", { "lineHeight": "1", "fontWeight": "600" }],
+                            "h2": ["24px", { "lineHeight": "1.4", "fontWeight": "600" }],
+                            "display-hero": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "500" }],
+                            "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                            "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                            "label-caps": ["12px", { "lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: theme('colors.background');
+            color: theme('colors.on-background');
+            -webkit-font-smoothing: antialiased;
+        }
+        /* Hide scrollbar for clean horizontal scrolling */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="min-h-screen flex flex-col font-body-md text-body-md">
+<!-- TopAppBar Shared Component (Extracted styles from JSON) -->
+<!-- Note: BottomNavBar is intentionally suppressed as this is a transactional flow -->
+<header class="sticky top-0 z-50 bg-surface border-b border-outline-variant w-full"><div class="flex justify-between items-center w-full px-md h-16 max-w-container-max mx-auto">
+    <div class="flex items-center gap-md">
+        <button class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-primary hover:bg-surface-container-high transition-colors">
+            <span class="material-symbols-outlined">person</span>
+        </button>
+    </div>
+    <div class="font-display-hero-mobile text-display-hero-mobile text-primary">
+        Mee Events
+    </div>
+    <div class="flex items-center gap-2">
+        <button class="p-2 text-on-surface-variant hover:bg-surface-container rounded-full transition-colors">
+            <span class="material-symbols-outlined">search</span>
+        </button>
+        <button class="p-2 text-on-surface-variant hover:bg-surface-container rounded-full transition-colors">
+            <span class="material-symbols-outlined">favorite</span>
+        </button>
+        <button class="p-2 text-on-surface-variant hover:bg-surface-container rounded-full transition-colors">
+            <span class="material-symbols-outlined">notifications</span>
+        </button>
+    </div>
+</div></header>
+<!-- Main Content Canvas -->
+<main class="flex-grow w-full max-w-container-max mx-auto px-md md:px-lg py-lg md:py-xl"><div class="flex items-center gap-md mb-lg">
+    <button class="text-primary hover:bg-surface-container transition-colors p-2 rounded-full flex items-center justify-center">
+        <span class="material-symbols-outlined">arrow_back</span>
+    </button>
+</div>
+<!-- Header -->
+<div class="mb-lg max-w-2xl">
+<h1 class="font-display-hero-mobile text-display-hero-mobile md:font-display-hero md:text-display-hero text-primary mb-sm">Review your event plan</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Please review the summary of your requirements before submitting. Our team will use this to craft a personalized proposal.</p>
+</div>
+<!-- Bento Grid Summary -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-md md:gap-gutter">
+<!-- Event & Functions -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md flex flex-col justify-between hover:shadow-[0px_10px_30px_rgba(74,14,14,0.05)] transition-shadow group">
+<div>
+<div class="flex justify-between items-start mb-sm">
+<div class="flex items-center gap-2 text-primary">
+<span class="material-symbols-outlined">celebration</span>
+<h2 class="font-h2 text-h2 text-on-surface">Event &amp; Functions</h2>
+</div>
+<button class="text-primary font-button text-button opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">edit</span> Edit</button>
+</div>
+<ul class="font-body-md text-body-md text-on-surface-variant space-y-1 mt-xs">
+<li class="">Sangeet</li>
+<li class="">Traditional Wedding Ceremony</li>
+<li class="">Grand Reception</li>
+</ul>
+</div>
+</div>
+<!-- Dates -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md flex flex-col justify-between hover:shadow-[0px_10px_30px_rgba(74,14,14,0.05)] transition-shadow group">
+<div>
+<div class="flex justify-between items-start mb-sm">
+<div class="flex items-center gap-2 text-primary">
+<span class="material-symbols-outlined">calendar_month</span>
+<h2 class="font-h2 text-h2 text-on-surface">Dates</h2>
+</div>
+<button class="text-primary font-button text-button opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">edit</span> Edit</button>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant mt-xs">
+                        November 12, 2024<br>to<br>November 14, 2024
+                    </p>
+</div>
+</div>
+<!-- Locations -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md flex flex-col justify-between hover:shadow-[0px_10px_30px_rgba(74,14,14,0.05)] transition-shadow group">
+<div>
+<div class="flex justify-between items-start mb-sm">
+<div class="flex items-center gap-2 text-primary">
+<span class="material-symbols-outlined">location_on</span>
+<h2 class="font-h2 text-h2 text-on-surface">Locations</h2>
+</div>
+<button class="text-primary font-button text-button opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">edit</span> Edit</button>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant mt-xs">
+                        Taj Falaknuma Palace<br>Hyderabad, Telangana
+                    </p>
+</div>
+</div>
+<!-- Guests -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md flex flex-col justify-between hover:shadow-[0px_10px_30px_rgba(74,14,14,0.05)] transition-shadow group">
+<div>
+<div class="flex justify-between items-start mb-sm">
+<div class="flex items-center gap-2 text-primary">
+<span class="material-symbols-outlined">group</span>
+<h2 class="font-h2 text-h2 text-on-surface">Guests</h2>
+</div>
+<button class="text-primary font-button text-button opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">edit</span> Edit</button>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant mt-xs">
+                        Estimated: 350 - 500 guests
+                    </p>
+</div>
+</div>
+<!-- Budget -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md flex flex-col justify-between hover:shadow-[0px_10px_30px_rgba(74,14,14,0.05)] transition-shadow group">
+<div>
+<div class="flex justify-between items-start mb-sm">
+<div class="flex items-center gap-2 text-primary">
+<span class="material-symbols-outlined">account_balance_wallet</span>
+<h2 class="font-h2 text-h2 text-on-surface">Budget</h2>
+</div>
+<button class="text-primary font-button text-button opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">edit</span> Edit</button>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant mt-xs">
+                        ₹ 50,00,000 - ₹ 75,00,000
+                    </p>
+</div>
+</div>
+<!-- Services -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md flex flex-col justify-between hover:shadow-[0px_10px_30px_rgba(74,14,14,0.05)] transition-shadow group">
+<div>
+<div class="flex justify-between items-start mb-sm">
+<div class="flex items-center gap-2 text-primary">
+<span class="material-symbols-outlined">room_service</span>
+<h2 class="font-h2 text-h2 text-on-surface">Services</h2>
+</div>
+<button class="text-primary font-button text-button opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">edit</span> Edit</button>
+</div>
+<div class="flex flex-wrap gap-2 mt-xs">
+<span class="bg-surface text-on-surface-variant font-label-caps text-label-caps px-3 py-1 rounded-full border border-outline-variant">Catering</span>
+<span class="bg-surface text-on-surface-variant font-label-caps text-label-caps px-3 py-1 rounded-full border border-outline-variant">Decor</span>
+<span class="bg-surface text-on-surface-variant font-label-caps text-label-caps px-3 py-1 rounded-full border border-outline-variant">Photography</span>
+</div>
+</div>
+</div>
+<!-- Offering -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md flex flex-col justify-between hover:shadow-[0px_10px_30px_rgba(74,14,14,0.05)] transition-shadow group">
+<div>
+<div class="flex justify-between items-start mb-sm">
+<div class="flex items-center gap-2 text-primary">
+<span class="material-symbols-outlined">diamond</span>
+<h2 class="font-h2 text-h2 text-on-surface">Offering</h2>
+</div>
+<button class="text-primary font-button text-button opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">edit</span> Edit</button>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant mt-xs">
+                        Royal Heritage Package (Full Planning)
+                    </p>
+</div>
+</div>
+<!-- Requirements -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md flex flex-col justify-between hover:shadow-[0px_10px_30px_rgba(74,14,14,0.05)] transition-shadow group">
+<div>
+<div class="flex justify-between items-start mb-sm">
+<div class="flex items-center gap-2 text-primary">
+<span class="material-symbols-outlined">assignment</span>
+<h2 class="font-h2 text-h2 text-on-surface">Requirements</h2>
+</div>
+<button class="text-primary font-button text-button opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">edit</span> Edit</button>
+</div>
+<ul class="font-body-md text-body-md text-on-surface-variant space-y-1 mt-xs list-disc list-inside">
+<li class="">Strictly vegetarian catering</li>
+<li class="">Wheelchair accessibility for elder guests</li>
+<li class="">Valet parking required</li>
+</ul>
+</div>
+</div>
+<!-- External Vendor -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md flex flex-col justify-between hover:shadow-[0px_10px_30px_rgba(74,14,14,0.05)] transition-shadow group">
+<div>
+<div class="flex justify-between items-start mb-sm">
+<div class="flex items-center gap-2 text-primary">
+<span class="material-symbols-outlined">storefront</span>
+<h2 class="font-h2 text-h2 text-on-surface">External Vendor</h2>
+</div>
+<button class="text-primary font-button text-button opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">edit</span> Edit</button>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant mt-xs">
+                        Bringing own Makeup Artist (MUA) and select traditional musicians.
+                    </p>
+</div>
+</div>
+<!-- Inspiration (Spans full width on mobile, 2 cols on tablet, 3 on desktop if needed, let's span 2 cols to fit images well) -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md flex flex-col justify-between hover:shadow-[0px_10px_30px_rgba(74,14,14,0.05)] transition-shadow group md:col-span-2 lg:col-span-1">
+<div>
+<div class="flex justify-between items-start mb-sm">
+<div class="flex items-center gap-2 text-primary">
+<span class="material-symbols-outlined">image</span>
+<h2 class="font-h2 text-h2 text-on-surface">Inspiration</h2>
+</div>
+<button class="text-primary font-button text-button opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">edit</span> Edit</button>
+</div>
+<div class="flex gap-2 mt-xs overflow-x-auto no-scrollbar pb-2">
+<div class="w-16 h-16 rounded-lg bg-surface-container overflow-hidden shrink-0 border border-outline-variant">
+<img class="w-full h-full object-cover" data-alt="A detailed, high-resolution photograph of a luxurious Indian wedding mandap decorated with rich marigold flowers and warm ambient lighting. The style is premium editorial, capturing the elegant aesthetic of traditional Indian hospitality against a warm ivory canvas background. The mood is celebratory and grand." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCVLlmQA1bhKs8BdmPRPtlYFJR8X5oFBLZAEkHmQgzDzxX_sSC4OLqQdDNZoeyvm2qlxg5KC_LYaAlv46dGNlApGpJ4yFsEnchmcFBYxd7V-HnAhkL2XjDRO52ANLZaFHnVKZ7oGQUGXqNYjQRjO5UOXVKXA8xvkw_0GoRiYaIMwEs-CRh5NQXfT7IgzPeiZdnw6jRYREgsMu3gumREQTWp3GrUshIlrnXbW5kULEOF1c5vVhspNmnW">
+</div>
+<div class="w-16 h-16 rounded-lg bg-surface-container overflow-hidden shrink-0 border border-outline-variant">
+<img class="w-full h-full object-cover" data-alt="A close-up macro shot of sophisticated floral arrangements at a premium Indian wedding reception. Deep burgundy and gold accents contrast beautifully against crisp white table linens. The lighting is soft and inviting, emphasizing a modern corporate aesthetic with tactile elegance and high-end styling." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBUAvLo6QDPuxUE7VnwJUgkUih_qsd1oaag8yzOojzNSkp0NC3EVwmg_F1eGj6ml2nAcKkBplJ2o0HtPDWH2tp2n3hkA5jHIHFcBmn9x-NYqDEtfI8-nw8DDvM-OlneLPmW2DNFmOyCWwX9DTVQmXEj1Xj9qDx5JMRAp-FAeISg4dcNMBCi_59nzbK8OVida9AdvxfKqRLASbRzirqMbiMAqSyTr1HHaDZ5xXcKdgmQw8Zn8Tfx0VsH">
+</div>
+<div class="w-16 h-16 flex items-center justify-center rounded-lg bg-surface-container-low text-on-surface-variant font-label-caps text-label-caps border border-outline-variant border-dashed shrink-0">
+                            +2
+                        </div>
+</div>
+</div>
+</div>
+<!-- Contact -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md flex flex-col justify-between hover:shadow-[0px_10px_30px_rgba(74,14,14,0.05)] transition-shadow group">
+<div>
+<div class="flex justify-between items-start mb-sm">
+<div class="flex items-center gap-2 text-primary">
+<span class="material-symbols-outlined">person</span>
+<h2 class="font-h2 text-h2 text-on-surface">Contact</h2>
+</div>
+<button class="text-primary font-button text-button opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">edit</span> Edit</button>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant mt-xs">
+                        Riya Sharma<br>
+                        riya.sharma@example.com<br>
+                        +91 98765 43210
+                    </p>
+</div>
+</div>
+<!-- Consent -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md flex flex-col justify-between hover:shadow-[0px_10px_30px_rgba(74,14,14,0.05)] transition-shadow group">
+<div>
+<div class="flex justify-between items-start mb-sm">
+<div class="flex items-center gap-2 text-primary">
+<span class="material-symbols-outlined">fact_check</span>
+<h2 class="font-h2 text-h2 text-on-surface">Consent</h2>
+</div>
+<button class="text-primary font-button text-button opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">edit</span> Edit</button>
+</div>
+<div class="flex items-start gap-2 mt-xs text-on-surface-variant font-body-md text-body-md">
+<span class="material-symbols-outlined text-primary mt-1 text-[18px]">check_circle</span>
+<p class="">Agreed to data processing and privacy terms.</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Footer Info Block -->
+<div class="mt-xl bg-surface-container-low rounded-xl p-lg border border-outline-variant flex flex-col md:flex-row gap-lg items-start md:items-center">
+<div class="flex-1 border-b md:border-b-0 md:border-r border-outline-variant pb-md md:pb-0 md:pr-lg">
+<h3 class="font-h2 text-h2 text-on-surface mb-2">Current planning estimate</h3>
+<p class="font-display-hero-mobile text-display-hero-mobile text-primary my-sm">₹ 50L - 75L</p>
+<div class="inline-flex items-center gap-2 bg-secondary-container text-on-secondary-container px-3 py-1 rounded-full font-label-caps text-label-caps mt-2">
+<span class="material-symbols-outlined text-[14px]">info</span>
+                  This is not a final quotation
+              </div>
+</div>
+<div class="flex-1 font-body-md text-body-md text-on-surface-variant">
+<h4 class="font-h2 text-h2 text-on-surface mb-xs">Next steps</h4>
+<p class="">Once you submit this enquiry, our elite planning team will review your requirements. We will reach out within 24 hours to schedule a detailed consultation and provide a comprehensive, formal proposal tailored to your vision.</p>
+</div>
+</div>
+<!-- Actions -->
+<div class="mt-lg pt-lg border-t border-outline-variant flex flex-col sm:flex-row justify-end items-center gap-md pb-xl">
+<button class="w-full sm:w-auto px-6 py-3 rounded-full border border-primary text-primary font-button text-button hover:bg-primary/5 transition-colors">
+                Save and exit
+            </button>
+<!-- Standard Primary Action -->
+<button class="w-full sm:w-auto px-8 py-3 rounded-full bg-primary text-on-primary font-button text-button hover:opacity-90 transition-opacity flex items-center justify-center gap-2 shadow-[0px_10px_30px_rgba(74,14,14,0.05)]" id="btn-submit" onclick="submitForm()">
+                Submit enquiry
+                <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+<!-- Loading State Variant (Hidden by default) -->
+<button class="hidden w-full sm:w-auto px-8 py-3 rounded-full bg-primary-container text-on-primary-container font-button text-button flex items-center justify-center gap-2 cursor-wait opacity-80" disabled="" id="btn-loading">
+<span class="material-symbols-outlined animate-spin text-[18px]">progress_activity</span>
+                Submitting...
+            </button>
+</div>
+</main>
+<script>
+        // Simple JS to toggle the loading state on the primary button
+        function submitForm() {
+            const submitBtn = document.getElementById('btn-submit');
+            const loadingBtn = document.getElementById('btn-loading');
+            
+            // Swap buttons
+            submitBtn.classList.add('hidden');
+            loadingBtn.classList.remove('hidden');
+
+            // Simulate network request
+            setTimeout(() => {
+                loadingBtn.classList.add('hidden');
+                submitBtn.classList.remove('hidden');
+                alert("Enquiry submitted successfully! (Demo)");
+            }, 3000);
+        }
+    </script>
+
+
+</body></html>

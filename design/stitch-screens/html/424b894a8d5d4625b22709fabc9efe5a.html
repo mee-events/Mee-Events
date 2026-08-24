@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Search - Mee Events</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&amp;family=EB+Garamond:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary-container": "#4a0e0e",
+                        "outline-variant": "#dac1bf",
+                        "on-surface-variant": "#544341",
+                        "on-tertiary-container": "#8c8c88",
+                        "secondary-fixed-dim": "#e9c176",
+                        "surface-container-low": "#f6f3f2",
+                        "on-tertiary-fixed-variant": "#474744",
+                        "surface-container-highest": "#e5e2e1",
+                        "on-error-container": "#93000a",
+                        "on-primary-fixed-variant": "#77302d",
+                        "on-surface": "#1c1b1b",
+                        "tertiary-fixed-dim": "#c8c6c2",
+                        "tertiary": "#0f100d",
+                        "on-primary": "#ffffff",
+                        "primary-fixed-dim": "#ffb3ad",
+                        "on-error": "#ffffff",
+                        "on-secondary-container": "#785a1a",
+                        "surface-container-lowest": "#ffffff",
+                        "primary-fixed": "#ffdad7",
+                        "outline": "#877270",
+                        "primary": "#2a0002",
+                        "inverse-primary": "#ffb3ad",
+                        "on-tertiary": "#ffffff",
+                        "tertiary-container": "#242522",
+                        "on-tertiary-fixed": "#1b1c19",
+                        "on-secondary-fixed": "#261900",
+                        "error-container": "#ffdad6",
+                        "on-primary-fixed": "#3d0506",
+                        "surface-container": "#f0eded",
+                        "background": "#fcf9f8",
+                        "surface-tint": "#954742",
+                        "surface": "#fcf9f8",
+                        "on-secondary": "#ffffff",
+                        "inverse-on-surface": "#f3f0ef",
+                        "secondary-fixed": "#ffdea5",
+                        "surface-dim": "#dcd9d9",
+                        "error": "#ba1a1a",
+                        "surface-variant": "#e5e2e1",
+                        "tertiary-fixed": "#e4e2dd",
+                        "surface-bright": "#fcf9f8",
+                        "secondary-container": "#fed488",
+                        "surface-container-high": "#eae7e7",
+                        "inverse-surface": "#313030",
+                        "on-secondary-fixed-variant": "#5d4201",
+                        "secondary": "#775a19",
+                        "on-background": "#1c1b1b",
+                        "on-primary-container": "#cc726d"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "sm": "12px",
+                        "gutter": "24px",
+                        "xs": "4px",
+                        "xl": "80px",
+                        "container-max": "1280px",
+                        "md": "24px",
+                        "base": "8px",
+                        "lg": "48px"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Manrope"],
+                        "display-hero-mobile": ["EB Garamond"],
+                        "display-hero": ["EB Garamond"],
+                        "h2": ["Manrope"],
+                        "label-caps": ["Manrope"],
+                        "body-lg": ["Manrope"],
+                        "h1": ["Manrope"],
+                        "button": ["Manrope"]
+                    },
+                    "fontSize": {
+                        "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "display-hero-mobile": ["36px", { "lineHeight": "1.2", "fontWeight": "500" }],
+                        "display-hero": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "500" }],
+                        "h2": ["24px", { "lineHeight": "1.4", "fontWeight": "600" }],
+                        "label-caps": ["12px", { "lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "h1": ["32px", { "lineHeight": "1.3", "fontWeight": "700" }],
+                        "button": ["14px", { "lineHeight": "1", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: #F9F7F2; /* Warm Ivory Canvas */
+        }
+        .animate-blink {
+            animation: blink 1s step-end infinite;
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="font-body-md text-on-surface antialiased min-h-screen flex flex-col pb-24 md:pb-0">
+<!-- Header / TopAppBar -->
+<header class="bg-surface docked full-width top-0 z-40 border-b border-outline-variant flat no shadows">
+<div class="flex justify-between items-center px-gutter py-sm w-full max-w-container-max mx-auto hidden md:flex">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">location_on</span>
+<h1 class="font-h1 text-h1 text-primary">Mee Events</h1>
+</div>
+<nav class="flex space-x-8">
+<a class="text-primary border-b-2 border-secondary font-h2 text-h2 py-2" href="#">Explore</a>
+<a class="text-on-surface-variant hover:bg-surface-container-low transition-colors font-h2 text-h2 py-2" href="#">My Plan</a>
+<a class="text-on-surface-variant hover:bg-surface-container-low transition-colors font-h2 text-h2 py-2" href="#">Bookings</a>
+<a class="text-on-surface-variant hover:bg-surface-container-low transition-colors font-h2 text-h2 py-2" href="#">Profile</a>
+</nav>
+<button class="font-button text-button bg-primary-container text-on-primary px-6 py-3 rounded-full hover:bg-primary transition-colors active:scale-95">Customer</button>
+</div>
+<!-- Mobile Header -->
+<div class="flex justify-between items-center px-gutter py-sm w-full md:hidden">
+<div class="flex items-center gap-4">
+<button aria-label="Back" class="p-2">
+<span class="material-symbols-outlined text-on-surface">arrow_back</span>
+</button>
+</div>
+<h1 class="font-display-hero-mobile text-display-hero-mobile text-primary tracking-tight">Mee Events</h1>
+<div class="w-10"></div> <!-- Spacer for balance -->
+</div>
+</header>
+<main class="flex-grow w-full max-w-container-max mx-auto px-gutter pt-md md:pt-lg">
+<!-- Search Field Area -->
+<div class="relative max-w-2xl mx-auto mb-lg flex items-center gap-4">
+<div class="relative flex-grow bg-white border border-[#E5DED4] rounded-xl flex items-center px-4 py-3 shadow-[0px_10px_30px_rgba(74,14,14,0.05)]">
+<span class="material-symbols-outlined text-on-surface-variant mr-3">search</span>
+<div class="flex-grow flex items-center">
+<span class="font-body-lg text-body-lg text-on-surface whitespace-pre">Mehndi decoration</span>
+<div class="h-6 w-0.5 bg-primary animate-blink ml-1"></div>
+</div>
+<button aria-label="Clear search" class="ml-2 p-1 rounded-full hover:bg-surface-container-high transition-colors text-on-surface-variant">
+<span class="material-symbols-outlined text-sm">close</span>
+</button>
+</div>
+<button class="font-button text-button text-primary hover:text-primary-container transition-colors hidden md:block whitespace-nowrap">Cancel</button>
+</div>
+<div class="max-w-2xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-xl">
+<!-- Left Column: Recent/Popular -->
+<div class="space-y-lg">
+<!-- Recent Searches -->
+<section>
+<h2 class="font-label-caps text-label-caps text-on-tertiary-container uppercase mb-md">Recent Searches</h2>
+<ul class="space-y-4">
+<li class="flex items-center gap-3 py-2 border-b border-[#E5DED4] last:border-0 group cursor-pointer">
+<span class="material-symbols-outlined text-outline-variant group-hover:text-primary transition-colors">history</span>
+<span class="font-body-md text-body-md text-on-surface group-hover:text-primary transition-colors">Wedding photography</span>
+</li>
+<li class="flex items-center gap-3 py-2 border-b border-[#E5DED4] last:border-0 group cursor-pointer">
+<span class="material-symbols-outlined text-outline-variant group-hover:text-primary transition-colors">history</span>
+<span class="font-body-md text-body-md text-on-surface group-hover:text-primary transition-colors">Banquet halls in Jubilee Hills</span>
+</li>
+</ul>
+</section>
+<!-- Popular Categories / Suggestions -->
+<section>
+<h2 class="font-label-caps text-label-caps text-on-tertiary-container uppercase mb-md">Popular Right Now</h2>
+<div class="flex flex-wrap gap-3">
+<button class="px-4 py-2 bg-white border border-[#E5DED4] rounded-full font-body-md text-body-md text-on-surface hover:border-primary hover:text-primary transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-sm text-secondary">local_florist</span>
+                            Floral Mandaps
+                        </button>
+<button class="px-4 py-2 bg-white border border-[#E5DED4] rounded-full font-body-md text-body-md text-on-surface hover:border-primary hover:text-primary transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-sm text-secondary">restaurant_menu</span>
+                            Live Food Counters
+                        </button>
+<button class="px-4 py-2 bg-white border border-[#E5DED4] rounded-full font-body-md text-body-md text-on-surface hover:border-primary hover:text-primary transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-sm text-secondary">music_note</span>
+                            Sangeet DJs
+                        </button>
+</div>
+</section>
+</div>
+<!-- Right Column: Structured Suggestions based on input -->
+<div class="space-y-lg">
+<section>
+<h2 class="font-label-caps text-label-caps text-on-tertiary-container uppercase mb-md">Functions</h2>
+<ul class="space-y-4">
+<li class="flex items-center gap-3 py-2 border-b border-[#E5DED4] last:border-0 group cursor-pointer">
+<div class="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-colors">
+<span class="material-symbols-outlined">celebration</span>
+</div>
+<div>
+<p class="font-h2 text-h2 text-on-surface text-base group-hover:text-primary transition-colors"><strong>Mehndi decoration</strong> packages</p>
+</div>
+</li>
+<li class="flex items-center gap-3 py-2 border-b border-[#E5DED4] last:border-0 group cursor-pointer">
+<div class="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-colors">
+<span class="material-symbols-outlined">photo_camera</span>
+</div>
+<div>
+<p class="font-h2 text-h2 text-on-surface text-base group-hover:text-primary transition-colors">Wedding photography for <strong>Mehndi</strong></p>
+</div>
+</li>
+</ul>
+</section>
+<section>
+<h2 class="font-label-caps text-label-caps text-on-tertiary-container uppercase mb-md">Services &amp; Venues</h2>
+<ul class="space-y-4">
+<li class="flex items-center gap-3 py-2 border-b border-[#E5DED4] last:border-0 group cursor-pointer">
+<div class="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center text-secondary group-hover:bg-secondary group-hover:text-white transition-colors">
+<span class="material-symbols-outlined">storefront</span>
+</div>
+<div>
+<p class="font-h2 text-h2 text-on-surface text-base group-hover:text-secondary transition-colors">Banquet halls for <strong>Mehndi</strong></p>
+</div>
+</li>
+<li class="flex items-center gap-3 py-2 border-b border-[#E5DED4] last:border-0 group cursor-pointer">
+<div class="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center text-secondary group-hover:bg-secondary group-hover:text-white transition-colors">
+<span class="material-symbols-outlined">brunch_dining</span>
+</div>
+<div>
+<p class="font-h2 text-h2 text-on-surface text-base group-hover:text-secondary transition-colors">Live food counters for <strong>Mehndi</strong></p>
+</div>
+</li>
+</ul>
+</section>
+</div>
+</div>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="bg-surface docked full-width bottom-0 rounded-t-xl border-t border-outline-variant shadow-sm fixed bottom-0 w-full z-50 flex justify-around items-center px-4 py-3 pb-safe md:hidden">
+<a class="flex flex-col items-center justify-center text-primary font-bold active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">explore</span>
+<span class="font-label-caps text-label-caps mt-1">Explore</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-tertiary-container active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined">event_note</span>
+<span class="font-label-caps text-label-caps mt-1">My Plan</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-tertiary-container active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined">confirmation_number</span>
+<span class="font-label-caps text-label-caps mt-1">Bookings</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-tertiary-container active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-caps text-label-caps mt-1">Profile</span>
+</a>
+</nav>
+</body></html>

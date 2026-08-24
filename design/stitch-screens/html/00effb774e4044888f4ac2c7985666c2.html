@@ -1,0 +1,259 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Mee Events - Search Results</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&amp;family=EB+Garamond:wght@500&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary-container": "#4a0e0e",
+                        "outline-variant": "#dac1bf",
+                        "on-surface-variant": "#544341",
+                        "on-tertiary-container": "#8c8c88",
+                        "secondary-fixed-dim": "#e9c176",
+                        "surface-container-low": "#f6f3f2",
+                        "on-tertiary-fixed-variant": "#474744",
+                        "surface-container-highest": "#e5e2e1",
+                        "on-error-container": "#93000a",
+                        "on-primary-fixed-variant": "#77302d",
+                        "on-surface": "#1c1b1b",
+                        "tertiary-fixed-dim": "#c8c6c2",
+                        "tertiary": "#0f100d",
+                        "on-primary": "#ffffff",
+                        "primary-fixed-dim": "#ffb3ad",
+                        "on-error": "#ffffff",
+                        "on-secondary-container": "#785a1a",
+                        "surface-container-lowest": "#ffffff",
+                        "primary-fixed": "#ffdad7",
+                        "outline": "#877270",
+                        "primary": "#2a0002",
+                        "inverse-primary": "#ffb3ad",
+                        "on-tertiary": "#ffffff",
+                        "tertiary-container": "#242522",
+                        "on-tertiary-fixed": "#1b1c19",
+                        "on-secondary-fixed": "#261900",
+                        "error-container": "#ffdad6",
+                        "on-primary-fixed": "#3d0506",
+                        "surface-container": "#f0eded",
+                        "background": "#fcf9f8",
+                        "surface-tint": "#954742",
+                        "surface": "#fcf9f8",
+                        "on-secondary": "#ffffff",
+                        "inverse-on-surface": "#f3f0ef",
+                        "secondary-fixed": "#ffdea5",
+                        "surface-dim": "#dcd9d9",
+                        "error": "#ba1a1a",
+                        "surface-variant": "#e5e2e1",
+                        "tertiary-fixed": "#e4e2dd",
+                        "surface-bright": "#fcf9f8",
+                        "secondary-container": "#fed488",
+                        "surface-container-high": "#eae7e7",
+                        "inverse-surface": "#313030",
+                        "on-secondary-fixed-variant": "#5d4201",
+                        "secondary": "#775a19",
+                        "on-background": "#1c1b1b",
+                        "on-primary-container": "#cc726d"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "sm": "12px",
+                        "gutter": "24px",
+                        "xs": "4px",
+                        "xl": "80px",
+                        "container-max": "1280px",
+                        "md": "24px",
+                        "base": "8px",
+                        "lg": "48px"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Manrope"],
+                        "display-hero-mobile": ["EB Garamond"],
+                        "display-hero": ["EB Garamond"],
+                        "h2": ["Manrope"],
+                        "label-caps": ["Manrope"],
+                        "body-lg": ["Manrope"],
+                        "h1": ["Manrope"],
+                        "button": ["Manrope"]
+                    },
+                    "fontSize": {
+                        "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "display-hero-mobile": ["36px", { "lineHeight": "1.2", "fontWeight": "500" }],
+                        "display-hero": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "500" }],
+                        "h2": ["24px", { "lineHeight": "1.4", "fontWeight": "600" }],
+                        "label-caps": ["12px", { "lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "h1": ["32px", { "lineHeight": "1.3", "fontWeight": "700" }],
+                        "button": ["14px", { "lineHeight": "1", "fontWeight": "600" }]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .custom-shadow:hover {
+            box-shadow: 0px 10px 30px rgba(74, 14, 14, 0.05);
+        }
+        .soft-border {
+            border-color: #E5DED4;
+        }
+        .bg-ivory {
+            background-color: #F9F7F2;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body-md antialiased pb-24 md:pb-0">
+<!-- TopAppBar -->
+<header class="bg-surface border-b soft-border flex justify-between items-center px-gutter py-sm w-full max-w-container-max mx-auto md:sticky md:top-0 md:z-50 docked full-width top-0">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">location_on</span>
+<h1 class="font-display-hero-mobile text-display-hero-mobile text-primary tracking-tight">Mee Events</h1>
+</div>
+<!-- Desktop Nav Cluster -->
+<nav class="hidden md:flex items-center gap-6">
+<a class="text-primary font-bold border-b-2 border-secondary flex flex-col items-center justify-center" href="#">Explore</a>
+<a class="text-on-surface-variant flex flex-col items-center justify-center" href="#">My Plan</a>
+<a class="text-on-surface-variant flex flex-col items-center justify-center" href="#">Bookings</a>
+<a class="text-on-surface-variant flex flex-col items-center justify-center" href="#">Profile</a>
+</nav>
+<div class="flex items-center gap-4">
+<button class="font-button text-button text-on-surface">Customer</button>
+</div>
+</header>
+<main class="max-w-container-max mx-auto px-gutter py-lg md:py-xl">
+<!-- Search Header -->
+<div class="mb-lg">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+<div>
+<h1 class="font-h1 text-h1 text-on-surface mb-2">Search Results for 'Mehndi decoration'</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant">42 exclusive offerings found in Hyderabad</p>
+</div>
+<div class="flex items-center gap-3">
+<button class="flex items-center gap-2 px-4 py-2 border border-outline-variant rounded-full text-on-surface hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined text-[18px]">filter_list</span>
+<span class="font-button text-button">Filter</span>
+</button>
+<button class="flex items-center gap-2 px-4 py-2 border border-outline-variant rounded-full text-on-surface hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined text-[18px]">sort</span>
+<span class="font-button text-button">Sort</span>
+</button>
+</div>
+</div>
+<!-- Active Filters -->
+<div class="flex flex-wrap gap-2">
+<span class="inline-flex items-center gap-1 bg-ivory text-on-surface-variant font-label-caps text-label-caps px-3 py-1.5 rounded-full border border-outline-variant">
+                    Mehndi
+                    <button class="material-symbols-outlined text-[14px] hover:text-primary">close</button>
+</span>
+<span class="inline-flex items-center gap-1 bg-ivory text-on-surface-variant font-label-caps text-label-caps px-3 py-1.5 rounded-full border border-outline-variant">
+                    Decoration
+                    <button class="material-symbols-outlined text-[14px] hover:text-primary">close</button>
+</span>
+<span class="inline-flex items-center gap-1 bg-secondary-container text-on-secondary-fixed font-label-caps text-label-caps px-3 py-1.5 rounded-full">
+                    Premium Packages
+                    <button class="material-symbols-outlined text-[14px] hover:text-primary">close</button>
+</span>
+</div>
+</div>
+<!-- Group: Ceremony Packages -->
+<section class="mb-xl">
+<h2 class="font-h2 text-h2 text-on-surface mb-6 flex items-center gap-2 border-b soft-border pb-4">
+<span class="material-symbols-outlined text-primary">auto_awesome</span>
+                Ceremony Packages
+            </h2>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+<!-- Card 1 -->
+<div class="bg-surface border soft-border rounded-[14px] overflow-hidden transition-all duration-300 custom-shadow flex flex-col h-full group">
+<div class="aspect-[4/3] w-full relative overflow-hidden bg-surface-container-low">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A luxurious modern Indian Mehndi ceremony setup outdoors. Bright, vibrant yellow and green marigold floral arrangements draped elegantly over white canvas tents. Sunlight filtering through the decor, casting soft shadows on pristine ivory seating with intricate ethnic cushions. High resolution, editorial photography style, conveying premium Indian hospitality and festive joy." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDasSB-8wshpFbSTh3MiE1Op0GsgGt5YbJLhL_hb9KxbIB8QYQq5rM_vKkWQswf025b_-lbXcNrWeD95RJBhqaBRjfz9UZ3nYZM7YcaArcQQFB_2iDqF49EVMrXmlBBUMz6Z7e6kQLkauU5Wu3dba6ZZuUkPLLvtZi8Ra-7UiaQJY3op_AqedUx4fGpdmaWuHq40sX416pLcdwLth6C73UpLNx7BCdTiizsNDzshBq7DRtCKcnvtycJ">
+<div class="absolute top-4 left-4 bg-secondary-container text-on-secondary-fixed px-2 py-1 rounded-full font-label-caps text-label-caps flex items-center gap-1 shadow-sm">
+<span class="material-symbols-outlined text-[14px]">verified</span> Trusted
+                        </div>
+</div>
+<div class="p-6 flex-1 flex flex-col">
+<h3 class="font-h2 text-[20px] text-on-surface mb-2 leading-tight">The Royal Rajasthani Courtyard Setup</h3>
+<p class="font-body-md text-on-surface-variant mb-4 flex-1">Complete floral decor with vintage props, seating for 50 guests, and ambient warm lighting.</p>
+<div class="flex justify-between items-end mt-auto pt-4 border-t soft-border">
+<div>
+<p class="font-label-caps text-label-caps text-on-tertiary-container mb-1">Starting From</p>
+<p class="font-h2 text-primary">₹1,25,000</p>
+</div>
+<span class="font-label-caps text-label-caps bg-surface-container-high text-on-surface px-2 py-1 rounded-full">50-100 Guests</span>
+</div>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="bg-surface border soft-border rounded-[14px] overflow-hidden transition-all duration-300 custom-shadow flex flex-col h-full group">
+<div class="aspect-[4/3] w-full relative overflow-hidden bg-surface-container-low">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="An elegant indoor Mehndi decor featuring pastel pink and peach drapes cascading from the ceiling. A central seating area for the bride with a plush velvet sofa set against a backdrop of fresh roses and jasmine. Soft, warm spotlighting creates an intimate and luxurious atmosphere. Captured in a high-end, editorial aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAzM7ALuC2Dws6o5BC_R0efjejCBwUK36xH1kWsN3OJmTiCPCZ8p-V6Ro5xQBC176-MiRm_unb3TLD5nH1an-0j66Jt2j1cSw3EBvwnq7-6HkE2UC9VttBPMnaGvlwtLRBCupWkm6-VjQXg_co3oksSUtlbHSQJ6V2TzwRkYj9pzAvc2xG8QywE-DI3wpHExdvZ46_4fywZNRIQQxD-wyVXZXE-5ECySeT4zYE1rp_mEit3Ij8UIc3O">
+</div>
+<div class="p-6 flex-1 flex flex-col">
+<h3 class="font-h2 text-[20px] text-on-surface mb-2 leading-tight">Pastel Elegance Floral Archway</h3>
+<p class="font-body-md text-on-surface-variant mb-4 flex-1">Minimalist contemporary design with imported orchids, customized neon signage, and plush velvet bridal seating.</p>
+<div class="flex justify-between items-end mt-auto pt-4 border-t soft-border">
+<div>
+<p class="font-label-caps text-label-caps text-on-tertiary-container mb-1">Starting From</p>
+<p class="font-h2 text-primary">₹85,000</p>
+</div>
+<span class="font-label-caps text-label-caps bg-surface-container-high text-on-surface px-2 py-1 rounded-full">Up to 50 Guests</span>
+</div>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="bg-surface border soft-border rounded-[14px] overflow-hidden transition-all duration-300 custom-shadow flex flex-col h-full group">
+<div class="aspect-[4/3] w-full relative overflow-hidden bg-surface-container-low">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A vibrant tropical-themed Mehndi decor setup. Lush green palm leaves mixed with bright magenta and orange exotic flowers framing a modern cabana. Natural sunlight highlights the rich textures of the floral arrangements and the smooth ivory flooring. The mood is fresh, lively, and luxurious." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDNITNdAXm0hLUq-vWn2b6BtG9whtwBGq9eYlLDmRDZtPhp7z8Nm0uTQpLfMTOnxo3cLI1K54PrT-rTG7-PoHerZXUR94PJ4B0Z4q_uOoEoSSWsCBm6eIsEA-6Anx6teOUbQpYy8Tw8Cl1GPXga4yrb_kCvpSQnBMnZoNakH5MwQRUEVOJBY3hip__I3xX96E-gB8zOBgBptNL7jvFfUlbLMezkcKSvI_SFABTA8-VBoUN1pMJ4Iflq">
+<div class="absolute top-4 left-4 bg-secondary-container text-on-secondary-fixed px-2 py-1 rounded-full font-label-caps text-label-caps flex items-center gap-1 shadow-sm">
+<span class="material-symbols-outlined text-[14px]">verified</span> Trusted
+                        </div>
+</div>
+<div class="p-6 flex-1 flex flex-col">
+<h3 class="font-h2 text-[20px] text-on-surface mb-2 leading-tight">Tropical Cabana Fusion Retreat</h3>
+<p class="font-body-md text-on-surface-variant mb-4 flex-1">Lush green foliage, exotic floral arrangements, and bohemian macrame accents for a modern outdoor vibe.</p>
+<div class="flex justify-between items-end mt-auto pt-4 border-t soft-border">
+<div>
+<p class="font-label-caps text-label-caps text-on-tertiary-container mb-1">Starting From</p>
+<p class="font-h2 text-primary">₹1,50,000</p>
+</div>
+<span class="font-label-caps text-label-caps bg-surface-container-high text-on-surface px-2 py-1 rounded-full">100+ Guests</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="md:hidden bg-surface border-t border-outline-variant shadow-sm fixed bottom-0 w-full z-50 flex justify-around items-center px-4 py-3 pb-safe docked full-width bottom-0 rounded-t-xl">
+<a class="flex flex-col items-center justify-center text-primary font-bold" href="#">
+<span class="material-symbols-outlined">explore</span>
+<span class="font-label-caps text-label-caps mt-1">Explore</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-tertiary-container" href="#">
+<span class="material-symbols-outlined">event_note</span>
+<span class="font-label-caps text-label-caps mt-1">My Plan</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-tertiary-container" href="#">
+<span class="material-symbols-outlined">confirmation_number</span>
+<span class="font-label-caps text-label-caps mt-1">Bookings</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-tertiary-container" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-caps text-label-caps mt-1">Profile</span>
+</a>
+</nav>
+</body></html>

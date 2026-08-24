@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mee_events/theme/app_colors.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 class AppImage extends StatelessWidget {
@@ -14,7 +15,7 @@ class AppImage extends StatelessWidget {
   final LoadingErrorWidgetBuilder? errorWidget;
 
   const AppImage({
-    Key? key,
+    super.key,
     required this.imageUrl,
     this.fit = BoxFit.cover,
     this.width,
@@ -25,7 +26,7 @@ class AppImage extends StatelessWidget {
     this.colorBlendMode,
     this.placeholder,
     this.errorWidget,
-  }) : super(key: key);
+  });
 
   bool _isValidUrl(String url) {
     if (url.isEmpty) return false;
@@ -35,15 +36,16 @@ class AppImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final effectiveFallback = fallbackWidget ??
+    final effectiveFallback =
+        fallbackWidget ??
         Container(
           width: width,
           height: height,
-          color: Colors.grey[200],
+          color: AppColors.surfaceStrong,
           child: const Center(
             child: Icon(
               Icons.image_not_supported_outlined,
-              color: Colors.grey,
+              color: AppColors.mutedSoft,
               size: 24,
             ),
           ),
@@ -71,6 +73,13 @@ class AppImage extends StatelessWidget {
     }
 
     // PRODUCTION MODE: Serve with caching
+    final cacheWidth = (width != null && width!.isFinite)
+        ? (width! * 2).toInt()
+        : null;
+    final cacheHeight = (height != null && height!.isFinite)
+        ? (height! * 2).toInt()
+        : null;
+
     return CachedNetworkImage(
       imageUrl: imageUrl,
       fit: fit,
@@ -79,24 +88,28 @@ class AppImage extends StatelessWidget {
       alignment: alignment,
       color: color,
       colorBlendMode: colorBlendMode,
-      memCacheWidth: width != null ? (width! * 2).toInt() : null, // Good for memory
-      placeholder: placeholder ?? (context, url) => Container(
-        width: width,
-        height: height,
-        color: Colors.grey[100],
-        child: const Center(
-          child: SizedBox(
-            width: 24,
-            height: 24,
-            child: CircularProgressIndicator(strokeWidth: 2),
+      memCacheWidth: cacheWidth,
+      memCacheHeight: cacheHeight,
+      placeholder:
+          placeholder ??
+          (context, url) => Container(
+            width: width,
+            height: height,
+            color: AppColors.surfaceSoft,
+            child: const Center(
+              child: SizedBox(
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
+            ),
           ),
-        ),
-      ),
-      errorWidget: errorWidget ?? (context, url, error) {
-        debugPrint('AppImage Network Error loading $url: $error');
-        return effectiveFallback;
-      },
+      errorWidget:
+          errorWidget ??
+          (context, url, error) {
+            debugPrint('AppImage Network Error loading $url: $error');
+            return effectiveFallback;
+          },
     );
   }
 }
-

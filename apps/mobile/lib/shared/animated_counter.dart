@@ -36,12 +36,10 @@ class _AnimatedCounterState extends State<AnimatedCounter>
   }
 
   void _setupAnimation(int begin, int end) {
-    _animation = IntTween(begin: begin, end: end).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: Curves.easeOutCubic,
-      ),
-    );
+    _animation = IntTween(
+      begin: begin,
+      end: end,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
   }
 
   @override
@@ -70,10 +68,7 @@ class _AnimatedCounterState extends State<AnimatedCounter>
         final val = _animation.value;
         final prefixText = widget.prefix ?? '';
         final suffixText = widget.suffix ?? '';
-        return Text(
-          '$prefixText$val$suffixText',
-          style: textStyle,
-        );
+        return Text('$prefixText$val$suffixText', style: textStyle);
       },
     );
   }

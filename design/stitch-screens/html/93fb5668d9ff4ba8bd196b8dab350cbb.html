@@ -1,0 +1,384 @@
+<!DOCTYPE html><html class="light" lang="en" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Mee Events - Home</title>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@500;700&amp;family=Manrope:wght@400;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-container-high": "#eae7e7",
+                      "inverse-surface": "#313030",
+                      "tertiary-container": "#242522",
+                      "on-background": "#1c1b1b",
+                      "on-primary-container": "#cc726d",
+                      "on-primary": "#ffffff",
+                      "tertiary-fixed": "#e4e2dd",
+                      "primary-fixed-dim": "#ffb3ad",
+                      "secondary-fixed": "#ffdea5",
+                      "outline": "#877270",
+                      "primary-container": "#4a0e0e",
+                      "surface-variant": "#e5e2e1",
+                      "surface-bright": "#fcf9f8",
+                      "secondary-container": "#fed488",
+                      "on-secondary-fixed-variant": "#5d4201",
+                      "surface-dim": "#dcd9d9",
+                      "surface-tint": "#954742",
+                      "on-primary-fixed-variant": "#77302d",
+                      "surface-container-lowest": "#ffffff",
+                      "on-secondary-fixed": "#261900",
+                      "on-secondary": "#ffffff",
+                      "on-tertiary": "#ffffff",
+                      "primary-fixed": "#ffdad7",
+                      "outline-variant": "#dac1bf",
+                      "surface-container": "#f0eded",
+                      "on-primary-fixed": "#3d0506",
+                      "surface-container-highest": "#e5e2e1",
+                      "surface": "#fcf9f8",
+                      "on-error-container": "#93000a",
+                      "inverse-on-surface": "#f3f0ef",
+                      "secondary-fixed-dim": "#e9c176",
+                      "tertiary-fixed-dim": "#c8c6c2",
+                      "on-secondary-container": "#785a1a",
+                      "on-surface": "#1c1b1b",
+                      "on-surface-variant": "#544341",
+                      "secondary": "#775a19",
+                      "surface-container-low": "#f6f3f2",
+                      "on-tertiary-container": "#8c8c88",
+                      "primary": "#2a0002",
+                      "inverse-primary": "#ffb3ad",
+                      "background": "#fcf9f8",
+                      "on-error": "#ffffff",
+                      "error-container": "#ffdad6",
+                      "on-tertiary-fixed-variant": "#474744",
+                      "on-tertiary-fixed": "#1b1c19",
+                      "error": "#ba1a1a",
+                      "tertiary": "#0f100d"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "sm": "12px",
+                      "xs": "4px",
+                      "base": "8px",
+                      "md": "24px",
+                      "xl": "80px",
+                      "gutter": "24px",
+                      "lg": "48px",
+                      "container-max": "1280px"
+              },
+              "fontFamily": {
+                      "body-lg": [
+                              "Manrope"
+                      ],
+                      "h2": [
+                              "Manrope"
+                      ],
+                      "h1": [
+                              "Manrope"
+                      ],
+                      "button": [
+                              "Manrope"
+                      ],
+                      "body-md": [
+                              "Manrope"
+                      ],
+                      "display-hero-mobile": [
+                              "EB Garamond"
+                      ],
+                      "label-caps": [
+                              "Manrope"
+                      ],
+                      "display-hero": [
+                              "EB Garamond"
+                      ]
+              },
+              "fontSize": {
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "h2": [
+                              "24px",
+                              {
+                                      "lineHeight": "1.4",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "h1": [
+                              "32px",
+                              {
+                                      "lineHeight": "1.3",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "button": [
+                              "14px",
+                              {
+                                      "lineHeight": "1",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "display-hero-mobile": [
+                              "36px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "label-caps": [
+                              "12px",
+                              {
+                                      "lineHeight": "1",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "display-hero": [
+                              "48px",
+                              {
+                                      "lineHeight": "1.1",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "500"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0;
+        }
+        .material-symbols-outlined.fill-icon {
+            font-variation-settings: 'FILL' 1;
+        }
+        /* Hide scrollbar for horizontal scrolling elements but keep functionality */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+      </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex flex-col pb-24 md:pb-0">
+<!-- TopAppBar -->
+<header class="sticky top-0 z-50 w-full bg-[#F9F7F2] border-b border-outline-variant h-16 flex items-center px-md lg:px-lg">
+  <div class="max-w-container-max mx-auto w-full flex items-center justify-between">
+    <div class="flex items-center gap-sm">
+      <button class="flex items-center gap-xs group">
+        <div class="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center overflow-hidden border border-outline-variant">
+          <span class="material-symbols-outlined text-primary text-[20px]">person</span>
+        </div>
+        <span class="material-symbols-outlined text-primary text-[18px] group-hover:translate-y-0.5 transition-transform">expand_more</span>
+      </button>
+    </div>
+    <div class="absolute left-1/2 -translate-x-1/2">
+      <h1 class="text-h1 font-display-hero text-primary tracking-tight">Mee Events</h1>
+    </div>
+    <div class="flex items-center gap-md">
+      <a href="{{DATA:SCREEN:SCREEN_165}}" class="text-primary hover:opacity-80 transition-opacity">
+        <span class="material-symbols-outlined text-[24px]">search</span>
+      </a>
+      <a href="{{DATA:SCREEN:SCREEN_6}}" class="text-primary hover:opacity-80 transition-opacity">
+        <span class="material-symbols-outlined text-[24px]">favorite</span>
+      </a>
+      <a href="{{DATA:SCREEN:SCREEN_54}}" class="text-primary hover:opacity-80 transition-opacity relative">
+        <span class="material-symbols-outlined text-[24px]">notifications</span>
+        <span class="absolute top-0 right-0 w-2 h-2 bg-error rounded-full border-2 border-[#F9F7F2]"></span>
+      </a>
+    </div>
+  </div>
+</header>
+<!-- Mobile Brand Title (below header since header was tight) -->
+
+<!-- Main Content Canvas -->
+<main class="flex-1 w-full max-w-container-max mx-auto px-md lg:px-lg py-md flex flex-col gap-lg">
+<!-- Top Event Buttons -->
+<section class="flex items-center gap-sm overflow-x-auto hide-scrollbar py-sm"><!-- Selected: Birthday -->
+<button class="flex-shrink-0 flex items-center gap-xs px-md py-sm rounded-full bg-primary-container text-on-primary-container shadow-[0px_10px_30px_rgba(74,14,14,0.05)] transition-all">
+<span class="material-symbols-outlined text-[18px]" data-icon="cake">cake</span>
+<span class="font-button text-button">Birthday</span>
+</button>
+<button class="flex-shrink-0 flex items-center gap-xs px-md py-sm rounded-full bg-surface-container text-on-surface-variant border border-outline-variant hover:bg-surface-container-high transition-all">
+<span class="material-symbols-outlined text-[18px]" data-icon="favorite">favorite</span>
+<span class="font-button text-button">Engagement</span>
+</button>
+<button class="flex-shrink-0 flex items-center gap-xs px-md py-sm rounded-full bg-surface-container text-on-surface-variant border border-outline-variant hover:bg-surface-container-high transition-all">
+<span class="material-symbols-outlined text-[18px]" data-icon="photo_camera">photo_camera</span>
+<span class="font-button text-button">Pre-Wedding</span>
+</button>
+<button class="flex-shrink-0 flex items-center gap-xs px-md py-sm rounded-full bg-surface-container text-on-surface-variant border border-outline-variant hover:bg-surface-container-high transition-all">
+<span class="material-symbols-outlined text-[18px]" data-icon="music_note">music_note</span>
+<span class="font-button text-button">Sangeet</span>
+</button>
+<button class="flex-shrink-0 flex items-center gap-xs px-md py-sm rounded-full bg-surface-container text-on-surface-variant border border-outline-variant hover:bg-surface-container-high transition-all">
+<span class="material-symbols-outlined text-[18px]" data-icon="diversity_2">diversity_2</span>
+<span class="font-button text-button">Wedding</span>
+</button></section>
+<!-- Customer Notification Bar -->
+<section class="w-full mb-lg">
+<div class="bg-secondary-fixed/20 border border-secondary-fixed-dim rounded-lg p-sm flex items-center justify-between">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-secondary" data-icon="info">info</span>
+<p class="font-body-md text-body-md text-on-secondary-container text-sm md:text-base">
+<span class="font-bold">MEE UPDATE:</span> Menu preferences are due by 28 August 2026.
+                    </p>
+</div>
+<div class="flex items-center gap-xs text-secondary">
+<div class="flex gap-1 mr-2">
+<div class="w-1.5 h-1.5 rounded-full bg-secondary"></div>
+<div class="w-1.5 h-1.5 rounded-full bg-secondary/30"></div>
+<div class="w-1.5 h-1.5 rounded-full bg-secondary/30"></div>
+</div>
+<span class="material-symbols-outlined cursor-pointer" data-icon="chevron_right">chevron_right</span>
+</div>
+</div>
+</section>
+<!-- Active Plan Card -->
+<section class="bg-surface rounded-xl border border-outline-variant p-md shadow-[0px_10px_30px_rgba(74,14,14,0.05)] relative overflow-hidden group">
+<div class="absolute top-0 left-0 w-1 h-full bg-secondary"></div>
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-md">
+<div class="flex flex-col gap-xs w-full md:w-2/3">
+<div class="flex items-center justify-between">
+<h2 class="font-h2 text-h2 text-on-surface">Riya &amp; Arjun Wedding</h2>
+<span class="bg-surface-container-high text-on-surface-variant px-sm py-xs rounded-full font-label-caps text-label-caps">Planning in progress</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant">Complete service requirements to proceed.</p>
+<div class="mt-sm">
+<div class="flex justify-between items-center mb-xs">
+<span class="font-label-caps text-label-caps text-on-surface-variant">Step 3 of 4</span>
+<span class="font-label-caps text-label-caps text-on-surface-variant">75%</span>
+</div>
+<div class="w-full bg-surface-container-highest rounded-full h-1.5">
+<div class="bg-secondary h-1.5 rounded-full" style="width: 75%"></div>
+</div>
+</div>
+</div>
+<div class="w-full md:w-auto">
+<button class="w-full md:w-auto px-lg py-sm bg-primary-container text-on-primary rounded font-button text-button hover:opacity-90 transition-opacity">
+                        Resume Planning
+                    </button>
+</div>
+</div>
+</section>
+<!-- Birthday Services Section -->
+<!-- Birthday Services Section -->
+<section class="w-full mb-xl">
+<div class="mb-md">
+<p class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest mb-xs">CURATED SERVICES</p>
+<h2 class="font-display-hero-mobile md:font-display-hero text-h2 md:text-h1 text-primary">Birthday Services</h2>
+<p class="font-body-md text-body-md text-on-surface-variant mt-2 max-w-2xl">Elevate your celebration with our bespoke birthday experiences, crafted to create unforgettable moments for you and your guests.</p>
+</div>
+<div class="flex gap-md overflow-x-auto hide-scrollbar pb-sm">
+<div class="flex-shrink-0 w-64 md:w-72 bg-surface rounded-[14px] border border-outline-variant overflow-hidden hover:shadow-[0px_10px_30px_rgba(74,14,14,0.05)] transition-all group">
+<div class="w-full h-40 bg-surface-container relative">
+<img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA9yTwaYMT0SYKGNT7JWNvl5DLwIgS_9osjPeR9YS-bktaeOrcTAgDhh-bNMXf2Eh0fCj3r_CnHXGOIo_ZR8dyLa00-IMGqEtG6QJse7V2JeORO2rSd_9bZI20oirNTx0L5PbsYhJvtrFu9pyzKkDlZttXVzVUCl48TGtI48g4_XugIQpsmtZaCflL6oAkFjzDnUFhoWhdSPnKN_9Jxy0mZnOpw-hVJLMUQm1lhvq-Md4zLzXY9VNoh">
+</div>
+<div class="p-md">
+<h3 class="font-h2 text-h2 text-on-surface mb-xs text-lg">Special Entry</h3>
+<p class="font-body-md text-sm text-on-surface-variant">Dramatic arrivals designed for impact.</p>
+</div>
+</div>
+<div class="flex-shrink-0 w-64 md:w-72 bg-surface rounded-[14px] border border-outline-variant overflow-hidden hover:shadow-[0px_10px_30px_rgba(74,14,14,0.05)] transition-all group">
+<div class="w-full h-40 bg-surface-container relative">
+<img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBGAtPeZqg7a3EEWEHEsEj0QL0SGbS6uuyK1MuaKNgF5W_DhZfdLxSZId1x5jm_3nPwiv6ezQymly8S9wu3e6pOHyu42p76Lsxb2Z-jZ5I7Xd5Ls-SzrtQ093GHDghudQ-rjD0RKOV8oIfDhnm6l0Lxl6HHoWDKF1VT6FdMi6R91vC9ZwJTkVnKvTu9D-9pRFcW2mvajnawFnFYXuN0FHOPUFIhd7NGOP_Khnrj_YIw3AZGC7BE69NT">
+</div>
+<div class="p-md">
+<h3 class="font-h2 text-h2 text-on-surface mb-xs text-lg">Balloon Stage Decoration</h3>
+<p class="font-body-md text-sm text-on-surface-variant">Sophisticated organic arrangements.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Engagement Services Section -->
+<section class="w-full mb-xl">
+<div class="mb-md">
+<p class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest mb-xs">CURATED SERVICES</p>
+<h2 class="font-display-hero-mobile md:font-display-hero text-h2 md:text-h1 text-primary">Engagement Services</h2>
+<p class="font-body-md text-body-md text-on-surface-variant mt-2 max-w-2xl">Begin your journey to forever with elegant, tailored services designed specifically for intimate and grand engagement ceremonies.</p>
+</div>
+<div class="flex gap-md overflow-x-auto hide-scrollbar pb-sm">
+<div class="flex-shrink-0 w-64 md:w-72 bg-surface rounded-[14px] border border-outline-variant overflow-hidden hover:shadow-[0px_10px_30px_rgba(74,14,14,0.05)] transition-all group">
+<div class="w-full h-40 bg-surface-container relative">
+<img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBSingsJfobvUFRTRCed1RXheqABiVY_nKvxZVq0A0AzjRoVnRbd8ywhBW8AXhKwXBjN3CxTYNleMc0GkgL2IBZVKBeXEI_4hocUSf-36h3jm2l768X9t0xBg6ur61qFfHiSMDx-v9wYfrKtf_KKD0IiGx6yBVFEbBZHBEx4baO0XTKPKdwYbyIp5tcw_q4dXS7HCzbfhSeqNNVpMN4nfLgbeZkKkZXdiTZEfrui5g4KROls6nAPGWL">
+</div>
+<div class="p-md">
+<h3 class="font-h2 text-h2 text-on-surface mb-xs text-lg">House Decoration</h3>
+<p class="font-body-md text-sm text-on-surface-variant">Transform your home elegantly.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Wedding Services Section -->
+<section class="w-full mb-xl">
+<div class="mb-md">
+<p class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest mb-xs">CURATED SERVICES</p>
+<h2 class="font-display-hero-mobile md:font-display-hero text-h2 md:text-h1 text-primary">Wedding Services</h2>
+<p class="font-body-md text-body-md text-on-surface-variant mt-2 max-w-2xl">Experience the pinnacle of celebration with our comprehensive wedding services, designed to reflect the grandeur and cultural richness of modern Indian nuptials.</p>
+</div>
+<div class="flex gap-md overflow-x-auto hide-scrollbar pb-sm">
+<div class="flex-shrink-0 w-64 md:w-72 bg-surface rounded-[14px] border border-outline-variant overflow-hidden hover:shadow-[0px_10px_30px_rgba(74,14,14,0.05)] transition-all group">
+<div class="w-full h-40 bg-surface-container relative">
+<img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBN6k26GSF3AkmCHlJHBO6Vgxq1F4RlWG3Xa-ubVOPoKFbjyfAcfizmdx--mIy-fYddeuvLBZwohDHxwp6hnB5YdXDIUmMh6gXbWUliB5NU7ATtyqCjvONvOO63XSwqoyxGzzHq52b_0rk9e1RlKVMqLHxm6tXlslODW8W8mzwCyZ4pg06_X39m_6n_bBuJGjKQycCJGCI-Ph9UIrbfnipMr-ovGcz626KdKDYxEjN5bzS-B7euTkyM">
+</div>
+<div class="p-md">
+<h3 class="font-h2 text-h2 text-on-surface mb-xs text-lg">Bride &amp; Groom Entry</h3>
+<p class="font-body-md text-sm text-on-surface-variant">Unforgettable majestic arrivals.</p>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-sm py-base bg-surface dark:bg-surface-container-low border-t border-outline-variant shadow-lg rounded-t-xl">
+<a class="flex flex-col items-center justify-center text-secondary dark:text-secondary-fixed-dim gap-xs scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined fill-icon text-[24px]" data-icon="home">home</span>
+<span class="text-label-caps font-label-caps">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant gap-xs hover:bg-surface-container-high transition-all px-xs rounded" href="#">
+<span class="material-symbols-outlined text-[24px]" data-icon="search">search</span>
+<span class="text-label-caps font-label-caps">Explore</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant gap-xs hover:bg-surface-container-high transition-all px-xs rounded" href="#">
+<span class="material-symbols-outlined text-[24px]" data-icon="event_note">event_note</span>
+<span class="text-label-caps font-label-caps">Plan</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant gap-xs hover:bg-surface-container-high transition-all px-xs rounded" href="#">
+<span class="material-symbols-outlined text-[24px]" data-icon="chat_bubble">chat_bubble</span>
+<span class="text-label-caps font-label-caps">Enquiries</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant gap-xs hover:bg-surface-container-high transition-all px-xs rounded" href="#">
+<span class="material-symbols-outlined text-[24px]" data-icon="person">person</span>
+<span class="text-label-caps font-label-caps">Profile</span>
+</a>
+</nav>
+
+
+
+
+</body></html>

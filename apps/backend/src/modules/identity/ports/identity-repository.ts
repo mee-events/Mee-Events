@@ -5,6 +5,7 @@ export interface OtpChallengeRecord {
   readonly id: string;
   readonly mobileNumber: string;
   readonly codeDigest: string;
+  readonly createdAt: Date;
   readonly expiresAt: Date;
   readonly resendAfter: Date;
   readonly attemptsRemaining: number;
@@ -24,9 +25,24 @@ export interface RefreshDigestMatch {
 
 export const IDENTITY_REPOSITORY = Symbol("IDENTITY_REPOSITORY");
 
+export interface RoleSwitchPersistence {
+  readonly userId: string;
+  readonly role: PlatformRole;
+  readonly expectedVersion: number;
+  readonly requestId: string;
+  readonly actorUserId: string;
+  readonly actorRole: PlatformRole;
+  readonly fromRole: PlatformRole;
+  readonly toRole: PlatformRole;
+}
+
 export interface IdentityRepository {
   saveChallenge(challenge: OtpChallengeRecord): Promise<void>;
   findChallenge(id: string): Promise<OtpChallengeRecord | undefined>;
+  findLatestOpenChallengeByMobile(
+    mobileNumber: string,
+  ): Promise<OtpChallengeRecord | undefined>;
+  countChallengesSince(mobileNumber: string, since: Date): Promise<number>;
   updateChallenge(challenge: OtpChallengeRecord): Promise<void>;
   findUserByMobile(mobileNumber: string): Promise<UserRecord | undefined>;
   findUserById(id: string): Promise<UserRecord | undefined>;
@@ -50,4 +66,7 @@ export interface IdentityRepository {
     expiresAt: Date,
   ): Promise<void>;
   revokeSession(sessionId: string, revokedAt: Date): Promise<void>;
+  persistRoleSwitch(
+    input: RoleSwitchPersistence,
+  ): Promise<UserRecord | undefined>;
 }

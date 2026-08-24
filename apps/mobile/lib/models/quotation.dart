@@ -246,8 +246,7 @@ class QuotationDetail extends QuotationSummary {
           .toList(),
       activities: ((json['activities'] as List<dynamic>?) ?? [])
           .map(
-            (item) =>
-                QuotationActivity.fromJson(item as Map<String, dynamic>),
+            (item) => QuotationActivity.fromJson(item as Map<String, dynamic>),
           )
           .toList(),
     );

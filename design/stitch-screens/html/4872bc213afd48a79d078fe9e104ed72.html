@@ -1,0 +1,304 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Enquiry Detail - Contact Pending</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&amp;family=EB+Garamond:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary": "#2a0002",
+                        "tertiary-fixed": "#e4e2dd",
+                        "outline-variant": "#dac1bf",
+                        "on-surface-variant": "#544341",
+                        "on-secondary-container": "#785a1a",
+                        "on-error": "#ffffff",
+                        "surface-container-high": "#eae7e7",
+                        "surface-bright": "#fcf9f8",
+                        "on-primary-container": "#cc726d",
+                        "inverse-on-surface": "#f3f0ef",
+                        "outline": "#877270",
+                        "on-primary": "#ffffff",
+                        "on-secondary-fixed-variant": "#5d4201",
+                        "secondary-fixed-dim": "#e9c176",
+                        "secondary-fixed": "#ffdea5",
+                        "on-tertiary-fixed": "#1b1c19",
+                        "surface-container-lowest": "#ffffff",
+                        "surface": "#fcf9f8",
+                        "on-primary-fixed": "#3d0506",
+                        "surface-container-highest": "#e5e2e1",
+                        "background": "#fcf9f8",
+                        "tertiary-fixed-dim": "#c8c6c2",
+                        "surface-variant": "#e5e2e1",
+                        "on-secondary-fixed": "#261900",
+                        "surface-tint": "#954742",
+                        "on-primary-fixed-variant": "#77302d",
+                        "on-surface": "#1c1b1b",
+                        "error-container": "#ffdad6",
+                        "secondary-container": "#fed488",
+                        "inverse-primary": "#ffb3ad",
+                        "surface-dim": "#dcd9d9",
+                        "primary-container": "#4a0e0e",
+                        "error": "#ba1a1a",
+                        "on-tertiary-fixed-variant": "#474744",
+                        "on-secondary": "#ffffff",
+                        "tertiary-container": "#242522",
+                        "on-background": "#1c1b1b",
+                        "tertiary": "#0f100d",
+                        "on-tertiary": "#ffffff",
+                        "surface-container-low": "#f6f3f2",
+                        "inverse-surface": "#313030",
+                        "primary-fixed": "#ffdad7",
+                        "secondary": "#775a19",
+                        "primary-fixed-dim": "#ffb3ad",
+                        "surface-container": "#f0eded",
+                        "on-tertiary-container": "#8c8c88",
+                        "on-error-container": "#93000a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "sm": "12px",
+                        "gutter": "24px",
+                        "xs": "4px",
+                        "lg": "48px",
+                        "md": "24px",
+                        "container-max": "1280px",
+                        "xl": "80px",
+                        "base": "8px"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Manrope"],
+                        "label-caps": ["Manrope"],
+                        "button": ["Manrope"],
+                        "h1": ["Manrope"],
+                        "display-hero": ["EB Garamond"],
+                        "h2": ["Manrope"],
+                        "display-hero-mobile": ["EB Garamond"],
+                        "body-lg": ["Manrope"]
+                    },
+                    "fontSize": {
+                        "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "label-caps": ["12px", { "lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "700" }],
+                        "button": ["14px", { "lineHeight": "1", "fontWeight": "600" }],
+                        "h1": ["32px", { "lineHeight": "1.3", "fontWeight": "700" }],
+                        "display-hero": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "500" }],
+                        "h2": ["24px", { "lineHeight": "1.4", "fontWeight": "600" }],
+                        "display-hero-mobile": ["36px", { "lineHeight": "1.2", "fontWeight": "500" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body { background-color: #F9F7F2; } /* Warm Ivory Canvas */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid #E5DED4;
+        }
+        .soft-shadow-hover:hover {
+            box-shadow: 0px 10px 30px rgba(74, 14, 14, 0.05);
+            transform: translateY(-2px);
+            transition: all 0.3s ease;
+        }
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 24px;
+        }
+        .bento-item { border-radius: 20px; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="font-body-md text-body-md text-on-surface antialiased min-h-screen pb-32">
+<!-- TopAppBar -->
+<header class="bg-surface dark:bg-on-surface docked full-width top-0 flex justify-between items-center w-full px-md h-14 sticky z-50 border-b border-surface-variant">
+  <div class="flex items-center gap-sm">
+    <div class="w-8 h-8 rounded-full bg-primary-fixed/20 flex items-center justify-center cursor-pointer hover:bg-primary-fixed/30 transition-colors">
+      <span class="material-symbols-outlined text-primary text-body-lg">person</span>
+    </div>
+  </div>
+  <div class="font-display-hero-mobile text-primary tracking-tight font-semibold text-h2">
+    Mee Events
+  </div>
+  <div class="flex items-center gap-sm">
+    <span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary transition-colors">search</span>
+    <span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary transition-colors">favorite</span>
+    <span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary transition-colors">notifications</span>
+  </div>
+</header>
+<main class="max-w-container-max mx-auto px-md md:px-lg pt-lg pb-xl"><div class="flex items-center gap-md mb-md">
+  <div class="flex items-center justify-center w-10 h-10 rounded-full hover:bg-surface-variant transition-colors cursor-pointer">
+    <span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">arrow_back</span>
+  </div>
+  <h2 class="font-h1 text-h1 text-primary tracking-tight">Hyderabad Events</h2>
+</div>
+<!-- Status Header -->
+<div class="mb-lg">
+<div class="inline-flex items-center gap-2 px-4 py-2 bg-secondary-fixed/30 rounded-full mb-md">
+<span class="material-symbols-outlined text-on-secondary-fixed text-sm">schedule</span>
+<span class="font-label-caps text-label-caps text-on-secondary-fixed uppercase tracking-wider">Contact Pending</span>
+</div>
+<h1 class="font-display-hero-mobile md:font-display-hero text-display-hero-mobile md:text-display-hero text-primary mb-xs">
+                Your consultation is being arranged
+            </h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl">
+                We are assigning a dedicated Mee Events planning expert to discuss your Royal Wedding vision. They will reach out at the scheduled time.
+            </p>
+</div>
+<!-- Bento Grid Layout -->
+<div class="bento-grid">
+<!-- Main Confirmed Detail (Spans 8 cols on desktop) -->
+<div class="bento-item glass-card col-span-12 md:col-span-8 p-lg soft-shadow-hover relative overflow-hidden">
+<div class="absolute top-0 right-0 w-64 h-64 bg-primary-fixed/20 rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none"></div>
+<h2 class="font-h2 text-h2 text-primary mb-md flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">phone_in_talk</span>
+                    Scheduled Conversation
+                </h2>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-md mb-lg">
+<div class="bg-surface p-md rounded-xl border border-surface-variant">
+<span class="block font-label-caps text-label-caps text-outline mb-xs">Date &amp; Time</span>
+<div class="font-body-lg text-body-lg font-semibold text-on-surface">6 Aug 2026</div>
+<div class="font-body-md text-body-md text-on-surface-variant">11:30 AM (IST)</div>
+</div>
+<div class="bg-surface p-md rounded-xl border border-surface-variant">
+<span class="block font-label-caps text-label-caps text-outline mb-xs">With</span>
+<div class="font-body-lg text-body-lg font-semibold text-on-surface">Mee Events Expert</div>
+<div class="font-body-md text-body-md text-on-surface-variant">Senior Wedding Planner</div>
+</div>
+</div>
+<div class="flex flex-wrap gap-sm">
+<button class="bg-primary text-on-primary font-button text-button px-6 py-3 rounded-full hover:bg-primary-container transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">event</span>
+                        Add reminder
+                    </button>
+<button class="bg-transparent border border-primary text-primary font-button text-button px-6 py-3 rounded-full hover:bg-surface-variant transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">edit</span>
+                        Update contact preference
+                    </button>
+<button class="bg-transparent border border-outline-variant text-on-surface-variant font-button text-button px-6 py-3 rounded-full hover:bg-surface-variant transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">update</span>
+                        Reschedule request
+                    </button>
+</div>
+</div>
+<!-- What to Prepare (Spans 4 cols) -->
+<div class="bento-item glass-card col-span-12 md:col-span-4 p-md soft-shadow-hover flex flex-col">
+<h3 class="font-h2 text-h2 text-primary mb-md flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">lightbulb</span>
+                    To Prepare
+                </h3>
+<ul class="flex flex-col gap-sm flex-grow">
+<li class="flex gap-3 items-start border-b border-surface-variant pb-sm last:border-0 last:pb-0">
+<span class="material-symbols-outlined text-primary-container mt-1">check_circle</span>
+<div>
+<span class="block font-body-md font-semibold text-on-surface">Estimated Guest Count</span>
+<span class="text-sm text-on-surface-variant">Even a rough estimate helps us gauge venue scale.</span>
+</div>
+</li>
+<li class="flex gap-3 items-start border-b border-surface-variant pb-sm last:border-0 last:pb-0">
+<span class="material-symbols-outlined text-primary-container mt-1">check_circle</span>
+<div>
+<span class="block font-body-md font-semibold text-on-surface">Preferred Dates/Season</span>
+<span class="text-sm text-on-surface-variant">Flexibility can open up exclusive venues.</span>
+</div>
+</li>
+<li class="flex gap-3 items-start border-b border-surface-variant pb-sm last:border-0 last:pb-0">
+<span class="material-symbols-outlined text-primary-container mt-1">check_circle</span>
+<div>
+<span class="block font-body-md font-semibold text-on-surface">Inspiration &amp; Mood</span>
+<span class="text-sm text-on-surface-variant">Any specific cultural elements or themes you envision.</span>
+</div>
+</li>
+</ul>
+</div>
+<!-- Requirement Summary (Spans 6 cols) -->
+<div class="bento-item glass-card col-span-12 md:col-span-6 p-md soft-shadow-hover">
+<div class="flex justify-between items-center mb-md border-b border-surface-variant pb-sm">
+<h3 class="font-h2 text-h2 text-primary">Requirement Summary</h3>
+<span class="material-symbols-outlined text-outline cursor-pointer hover:text-primary transition-colors">edit</span>
+</div>
+<div class="grid grid-cols-2 gap-y-md gap-x-sm">
+<div>
+<span class="block font-label-caps text-label-caps text-outline mb-xs">Event Type</span>
+<span class="font-body-md text-body-md text-on-surface">Royal Wedding</span>
+</div>
+<div>
+<span class="block font-label-caps text-label-caps text-outline mb-xs">Location</span>
+<span class="font-body-md text-body-md text-on-surface">Hyderabad (Taj Falaknuma area)</span>
+</div>
+<div>
+<span class="block font-label-caps text-label-caps text-outline mb-xs">Duration</span>
+<span class="font-body-md text-body-md text-on-surface">3 Days</span>
+</div>
+<div>
+<span class="block font-label-caps text-label-caps text-outline mb-xs">Budget Range</span>
+<span class="font-body-md text-body-md text-on-surface">Premium/Luxury</span>
+</div>
+</div>
+</div>
+<!-- Timeline Tracker (Spans 6 cols) -->
+<div class="bento-item glass-card col-span-12 md:col-span-6 p-md soft-shadow-hover">
+<h3 class="font-h2 text-h2 text-primary mb-md border-b border-surface-variant pb-sm">Enquiry Timeline</h3>
+<div class="relative pl-6 border-l-2 border-surface-variant ml-2 space-y-md">
+<div class="relative">
+<div class="absolute w-4 h-4 rounded-full bg-primary -left-[35px] top-1 border-4 border-white"></div>
+<div class="font-body-md font-semibold text-on-surface">Contact Pending</div>
+<div class="text-sm text-on-surface-variant">Awaiting expert assignment and call setup. (Current)</div>
+</div>
+<div class="relative opacity-50">
+<div class="absolute w-4 h-4 rounded-full bg-surface-variant -left-[35px] top-1 border-4 border-white"></div>
+<div class="font-body-md font-semibold text-on-surface">Consultation Call</div>
+<div class="text-sm text-on-surface-variant">Discuss vision and requirements.</div>
+</div>
+<div class="relative opacity-50">
+<div class="absolute w-4 h-4 rounded-full bg-surface-variant -left-[35px] top-1 border-4 border-white"></div>
+<div class="font-body-md font-semibold text-on-surface">Proposal Shared</div>
+<div class="text-sm text-on-surface-variant">Customized plan and estimates provided.</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden bg-surface-container-lowest dark:bg-inverse-surface docked full-width bottom-0 rounded-t-xl shadow-[0_-4px_20px_0_rgba(160,65,0,0.05)] bg-surface-container-lowest dark:bg-inverse-surface shadow-lg fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-2 py-3">
+<div class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant opacity-70 hover:text-primary transition-colors cursor-pointer">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">home</span>
+<span class="font-label-caps text-label-caps mt-1">Home</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant opacity-70 hover:text-primary transition-colors cursor-pointer">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">search</span>
+<span class="font-label-caps text-label-caps mt-1">Explore</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant opacity-70 hover:text-primary transition-colors cursor-pointer">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">calendar_today</span>
+<span class="font-label-caps text-label-caps mt-1">Plan</span>
+</div>
+<div class="flex flex-col items-center justify-center text-primary dark:text-primary-fixed bg-primary-fixed/20 rounded-full px-4 py-1 hover:text-primary transition-colors cursor-pointer">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">chat_bubble</span>
+<span class="font-label-caps text-label-caps mt-1">Enquiries</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant opacity-70 hover:text-primary transition-colors cursor-pointer">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">person</span>
+<span class="font-label-caps text-label-caps mt-1">Account</span>
+</div>
+</nav>
+
+
+</body></html>

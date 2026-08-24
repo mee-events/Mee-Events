@@ -25,9 +25,9 @@ class OperationsTasksScreen extends ConsumerWidget {
           message: 'Sign in to view assigned execution tasks.',
           actionLabel: 'Sign in',
           onAction: () {
-            Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const LoginScreen()),
-            );
+            Navigator.of(
+              context,
+            ).push(MaterialPageRoute(builder: (_) => const LoginScreen()));
           },
         ),
       );

@@ -60,7 +60,9 @@ class VendorAssignmentScreen extends ConsumerWidget {
                     await ref
                         .read(vendorOperationsRepositoryProvider)
                         .accept(assignmentId);
-                    ref.invalidate(vendorAssignmentDetailProvider(assignmentId));
+                    ref.invalidate(
+                      vendorAssignmentDetailProvider(assignmentId),
+                    );
                     ref.invalidate(vendorDashboardProvider);
                   },
                 ),
@@ -71,7 +73,9 @@ class VendorAssignmentScreen extends ConsumerWidget {
                     await ref
                         .read(vendorOperationsRepositoryProvider)
                         .reject(assignmentId, 'Unable to take this job');
-                    ref.invalidate(vendorAssignmentDetailProvider(assignmentId));
+                    ref.invalidate(
+                      vendorAssignmentDetailProvider(assignmentId),
+                    );
                     ref.invalidate(vendorDashboardProvider);
                   },
                 ),
@@ -82,9 +86,8 @@ class VendorAssignmentScreen extends ConsumerWidget {
                 onPressed: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (_) => VendorProgressScreen(
-                        assignmentId: assignmentId,
-                      ),
+                      builder: (_) =>
+                          VendorProgressScreen(assignmentId: assignmentId),
                     ),
                   );
                 },

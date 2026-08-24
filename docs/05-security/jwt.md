@@ -75,9 +75,14 @@ Process-local cache (`AuthPrincipalCache`):
 | TTL         | 15 seconds           |
 | Max entries | 10,000               |
 
-Invalidated on logout and refresh-token reuse revoke. Redis-backed shared cache
-is deferred until multi-instance measurements require it (see cache file
-comment).
+Invalidated on logout, refresh-token reuse revoke, and account-level role
+switch (`invalidateUser`). A role switch updates `app_users.last_active_role`,
+issues a new access token for the same device session, and calls
+`invalidateUser()` so stale role tokens fail in **the current backend process**.
+Immediate invalidation is not guaranteed across multiple backend replicas.
+Shared Redis-backed invalidation, or an equivalent distributed mechanism, is
+required before multi-replica deployment. Redis is not implemented in the
+current process-local cache.
 
 ---
 

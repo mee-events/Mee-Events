@@ -1,0 +1,311 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Gallery Processing - Mee Events</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@500&amp;family=Manrope:wght@400;600;700&amp;display=swap" rel="stylesheet">
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "outline-variant": "#dac1bf",
+                        "surface-container": "#f0eded",
+                        "surface-container-high": "#eae7e7",
+                        "on-primary-fixed-variant": "#77302d",
+                        "on-tertiary-container": "#8c8c88",
+                        "on-surface-variant": "#544341",
+                        "on-surface": "#1c1b1b",
+                        "tertiary-fixed": "#e4e2dd",
+                        "secondary-fixed": "#ffdea5",
+                        "outline": "#877270",
+                        "primary-container": "#4a0e0e",
+                        "primary-fixed-dim": "#ffb3ad",
+                        "on-secondary-container": "#785a1a",
+                        "tertiary-fixed-dim": "#c8c6c2",
+                        "secondary": "#775a19",
+                        "on-tertiary": "#ffffff",
+                        "surface-variant": "#e5e2e1",
+                        "background": "#fcf9f8",
+                        "surface-container-highest": "#e5e2e1",
+                        "surface-container-lowest": "#ffffff",
+                        "on-background": "#1c1b1b",
+                        "primary": "#2a0002",
+                        "on-secondary": "#ffffff",
+                        "inverse-primary": "#ffb3ad",
+                        "error": "#ba1a1a",
+                        "surface-container-low": "#f6f3f2",
+                        "on-primary-container": "#cc726d",
+                        "on-error-container": "#93000a",
+                        "tertiary": "#0f100d",
+                        "on-secondary-fixed": "#261900",
+                        "primary-fixed": "#ffdad7",
+                        "on-error": "#ffffff",
+                        "surface-dim": "#dcd9d9",
+                        "on-secondary-fixed-variant": "#5d4201",
+                        "surface-bright": "#fcf9f8",
+                        "secondary-container": "#fed488",
+                        "inverse-surface": "#313030",
+                        "error-container": "#ffdad6",
+                        "surface-tint": "#954742",
+                        "tertiary-container": "#242522",
+                        "on-primary": "#ffffff",
+                        "inverse-on-surface": "#f3f0ef",
+                        "on-tertiary-fixed": "#1b1c19",
+                        "on-tertiary-fixed-variant": "#474744",
+                        "on-primary-fixed": "#3d0506",
+                        "surface": "#fcf9f8",
+                        "secondary-fixed-dim": "#e9c176"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "lg": "48px",
+                        "container-max": "1280px",
+                        "xs": "4px",
+                        "sm": "12px",
+                        "gutter": "24px",
+                        "md": "24px",
+                        "xl": "80px",
+                        "base": "8px"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Manrope"],
+                        "label-caps": ["Manrope"],
+                        "body-lg": ["Manrope"],
+                        "h1": ["Manrope"],
+                        "display-hero-mobile": ["EB Garamond"],
+                        "display-hero": ["EB Garamond"],
+                        "button": ["Manrope"],
+                        "h2": ["Manrope"]
+                    },
+                    "fontSize": {
+                        "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "label-caps": ["12px", { "lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "h1": ["32px", { "lineHeight": "1.3", "fontWeight": "700" }],
+                        "display-hero-mobile": ["36px", { "lineHeight": "1.2", "fontWeight": "500" }],
+                        "display-hero": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "500" }],
+                        "button": ["14px", { "lineHeight": "1", "fontWeight": "600" }],
+                        "h2": ["24px", { "lineHeight": "1.4", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        /* Custom animations for premium feel */
+        @keyframes subtle-shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        .shimmer-frame {
+            background: linear-gradient(90deg, 
+                rgba(240, 237, 237, 0.4) 0%, 
+                rgba(255, 222, 165, 0.1) 50%, 
+                rgba(240, 237, 237, 0.4) 100%);
+            background-size: 200% 100%;
+            animation: subtle-shimmer 4s infinite linear;
+        }
+        @keyframes pulse-slow {
+            0%, 100% { opacity: 1; }
+            50% { opacity: .6; }
+        }
+        .animate-pulse-slow {
+            animation: pulse-slow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-background text-on-background min-h-screen flex flex-col font-body-md antialiased pt-[72px] pb-[90px] md:pb-0 selection:bg-secondary-container selection:text-on-secondary-container">
+<!-- TopAppBar (From JSON) -->
+<header class="fixed top-0 left-0 w-full z-50 bg-background flex justify-between items-center px-gutter py-sm border-b border-outline-variant/30 md:hidden">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container cursor-pointer">
+<span class="material-symbols-outlined text-lg">person</span>
+</div>
+</div>
+<div class="font-display-hero-mobile text-display-hero-mobile text-primary text-center absolute left-1/2 -translate-x-1/2">
+        Mee Events
+    </div>
+<div class="flex items-center gap-4 text-primary">
+<a class="hover:opacity-80 transition-opacity" href="#">
+<span class="material-symbols-outlined text-2xl">search</span>
+</a>
+<a class="hover:opacity-80 transition-opacity" href="#">
+<span class="material-symbols-outlined text-2xl">favorite</span>
+</a>
+<a class="hover:opacity-80 transition-opacity" href="#">
+<span class="material-symbols-outlined text-2xl">notifications</span>
+</a>
+</div>
+</header>
+<!-- Desktop Header Fallback (Structural requirement for md+) -->
+<header class="hidden md:flex fixed top-0 left-0 w-full z-50 bg-background/90 backdrop-blur-md justify-between items-center px-lg py-md border-b border-outline-variant/30">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container cursor-pointer">
+<span class="material-symbols-outlined text-xl">person</span>
+</div>
+<div class="font-display-hero text-[32px] text-primary leading-none">
+            Mee Events
+        </div>
+</div>
+<nav class="flex gap-lg font-label-caps text-label-caps uppercase tracking-widest">
+<a class="text-on-surface-variant hover:text-primary transition-colors" href="#">Home</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors" href="#">Explore</a>
+<a class="text-primary font-bold border-b-2 border-secondary pb-1" href="#">Plan</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors" href="#">Enquiries</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors" href="#">Profile</a>
+</nav>
+<div class="flex items-center gap-6 text-primary">
+<a class="hover:opacity-80 transition-opacity flex items-center gap-1" href="#">
+<span class="material-symbols-outlined text-2xl">search</span>
+</a>
+<a class="hover:opacity-80 transition-opacity flex items-center gap-1" href="#">
+<span class="material-symbols-outlined text-2xl">favorite</span>
+</a>
+<a class="hover:opacity-80 transition-opacity flex items-center gap-1" href="#">
+<span class="material-symbols-outlined text-2xl">notifications</span>
+</a>
+</div>
+</header>
+<main class="flex-grow w-full max-w-container-max mx-auto px-gutter md:px-lg py-lg md:py-xl md:mt-24"><div class="flex items-center gap-4 mb-md md:mb-lg">
+<button class="w-10 h-10 rounded-full border border-outline-variant/30 flex items-center justify-center text-primary hover:bg-surface-variant transition-colors">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<div>
+<div class="font-label-caps text-label-caps uppercase text-on-surface-variant tracking-widest">Gallery Status</div>
+<div class="font-h2 text-h2 text-primary">Processing</div>
+</div>
+</div>
+<!-- Header Section -->
+<section class="flex flex-col items-center text-center mb-xl">
+<div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-surface-container border border-outline-variant/50 mb-sm animate-pulse-slow">
+<span class="material-symbols-outlined text-secondary text-sm" style="font-variation-settings: 'FILL' 1;">change_circle</span>
+<span class="font-label-caps text-label-caps uppercase text-secondary tracking-widest">Gallery status: Processing</span>
+</div>
+<h1 class="font-display-hero-mobile text-display-hero-mobile md:font-display-hero md:text-display-hero text-primary mb-md">Aarav &amp; Ananya Wedding</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mx-auto">
+                Your memories are currently being curated and mastered. We are applying the final touches to ensure every moment reflects the elegance of your celebration.
+            </p>
+</section>
+<!-- Main Content Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-lg lg:gap-xl">
+<!-- Left Column: Visual Placeholders -->
+<div class="lg:col-span-7 order-2 lg:order-1">
+<div class="grid grid-cols-2 md:grid-cols-3 gap-sm md:gap-md">
+<!-- Frame 1: Large -->
+<div class="col-span-2 row-span-2 aspect-[4/5] md:aspect-[3/4] rounded-xl border border-secondary/20 shimmer-frame relative overflow-hidden group">
+<div class="absolute inset-4 border border-outline-variant/30 rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-outline-variant/50 text-4xl font-light group-hover:scale-110 transition-transform duration-700">photo_library</span>
+</div>
+</div>
+<!-- Frame 2: Small -->
+<div class="aspect-square rounded-xl border border-secondary/10 shimmer-frame relative overflow-hidden">
+<div class="absolute inset-2 border border-outline-variant/20 rounded-lg"></div>
+</div>
+<!-- Frame 3: Small -->
+<div class="aspect-square rounded-xl border border-secondary/10 shimmer-frame relative overflow-hidden">
+<div class="absolute inset-2 border border-outline-variant/20 rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-outline-variant/30 text-2xl font-light">auto_awesome</span>
+</div>
+</div>
+<!-- Frame 4: Wide -->
+<div class="col-span-2 md:col-span-3 aspect-[21/9] md:aspect-[16/5] rounded-xl border border-secondary/20 shimmer-frame relative overflow-hidden mt-sm md:mt-0">
+<div class="absolute inset-3 border border-outline-variant/30 rounded-lg flex items-center justify-center">
+<div class="w-12 h-[1px] bg-outline-variant/40"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Column: Status & Updates -->
+<div class="lg:col-span-5 order-1 lg:order-2 flex flex-col gap-lg">
+<!-- Timeline/Dates -->
+<div class="bg-surface-container-lowest border border-outline-variant/40 rounded-xl p-md shadow-[0px_10px_30px_rgba(74,14,14,0.02)]">
+<h2 class="font-h2 text-h2 text-primary mb-md">Expected Delivery</h2>
+<div class="relative pl-6 before:content-[''] before:absolute before:left-[11px] before:top-2 before:bottom-4 before:w-[2px] before:bg-outline-variant/30">
+<!-- Step 1 -->
+<div class="relative mb-6">
+<div class="absolute -left-[31px] top-1 w-[14px] h-[14px] rounded-full bg-secondary shadow-[0_0_0_4px_rgba(255,222,165,0.3)]"></div>
+<div class="font-label-caps text-label-caps uppercase text-secondary mb-xs">20 Dec 2026</div>
+<div class="font-body-lg text-body-lg text-on-surface">Gallery preview expected</div>
+<div class="font-body-md text-body-md text-on-surface-variant mt-1">A curated selection of highlights from your main events.</div>
+</div>
+<!-- Step 2 -->
+<div class="relative">
+<div class="absolute -left-[31px] top-1 w-[14px] h-[14px] rounded-full bg-surface-container-high border-2 border-outline-variant"></div>
+<div class="font-label-caps text-label-caps uppercase text-on-surface-variant mb-xs">10 Jan 2027</div>
+<div class="font-body-lg text-body-lg text-on-surface">Final gallery expected</div>
+<div class="font-body-md text-body-md text-on-surface-variant mt-1">The complete collection, fully edited and mastered.</div>
+</div>
+</div>
+</div>
+<!-- Latest Update Note -->
+<div class="bg-primary-fixed border border-primary-fixed-dim rounded-xl p-md relative overflow-hidden">
+<div class="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none"></div>
+<div class="flex items-start gap-3 relative z-10">
+<span class="material-symbols-outlined text-primary mt-1" style="font-variation-settings: 'FILL' 1;">mail</span>
+<div>
+<h3 class="font-body-md text-body-md font-semibold text-primary mb-1">Latest update from Mee Events</h3>
+<p class="font-body-md text-body-md text-on-primary-fixed-variant">
+                                "The Sangeet performances look spectacular in post-production. We are balancing the stage lighting to bring out the rich colors of the outfits. Currently 60% through the editing process."
+                            </p>
+</div>
+</div>
+</div>
+<!-- Actions -->
+<div class="flex flex-col sm:flex-row gap-4 mt-auto pt-sm">
+<button class="flex-1 bg-primary text-on-primary font-button text-button px-6 py-4 rounded-DEFAULT hover:bg-primary-container transition-colors shadow-[0px_10px_30px_rgba(74,14,14,0.05)] hover:shadow-none flex justify-center items-center gap-2">
+<span class="material-symbols-outlined text-[20px]">notifications_active</span>
+                        Notify me when ready
+                    </button>
+<button class="flex-1 bg-transparent border border-primary text-primary font-button text-button px-6 py-4 rounded-DEFAULT hover:bg-surface-variant transition-colors flex justify-center items-center gap-2">
+<span class="material-symbols-outlined text-[20px]">chat</span>
+                        Message Mee Events
+                    </button>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar (From JSON) -->
+<nav class="fixed bottom-0 left-0 w-full z-50 bg-surface-container-lowest border-t border-outline-variant/30 shadow-sm flex justify-around items-center px-4 pt-base pb-safe rounded-t-xl md:hidden">
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-colors hover:opacity-80" href="#">
+<span class="material-symbols-outlined mb-1">home</span>
+<span class="font-label-caps text-label-caps uppercase tracking-widest">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-colors hover:opacity-80" href="#">
+<span class="material-symbols-outlined mb-1">explore</span>
+<span class="font-label-caps text-label-caps uppercase tracking-widest">Explore</span>
+</a>
+<!-- Active Tab: Plan -->
+<a class="flex flex-col items-center justify-center text-primary relative after:content-[''] after:w-1 after:h-1 after:bg-secondary after:rounded-full after:mt-1 opacity-70 transition-opacity" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">event_note</span>
+<span class="font-label-caps text-label-caps uppercase tracking-widest">Plan</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-colors hover:opacity-80" href="#">
+<span class="material-symbols-outlined mb-1">chat_bubble</span>
+<span class="font-label-caps text-label-caps uppercase tracking-widest">Enquiries</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-colors hover:opacity-80" href="#">
+<span class="material-symbols-outlined mb-1">person</span>
+<span class="font-label-caps text-label-caps uppercase tracking-widest">Profile</span>
+</a>
+</nav>
+</body></html>

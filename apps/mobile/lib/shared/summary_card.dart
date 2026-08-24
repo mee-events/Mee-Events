@@ -58,10 +58,7 @@ class SummaryCard extends StatelessWidget {
           Text(value, style: AppTypography.displayMd),
           if (helper != null) ...[
             const SizedBox(height: AppSpacing.xs),
-            Text(
-              helper!,
-              style: AppTypography.bodySm,
-            ),
+            Text(helper!, style: AppTypography.bodySm),
           ],
         ],
       ),

@@ -45,16 +45,24 @@ class _CustomerFinanceScreenState extends ConsumerState<CustomerFinanceScreen>
     if (session == null) {
       return Scaffold(
         backgroundColor: AppColors.canvas,
-        appBar: const MeAppBar(title: 'Payments'),
+        appBar: MeAppBar(
+          title: 'Payments',
+          leading: MeIconButton(
+            icon: Icons.arrow_back_rounded,
+            color: AppColors.ink,
+            onPressed: () => Navigator.pop(context),
+            tooltip: 'Back',
+          ),
+        ),
         body: MeEmptyState(
           kind: MeEmptyKind.generic,
           title: 'Sign in required',
           message: 'Sign in to view payment history, invoices, and receipts.',
           actionLabel: 'Sign in',
           onAction: () {
-            Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const LoginScreen()),
-            );
+            Navigator.of(
+              context,
+            ).push(MaterialPageRoute(builder: (_) => const LoginScreen()));
           },
         ),
       );
@@ -62,16 +70,21 @@ class _CustomerFinanceScreenState extends ConsumerState<CustomerFinanceScreen>
 
     return Scaffold(
       backgroundColor: AppColors.canvas,
-      appBar: AppBar(
-        backgroundColor: AppColors.canvas,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        title: Text('Payments & billing', style: AppTypography.displaySm),
+      appBar: MeAppBar(
+        title: 'Payments & billing',
+        leading: MeIconButton(
+          icon: Icons.arrow_back_rounded,
+          color: AppColors.ink,
+          onPressed: () => Navigator.pop(context),
+          tooltip: 'Back',
+        ),
         bottom: TabBar(
           controller: _tabs,
           labelColor: AppColors.ink,
           unselectedLabelColor: AppColors.muted,
           indicatorColor: AppColors.ink,
+          labelStyle: AppTypography.titleSm,
+          unselectedLabelStyle: AppTypography.titleSm,
           tabs: const [
             Tab(text: 'Payments'),
             Tab(text: 'Invoices'),
@@ -81,14 +94,40 @@ class _CustomerFinanceScreenState extends ConsumerState<CustomerFinanceScreen>
       ),
       body: TabBarView(
         controller: _tabs,
-        children: const [
-          _PaymentsTab(),
-          _InvoicesTab(),
-          _ReceiptsTab(),
-        ],
+        children: const [_PaymentsTab(), _InvoicesTab(), _ReceiptsTab()],
       ),
     );
   }
+}
+
+MeStatusTone _financeStatusTone(String status) {
+  final normalized = status.toLowerCase();
+  if (normalized.contains('paid') ||
+      normalized.contains('confirmed') ||
+      normalized.contains('success') ||
+      normalized.contains('issued') ||
+      normalized == 'complete' ||
+      normalized == 'completed') {
+    return MeStatusTone.success;
+  }
+  if (normalized.contains('pending') ||
+      normalized.contains('await') ||
+      normalized.contains('due')) {
+    return MeStatusTone.warning;
+  }
+  if (normalized.contains('fail') ||
+      normalized.contains('cancel') ||
+      normalized.contains('overdue') ||
+      normalized.contains('reject')) {
+    return MeStatusTone.error;
+  }
+  return MeStatusTone.neutral;
+}
+
+String _statusLabel(String status) {
+  final trimmed = status.trim();
+  if (trimmed.isEmpty) return 'Unknown';
+  return trimmed[0].toUpperCase() + trimmed.substring(1);
 }
 
 class _PaymentsTab extends ConsumerWidget {
@@ -109,24 +148,23 @@ class _PaymentsTab extends ConsumerWidget {
           return const MeEmptyState(
             kind: MeEmptyKind.generic,
             title: 'No payments yet',
-            message: 'Advance and balance payments for your events appear here.',
+            message:
+                'Advance and balance payments for your events appear here.',
           );
         }
         return ListView.separated(
           padding: const EdgeInsets.all(AppSpacing.lg),
           itemCount: items.length,
-          separatorBuilder: (_, __) => const Divider(height: 1),
+          separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.md),
           itemBuilder: (context, index) {
             final item = items[index];
-            return ListTile(
-              contentPadding: EdgeInsets.zero,
-              title: Text(
-                '₹${item.amount} · ${item.paymentKind}',
-                style: AppTypography.titleMd,
-              ),
-              subtitle: Text(
-                '${item.eventNumber ?? item.eventRecordId} · ${item.status} · ${item.referenceCode}',
-                style: AppTypography.bodySm,
+            return MeOrderCard(
+              reference: item.referenceCode,
+              title: '₹${item.amount} · ${item.paymentKind}',
+              subtitle: item.eventNumber ?? item.eventRecordId,
+              status: MeBadge(
+                label: _statusLabel(item.status),
+                tone: _financeStatusTone(item.status),
               ),
             );
           },
@@ -160,15 +198,16 @@ class _InvoicesTab extends ConsumerWidget {
         return ListView.separated(
           padding: const EdgeInsets.all(AppSpacing.lg),
           itemCount: items.length,
-          separatorBuilder: (_, __) => const Divider(height: 1),
+          separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.md),
           itemBuilder: (context, index) {
             final item = items[index];
-            return ListTile(
-              contentPadding: EdgeInsets.zero,
-              title: Text(item.invoiceNumber, style: AppTypography.titleMd),
-              subtitle: Text(
-                '${item.eventNumber ?? 'Event'} · ₹${item.amount} · ${item.status}',
-                style: AppTypography.bodySm,
+            return MeOrderCard(
+              reference: item.invoiceNumber,
+              title: '₹${item.amount}',
+              subtitle: item.eventNumber ?? 'Event',
+              status: MeBadge(
+                label: _statusLabel(item.status),
+                tone: _financeStatusTone(item.status),
               ),
             );
           },
@@ -202,15 +241,16 @@ class _ReceiptsTab extends ConsumerWidget {
         return ListView.separated(
           padding: const EdgeInsets.all(AppSpacing.lg),
           itemCount: items.length,
-          separatorBuilder: (_, __) => const Divider(height: 1),
+          separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.md),
           itemBuilder: (context, index) {
             final item = items[index];
-            return ListTile(
-              contentPadding: EdgeInsets.zero,
-              title: Text(item.receiptNumber, style: AppTypography.titleMd),
-              subtitle: Text(
-                '${item.eventNumber ?? 'Event'} · ₹${item.amount} · ${item.status}',
-                style: AppTypography.bodySm,
+            return MeOrderCard(
+              reference: item.receiptNumber,
+              title: '₹${item.amount}',
+              subtitle: item.eventNumber ?? 'Event',
+              status: MeBadge(
+                label: _statusLabel(item.status),
+                tone: _financeStatusTone(item.status),
               ),
             );
           },

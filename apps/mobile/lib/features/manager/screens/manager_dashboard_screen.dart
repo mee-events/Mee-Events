@@ -29,9 +29,9 @@ class ManagerDashboardScreen extends ConsumerWidget {
           message: 'Sign in as an event manager to view assigned work.',
           actionLabel: 'Sign in',
           onAction: () {
-            Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const LoginScreen()),
-            );
+            Navigator.of(
+              context,
+            ).push(MaterialPageRoute(builder: (_) => const LoginScreen()));
           },
         ),
       );
@@ -151,8 +151,7 @@ class ManagerDashboardScreen extends ConsumerWidget {
                     onTap: () {
                       Navigator.of(context).push(
                         MaterialPageRoute(
-                          builder: (_) =>
-                              ManagerEventScreen(eventId: event.id),
+                          builder: (_) => ManagerEventScreen(eventId: event.id),
                         ),
                       );
                     },

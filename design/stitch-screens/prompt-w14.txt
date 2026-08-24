@@ -1,0 +1,79 @@
+PROJECT CONTEXT
+
+Design a production-ready mobile experience for Mee Events, a Hyderabad-based
+managed event marketplace. This is one shared app with Customer, Vendor, and
+Worker roles. Customer is the default role; approved additional roles are
+available through a role switcher.
+
+BUSINESS RULES
+
+Customers browse Mee Events offerings, build an event plan, submit an enquiry,
+approve a quotation, pay Mee Events, and track event delivery. They do not
+compare or choose operational vendors. Vendor identity is visible only when Mee
+Events marks it as disclosed. Vendors manage private base prices, listings,
+assigned work orders, invoices, and settlements; they never see customer prices,
+margins, or competitor data. Workers manage availability, assigned work,
+attendance, proof of work, and earnings; they never see customer or vendor
+financial data and do not directly contact customers.
+
+VISUAL SYSTEM
+
+Use a premium, calm, trustworthy, photography-led Indian event aesthetic. Use
+warm ivory #F9F7F2 for the canvas, white cards, soft warm neutral surfaces,
+deep burgundy #4A0E0E for primary actions, ink #1A1A1A for main text,
+muted brown-grey #68635E for secondary text, thin #E5DED4 borders, and restrained
+gold #C5A059 accents. Display headings use EB Garamond; interface text uses
+Manrope. Use 14 px card radii, 20 px prominent container radii, generous spacing,
+hairline borders, and minimal shadow. Use authentic Indian event photography,
+not illustrations or generic Western wedding imagery. Vendor green and Worker
+blue may appear only as small role-context accents; all roles remain one brand.
+
+UX RULES
+
+Design at 390 x 844. Use one primary action per screen, 44 px minimum touch
+targets, visible form labels, concise Indian English, Indian Rupee formatting,
+and realistic Hyderabad content. Use progressive disclosure and clear status
+text. Do not use emoji decoration, glassmorphism, neon gradients, generic purple
+AI styling, crowded dashboards, card soup, or lorem ipsum.
+
+OUTPUT EXPECTATION
+
+Create polished, implementation-ready mobile screens with consistent reusable
+components, realistic content, clear hierarchy, and complete navigation context.
+Use the exact screen names requested. Do not add unrelated functionality.
+
+MODULE: WORKER AVAILABILITY, EARNINGS, AND PROFILE
+
+REQUIRED EXPERIENCE
+
+Availability Calendar supports Available, Unavailable, Accepted assignment, and
+Pending offer with text/icon patterns in addition to colour. Prevent visual
+selection of a conflicting accepted-assignment period. Include recurring
+availability and Save changes.
+
+Work Areas and Shifts supports selected Hyderabad zones or localities, travel
+preference, morning/day/evening/night, and clear explanation that preferences
+help matching but do not guarantee work.
+
+Earnings Overview separates completed work pending approval, approved payable,
+next settlement, and paid history. Show assignment reference, date, role,
+authorised payable, status, and no event-wide financial information. Settlement
+Detail shows amount, adjustments with explanation, transaction reference, date,
+and support for a payment issue.
+
+Performance Summary shows completed assignments, punctuality, checklist
+completion, ratings or feedback, and improvement guidance. Avoid gamification,
+public leaderboards, or shame-based messaging.
+
+Worker Profile shows verified identity status, skills, work areas, documents,
+emergency contact, bank/settlement status, privacy, support, and role switcher.
+
+Exact screen names (use these titles exactly):
+1. W14A Availability — Calendar
+2. W14B Availability — Work Areas and Shifts
+3. W14C Earnings Overview
+4. W14D Settlement Detail
+5. W14E Performance Summary
+6. W14F Worker Profile
+
+Use soft worker blue #3B5F9C only on the role chip. Keep Mee Events burgundy primary.

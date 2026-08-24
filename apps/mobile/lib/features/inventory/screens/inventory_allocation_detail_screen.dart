@@ -32,9 +32,9 @@ class _InventoryAllocationDetailScreenState
       ref.invalidate(inventoryAllocationsProvider);
     } catch (error) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(error.toString())),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(error.toString())));
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -42,8 +42,9 @@ class _InventoryAllocationDetailScreenState
 
   @override
   Widget build(BuildContext context) {
-    final detail =
-        ref.watch(inventoryAllocationDetailProvider(widget.allocationId));
+    final detail = ref.watch(
+      inventoryAllocationDetailProvider(widget.allocationId),
+    );
     final repo = ref.watch(inventoryOperationsRepositoryProvider);
 
     return Scaffold(
@@ -85,11 +86,11 @@ class _InventoryAllocationDetailScreenState
                       onPressed: _busy
                           ? null
                           : () => _run(
-                                () => repo.updateStatus(
-                                  allocationId: row.id,
-                                  status: 'allocated',
-                                ),
+                              () => repo.updateStatus(
+                                allocationId: row.id,
+                                status: 'allocated',
                               ),
+                            ),
                       child: const Text('Allocate'),
                     ),
                   if (row.status == 'allocated')
@@ -97,12 +98,12 @@ class _InventoryAllocationDetailScreenState
                       onPressed: _busy
                           ? null
                           : () => _run(
-                                () => repo.updateStatus(
-                                  allocationId: row.id,
-                                  status: 'dispatched',
-                                  vehiclePlaceholder: 'Vehicle-01',
-                                ),
+                              () => repo.updateStatus(
+                                allocationId: row.id,
+                                status: 'dispatched',
+                                vehiclePlaceholder: 'Vehicle-01',
                               ),
+                            ),
                       child: const Text('Dispatch'),
                     ),
                   if (row.status == 'dispatched')
@@ -110,16 +111,19 @@ class _InventoryAllocationDetailScreenState
                       onPressed: _busy
                           ? null
                           : () => _run(
-                                () => repo.updateStatus(
-                                  allocationId: row.id,
-                                  status: 'on_site',
-                                  venuePlaceholder: 'Venue',
-                                ),
+                              () => repo.updateStatus(
+                                allocationId: row.id,
+                                status: 'on_site',
+                                venuePlaceholder: 'Venue',
                               ),
+                            ),
                       child: const Text('Mark on site'),
                     ),
-                  if (['allocated', 'dispatched', 'on_site']
-                      .contains(row.status))
+                  if ([
+                    'allocated',
+                    'dispatched',
+                    'on_site',
+                  ].contains(row.status))
                     OutlinedButton(
                       onPressed: _busy
                           ? null

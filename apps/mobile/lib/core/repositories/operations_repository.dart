@@ -9,8 +9,7 @@ class OperationsRepository {
   Future<OperationsDashboardSnapshot> dashboard() =>
       _api.getOperationsDashboard();
 
-  Future<List<OperationsProgressItem>> events() =>
-      _api.listOperationsEvents();
+  Future<List<OperationsProgressItem>> events() => _api.listOperationsEvents();
 
   Future<EventOperationsDetail> eventDetail(String eventRecordId) =>
       _api.getOperationsEvent(eventRecordId);

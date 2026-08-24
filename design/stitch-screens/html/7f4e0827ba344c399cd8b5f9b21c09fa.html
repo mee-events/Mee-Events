@@ -1,0 +1,402 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>00B2 — Components: Cards and Status</title>
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&amp;family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-background": "#1c1b1b",
+                        "on-tertiary-fixed": "#1b1c19",
+                        "primary-fixed": "#ffdad7",
+                        "tertiary-fixed-dim": "#c8c6c2",
+                        "on-error": "#ffffff",
+                        "secondary-fixed": "#ffdea5",
+                        "surface": "#fcf9f8",
+                        "on-tertiary-container": "#8c8c88",
+                        "on-secondary-fixed": "#261900",
+                        "inverse-surface": "#313030",
+                        "primary-fixed-dim": "#ffb3ad",
+                        "primary": "#2a0002",
+                        "on-primary-fixed": "#3d0506",
+                        "surface-container-highest": "#e5e2e1",
+                        "surface-bright": "#fcf9f8",
+                        "on-secondary-fixed-variant": "#5d4201",
+                        "surface-variant": "#e5e2e1",
+                        "background": "#fcf9f8",
+                        "tertiary": "#0f100d",
+                        "surface-dim": "#dcd9d9",
+                        "tertiary-fixed": "#e4e2dd",
+                        "error-container": "#ffdad6",
+                        "on-surface-variant": "#544341",
+                        "secondary": "#775a19",
+                        "outline": "#877270",
+                        "surface-container-high": "#eae7e7",
+                        "tertiary-container": "#242522",
+                        "inverse-primary": "#ffb3ad",
+                        "secondary-fixed-dim": "#e9c176",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "on-secondary": "#ffffff",
+                        "on-surface": "#1c1b1b",
+                        "inverse-on-surface": "#f3f0ef",
+                        "on-tertiary-fixed-variant": "#474744",
+                        "on-tertiary": "#ffffff",
+                        "secondary-container": "#fed488",
+                        "surface-container": "#f0eded",
+                        "error": "#ba1a1a",
+                        "on-error-container": "#93000a",
+                        "surface-tint": "#954742",
+                        "on-secondary-container": "#785a1a",
+                        "primary-container": "#4a0e0e",
+                        "outline-variant": "#dac1bf",
+                        "on-primary-container": "#cc726d",
+                        "on-primary-fixed-variant": "#77302d",
+                        "surface-container-low": "#f6f3f2",
+                        
+                        "status-draft": "#8c8c88",
+                        "status-pending": "#e9c176",
+                        "status-approved": "#4a6c42",
+                        "status-changes": "#cc726d",
+                        "status-rejected": "#ba1a1a",
+                        "status-paid": "#2a5c40",
+                        "status-overdue": "#93000a",
+                        
+                        "canvas-ivory": "#F9F7F2",
+                        "soft-border": "#E5DED4",
+                        "deep-burgundy": "#4a0e0e"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "card": "14px",
+                        "photo": "20px",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "container-max": "1280px",
+                        "xl": "80px",
+                        "md": "24px",
+                        "gutter": "24px",
+                        "xs": "4px",
+                        "base": "8px",
+                        "sm": "12px",
+                        "lg": "48px",
+                        "photo-gap": "20px"
+                    },
+                    "fontFamily": {
+                        "h1": ["Manrope"],
+                        "body-md": ["Manrope"],
+                        "button": ["Manrope"],
+                        "label-caps": ["Manrope"],
+                        "display-hero-mobile": ["EB Garamond"],
+                        "h2": ["Manrope"],
+                        "body-lg": ["Manrope"],
+                        "display-hero": ["EB Garamond"],
+                        "card-title": ["EB Garamond"]
+                    },
+                    "fontSize": {
+                        "h1": ["32px", { "lineHeight": "1.3", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "button": ["14px", { "lineHeight": "1", "fontWeight": "600" }],
+                        "label-caps": ["12px", { "lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "700" }],
+                        "display-hero-mobile": ["36px", { "lineHeight": "1.2", "fontWeight": "500" }],
+                        "h2": ["24px", { "lineHeight": "1.4", "fontWeight": "600" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "display-hero": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "500" }],
+                        "card-title": ["22px", { "lineHeight": "1.3", "fontWeight": "500" }]
+                    },
+                    "boxShadow": {
+                        "card-hover": "0px 10px 30px rgba(74, 14, 14, 0.05)"
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { background-color: #F9F7F2; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24; }
+        .icon-fill { font-variation-settings: 'FILL' 1; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="font-body-md text-on-surface antialiased bg-canvas-ivory min-h-screen pb-xl">
+<!-- TopAppBar -->
+<header class="bg-surface border-b border-outline-variant docked full-width top-0 sticky z-50">
+<div class="flex justify-between items-center w-full px-md h-16 max-w-container-max mx-auto">
+<button class="flex items-center justify-center p-2 text-primary hover:bg-surface-container transition-colors rounded-full">
+<span class="material-symbols-outlined" data-icon="location_on">location_on</span>
+</button>
+<h1 class="font-display-hero-mobile text-display-hero-mobile text-primary tracking-tight">Mee Events</h1>
+<button class="flex items-center justify-center p-2 text-primary hover:bg-surface-container transition-colors rounded-full relative">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full"></span>
+</button>
+</div>
+</header>
+<main class="max-w-container-max mx-auto px-gutter pt-lg flex flex-col gap-xl">
+<!-- Header -->
+<header class="border-b border-soft-border pb-md">
+<p class="font-label-caps text-label-caps text-on-surface-variant uppercase mb-xs">Design System</p>
+<h2 class="font-display-hero text-display-hero text-primary">00B2 — Components: Cards and Status</h2>
+</header>
+<!-- Status Badges -->
+<section>
+<h3 class="font-h2 text-h2 text-primary mb-md">Status Badges</h3>
+<div class="flex flex-wrap gap-sm">
+<span class="inline-flex items-center px-3 py-1 rounded-full bg-surface border border-soft-border text-status-draft font-label-caps text-label-caps uppercase"><span class="w-2 h-2 rounded-full bg-status-draft mr-2"></span>Draft</span>
+<span class="inline-flex items-center px-3 py-1 rounded-full bg-surface border border-soft-border text-status-pending font-label-caps text-label-caps uppercase"><span class="w-2 h-2 rounded-full bg-status-pending mr-2"></span>Pending</span>
+<span class="inline-flex items-center px-3 py-1 rounded-full bg-surface border border-soft-border text-status-approved font-label-caps text-label-caps uppercase"><span class="w-2 h-2 rounded-full bg-status-approved mr-2"></span>Approved</span>
+<span class="inline-flex items-center px-3 py-1 rounded-full bg-surface border border-soft-border text-status-changes font-label-caps text-label-caps uppercase"><span class="w-2 h-2 rounded-full bg-status-changes mr-2"></span>Changes Requested</span>
+<span class="inline-flex items-center px-3 py-1 rounded-full bg-surface border border-soft-border text-status-rejected font-label-caps text-label-caps uppercase"><span class="w-2 h-2 rounded-full bg-status-rejected mr-2"></span>Rejected</span>
+<span class="inline-flex items-center px-3 py-1 rounded-full bg-surface border border-soft-border text-status-paid font-label-caps text-label-caps uppercase"><span class="w-2 h-2 rounded-full bg-status-paid mr-2"></span>Paid</span>
+<span class="inline-flex items-center px-3 py-1 rounded-full bg-surface border border-soft-border text-status-overdue font-label-caps text-label-caps uppercase"><span class="w-2 h-2 rounded-full bg-status-overdue mr-2"></span>Overdue</span>
+</div>
+</section>
+<!-- Progress Stepper -->
+<section>
+<h3 class="font-h2 text-h2 text-primary mb-md">Navigation: Stepper</h3>
+<div class="bg-surface rounded-card border border-soft-border p-lg">
+<div class="relative flex justify-between items-center w-full max-w-3xl mx-auto">
+<!-- Line connecting steps -->
+<div class="absolute left-0 top-1/2 -translate-y-1/2 w-full h-[1px] bg-soft-border z-0"></div>
+<div class="absolute left-0 top-1/2 -translate-y-1/2 w-[66%] h-[2px] bg-secondary z-0"></div>
+<!-- Step 1: Completed -->
+<div class="relative z-10 flex flex-col items-center gap-xs">
+<div class="w-8 h-8 rounded-full bg-secondary text-on-secondary flex items-center justify-center">
+<span class="material-symbols-outlined text-[16px]" data-icon="check">check</span>
+</div>
+<span class="font-label-caps text-label-caps uppercase text-secondary">Plan</span>
+</div>
+<!-- Step 2: Completed -->
+<div class="relative z-10 flex flex-col items-center gap-xs">
+<div class="w-8 h-8 rounded-full bg-secondary text-on-secondary flex items-center justify-center">
+<span class="material-symbols-outlined text-[16px]" data-icon="check">check</span>
+</div>
+<span class="font-label-caps text-label-caps uppercase text-secondary">Enquiry</span>
+</div>
+<!-- Step 3: Active -->
+<div class="relative z-10 flex flex-col items-center gap-xs">
+<div class="w-8 h-8 rounded-full bg-surface border-2 border-secondary text-secondary flex items-center justify-center font-button">
+                            3
+                        </div>
+<span class="font-label-caps text-label-caps uppercase text-secondary font-bold">Quote</span>
+</div>
+<!-- Step 4: Pending -->
+<div class="relative z-10 flex flex-col items-center gap-xs">
+<div class="w-8 h-8 rounded-full bg-surface border border-soft-border text-on-surface-variant flex items-center justify-center font-button">
+                            4
+                        </div>
+<span class="font-label-caps text-label-caps uppercase text-on-surface-variant">Pay</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Cards Collection -->
+<section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-lg">
+<div class="col-span-full">
+<h3 class="font-h2 text-h2 text-primary mb-md border-b border-soft-border pb-sm">Customer Cards</h3>
+</div>
+<!-- Event Card (Large Photo) -->
+<div class="bg-surface rounded-card border border-soft-border overflow-hidden hover:shadow-card-hover transition-shadow duration-300 flex flex-col">
+<div class="p-xs pb-0 relative">
+<img class="w-full aspect-[4/3] object-cover rounded-photo shadow-[inset_0_0_0_1px_rgba(0,0,0,0.05)]" data-alt="A grand Indian wedding setup in a palace courtyard. The scene is illuminated by warm, glowing string lights and ornate chandeliers against a dusk sky. The aesthetic is modern Indian premium with deep rich reds, golds, and pristine white floral arrangements. High resolution, high dynamic range, architectural photography." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCyKvB5UsEy_N_jFYglLjpm4qqehuXSbWTxGLKfnlgkfuWrpPx1jMG_y0jnvrRpSVPCTiCT41nDq1jUS8z9GsRiQi1uvudEZmbwHrKwIDG4O1k3nMkHWlQbeGP0uRBv2vtBGcYwoaslHWZ3wDKDT14fXmsHri-OkombtQrjysGi-Vk2uUGa9T_BrCzo_JGx50kozXH-iBnrOFqN0RyJN5rMFIbXeZskJJaYK7uT40acWQYFA1gAeWPi">
+<div class="absolute top-4 left-4 bg-surface/90 backdrop-blur-sm px-3 py-1 rounded-full font-label-caps text-label-caps text-primary uppercase">Wedding</div>
+</div>
+<div class="p-md flex flex-col flex-grow">
+<h4 class="font-card-title text-card-title text-primary mb-xs">Priya &amp; Arjun's Grand Celebration</h4>
+<p class="font-body-md text-body-md text-on-surface-variant mb-md line-clamp-2">A three-day extravaganza at the Taj Falaknuma Palace, blending traditional Telugu customs with modern luxury.</p>
+<div class="mt-auto pt-sm border-t border-soft-border flex justify-between items-center">
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">calendar_month</span> Nov 12-14, 2024</span>
+</div>
+</div>
+</div>
+<!-- Occasion Card (Square) -->
+<div class="bg-surface rounded-card border border-soft-border overflow-hidden hover:shadow-card-hover transition-shadow duration-300 p-md flex flex-col items-center text-center">
+<div class="w-32 h-32 rounded-photo overflow-hidden mb-md shadow-[inset_0_0_0_1px_rgba(0,0,0,0.05)]">
+<img class="w-full h-full object-cover" data-alt="A beautifully decorated Haldi ceremony setup. Yellow marigold flowers cascading down a pristine white backdrop. Warm natural daylight, modern luxury aesthetic, focus on textures of flowers and brass vessels." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBeL7aEiHjA9i3hFUDg22GORkazrnGjpopkHXC766PRjFdxWFGkM3knXwWr0_pycNgqw7ByBNFwfXHmA9ZCtZW4G2u75MIh86PO4cYV7--l2bCUi9MpQAAxnTaPTMJHh9ivfnv-DnDPPUVjPGTAlTJmN1eSN9Gjido_dC91Gv94CHlvPMSmfhXoZ9ZHKut4DnCbiSkFEDLhHepTJRWUPONMepEYPpE415T-FCx1ZhzU5btyY7k9UmBD">
+</div>
+<h4 class="font-card-title text-card-title text-primary mb-xs">Haldi Ceremony</h4>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm">Morning Event</p>
+<button class="mt-md px-6 py-2 bg-surface text-primary border border-soft-border rounded-full font-button text-button hover:bg-surface-container transition-colors">Add to Plan</button>
+</div>
+<!-- Service Card (Circular) -->
+<div class="bg-surface rounded-card border border-soft-border hover:shadow-card-hover transition-shadow duration-300 p-md flex items-center gap-md">
+<div class="w-16 h-16 rounded-full bg-surface-container flex items-center justify-center flex-shrink-0 text-primary">
+<span class="material-symbols-outlined text-[32px] icon-fill">photo_camera</span>
+</div>
+<div>
+<h4 class="font-card-title text-card-title text-primary text-[20px] mb-xs">Photography</h4>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm">Candid, Traditional, Drone</p>
+</div>
+</div>
+<!-- Mee Events Offering Card -->
+<div class="bg-primary text-on-primary rounded-card overflow-hidden hover:shadow-card-hover transition-shadow duration-300 relative">
+<div class="absolute inset-0 opacity-20 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-secondary via-transparent to-transparent"></div>
+<div class="p-md relative z-10 flex flex-col h-full">
+<span class="inline-flex self-start px-3 py-1 rounded-full bg-secondary text-on-secondary font-label-caps text-label-caps uppercase mb-md">Featured Offering</span>
+<h4 class="font-card-title text-card-title text-on-primary mb-xs text-2xl">The Royal Nizam Package</h4>
+<p class="font-body-md text-body-md text-primary-fixed-dim mb-lg">Complete end-to-end planning, premium vendor sourcing, and dedicated on-ground coordination team.</p>
+<button class="mt-auto self-start px-6 py-3 bg-on-primary text-primary rounded-full font-button text-button hover:bg-surface-container transition-colors">View Details</button>
+</div>
+</div>
+<!-- Draft Event Plan -->
+<div class="bg-surface rounded-card border border-soft-border hover:shadow-card-hover transition-shadow duration-300 p-md">
+<div class="flex justify-between items-start mb-md">
+<span class="inline-flex items-center px-2 py-1 rounded bg-surface border border-soft-border text-status-draft font-label-caps text-label-caps uppercase text-[10px]"><span class="w-1.5 h-1.5 rounded-full bg-status-draft mr-1"></span>Draft</span>
+<button class="text-on-surface-variant hover:text-primary"><span class="material-symbols-outlined">more_vert</span></button>
+</div>
+<h4 class="font-card-title text-card-title text-primary mb-xs">Priya &amp; Arjun's Wedding</h4>
+<div class="flex flex-col gap-2 mt-md">
+<div class="flex items-center gap-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">location_on</span>
+<span class="font-body-md text-sm">Hyderabad</span>
+</div>
+<div class="flex items-center gap-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">group</span>
+<span class="font-body-md text-sm">500+ Guests</span>
+</div>
+</div>
+<button class="mt-md w-full py-2 bg-primary-container text-on-primary-container rounded-lg font-button text-button hover:opacity-90 transition-opacity">Resume Planning</button>
+</div>
+<!-- Enquiry Card -->
+<div class="bg-surface rounded-card border border-soft-border hover:shadow-card-hover transition-shadow duration-300 p-md flex flex-col justify-between">
+<div>
+<div class="flex justify-between items-start mb-md">
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase">Enquiry #ENQ-089</span>
+<span class="inline-flex items-center px-2 py-1 rounded bg-secondary-container/30 text-on-secondary-container font-label-caps text-label-caps uppercase text-[10px]"><span class="w-1.5 h-1.5 rounded-full bg-status-pending mr-1"></span>Pending</span>
+</div>
+<h4 class="font-card-title text-card-title text-primary mb-sm">Floral Decor - Haldi</h4>
+<p class="font-body-md text-sm text-on-surface-variant">Requested on Oct 12, 2023. Waiting for vendor availability confirmation.</p>
+</div>
+<div class="mt-md pt-md border-t border-soft-border">
+<button class="text-primary font-button text-sm hover:underline flex items-center gap-1">View Thread <span class="material-symbols-outlined text-[16px]">arrow_forward</span></button>
+</div>
+</div>
+<!-- Quotation Card -->
+<div class="bg-surface rounded-card border border-soft-border hover:shadow-card-hover transition-shadow duration-300 p-md">
+<div class="flex justify-between items-start mb-md">
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase">Quote #QT-102</span>
+<span class="inline-flex items-center px-2 py-1 rounded bg-surface border border-soft-border text-status-approved font-label-caps text-label-caps uppercase text-[10px]"><span class="w-1.5 h-1.5 rounded-full bg-status-approved mr-1"></span>Approved</span>
+</div>
+<h4 class="font-card-title text-card-title text-primary mb-xs">Photography Package</h4>
+<p class="font-body-md text-sm text-on-surface-variant mb-md">Studio A - 3 Days Coverage</p>
+<div class="bg-surface-container-low p-sm rounded-lg flex justify-between items-center mb-md">
+<span class="font-body-md text-sm text-on-surface-variant">Total Amount</span>
+<span class="font-h2 text-h2 text-primary">₹4,50,000</span>
+</div>
+<div class="flex gap-sm">
+<button class="flex-1 py-2 bg-surface text-primary border border-primary rounded font-button text-button hover:bg-surface-container transition-colors">Download</button>
+<button class="flex-1 py-2 bg-primary text-on-primary rounded font-button text-button hover:opacity-90 transition-opacity">Pay Advance</button>
+</div>
+</div>
+<!-- Payment Card -->
+<div class="bg-surface rounded-card border border-soft-border hover:shadow-card-hover transition-shadow duration-300 p-md relative overflow-hidden">
+<div class="absolute top-0 right-0 w-16 h-16 bg-status-paid/10 rounded-bl-full flex items-start justify-end p-2">
+<span class="material-symbols-outlined text-status-paid icon-fill text-[20px]">check_circle</span>
+</div>
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase block mb-xs">Receipt #RC-992</span>
+<h4 class="font-h2 text-h2 text-primary mb-sm">₹1,50,000</h4>
+<p class="font-body-md text-sm text-on-surface-variant mb-md">Advance payment for Venue Booking. Paid via NetBanking.</p>
+<div class="flex items-center gap-2 text-status-paid font-label-caps text-label-caps uppercase mt-auto pt-sm border-t border-soft-border">
+<span class="w-1.5 h-1.5 rounded-full bg-status-paid"></span> Paid on Oct 15
+                </div>
+</div>
+</section>
+<!-- Operational Cards (Vendors/Workers) -->
+<section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-lg">
+<div class="col-span-full">
+<h3 class="font-h2 text-h2 text-primary mb-md border-b border-soft-border pb-sm mt-lg">Operational Cards</h3>
+</div>
+<!-- Vendor Listing -->
+<div class="bg-surface rounded-card border border-soft-border hover:shadow-card-hover transition-shadow duration-300 p-md">
+<div class="flex items-center gap-md mb-md">
+<div class="w-12 h-12 rounded-full bg-surface-container overflow-hidden flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="Logo or emblem for a premium Indian floral decorator. Gold geometric lines forming a lotus on a dark burgundy background. Clean, corporate, elegant." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDlRA7wtZyuRIr467lXoriVSLZj7tKbNBscni8gTy8JfEViYTHwQ9Y-8r6yalfpHP33RNt84l7XxgB9qGi1SEGfW6AAwjDz7TN6jSC7-_dmoZfFudqODBXP_UKh5ooLMcXMLloo9bSgJD3-T5i7gE9QC3H597XjmGQTGYQnwwnFOWdxvdpxDB2heBMBRsC1lAaMfcMdpr8aVqkQhGdQZjlGEOF4y-sDJ3BUWf6Y4nkhedhp4dkpiLcn">
+</div>
+<div>
+<h4 class="font-card-title text-[18px] text-primary leading-tight">Petals &amp; Drapes</h4>
+<span class="text-xs text-on-surface-variant flex items-center gap-1"><span class="material-symbols-outlined text-[14px] text-secondary icon-fill">verified</span> Mee Verified</span>
+</div>
+</div>
+<div class="flex flex-wrap gap-1 mb-md">
+<span class="px-2 py-0.5 bg-surface-container-low rounded text-[10px] text-on-surface-variant uppercase font-bold">Decor</span>
+<span class="px-2 py-0.5 bg-surface-container-low rounded text-[10px] text-on-surface-variant uppercase font-bold">Floral</span>
+</div>
+<p class="font-body-md text-sm text-on-surface-variant line-clamp-2">Specializing in traditional marigold setups and contemporary exotic floral arches.</p>
+</div>
+<!-- Work Order Card -->
+<div class="bg-surface rounded-card border border-soft-border hover:shadow-card-hover transition-shadow duration-300 p-md flex flex-col">
+<div class="flex justify-between items-start mb-sm">
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase">WO-1102</span>
+<span class="inline-flex items-center px-2 py-0.5 rounded bg-surface border border-soft-border text-status-changes font-label-caps text-[10px] uppercase"><span class="w-1.5 h-1.5 rounded-full bg-status-changes mr-1"></span>Changes</span>
+</div>
+<h4 class="font-card-title text-[18px] text-primary mb-xs">Decoration Setup</h4>
+<p class="font-body-md text-sm text-on-surface-variant mb-md">Mandap frame installation and draping.</p>
+<div class="mt-auto flex items-center gap-2 text-xs text-on-surface-variant">
+<span class="material-symbols-outlined text-[14px]">schedule</span> Due: Today, 4:00 PM
+                </div>
+</div>
+<!-- Worker Assignment -->
+<div class="bg-surface rounded-card border border-soft-border hover:shadow-card-hover transition-shadow duration-300 p-md flex items-center gap-md">
+<div class="relative">
+<div class="w-12 h-12 rounded-full overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Portrait of an Indian male event worker, smiling slightly. Wearing a neat dark polo shirt with a subtle nametag. Warm lighting, professional portrait, soft background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAoCQdr3EN2Y3wxKL89WiHo1lsfR5T-QhERUvSXwr69_gATZQP8NpoXsIbzuGgqqE99IIbrPvMxpZCRB4P8lsdhaQc08WKmngnh8nfRp4uyXQFIuBrOhEEXG4byFrhkbZm2Um9wYt-2cLegD17vQe1DqHOmpCeWyNIuKFohyPDH3OBbriEvU51YADgewBJIM_NKlAjdblMGNCCUuhyxNyLnO9BUJlJh-FTO0rLi8z7Mti53QQT1whi5">
+</div>
+<span class="absolute bottom-0 right-0 w-3 h-3 bg-status-approved border-2 border-surface rounded-full"></span>
+</div>
+<div>
+<h4 class="font-card-title text-[18px] text-primary leading-tight">Ramesh Kumar</h4>
+<p class="font-body-md text-xs text-on-surface-variant">Lead Decorator</p>
+<p class="font-body-md text-xs text-secondary mt-1">Zone A • Stage</p>
+</div>
+</div>
+<!-- Earnings Card -->
+<div class="bg-surface rounded-card border border-soft-border hover:shadow-card-hover transition-shadow duration-300 p-md bg-gradient-to-br from-surface to-surface-container-low">
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase block mb-sm">Settlement Balance</span>
+<h4 class="font-h2 text-[28px] text-primary mb-sm">₹12,500</h4>
+<div class="w-full bg-surface-container h-1.5 rounded-full mb-2 overflow-hidden">
+<div class="bg-secondary h-full rounded-full w-[70%]"></div>
+</div>
+<p class="font-body-md text-xs text-on-surface-variant">70% of WO-1102 completed</p>
+<button class="mt-md w-full py-1.5 bg-surface border border-soft-border text-primary rounded font-button text-xs hover:bg-surface-container transition-colors">Request Payout</button>
+</div>
+</section>
+</main>
+<!-- BottomNavBar (Hidden on md and up, visible on mobile) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-safe bg-surface border-t border-outline-variant h-20 rounded-t-xl shadow-sm">
+<a class="flex flex-col items-center justify-center text-on-surface-variant pt-1 hover:text-primary transition-all" href="#">
+<span class="material-symbols-outlined mb-1">home</span>
+<span class="font-label-caps text-label-caps">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant pt-1 hover:text-primary transition-all" href="#">
+<span class="material-symbols-outlined mb-1">search</span>
+<span class="font-label-caps text-label-caps">Explore</span>
+</a>
+<a class="flex flex-col items-center justify-center text-primary border-t-2 border-secondary pt-1 scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined mb-1 icon-fill">event_note</span>
+<span class="font-label-caps text-label-caps">Plan</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant pt-1 hover:text-primary transition-all" href="#">
+<span class="material-symbols-outlined mb-1">chat_bubble</span>
+<span class="font-label-caps text-label-caps">Enquiries</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant pt-1 hover:text-primary transition-all" href="#">
+<span class="material-symbols-outlined mb-1">person</span>
+<span class="font-label-caps text-label-caps">Account</span>
+</a>
+</nav>
+</body></html>

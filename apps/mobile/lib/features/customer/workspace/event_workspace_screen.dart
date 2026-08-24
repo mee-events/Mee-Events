@@ -25,39 +25,39 @@ String _money(String raw) {
 /// Loads booking + quotation (+ optional enquiry / event record) for My Event.
 final eventWorkspaceProvider = FutureProvider.autoDispose
     .family<EventWorkspaceSnapshot?, String>((ref, bookingId) async {
-  final session = ref.watch(sessionProvider);
-  if (session == null) return null;
+      final session = ref.watch(sessionProvider);
+      if (session == null) return null;
 
-  final api = ref.watch(mobileApiProvider);
-  final booking = await api.getBookingDetail(bookingId);
-  final quotation = await api.getQuotation(booking.quotationId);
+      final api = ref.watch(mobileApiProvider);
+      final booking = await api.getBookingDetail(bookingId);
+      final quotation = await api.getQuotation(booking.quotationId);
 
-  EventRecordDetail? eventRecord;
-  final eventId = booking.eventRecordId;
-  if (eventId != null) {
-    try {
-      eventRecord = await api.getEvent(eventId);
-    } catch (_) {
-      // Event Record is optional enrichment for this workspace.
-    }
-  }
+      EventRecordDetail? eventRecord;
+      final eventId = booking.eventRecordId;
+      if (eventId != null) {
+        try {
+          eventRecord = await api.getEvent(eventId);
+        } catch (_) {
+          // Event Record is optional enrichment for this workspace.
+        }
+      }
 
-  try {
-    final enquiry = await api.getEnquiry(booking.enquiryId);
-    return EventWorkspaceSnapshot(
-      booking: booking,
-      quotation: quotation,
-      enquiry: enquiry,
-      eventRecord: eventRecord,
-    );
-  } catch (_) {
-    return EventWorkspaceSnapshot(
-      booking: booking,
-      quotation: quotation,
-      eventRecord: eventRecord,
-    );
-  }
-});
+      try {
+        final enquiry = await api.getEnquiry(booking.enquiryId);
+        return EventWorkspaceSnapshot(
+          booking: booking,
+          quotation: quotation,
+          enquiry: enquiry,
+          eventRecord: eventRecord,
+        );
+      } catch (_) {
+        return EventWorkspaceSnapshot(
+          booking: booking,
+          quotation: quotation,
+          eventRecord: eventRecord,
+        );
+      }
+    });
 
 /// Production customer "My Event" workspace after booking confirmation.
 class EventWorkspaceScreen extends ConsumerWidget {
@@ -78,7 +78,15 @@ class EventWorkspaceScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: AppColors.canvas,
-      appBar: const MeAppBar(title: 'My Event'),
+      appBar: MeAppBar(
+        title: 'My Event',
+        leading: MeIconButton(
+          icon: Icons.arrow_back_rounded,
+          color: AppColors.ink,
+          onPressed: () => Navigator.pop(context),
+          tooltip: 'Back',
+        ),
+      ),
       body: asyncWorkspace.when(
         loading: () => const Center(child: MeCircularLoader()),
         error: (error, _) => MeErrorState(
@@ -95,10 +103,7 @@ class EventWorkspaceScreen extends ConsumerWidget {
               message: 'Sign in to view your event workspace.',
             );
           }
-          return _EventWorkspaceBody(
-            snapshot: snapshot,
-            modules: modules,
-          );
+          return _EventWorkspaceBody(snapshot: snapshot, modules: modules);
         },
       ),
     );
@@ -106,10 +111,7 @@ class EventWorkspaceScreen extends ConsumerWidget {
 }
 
 class _EventWorkspaceBody extends ConsumerWidget {
-  const _EventWorkspaceBody({
-    required this.snapshot,
-    required this.modules,
-  });
+  const _EventWorkspaceBody({required this.snapshot, required this.modules});
 
   final EventWorkspaceSnapshot snapshot;
   final List<EventWorkspaceModule> modules;
@@ -133,10 +135,7 @@ class _EventWorkspaceBody extends ConsumerWidget {
             title: snapshot.eventName,
           ),
           const SizedBox(height: AppSpacing.md),
-          MeBadge(
-            label: snapshot.bookingStatus,
-            tone: MeStatusTone.success,
-          ),
+          MeBadge(label: snapshot.bookingStatus, tone: MeStatusTone.success),
           const SizedBox(height: AppSpacing.xl),
           MeSurfaceCard(
             child: Column(
@@ -161,12 +160,13 @@ class _EventWorkspaceBody extends ConsumerWidget {
           Text('Timeline', style: AppTypography.titleMd),
           const SizedBox(height: AppSpacing.md),
           MeSurfaceCard(
+            padding: timeline.isEmpty ? EdgeInsets.zero : null,
             child: timeline.isEmpty
-                ? Text(
-                    'Timeline updates will appear as your event progresses.',
-                    style: AppTypography.bodyMd.copyWith(
-                      color: AppColors.muted,
-                    ),
+                ? const MeEmptyState(
+                    kind: MeEmptyKind.events,
+                    title: 'No timeline yet',
+                    message:
+                        'Timeline updates will appear as your event progresses.',
                   )
                 : MeTimeline(
                     steps: [
@@ -211,7 +211,10 @@ class _EventWorkspaceBody extends ConsumerWidget {
             onTap: () => _openQuotationPdf(context, ref),
             child: Row(
               children: [
-                const Icon(Icons.description_outlined, color: AppColors.primary),
+                const Icon(
+                  Icons.description_outlined,
+                  color: AppColors.primary,
+                ),
                 const SizedBox(width: AppSpacing.md),
                 Expanded(
                   child: Column(
@@ -227,7 +230,7 @@ class _EventWorkspaceBody extends ConsumerWidget {
                     ],
                   ),
                 ),
-                const Icon(Icons.download_outlined, color: AppColors.muted),
+                const Icon(Icons.info_outline, color: AppColors.muted),
               ],
             ),
           ),
@@ -236,10 +239,7 @@ class _EventWorkspaceBody extends ConsumerWidget {
             onTap: () => _openBookingConfirmationPlaceholder(context),
             child: Row(
               children: [
-                const Icon(
-                  Icons.verified_outlined,
-                  color: AppColors.primary,
-                ),
+                const Icon(Icons.verified_outlined, color: AppColors.primary),
                 const SizedBox(width: AppSpacing.md),
                 Expanded(
                   child: Column(
@@ -258,35 +258,34 @@ class _EventWorkspaceBody extends ConsumerWidget {
                     ],
                   ),
                 ),
-                const Icon(Icons.download_outlined, color: AppColors.muted),
+                const Icon(Icons.info_outline, color: AppColors.muted),
               ],
             ),
           ),
+          if (snapshot.eventRecord?.status == 'completed' ||
+              snapshot.booking.status == 'completed') ...[
+            const SizedBox(height: AppSpacing.xl),
+            Text('Feedback', style: AppTypography.titleMd),
+            const SizedBox(height: AppSpacing.md),
+            const MeSurfaceCard(
+              padding: EdgeInsets.zero,
+              child: MeEmptyState(
+                kind: MeEmptyKind.generic,
+                title: 'Feedback coming soon',
+                message: 'Rate your event — customer feedback is not live yet.',
+              ),
+            ),
+          ],
           const SizedBox(height: AppSpacing.xl),
           Text('Support', style: AppTypography.titleMd),
           const SizedBox(height: AppSpacing.md),
-          MeSurfaceCard(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Your event manager', style: AppTypography.titleSm),
-                const SizedBox(height: AppSpacing.sm),
-                Text(
-                  'Priya Sharma',
-                  style: AppTypography.bodyMd.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.xs),
-                Text(
-                  'Assigned manager details will sync from CRM in a later slice.',
-                  style: AppTypography.bodySm.copyWith(color: AppColors.muted),
-                ),
-                const SizedBox(height: AppSpacing.md),
-                DetailRow(label: 'Phone', value: '+91 90000 00000'),
-                DetailRow(label: 'WhatsApp', value: '+91 90000 00000'),
-                DetailRow(label: 'Email', value: 'manager@meeevents.in'),
-              ],
+          const MeSurfaceCard(
+            padding: EdgeInsets.zero,
+            child: MeEmptyState(
+              kind: MeEmptyKind.workers,
+              title: 'No event manager yet',
+              message:
+                  'Once CRM assigns an event manager, their contact details will appear here.',
             ),
           ),
           for (final module in modules) ...[
@@ -317,8 +316,7 @@ class _EventWorkspaceBody extends ConsumerWidget {
   Future<void> _openQuotationPdf(BuildContext context, WidgetRef ref) async {
     try {
       final api = ref.read(mobileApiProvider);
-      final response =
-          await api.quotationPdfPlaceholder(snapshot.quotation.id);
+      final response = await api.quotationPdfPlaceholder(snapshot.quotation.id);
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -330,9 +328,9 @@ class _EventWorkspaceBody extends ConsumerWidget {
       );
     } catch (error) {
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('$error')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('$error')));
     }
   }
 

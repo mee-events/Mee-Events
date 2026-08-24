@@ -2,10 +2,8 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mee_events/config/environment.dart';
 import 'package:mee_events/design_system/design_system.dart';
 import 'package:mee_events/features/auth/session_provider.dart';
-import 'package:mee_events/features/customer/screens/customer_dashboard_screen.dart';
 import 'package:mee_events/models/api_error.dart';
 import 'package:mee_events/models/auth_session.dart';
 import 'package:mee_events/theme/app_colors.dart';
@@ -92,13 +90,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         code: code,
         deviceId: _deviceId(),
       );
-      ref.read(sessionProvider.notifier).signIn(session);
+      await ref.read(sessionProvider.notifier).signIn(session);
       if (!mounted) return;
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (context) => const CustomerDashboardScreen(),
-        ),
-      );
+      Navigator.of(context).popUntil((route) => route.isFirst);
     } on ApiRequestException catch (e) {
       if (!mounted) return;
       setState(() => _error = e.error.message);
@@ -108,14 +102,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     } finally {
       if (mounted) setState(() => _busy = false);
     }
-  }
-
-  void _continueAsPreview() {
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (context) => const CustomerDashboardScreen(),
-      ),
-    );
   }
 
   @override
@@ -139,17 +125,31 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     : 'Log in with your mobile number to plan events and track enquiries.',
                 style: AppTypography.bodyMd.copyWith(color: AppColors.muted),
               ),
-              const SizedBox(height: AppSpacing.xxxl),
-              if (!awaitingOtp)
-                MePhoneField(
+              const SizedBox(height: AppSpacing.xxl),
+              if (!awaitingOtp) ...[
+                MeTextField(
                   controller: _phoneController,
-                  errorText: _error,
-                )
-              else ...[
-                MeOtpField(
-                  controller: _otpController,
-                  errorText: _error,
+                  label: 'Mobile number',
+                  hint: '10-digit Indian mobile',
+                  keyboardType: TextInputType.phone,
                 ),
+                if (_error != null) ...[
+                  const SizedBox(height: AppSpacing.md),
+                  Text(
+                    _error!,
+                    style: AppTypography.bodySm.copyWith(
+                      color: AppColors.error,
+                    ),
+                  ),
+                ],
+              ] else ...[
+                MeTextField(
+                  controller: _otpController,
+                  label: 'One-time code',
+                  hint: '6 digits',
+                  keyboardType: TextInputType.number,
+                ),
+                const SizedBox(height: AppSpacing.sm),
                 MeButton.text(
                   label: 'Use a different number',
                   onPressed: _busy
@@ -176,14 +176,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 busy: _busy,
                 onPressed: awaitingOtp ? _verifyOtp : _requestOtp,
               ),
-              const Spacer(),
-              if (Environment.isDevelopmentPreview)
-                Center(
-                  child: MeButton.text(
-                    label: 'Skip login (development preview)',
-                    onPressed: _continueAsPreview,
-                  ),
-                ),
             ],
           ),
         ),
@@ -194,8 +186,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
 String _deviceId() {
   final random = Random();
-  final suffix =
-      List.generate(16, (_) => random.nextInt(16).toRadixString(16)).join();
+  final suffix = List.generate(
+    16,
+    (_) => random.nextInt(16).toRadixString(16),
+  ).join();
   return 'mobile-$suffix';
 }
 
@@ -208,6 +202,9 @@ String? _normalizeIndianMobile(String raw) {
     return digits.substring(1);
   }
   if (digits.length == 12 && digits.startsWith('91')) {
+    return digits.substring(2);
+  }
+  if (digits.length == 13 && digits.startsWith('91')) {
     return digits.substring(2);
   }
   return null;

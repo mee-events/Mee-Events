@@ -38,9 +38,9 @@ class _WorkerTaskDetailScreenState
       ref.invalidate(workerTasksProvider);
     } catch (error) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(error.toString())),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(error.toString())));
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -99,9 +99,8 @@ class _WorkerTaskDetailScreenState
                     OutlinedButton(
                       onPressed: _busy
                           ? null
-                          : () => _run(
-                                () => repo.reject(task.id, 'Unavailable'),
-                              ),
+                          : () =>
+                                _run(() => repo.reject(task.id, 'Unavailable')),
                       child: const Text('Reject'),
                     ),
                   if (['accepted', 'travelling'].contains(task.status))
@@ -109,12 +108,12 @@ class _WorkerTaskDetailScreenState
                       onPressed: _busy
                           ? null
                           : () => _run(
-                                () => repo.checkIn(
-                                  taskId: task.id,
-                                  gpsPlaceholder: '17.3850,78.4867',
-                                  locationPlaceholder: 'Venue gate',
-                                ),
+                              () => repo.checkIn(
+                                taskId: task.id,
+                                gpsPlaceholder: '17.3850,78.4867',
+                                locationPlaceholder: 'Venue gate',
                               ),
+                            ),
                       child: const Text('Check in'),
                     ),
                 ],
@@ -133,22 +132,20 @@ class _WorkerTaskDetailScreenState
                 onPressed: _busy || _progressController.text.trim().isEmpty
                     ? null
                     : () => _run(() async {
-                          await repo.progress(
-                            taskId: task.id,
-                            summary: _progressController.text.trim(),
-                            status: 'working',
-                          );
-                          _progressController.clear();
-                        }),
+                        await repo.progress(
+                          taskId: task.id,
+                          summary: _progressController.text.trim(),
+                          status: 'working',
+                        );
+                        _progressController.clear();
+                      }),
                 child: const Text('Post progress'),
               ),
               const SizedBox(height: AppSpacing.xl),
               Text('Check out', style: AppTypography.titleMd),
               TextField(
                 controller: _checkoutController,
-                decoration: const InputDecoration(
-                  hintText: 'Completion notes',
-                ),
+                decoration: const InputDecoration(hintText: 'Completion notes'),
                 maxLines: 2,
               ),
               const SizedBox(height: AppSpacing.sm),
@@ -156,14 +153,14 @@ class _WorkerTaskDetailScreenState
                 onPressed: _busy
                     ? null
                     : () => _run(() async {
-                          await repo.checkOut(
-                            taskId: task.id,
-                            completionNotes:
-                                _checkoutController.text.trim().isEmpty
-                                    ? null
-                                    : _checkoutController.text.trim(),
-                          );
-                        }),
+                        await repo.checkOut(
+                          taskId: task.id,
+                          completionNotes:
+                              _checkoutController.text.trim().isEmpty
+                              ? null
+                              : _checkoutController.text.trim(),
+                        );
+                      }),
                 child: const Text('Complete & check out'),
               ),
               const SizedBox(height: AppSpacing.xl),

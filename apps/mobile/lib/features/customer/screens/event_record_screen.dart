@@ -62,10 +62,7 @@ class _EventRecordBody extends StatelessWidget {
           style: AppTypography.bodyMd.copyWith(color: AppColors.muted),
         ),
         const SizedBox(height: AppSpacing.md),
-        MeBadge(
-          label: event.statusLabel,
-          tone: MeStatusTone.success,
-        ),
+        MeBadge(label: event.statusLabel, tone: MeStatusTone.success),
         const SizedBox(height: AppSpacing.xl),
         _SectionCard(
           title: 'Booking summary',
@@ -224,8 +221,9 @@ class _EventRecordBody extends StatelessWidget {
                                   const SizedBox(height: 2),
                                   Text(
                                     DateFormat('dd MMM yyyy, hh:mm a').format(
-                                      DateTime.parse(entry.occurredAt)
-                                          .toLocal(),
+                                      DateTime.parse(
+                                        entry.occurredAt,
+                                      ).toLocal(),
                                     ),
                                     style: AppTypography.captionSm.copyWith(
                                       color: AppColors.muted,

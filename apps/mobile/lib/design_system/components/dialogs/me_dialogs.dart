@@ -19,18 +19,29 @@ Future<bool?> showMeConfirmDialog(
     builder: (context) => AlertDialog(
       shape: const RoundedRectangleBorder(borderRadius: AppRadius.lgAll),
       title: Text(title, style: AppTypography.displaySm),
-      content: Text(message, style: AppTypography.bodyMd.copyWith(color: AppColors.muted)),
+      content: Text(
+        message,
+        style: AppTypography.bodyMd.copyWith(color: AppColors.muted),
+      ),
       actions: [
         MeButton.text(
           label: cancelLabel,
           onPressed: () => Navigator.of(context).pop(false),
         ),
-        MeButton.primary(
-          label: confirmLabel,
-          expand: false,
-          pill: false,
-          onPressed: () => Navigator.of(context).pop(true),
-        ),
+        if (destructive)
+          MeButton.destructive(
+            label: confirmLabel,
+            expand: false,
+            pill: false,
+            onPressed: () => Navigator.of(context).pop(true),
+          )
+        else
+          MeButton.primary(
+            label: confirmLabel,
+            expand: false,
+            pill: false,
+            onPressed: () => Navigator.of(context).pop(true),
+          ),
       ],
     ),
   );
@@ -48,12 +59,19 @@ Future<void> showMeSuccessDialog(
       shape: const RoundedRectangleBorder(borderRadius: AppRadius.lgAll),
       title: Row(
         children: [
-          const Icon(Icons.check_circle, color: AppColors.success, size: AppIconSize.lg),
+          const Icon(
+            Icons.check_circle,
+            color: AppColors.success,
+            size: AppIconSize.lg,
+          ),
           const SizedBox(width: AppSpacing.sm),
           Expanded(child: Text(title, style: AppTypography.displaySm)),
         ],
       ),
-      content: Text(message, style: AppTypography.bodyMd.copyWith(color: AppColors.muted)),
+      content: Text(
+        message,
+        style: AppTypography.bodyMd.copyWith(color: AppColors.muted),
+      ),
       actions: [
         MeButton.primary(
           label: actionLabel,
@@ -78,12 +96,19 @@ Future<void> showMeErrorDialog(
       shape: const RoundedRectangleBorder(borderRadius: AppRadius.lgAll),
       title: Row(
         children: [
-          const Icon(Icons.error_outline, color: AppColors.error, size: AppIconSize.lg),
+          const Icon(
+            Icons.error_outline,
+            color: AppColors.error,
+            size: AppIconSize.lg,
+          ),
           const SizedBox(width: AppSpacing.sm),
           Expanded(child: Text(title, style: AppTypography.displaySm)),
         ],
       ),
-      content: Text(message, style: AppTypography.bodyMd.copyWith(color: AppColors.muted)),
+      content: Text(
+        message,
+        style: AppTypography.bodyMd.copyWith(color: AppColors.muted),
+      ),
       actions: [
         MeButton.primary(
           label: actionLabel,

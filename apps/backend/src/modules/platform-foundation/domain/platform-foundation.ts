@@ -105,6 +105,8 @@ export const capabilityIds = [
   "platform_user.manage",
   "platform_policy.manage",
   "audit.read",
+  "catalog_review.read",
+  "catalog_review.update",
 ] as const;
 
 export type CapabilityId = (typeof capabilityIds)[number];
@@ -396,6 +398,7 @@ export const ROLE_CAPABILITIES = {
     "report.operational.read",
     "report.financial.read",
     "audit.read",
+    "catalog_review.read",
   ],
 } as const satisfies Readonly<Record<PlatformRole, readonly CapabilityId[]>>;
 

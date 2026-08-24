@@ -13,26 +13,26 @@ class AppElevation {
   static const double overlay = 16;
 
   static List<BoxShadow> get lowShadow => [
-        BoxShadow(
-          color: AppColors.ink.withValues(alpha: AppOpacity.shadowLow),
-          blurRadius: 8,
-          offset: const Offset(0, 2),
-        ),
-      ];
+    BoxShadow(
+      color: AppColors.ink.withValues(alpha: AppOpacity.shadowLow),
+      blurRadius: 8,
+      offset: const Offset(0, 2),
+    ),
+  ];
 
   static List<BoxShadow> get mediumShadow => [
-        BoxShadow(
-          color: AppColors.ink.withValues(alpha: AppOpacity.shadowMedium),
-          blurRadius: 16,
-          offset: const Offset(0, 4),
-        ),
-      ];
+    BoxShadow(
+      color: AppColors.ink.withValues(alpha: AppOpacity.shadowMedium),
+      blurRadius: 16,
+      offset: const Offset(0, 4),
+    ),
+  ];
 
   static List<BoxShadow> get highShadow => [
-        BoxShadow(
-          color: AppColors.ink.withValues(alpha: AppOpacity.shadowHigh),
-          blurRadius: 24,
-          offset: const Offset(0, 8),
-        ),
-      ];
+    BoxShadow(
+      color: AppColors.ink.withValues(alpha: AppOpacity.shadowHigh),
+      blurRadius: 24,
+      offset: const Offset(0, 8),
+    ),
+  ];
 }

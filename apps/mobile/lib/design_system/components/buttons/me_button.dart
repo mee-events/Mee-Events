@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:mee_events/design_system/components/motion/me_pressable.dart';
 import 'package:mee_events/theme/app_colors.dart';
+import 'package:mee_events/theme/app_elevation.dart';
 import 'package:mee_events/theme/app_icon_size.dart';
 import 'package:mee_events/theme/app_opacity.dart';
 import 'package:mee_events/theme/app_radius.dart';
 import 'package:mee_events/theme/app_spacing.dart';
 import 'package:mee_events/theme/app_typography.dart';
 
-enum MeButtonVariant { primary, secondary, outline, text }
+enum MeButtonVariant { primary, secondary, outline, text, premium, destructive }
+
+/// Matches [MeCircularLoader] stroke for busy state consistency.
+const double _loaderStrokeWidth = 2.5;
 
 /// Brand-aware button. Prefer this over raw [ElevatedButton] in feature UI.
 class MeButton extends StatelessWidget {
@@ -61,6 +66,26 @@ class MeButton extends StatelessWidget {
     this.icon,
   }) : variant = MeButtonVariant.text;
 
+  const MeButton.premium({
+    super.key,
+    required this.label,
+    required this.onPressed,
+    this.expand = true,
+    this.busy = false,
+    this.pill = true,
+    this.icon,
+  }) : variant = MeButtonVariant.premium;
+
+  const MeButton.destructive({
+    super.key,
+    required this.label,
+    required this.onPressed,
+    this.expand = true,
+    this.busy = false,
+    this.pill = false,
+    this.icon,
+  }) : variant = MeButtonVariant.destructive;
+
   final String label;
   final VoidCallback? onPressed;
   final MeButtonVariant variant;
@@ -68,6 +93,11 @@ class MeButton extends StatelessWidget {
   final bool busy;
   final bool pill;
   final IconData? icon;
+
+  bool get _usesOnPrimaryLoader =>
+      variant == MeButtonVariant.primary ||
+      variant == MeButtonVariant.premium ||
+      variant == MeButtonVariant.destructive;
 
   @override
   Widget build(BuildContext context) {
@@ -78,11 +108,10 @@ class MeButton extends StatelessWidget {
             width: AppIconSize.md,
             height: AppIconSize.md,
             child: CircularProgressIndicator(
-              strokeWidth: 2,
-              color: variant == MeButtonVariant.outline ||
-                      variant == MeButtonVariant.text
-                  ? AppColors.primary
-                  : AppColors.onPrimary,
+              strokeWidth: _loaderStrokeWidth,
+              color: _usesOnPrimaryLoader
+                  ? AppColors.onPrimary
+                  : AppColors.primary,
             ),
           )
         : Row(
@@ -105,14 +134,40 @@ class MeButton extends StatelessWidget {
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.primary,
             foregroundColor: AppColors.onPrimary,
-            disabledBackgroundColor: AppColors.primaryDisabled,
-            elevation: 0,
+            disabledBackgroundColor: AppColors.disabledSurface,
+            disabledForegroundColor: AppColors.disabledText,
+            overlayColor: AppColors.primaryActive.withValues(alpha: 0.18),
+            elevation: AppElevation.flat,
             padding: const EdgeInsets.symmetric(
               horizontal: AppSpacing.xxl,
               vertical: AppSpacing.lg,
             ),
             shape: RoundedRectangleBorder(borderRadius: radius),
-            textStyle: AppTypography.titleSm.copyWith(color: AppColors.onPrimary),
+            textStyle: AppTypography.titleSm.copyWith(
+              color: AppColors.onPrimary,
+            ),
+          ),
+          child: child,
+        );
+      case MeButtonVariant.premium:
+        button = ElevatedButton(
+          onPressed: enabled ? onPressed : null,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.goldAccent,
+            foregroundColor: AppColors.onGold,
+            disabledBackgroundColor: AppColors.disabledSurface,
+            disabledForegroundColor: AppColors.disabledText,
+            overlayColor: AppColors.goldAntique.withValues(alpha: 0.22),
+            elevation: AppElevation.flat,
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.xxl,
+              vertical: AppSpacing.lg,
+            ),
+            shape: RoundedRectangleBorder(borderRadius: radius),
+            textStyle: AppTypography.titleSm.copyWith(
+              color: AppColors.onGold,
+              fontWeight: FontWeight.w700,
+            ),
           ),
           child: child,
         );
@@ -120,9 +175,31 @@ class MeButton extends StatelessWidget {
         button = ElevatedButton(
           onPressed: enabled ? onPressed : null,
           style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.ink,
-            foregroundColor: AppColors.onPrimary,
-            elevation: 0,
+            backgroundColor: AppColors.primarySoft,
+            foregroundColor: AppColors.primary,
+            disabledBackgroundColor: AppColors.disabledSurface,
+            disabledForegroundColor: AppColors.disabledText,
+            overlayColor: AppColors.primary.withValues(alpha: 0.12),
+            elevation: AppElevation.flat,
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.xxl,
+              vertical: AppSpacing.lg,
+            ),
+            shape: RoundedRectangleBorder(borderRadius: radius),
+            textStyle: AppTypography.titleSm.copyWith(color: AppColors.primary),
+          ),
+          child: child,
+        );
+      case MeButtonVariant.outline:
+        button = OutlinedButton(
+          onPressed: enabled ? onPressed : null,
+          style: OutlinedButton.styleFrom(
+            foregroundColor: AppColors.primary,
+            side: BorderSide(
+              color: enabled ? AppColors.primary : AppColors.hairline,
+            ),
+            disabledForegroundColor: AppColors.disabledText,
+            overlayColor: AppColors.primarySoft,
             padding: const EdgeInsets.symmetric(
               horizontal: AppSpacing.xxl,
               vertical: AppSpacing.lg,
@@ -132,18 +209,23 @@ class MeButton extends StatelessWidget {
           ),
           child: child,
         );
-      case MeButtonVariant.outline:
-        button = OutlinedButton(
+      case MeButtonVariant.destructive:
+        button = ElevatedButton(
           onPressed: enabled ? onPressed : null,
-          style: OutlinedButton.styleFrom(
-            foregroundColor: AppColors.ink,
-            side: const BorderSide(color: AppColors.hairline),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.error,
+            foregroundColor: AppColors.onPrimary,
+            disabledBackgroundColor: AppColors.disabledSurface,
+            disabledForegroundColor: AppColors.disabledText,
+            elevation: AppElevation.flat,
             padding: const EdgeInsets.symmetric(
               horizontal: AppSpacing.xxl,
               vertical: AppSpacing.lg,
             ),
             shape: RoundedRectangleBorder(borderRadius: radius),
-            textStyle: AppTypography.titleSm,
+            textStyle: AppTypography.titleSm.copyWith(
+              color: AppColors.onPrimary,
+            ),
           ),
           child: child,
         );
@@ -152,14 +234,17 @@ class MeButton extends StatelessWidget {
           onPressed: enabled ? onPressed : null,
           style: TextButton.styleFrom(
             foregroundColor: AppColors.primary,
+            disabledForegroundColor: AppColors.disabledText,
             textStyle: AppTypography.bodyMd,
           ),
           child: child,
         );
     }
 
-    if (!expand) return button;
-    return SizedBox(width: double.infinity, child: button);
+    final sized = expand
+        ? SizedBox(width: double.infinity, child: button)
+        : button;
+    return MePressable(enabled: enabled, borderRadius: radius, child: sized);
   }
 }
 
@@ -183,15 +268,66 @@ class MeIconButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final resolved = destructive
         ? AppColors.error
-        : color ?? AppColors.ink;
-    return IconButton(
-      onPressed: onPressed,
-      tooltip: tooltip,
-      icon: Icon(icon, color: resolved, size: AppIconSize.lg),
-      style: IconButton.styleFrom(
-        foregroundColor: resolved,
-        disabledForegroundColor:
-            resolved.withValues(alpha: AppOpacity.disabled),
+        : color ?? AppColors.primaryActive;
+    return MePressable(
+      enabled: onPressed != null,
+      borderRadius: AppRadius.pillAll,
+      child: IconButton(
+        onPressed: onPressed,
+        tooltip: tooltip,
+        icon: Icon(icon, color: resolved, size: AppIconSize.lg),
+        style: IconButton.styleFrom(
+          foregroundColor: resolved,
+          disabledForegroundColor: resolved.withValues(
+            alpha: AppOpacity.disabled,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Favorite / heart control — inactive white circle + burgundy outline;
+/// active burgundy fill + white heart with press scale via [MePressable].
+class MeFavoriteButton extends StatelessWidget {
+  const MeFavoriteButton({
+    super.key,
+    required this.active,
+    required this.onPressed,
+    this.size = 36,
+  });
+
+  final bool active;
+  final VoidCallback? onPressed;
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    return MePressable(
+      enabled: onPressed != null,
+      borderRadius: AppRadius.pillAll,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onPressed,
+          customBorder: const CircleBorder(),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 180),
+            width: size,
+            height: size,
+            decoration: BoxDecoration(
+              color: active ? AppColors.primary : AppColors.surfaceCard,
+              shape: BoxShape.circle,
+              border: Border.all(color: AppColors.primary, width: 1.5),
+            ),
+            alignment: Alignment.center,
+            child: Icon(
+              active ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+              size: size * 0.5,
+              color: active ? AppColors.onPrimary : AppColors.primary,
+            ),
+          ),
+        ),
       ),
     );
   }

@@ -1,0 +1,261 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Account Deletion Information</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&amp;family=EB+Garamond:wght@500&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                            "primary-fixed-dim": "#ffb3ad",
+                            "primary-fixed": "#ffdad7",
+                            "on-error": "#ffffff",
+                            "surface-container-lowest": "#ffffff",
+                            "surface-bright": "#fcf9f8",
+                            "tertiary-fixed-dim": "#c8c6c2",
+                            "on-primary": "#ffffff",
+                            "secondary-fixed-dim": "#e9c176",
+                            "primary-container": "#4a0e0e",
+                            "secondary-fixed": "#ffdea5",
+                            "outline-variant": "#dac1bf",
+                            "surface-variant": "#e5e2e1",
+                            "on-primary-container": "#cc726d",
+                            "on-tertiary-container": "#8c8c88",
+                            "on-secondary-container": "#785a1a",
+                            "tertiary": "#0f100d",
+                            "surface-tint": "#954742",
+                            "on-tertiary-fixed": "#1b1c19",
+                            "background": "#fcf9f8",
+                            "inverse-surface": "#313030",
+                            "surface-container-high": "#eae7e7",
+                            "on-tertiary": "#ffffff",
+                            "tertiary-container": "#242522",
+                            "on-secondary-fixed": "#261900",
+                            "error": "#ba1a1a",
+                            "on-surface": "#1c1b1b",
+                            "tertiary-fixed": "#e4e2dd",
+                            "surface": "#fcf9f8",
+                            "on-secondary-fixed-variant": "#5d4201",
+                            "on-surface-variant": "#544341",
+                            "on-secondary": "#ffffff",
+                            "surface-dim": "#dcd9d9",
+                            "inverse-on-surface": "#f3f0ef",
+                            "on-background": "#1c1b1b",
+                            "error-container": "#ffdad6",
+                            "on-primary-fixed": "#3d0506",
+                            "outline": "#877270",
+                            "secondary": "#775a19",
+                            "on-primary-fixed-variant": "#77302d",
+                            "surface-container": "#f0eded",
+                            "on-tertiary-fixed-variant": "#474744",
+                            "on-error-container": "#93000a",
+                            "surface-container-highest": "#e5e2e1",
+                            "secondary-container": "#fed488",
+                            "surface-container-low": "#f6f3f2",
+                            "inverse-primary": "#ffb3ad",
+                            "primary": "#2a0002"
+                    },
+                    "borderRadius": {
+                            "DEFAULT": "0.25rem",
+                            "lg": "0.5rem",
+                            "xl": "0.75rem",
+                            "full": "9999px"
+                    },
+                    "spacing": {
+                            "md": "24px",
+                            "xs": "4px",
+                            "sm": "12px",
+                            "base": "8px",
+                            "container-max": "1280px",
+                            "xl": "80px",
+                            "gutter": "24px",
+                            "lg": "48px"
+                    },
+                    "fontFamily": {
+                            "h1": [
+                                    "Manrope"
+                            ],
+                            "display-hero": [
+                                    "EB Garamond"
+                            ],
+                            "body-lg": [
+                                    "Manrope"
+                            ],
+                            "h2": [
+                                    "Manrope"
+                            ],
+                            "body-md": [
+                                    "Manrope"
+                            ],
+                            "label-caps": [
+                                    "Manrope"
+                            ],
+                            "display-hero-mobile": [
+                                    "EB Garamond"
+                            ],
+                            "button": [
+                                    "Manrope"
+                            ]
+                    },
+                    "fontSize": {
+                            "h1": [
+                                    "32px",
+                                    {
+                                            "lineHeight": "1.3",
+                                            "fontWeight": "700"
+                                    }
+                            ],
+                            "display-hero": [
+                                    "48px",
+                                    {
+                                            "lineHeight": "1.1",
+                                            "letterSpacing": "-0.02em",
+                                            "fontWeight": "500"
+                                    }
+                            ],
+                            "body-lg": [
+                                    "18px",
+                                    {
+                                            "lineHeight": "1.6",
+                                            "fontWeight": "400"
+                                    }
+                            ],
+                            "h2": [
+                                    "24px",
+                                    {
+                                            "lineHeight": "1.4",
+                                            "fontWeight": "600"
+                                    }
+                            ],
+                            "body-md": [
+                                    "16px",
+                                    {
+                                            "lineHeight": "1.6",
+                                            "fontWeight": "400"
+                                    }
+                            ],
+                            "label-caps": [
+                                    "12px",
+                                    {
+                                            "lineHeight": "1",
+                                            "letterSpacing": "0.05em",
+                                            "fontWeight": "700"
+                                    }
+                            ],
+                            "display-hero-mobile": [
+                                    "36px",
+                                    {
+                                            "lineHeight": "1.2",
+                                            "fontWeight": "500"
+                                    }
+                            ],
+                            "button": [
+                                    "14px",
+                                    {
+                                            "lineHeight": "1",
+                                            "fontWeight": "600"
+                                    }
+                            ]
+                    }
+            },
+                },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex flex-col md:pb-0 pb-[80px]">
+<!-- Top Navigation (Desktop) -->
+<header class="hidden md:flex justify-between items-center w-full px-md h-16 max-w-container-max mx-auto bg-surface dark:bg-surface-dim border-b border-outline-variant flat no shadows docked full-width top-0">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary dark:text-primary-fixed-dim">menu</span>
+<span class="text-h1 font-display-hero-mobile text-primary dark:text-primary-fixed-dim tracking-tight">Mee Events</span>
+</div>
+<div class="flex items-center gap-md">
+<a class="text-on-surface-variant dark:text-on-surface-variant font-label-caps text-label-caps hover:text-secondary transition-colors duration-200" href="#">Home</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant font-label-caps text-label-caps hover:text-secondary transition-colors duration-200" href="#">Explore</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant font-label-caps text-label-caps hover:text-secondary transition-colors duration-200" href="#">Plan</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant font-label-caps text-label-caps hover:text-secondary transition-colors duration-200" href="#">Enquiries</a>
+<a class="text-secondary dark:text-secondary-fixed font-bold font-label-caps text-label-caps hover:text-secondary transition-colors duration-200 opacity-80 transition-opacity" href="#">Profile</a>
+</div>
+<div class="flex items-center text-primary dark:text-primary-fixed-dim">
+<span class="font-button text-button">Customer ▾</span>
+</div>
+</header>
+<!-- Main Content -->
+<main class="flex-grow w-full max-w-container-max mx-auto px-md py-lg md:py-xl grid grid-cols-4 md:grid-cols-12 gap-gutter">
+<div class="col-span-4 md:col-start-4 md:col-span-6 space-y-lg">
+<div class="text-center space-y-md">
+<span class="material-symbols-outlined text-4xl text-error" style="font-variation-settings: 'FILL' 1;">delete_forever</span>
+<h1 class="font-display-hero-mobile text-display-hero-mobile md:font-display-hero md:text-display-hero text-primary">Account Deletion Information</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Please read carefully before proceeding. This process determines what data can be removed from Mee Events.</p>
+</div>
+<div class="bg-surface-container-lowest rounded-[14px] border border-outline-variant p-md space-y-md shadow-sm">
+<h2 class="font-h2 text-h2 text-primary border-b border-outline-variant pb-sm">Eligible profile data that may be deleted</h2>
+<ul class="space-y-sm text-on-surface-variant font-body-md">
+<li class="flex gap-sm items-start">
+<span class="material-symbols-outlined text-error shrink-0">close</span>
+<span>Your personal profile information, including contact details and preferences.</span>
+</li>
+<li class="flex gap-sm items-start">
+<span class="material-symbols-outlined text-error shrink-0">close</span>
+<span>All saved event inspirations, mood boards, and venue shortlists.</span>
+</li>
+</ul>
+</div>
+<div class="bg-surface-container-low rounded-[14px] p-md space-y-md">
+<h2 class="font-h2 text-h2 text-on-surface border-b border-outline-variant pb-sm">Financial, legal and transaction records that may be retained</h2>
+<ul class="space-y-sm text-on-surface-variant font-body-md">
+<li class="flex gap-sm items-start">
+<span class="material-symbols-outlined text-secondary shrink-0">check</span>
+<span>Transactional data required for legal and financial compliance.</span>
+</li>
+<li class="flex gap-sm items-start">
+<span class="material-symbols-outlined text-secondary shrink-0">check</span>
+<span>Records necessary for security, fraud prevention, and ongoing legal obligations.</span>
+</li>
+</ul>
+</div>
+<div class="flex flex-col sm:flex-row gap-sm pt-md border-t border-outline-variant">
+<button class="flex-1 py-sm px-md border border-primary text-primary bg-transparent rounded-full font-button text-button text-center hover:bg-surface-variant transition-colors flex items-center justify-center gap-xs">
+<span class="material-symbols-outlined">download</span> Download my data
+                </button>
+<button class="flex-1 py-sm px-md bg-primary-container text-on-primary bg-primary rounded-full font-button text-button text-center hover:bg-primary-fixed-variant transition-colors shadow-[0px_10px_30px_rgba(74,14,14,0.05)]">
+                    Continue to eligibility check
+                </button>
+</div>
+</div>
+</main>
+<!-- Bottom Navigation (Mobile) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-sm py-base bg-surface dark:bg-surface-container-low border-t border-outline-variant rounded-t-xl shadow-lg">
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant gap-xs hover:bg-surface-container-high transition-all p-2 rounded-lg" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="text-label-caps font-label-caps">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant gap-xs hover:bg-surface-container-high transition-all p-2 rounded-lg" href="#">
+<span class="material-symbols-outlined">search</span>
+<span class="text-label-caps font-label-caps">Explore</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant gap-xs hover:bg-surface-container-high transition-all p-2 rounded-lg" href="#">
+<span class="material-symbols-outlined">event_note</span>
+<span class="text-label-caps font-label-caps">Plan</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant gap-xs hover:bg-surface-container-high transition-all p-2 rounded-lg" href="#">
+<span class="material-symbols-outlined">chat_bubble</span>
+<span class="text-label-caps font-label-caps">Enquiries</span>
+</a>
+<a class="flex flex-col items-center justify-center text-secondary dark:text-secondary-fixed-dim gap-xs hover:bg-surface-container-high transition-all p-2 rounded-lg scale-95 transition-transform duration-150 relative" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">person</span>
+<span class="text-label-caps font-label-caps">Profile</span>
+<span class="absolute -top-1 right-2 w-2 h-2 bg-secondary rounded-full"></span>
+</a>
+</nav>
+</body></html>

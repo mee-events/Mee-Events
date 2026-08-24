@@ -14,6 +14,7 @@ export default function LoginPage() {
   const [mobileNumber, setMobileNumber] = useState("");
   const [otpCode, setOtpCode] = useState("");
   const [challengeId, setChallengeId] = useState<string | null>(null);
+  const [debugCode, setDebugCode] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -25,9 +26,17 @@ export default function LoginPage() {
     }
     setBusy(true);
     setError(null);
+    setDebugCode(null);
     try {
       const challenge = await requestOtp(mobileNumber.trim());
       setChallengeId(challenge.challengeId);
+      if (
+        typeof challenge.debugCode === "string" &&
+        challenge.debugCode.length > 0
+      ) {
+        setDebugCode(challenge.debugCode);
+        setOtpCode(challenge.debugCode);
+      }
     } catch (cause) {
       setError(
         cause instanceof EmployeeApiError
@@ -107,6 +116,12 @@ export default function LoginPage() {
             </label>
           )}
 
+          {debugCode !== null ? (
+            <p className="auth-debug-otp" role="status">
+              Local development OTP: <strong>{debugCode}</strong>
+            </p>
+          ) : null}
+
           {error !== null ? <p className="auth-error">{error}</p> : null}
 
           <button className="auth-submit" disabled={busy} type="submit">
@@ -124,6 +139,7 @@ export default function LoginPage() {
               onClick={() => {
                 setChallengeId(null);
                 setOtpCode("");
+                setDebugCode(null);
                 setError(null);
               }}
               type="button"
@@ -135,7 +151,7 @@ export default function LoginPage() {
 
         <p className="auth-footnote">
           Access is limited to registered Mee Events employees. Every login is
-          recorded in the audit history.
+          recorded in the audit history. Local seed: +919000000001.
         </p>
       </section>
     </main>

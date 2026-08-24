@@ -13,6 +13,7 @@ import {
   confirmAdvancePayment,
   EmployeeApiError,
   type EmployeeSession,
+  getBooking,
   getQuotation,
   listPendingPayments,
   readStoredSession,
@@ -27,6 +28,7 @@ export default function QuoteDetailPage() {
   const quotationId = params.id;
   const [session, setSession] = useState<EmployeeSession | null>(null);
   const [quote, setQuote] = useState<QuotationDetailResponse | null>(null);
+  const [eventRecordId, setEventRecordId] = useState<string | null>(null);
   const [pendingPayments, setPendingPayments] = useState<
     readonly PaymentSummary[]
   >([]);
@@ -68,9 +70,21 @@ export default function QuoteDetailPage() {
       try {
         const detail = await getQuotation(active, quotationId);
         hydrate(detail);
-        if (detail.status === "approved") {
+        if (detail.bookingId !== undefined) {
+          try {
+            const booking = await getBooking(active, detail.bookingId);
+            setEventRecordId(booking.eventRecordId ?? null);
+          } catch {
+            setEventRecordId(null);
+          }
+        } else {
+          setEventRecordId(null);
+        }
+        if (detail.status === "approved" || detail.status === "sent") {
           const payments = await listPendingPayments(active, quotationId);
-          setPendingPayments(payments.payments);
+          setPendingPayments(
+            payments.payments.filter((payment) => payment.status === "pending"),
+          );
         } else {
           setPendingPayments([]);
         }
@@ -99,6 +113,16 @@ export default function QuoteDetailPage() {
     setSession(stored);
     void load(stored);
   }, [router, load]);
+
+  useEffect(() => {
+    if (session === null || quote === null) return;
+    if (quote.bookingId !== undefined) return;
+    if (quote.status !== "approved" && pendingPayments.length === 0) return;
+    const timer = window.setInterval(() => {
+      void load(session);
+    }, 15000);
+    return () => window.clearInterval(timer);
+  }, [session, quote, pendingPayments.length, load]);
 
   async function handleSaveDraft() {
     if (session === null) return;
@@ -188,6 +212,7 @@ export default function QuoteDetailPage() {
     setError(null);
     try {
       const result = await confirmAdvancePayment(session, paymentId);
+      setEventRecordId(result.eventRecord.id);
       router.push(`/events/${result.eventRecord.id}` as never);
     } catch (cause) {
       setError(
@@ -258,6 +283,11 @@ export default function QuoteDetailPage() {
               Booking
             </Link>
           ) : null}
+          {eventRecordId !== null ? (
+            <Link className="claim-button" href={`/events/${eventRecordId}`}>
+              Event record
+            </Link>
+          ) : null}
         </div>
       </header>
 
@@ -265,6 +295,26 @@ export default function QuoteDetailPage() {
         <div className="leads-error" role="alert">
           {error}
         </div>
+      ) : null}
+
+      {quote.bookingId !== undefined ? (
+        <section className="quote-panel">
+          <h2>Booking created</h2>
+          <p>Advance is confirmed. Continue in the booking or event record.</p>
+          <div className="quote-actions">
+            <Link
+              className="claim-button"
+              href={`/bookings/${quote.bookingId}`}
+            >
+              Open booking
+            </Link>
+            {eventRecordId !== null ? (
+              <Link className="claim-button" href={`/events/${eventRecordId}`}>
+                Open event record
+              </Link>
+            ) : null}
+          </div>
+        </section>
       ) : null}
 
       <section className="quote-panel">

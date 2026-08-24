@@ -20,17 +20,20 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     {
       'image': 'assets/images/onboarding/discover.jpg',
       'title': 'Discover Events',
-      'subtitle': 'Find the perfect venues, caterers, and decorators for your celebrations in Hyderabad',
+      'subtitle':
+          'Find the perfect venues, caterers, and decorators for your celebrations in Hyderabad',
     },
     {
       'image': 'assets/images/onboarding/plan.jpg',
       'title': 'Plan Effortlessly',
-      'subtitle': 'From weddings to corporate events, plan every detail with our expert guidance',
+      'subtitle':
+          'From weddings to corporate events, plan every detail with our expert guidance',
     },
     {
       'image': 'assets/images/onboarding/experience.jpg',
       'title': 'Experience Magic',
-      'subtitle': 'Create unforgettable memories with Hyderabad\'s most trusted event partners',
+      'subtitle':
+          'Create unforgettable memories with Hyderabad\'s most trusted event partners',
     },
   ];
 
@@ -41,15 +44,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   void _navigateToDashboard() {
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (context) => const LoginScreen()),
-    );
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (context) => const LoginScreen()));
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.ink,
+      backgroundColor: AppColors.primaryActive,
       body: Stack(
         children: [
           PageView.builder(
@@ -69,9 +72,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     data['image']!,
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) => Container(
-                      color: AppColors.inkLight,
+                      color: AppColors.primary,
                       child: const Center(
-                        child: Icon(Icons.image, color: AppColors.muted, size: 60),
+                        child: Icon(
+                          Icons.image,
+                          color: AppColors.muted,
+                          size: 60,
+                        ),
                       ),
                     ),
                   ),
@@ -83,7 +90,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         stops: const [0.4, 1.0],
                         colors: [
                           Colors.transparent,
-                          AppColors.ink.withOpacity(0.85),
+                          AppColors.primaryActive.withValues(alpha: 0.85),
                         ],
                       ),
                     ),
@@ -104,7 +111,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       child: Text(
                         'Skip',
                         style: AppTypography.bodyMd.copyWith(
-                          color: AppColors.canvas.withOpacity(0.7),
+                          color: AppColors.canvas.withValues(alpha: 0.7),
                         ),
                       ),
                     ),
@@ -113,7 +120,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 const Spacer(),
                 Container(
                   height: MediaQuery.of(context).size.height * 0.35,
-                  padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24.0,
+                    vertical: 16.0,
+                  ),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
@@ -121,7 +131,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         duration: const Duration(milliseconds: 300),
                         child: Text(
                           _onboardingData[_currentIndex]['title']!,
-                          key: ValueKey<String>(_onboardingData[_currentIndex]['title']!),
+                          key: ValueKey<String>(
+                            _onboardingData[_currentIndex]['title']!,
+                          ),
                           textAlign: TextAlign.center,
                           style: AppTypography.displayLg.copyWith(
                             color: AppColors.canvas,
@@ -133,10 +145,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         duration: const Duration(milliseconds: 300),
                         child: Text(
                           _onboardingData[_currentIndex]['subtitle']!,
-                          key: ValueKey<String>(_onboardingData[_currentIndex]['subtitle']!),
+                          key: ValueKey<String>(
+                            _onboardingData[_currentIndex]['subtitle']!,
+                          ),
                           textAlign: TextAlign.center,
                           style: AppTypography.titleMd.copyWith(
-                            color: AppColors.canvas.withOpacity(0.7),
+                            color: AppColors.canvas.withValues(alpha: 0.7),
                           ),
                         ),
                       ),
@@ -149,7 +163,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                             count: _onboardingData.length,
                             effect: ExpandingDotsEffect(
                               activeDotColor: AppColors.primary,
-                              dotColor: AppColors.canvas.withOpacity(0.3),
+                              dotColor: AppColors.canvas.withValues(alpha: 0.3),
                               dotHeight: 8,
                               dotWidth: 8,
                               expansionFactor: 3,
@@ -168,8 +182,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.primary,
-                              foregroundColor: AppColors.ink,
-                              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                              foregroundColor: AppColors.onPrimary,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 32,
+                                vertical: 16,
+                              ),
                               shape: RoundedRectangleBorder(
                                 borderRadius: AppRadius.pillAll,
                               ),
@@ -177,8 +194,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                             child: AnimatedSwitcher(
                               duration: const Duration(milliseconds: 300),
                               child: Text(
-                                _currentIndex == _onboardingData.length - 1 ? 'Get Started' : 'Next',
-                                key: ValueKey<bool>(_currentIndex == _onboardingData.length - 1),
+                                _currentIndex == _onboardingData.length - 1
+                                    ? 'Get Started'
+                                    : 'Next',
+                                key: ValueKey<bool>(
+                                  _currentIndex == _onboardingData.length - 1,
+                                ),
                                 style: AppTypography.titleSm.copyWith(
                                   color: AppColors.ink,
                                   fontWeight: FontWeight.bold,

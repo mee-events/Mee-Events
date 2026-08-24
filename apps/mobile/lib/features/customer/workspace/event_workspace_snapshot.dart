@@ -20,9 +20,7 @@ class EventWorkspaceSnapshot {
   });
 
   String get eventNumber =>
-      eventRecord?.eventNumber ??
-      booking.eventNumber ??
-      'Pending assignment';
+      eventRecord?.eventNumber ?? booking.eventNumber ?? 'Pending assignment';
 
   String get bookingNumber => booking.bookingNumber;
 
@@ -47,14 +45,11 @@ class EventWorkspaceSnapshot {
     return '$count guests';
   }
 
-  String get bookingStatus =>
-      eventRecord?.statusLabel ?? booking.statusLabel;
+  String get bookingStatus => eventRecord?.statusLabel ?? booking.statusLabel;
 
-  String get totalAmount =>
-      eventRecord?.budgetAmount ?? booking.finalAmount;
+  String get totalAmount => eventRecord?.budgetAmount ?? booking.finalAmount;
 
-  String get advancePaid =>
-      eventRecord?.advancePaid ?? booking.advancePaid;
+  String get advancePaid => eventRecord?.advancePaid ?? booking.advancePaid;
 
   String get remainingBalance {
     if (eventRecord != null) return eventRecord!.pendingAmount;

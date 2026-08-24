@@ -4,15 +4,17 @@ import 'package:mee_events/theme/app_radius.dart';
 import 'package:mee_events/theme/app_spacing.dart';
 import 'package:mee_events/theme/app_typography.dart';
 
-enum MeStatusTone { neutral, brand, success, warning, error }
+enum MeStatusTone { neutral, brand, success, warning, error, info, premium }
 
 Color _toneColor(MeStatusTone tone) => switch (tone) {
-      MeStatusTone.brand => AppColors.primary,
-      MeStatusTone.success => AppColors.success,
-      MeStatusTone.warning => AppColors.warning,
-      MeStatusTone.error => AppColors.error,
-      MeStatusTone.neutral => AppColors.muted,
-    };
+  MeStatusTone.brand => AppColors.primary,
+  MeStatusTone.success => AppColors.success,
+  MeStatusTone.warning => AppColors.warning,
+  MeStatusTone.error => AppColors.error,
+  MeStatusTone.info => AppColors.info,
+  MeStatusTone.premium => AppColors.goldAntique,
+  MeStatusTone.neutral => AppColors.muted,
+};
 
 class MeBadge extends StatelessWidget {
   const MeBadge({
@@ -29,12 +31,15 @@ class MeBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = _toneColor(tone);
+    final soft = tone == MeStatusTone.premium
+        ? AppColors.goldSoft
+        : color.withValues(alpha: 0.1);
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.xs),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: AppRadius.smAll,
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.sm,
+        vertical: AppSpacing.xs,
       ),
+      decoration: BoxDecoration(color: soft, borderRadius: AppRadius.pillAll),
       child: Text(
         uppercase ? label.toUpperCase() : label,
         style: AppTypography.badge.copyWith(color: color),
@@ -61,11 +66,16 @@ class MeChip extends StatelessWidget {
       label: Text(label),
       selected: selected,
       onSelected: onSelected,
-      selectedColor: AppColors.primaryDisabled,
+      selectedColor: AppColors.primarySoft,
+      backgroundColor: AppColors.surfaceCard,
       checkmarkColor: AppColors.primary,
-      labelStyle: AppTypography.bodySm,
+      labelStyle: AppTypography.bodySm.copyWith(
+        color: selected ? AppColors.primary : AppColors.ink,
+        fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
+      ),
       side: BorderSide(
         color: selected ? AppColors.primary : AppColors.hairlineSoft,
+        width: selected ? 1.5 : 1,
       ),
     );
   }
@@ -85,7 +95,10 @@ class MeTag extends StatelessWidget {
   Widget build(BuildContext context) {
     final color = _toneColor(tone);
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: 2),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.sm,
+        vertical: 2,
+      ),
       decoration: BoxDecoration(
         borderRadius: AppRadius.pillAll,
         border: Border.all(color: color.withValues(alpha: 0.4)),
@@ -96,11 +109,7 @@ class MeTag extends StatelessWidget {
 }
 
 class MeProgress extends StatelessWidget {
-  const MeProgress({
-    super.key,
-    required this.value,
-    this.label,
-  });
+  const MeProgress({super.key, required this.value, this.label});
 
   final double value;
   final String? label;
@@ -111,7 +120,10 @@ class MeProgress extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (label != null) ...[
-          Text(label!, style: AppTypography.captionSm.copyWith(color: AppColors.muted)),
+          Text(
+            label!,
+            style: AppTypography.captionSm.copyWith(color: AppColors.muted),
+          ),
           const SizedBox(height: AppSpacing.xs),
         ],
         ClipRRect(
@@ -170,8 +182,8 @@ class _TimelineRow extends StatelessWidget {
     final color = step.active
         ? AppColors.primary
         : step.done
-            ? AppColors.success
-            : AppColors.mutedSoft;
+        ? AppColors.success
+        : AppColors.mutedSoft;
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -183,11 +195,7 @@ class _TimelineRow extends StatelessWidget {
               decoration: BoxDecoration(color: color, shape: BoxShape.circle),
             ),
             if (!isLast)
-              Container(
-                width: 2,
-                height: 36,
-                color: AppColors.hairlineSoft,
-              ),
+              Container(width: 2, height: 36, color: AppColors.hairlineSoft),
           ],
         ),
         const SizedBox(width: AppSpacing.md),
@@ -197,11 +205,16 @@ class _TimelineRow extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(step.title, style: AppTypography.titleSm.copyWith(color: color)),
+                Text(
+                  step.title,
+                  style: AppTypography.titleSm.copyWith(color: color),
+                ),
                 if (step.subtitle != null)
                   Text(
                     step.subtitle!,
-                    style: AppTypography.captionSm.copyWith(color: AppColors.muted),
+                    style: AppTypography.captionSm.copyWith(
+                      color: AppColors.muted,
+                    ),
                   ),
               ],
             ),

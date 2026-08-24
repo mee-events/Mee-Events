@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/super_app_models.dart';
 
@@ -15,12 +16,12 @@ class SupabaseService {
           .order('display_order', ascending: true);
 
       final List<dynamic> data = response as List<dynamic>;
-      
+
       return data.map((row) {
         return ServiceModel.fromJson(row, row['id'].toString());
       }).toList();
     } catch (e) {
-      print('Error fetching services for event $eventId: $e');
+      debugPrint('Error fetching services for event $eventId: $e');
       return [];
     }
   }
@@ -33,8 +34,10 @@ class SupabaseService {
         .stream(primaryKey: ['id'])
         .eq('event_id', eventId)
         .order('display_order', ascending: true)
-        .map((data) => data.map((row) {
-              return ServiceModel.fromJson(row, row['id'].toString());
-            }).toList());
+        .map(
+          (data) => data.map((row) {
+            return ServiceModel.fromJson(row, row['id'].toString());
+          }).toList(),
+        );
   }
 }

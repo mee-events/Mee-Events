@@ -1,0 +1,95 @@
+PROJECT CONTEXT
+
+Design a production-ready mobile experience for Mee Events, a Hyderabad-based
+managed event marketplace. This is one shared app with Customer, Vendor, and
+Worker roles. Customer is the default role; approved additional roles are
+available through a role switcher.
+
+BUSINESS RULES
+
+Customers browse Mee Events offerings, build an event plan, submit an enquiry,
+approve a quotation, pay Mee Events, and track event delivery. They do not
+compare or choose operational vendors. Vendor identity is visible only when Mee
+Events marks it as disclosed. Vendors manage private base prices, listings,
+assigned work orders, invoices, and settlements; they never see customer prices,
+margins, or competitor data. Workers manage availability, assigned work,
+attendance, proof of work, and earnings; they never see customer or vendor
+financial data and do not directly contact customers.
+
+VISUAL SYSTEM
+
+Use a premium, calm, trustworthy, photography-led Indian event aesthetic. Use
+warm ivory #F9F7F2 for the canvas, white cards, soft warm neutral surfaces,
+deep burgundy #4A0E0E for primary actions, ink #1A1A1A for main text,
+muted brown-grey #68635E for secondary text, thin #E5DED4 borders, and restrained
+gold #C5A059 accents. Display headings use EB Garamond; interface text uses
+Manrope. Use 14 px card radii, 20 px prominent container radii, generous spacing,
+hairline borders, and minimal shadow. Use authentic Indian event photography,
+not illustrations or generic Western wedding imagery. Vendor green and Worker
+blue may appear only as small role-context accents; all roles remain one brand.
+
+UX RULES
+
+Design at 390 x 844. Use one primary action per screen, 44 px minimum touch
+targets, visible form labels, concise Indian English, Indian Rupee formatting,
+and realistic Hyderabad content. Use progressive disclosure and clear status
+text. Do not use emoji decoration, glassmorphism, neon gradients, generic purple
+AI styling, crowded dashboards, card soup, or lorem ipsum.
+
+OUTPUT EXPECTATION
+
+Create polished, implementation-ready mobile screens with consistent reusable
+components, realistic content, clear hierarchy, and complete navigation context.
+Use the exact screen names requested. Do not add unrelated functionality.
+
+MODULE: VENDOR LISTING AND PRICE MANAGEMENT
+
+VENDOR NAVIGATION
+
+Use five bottom destinations for the complete design: Overview, Listings, Add,
+Reviews, Business. Keep one shared Mee Events visual system and use vendor green
+#167463 only as a small role marker on the role chip.
+
+REQUIRED EXPERIENCE
+
+Vendor Overview shows approval/account status, active work order, published
+listing count, pending listing revisions, price reviews, messages, and settlement
+summary. Do not crowd the first viewport with every metric.
+
+Listings has filters for Draft, Under review, Changes requested, Published,
+Paused, and Archived. Cards show image, title, offering type, category, current
+base-price status, availability, and review state. Never show a customer-facing
+price.
+
+Add Listing is progressive across details; category/subcategory; photos;
+sale/rental/service type; variants; private base price; unit/duration/capacity;
+service area; availability; lead time; terms; and exclusions. Listing Preview
+must look like a controlled vendor preview and state that Mee Events may present
+the customer offering differently after approval.
+
+Published with Pending Revision visibly separates the currently published
+version from a draft or pending revision. The live version stays active during
+review. Price Change Review shows current approved base price, proposed base
+price, reason, effective date after approval, review status, and reviewer
+feedback. Do not imply the proposed amount is immediately live.
+
+Reviews and Feedback includes listing reviews, price reviews, change requests,
+approval/rejection history, and customer-rating summaries relayed by Mee Events.
+No direct customer identity or contact.
+
+Exact screen names (use these titles exactly):
+1. V10A Vendor Overview
+2. V10B Listings — All Statuses
+3. V10C Add Listing — Details
+4. V10D Add Listing — Variants and Base Price
+5. V10E Add Listing — Availability and Terms
+6. V10F Listing Preview and Submit
+7. V10G Listing Detail — Published with Pending Revision
+8. V10H Price Change Review
+9. V10I Reviews and Feedback
+
+ACCEPTANCE CRITERIA
+
+- Listing and price lifecycles are understandable at a glance.
+- Published and pending versions cannot be confused.
+- Customer price, margin, and competitor data never appear.

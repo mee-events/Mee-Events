@@ -1,0 +1,433 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Milestone Detail - Décor and menu approval</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600;700&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "primary-fixed-dim": "#ffb3ad",
+                      "primary": "#2a0002",
+                      "on-primary-fixed-variant": "#77302d",
+                      "on-background": "#1c1b1b",
+                      "tertiary": "#0f100d",
+                      "on-primary-fixed": "#3d0506",
+                      "tertiary-fixed-dim": "#c8c6c2",
+                      "outline": "#877270",
+                      "error-container": "#ffdad6",
+                      "on-surface": "#1c1b1b",
+                      "surface-container": "#f0eded",
+                      "error": "#ba1a1a",
+                      "on-secondary-fixed": "#261900",
+                      "surface-variant": "#e5e2e1",
+                      "surface-container-high": "#eae7e7",
+                      "on-primary": "#ffffff",
+                      "on-tertiary-fixed-variant": "#474744",
+                      "outline-variant": "#dac1bf",
+                      "surface-bright": "#fcf9f8",
+                      "on-secondary-fixed-variant": "#5d4201",
+                      "surface-tint": "#954742",
+                      "inverse-surface": "#313030",
+                      "surface-container-low": "#f6f3f2",
+                      "tertiary-container": "#242522",
+                      "surface-dim": "#dcd9d9",
+                      "surface-container-highest": "#e5e2e1",
+                      "primary-fixed": "#ffdad7",
+                      "tertiary-fixed": "#e4e2dd",
+                      "on-surface-variant": "#544341",
+                      "secondary-fixed-dim": "#e9c176",
+                      "primary-container": "#4a0e0e",
+                      "on-secondary-container": "#785a1a",
+                      "secondary-fixed": "#ffdea5",
+                      "on-tertiary-container": "#8c8c88",
+                      "surface": "#fcf9f8",
+                      "on-error-container": "#93000a",
+                      "surface-container-lowest": "#ffffff",
+                      "secondary": "#775a19",
+                      "inverse-primary": "#ffb3ad",
+                      "on-primary-container": "#cc726d",
+                      "secondary-container": "#fed488",
+                      "inverse-on-surface": "#f3f0ef",
+                      "background": "#fcf9f8",
+                      "on-secondary": "#ffffff",
+                      "on-tertiary": "#ffffff",
+                      "on-tertiary-fixed": "#1b1c19",
+                      "on-error": "#ffffff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "lg": "48px",
+                      "xl": "80px",
+                      "container-max": "1280px",
+                      "sm": "12px",
+                      "gutter": "24px",
+                      "md": "24px",
+                      "xs": "4px",
+                      "base": "8px"
+              },
+              "fontFamily": {
+                      "display-hero-mobile": [
+                              "EB Garamond"
+                      ],
+                      "body-lg": [
+                              "Manrope"
+                      ],
+                      "button": [
+                              "Manrope"
+                      ],
+                      "h1": [
+                              "Manrope"
+                      ],
+                      "h2": [
+                              "Manrope"
+                      ],
+                      "label-caps": [
+                              "Manrope"
+                      ],
+                      "body-md": [
+                              "Manrope"
+                      ],
+                      "display-hero": [
+                              "EB Garamond"
+                      ]
+              },
+              "fontSize": {
+                      "display-hero-mobile": [
+                              "36px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "button": [
+                              "14px",
+                              {
+                                      "lineHeight": "1",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "h1": [
+                              "32px",
+                              {
+                                      "lineHeight": "1.3",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "h2": [
+                              "24px",
+                              {
+                                      "lineHeight": "1.4",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "label-caps": [
+                              "12px",
+                              {
+                                      "lineHeight": "1",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "display-hero": [
+                              "48px",
+                              {
+                                      "lineHeight": "1.1",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "500"
+                              }
+                      ]
+              }
+            }
+          }
+        }
+    </script>
+<style>
+        body { font-family: 'Manrope', sans-serif; }
+        .bento-hover { transition: box-shadow 0.3s ease, transform 0.3s ease; }
+        .bento-hover:hover { 
+            box-shadow: 0px 10px 30px rgba(74, 14, 14, 0.05); 
+            transform: translateY(-2px);
+        }
+        
+        /* Gradient for primary action card */
+        .primary-action-gradient {
+            background: linear-gradient(135deg, #2a0002 0%, #4a0e0e 100%);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-background text-on-background antialiased pb-32">
+<!-- Top Navigation Shell -->
+<header class="bg-surface border-b border-outline-variant docked full-width top-0 z-40 sticky"><div class="flex justify-between items-center w-full px-md h-16 max-w-container-max mx-auto">
+  <div class="flex items-center">
+    <button class="w-10 h-10 rounded-full overflow-hidden border border-outline-variant active:scale-95 transition-transform">
+      <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDdsFi2g9VvUL5nAJbPR2Ul4BnD0_2E5DKXLwy-5uwgPxm6fryJXKp9djtdUqgs_S8LoM7rVPq9mxch3yDVRwR8aWO1SpEfNiDfGx3V8rFCT7m_OBe8BddQQ31EFF0-279z9D36zkfqf3XH9yTUfn3Tal0dR6CAn43JIRQxMwAop3zSEPckretVaj8TBEx8zO2pnW0s8vK1Qv0b6tcEiWrSO-rn7cS-IZwjMwFX4qlaqFGJ1ujGwvKv" alt="Profile" class="w-full h-full object-cover">
+    </button>
+  </div>
+  <h1 class="font-display-hero-mobile text-display-hero-mobile text-primary absolute left-1/2 -translate-x-1/2">Mee Events</h1>
+  <div class="flex items-center gap-sm">
+    <button class="text-primary p-2 rounded-full hover:bg-surface-container transition-colors">
+      <span class="material-symbols-outlined">search</span>
+    </button>
+    <button class="text-primary p-2 rounded-full hover:bg-surface-container transition-colors">
+      <span class="material-symbols-outlined">favorite</span>
+    </button>
+    <button class="text-primary p-2 rounded-full hover:bg-surface-container transition-colors">
+      <span class="material-symbols-outlined">notifications</span>
+    </button>
+  </div>
+</div></header>
+<main class="max-w-container-max mx-auto px-md md:px-gutter mt-lg"><div class="flex items-center gap-md py-4 mb-md border-b border-outline-variant">
+  <button class="text-primary flex items-center justify-center">
+    <span class="material-symbols-outlined">arrow_back</span>
+  </button>
+  <span class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest">Milestone Details</span>
+</div>
+<!-- Header & Hero Context -->
+<section class="mb-lg">
+<div class="flex flex-wrap items-center gap-sm mb-md">
+<span class="bg-secondary-container text-on-secondary-container px-sm py-xs rounded-full font-label-caps text-label-caps inline-flex items-center gap-xs">
+<span class="material-symbols-outlined text-[16px]">error</span>
+                    Customer action required
+                </span>
+<span class="text-on-surface-variant font-body-md text-body-md flex items-center gap-xs">
+<span class="material-symbols-outlined text-[18px]">calendar_today</span>
+                    Due 5 Sept 2026
+                </span>
+</div>
+<h2 class="font-display-hero-mobile text-display-hero-mobile md:font-display-hero md:text-display-hero text-primary mb-sm">Décor and menu approval</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mb-lg">Finalizing the sensory details of your celebration. Please review the updated floral mockups and the revised catering menu before Mee Events confirms the final delivery scope.</p>
+<!-- Progress Indicator -->
+<div class="w-full max-w-md">
+<div class="flex justify-between items-end mb-xs">
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Milestone Progress</span>
+<span class="font-button text-button text-primary">60%</span>
+</div>
+<div class="w-full h-2 bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-secondary rounded-full" style="width: 60%;"></div>
+</div>
+</div>
+</section>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-md md:gap-gutter">
+<!-- Primary Action Block (Span 8) -->
+<div class="md:col-span-8 primary-action-gradient text-on-primary rounded-xl p-lg flex flex-col justify-between relative overflow-hidden bento-hover">
+<!-- Decorative background elements -->
+<div class="absolute top-0 right-0 opacity-10 pointer-events-none transform translate-x-1/4 -translate-y-1/4">
+<span class="material-symbols-outlined text-[200px]">auto_awesome</span>
+</div>
+<div class="relative z-10">
+<div class="flex items-center gap-sm mb-md">
+<span class="material-symbols-outlined bg-secondary text-primary-container p-2 rounded-full" style="font-variation-settings: 'FILL' 1;">assignment_turned_in</span>
+<span class="font-label-caps text-label-caps text-secondary-container uppercase tracking-widest">Pending Approvals</span>
+</div>
+<h3 class="font-h1 text-h1 text-on-primary mb-xs">3 Items Require Review</h3>
+<p class="font-body-md text-body-md text-primary-fixed-dim mb-lg max-w-md">
+                        Your attention is needed on the final stage designs, premium table linens, and the midnight snack menu selection.
+                    </p>
+</div>
+<button class="relative z-10 bg-on-primary text-primary font-button text-button py-sm px-lg rounded-full w-max hover:bg-surface-container transition-colors flex items-center gap-sm shadow-sm">
+                    Review pending approvals
+                    <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+</div>
+<!-- Coordinator Block (Span 4) -->
+<div class="md:col-span-4 bg-surface-container-lowest border border-outline-variant rounded-xl p-md flex flex-col justify-between bento-hover">
+<div>
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider mb-sm block">Your Coordinator</span>
+<div class="flex items-center gap-md mt-sm">
+<div class="w-16 h-16 rounded-full overflow-hidden border-2 border-surface bg-surface-variant">
+<img alt="Priya Profile" class="w-full h-full object-cover" data-alt="A professional portrait of an elegant Indian event coordinator named Priya, wearing a modern, subtle burgundy blazer over a tailored top. She has a warm, welcoming smile and is standing in a luxurious, well-lit office with hints of traditional Indian decor in the background. The lighting is soft and flattering, highlighting her approachability and expertise in high-end event planning. The overall color palette is warm ivory, soft gold, and deep burgundy, matching the premium aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDdsFi2g9VvUL5nAJbPR2Ul4BnD0_2E5DKXLwy-5uwgPxm6fryJXKp9djtdUqgs_S8LoM7rVPq9mxch3yDVRwR8aWO1SpEfNiDfGx3V8rFCT7m_OBe8BddQQ31EFF0-279z9D36zkfqf3XH9yTUfn3Tal0dR6CAn43JIRQxMwAop3zSEPckretVaj8TBEx8zO2pnW0s8vK1Qv0b6tcEiWrSO-rn7cS-IZwjMwFX4qlaqFGJ1ujGwvKv">
+</div>
+<div>
+<h4 class="font-h2 text-h2 text-primary">Priya</h4>
+<p class="font-body-md text-body-md text-on-surface-variant">Mee Events</p>
+</div>
+</div>
+</div>
+<button class="mt-md w-full border border-primary text-primary hover:bg-surface-container transition-colors font-button text-button py-sm rounded-full flex items-center justify-center gap-sm">
+<span class="material-symbols-outlined text-[18px]">chat_bubble</span>
+                    Message Mee Events
+                </button>
+</div>
+<!-- Recent Update (Span 6) -->
+<div class="md:col-span-6 bg-surface-container-lowest border border-outline-variant rounded-xl p-md bento-hover">
+<div class="flex items-center justify-between mb-md">
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider flex items-center gap-xs">
+<span class="material-symbols-outlined text-[16px]">update</span>
+                        Recent Update
+                    </span>
+<span class="font-label-caps text-label-caps text-on-surface-variant">Yesterday, 4:30 PM</span>
+</div>
+<div class="bg-surface-container-low rounded-lg p-md relative">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-secondary rounded-l-lg"></div>
+<p class="font-body-md text-body-md text-on-surface italic">
+                        "Hi team! We have uploaded the revised floral mockups based on our last call. The deeper reds have been incorporated as requested. Let me know your thoughts on the mandap draping options."
+                    </p>
+</div>
+</div>
+<!-- Related Tasks List (Span 6) -->
+<div class="md:col-span-6 bg-surface-container-lowest border border-outline-variant rounded-xl p-md bento-hover">
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider mb-md block">Related Tasks</span>
+<ul class="space-y-4">
+<li class="flex items-start gap-sm">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<div>
+<p class="font-body-md text-body-md text-on-surface line-through text-opacity-60">Finalize menu tasting date</p>
+</div>
+</li>
+<li class="flex items-start gap-sm">
+<span class="material-symbols-outlined text-outline-variant">radio_button_unchecked</span>
+<div>
+<p class="font-body-md text-body-md text-primary font-medium">Approve floral color palette</p>
+<p class="font-label-caps text-label-caps text-on-surface-variant mt-xs">Pending your review</p>
+</div>
+</li>
+<li class="flex items-start gap-sm">
+<span class="material-symbols-outlined text-outline-variant">radio_button_unchecked</span>
+<div>
+<p class="font-body-md text-body-md text-primary font-medium">Review secondary décor options</p>
+<p class="font-label-caps text-label-caps text-on-surface-variant mt-xs">Awaiting final counts</p>
+</div>
+</li>
+</ul>
+</div>
+<!-- Documents Gallery (Span 12) -->
+<div class="md:col-span-12 bg-surface-container-lowest border border-outline-variant rounded-xl p-md bento-hover mb-xl">
+<div class="flex items-center justify-between mb-md">
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Related Documents</span>
+<button class="font-button text-button text-primary hover:underline">View all</button>
+</div>
+<div class="flex gap-md overflow-x-auto pb-sm snap-x">
+<!-- Doc 1 -->
+<div class="min-w-[240px] flex-shrink-0 group cursor-pointer snap-start">
+<div class="aspect-[4/3] rounded-lg overflow-hidden border border-outline-variant relative mb-sm">
+<div class="absolute inset-0 bg-primary opacity-0 group-hover:opacity-20 transition-opacity z-10"></div>
+<img alt="Floral Mockup V2" class="w-full h-full object-cover" data-alt="A high-resolution photograph of a luxurious floral arrangement mockup for a premium Indian wedding. The composition features rich, deep burgundy roses, cascading marigolds, and elegant gold accents set against a pristine warm ivory background. The lighting is bright and editorial, casting soft, sophisticated shadows. The aesthetic is modern yet deeply rooted in traditional grandeur, suitable for a high-end event planning document thumbnail. The focus is sharp on the intricate details of the petals." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA93l2GvYqh3cHnSo6CCm1tFQWLBUXnjpVS1Dzv2qbVMjQ43-l7Q-fQWF5Knoi7Bb1R31EfLRQ-9crdRXmWGa-crgQy0mEmn6TzbCoHkGaS-mQkbA9ZsT4Nv50q68jMv_oSQC3OMJO8IkdVEC7bNnvTPo-qCCF0r9amQJnam8M8Os-NnyViGHxq10t5WneHSbwtZWvb9MaJiqdVjG3YaadfjKuqpBow6cU9iX6j56EdoqP-Z6Eozw2l">
+<div class="absolute bottom-sm right-sm bg-surface p-1 rounded shadow-sm z-20">
+<span class="material-symbols-outlined text-primary text-[16px]">picture_as_pdf</span>
+</div>
+</div>
+<p class="font-button text-button text-primary truncate">Floral_Mockup_V2.pdf</p>
+<p class="font-label-caps text-label-caps text-on-surface-variant">Added 2 days ago</p>
+</div>
+<!-- Doc 2 -->
+<div class="min-w-[240px] flex-shrink-0 group cursor-pointer snap-start">
+<div class="aspect-[4/3] rounded-lg overflow-hidden border border-outline-variant relative mb-sm">
+<div class="absolute inset-0 bg-primary opacity-0 group-hover:opacity-20 transition-opacity z-10"></div>
+<img alt="Gala Dinner Menu Draft" class="w-full h-full object-cover" data-alt="A beautiful top-down shot of a premium, custom-designed wedding menu card resting on a subtly textured ivory table surface. The menu features elegant, classic typography with delicate gold foil accents and a subtle burgundy border. Next to the menu is a single, perfect white orchid and a piece of polished gold cutlery, hinting at a luxurious dining experience. The lighting is bright, soft, and natural, creating a refined and aspirational mood." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC4a-uR864o5Wmr2AEkXX-mfUsUE8AvCOv0W8oZ4PTjJIBWrfHPFy4ga8VU3aNUEzjDRPjhmoTObvAEbVwuxF7-bqM-8rTzkOiFmM6DQeYxyuEa6YTnP3GExwo5bpwFCv2Q-RUhZKAoi1ASggiWYXfD7K99xG8ffUWcfagfBFH_P6CsfvfR6oP4FTG5WKWj0vkf79BVmNYulYlusiX-xYy7l3thcRhE3eIoLWmr8cG0njAGfmZmpNpP">
+<div class="absolute bottom-sm right-sm bg-surface p-1 rounded shadow-sm z-20">
+<span class="material-symbols-outlined text-primary text-[16px]">description</span>
+</div>
+</div>
+<p class="font-button text-button text-primary truncate">Gala_Dinner_Menu_Draft.doc</p>
+<p class="font-label-caps text-label-caps text-on-surface-variant">Added 1 week ago</p>
+</div>
+</div>
+</div>
+<!-- Dependencies & Next Steps (Span 12) -->
+<div class="md:col-span-12 mb-xl">
+<h3 class="font-h2 text-h2 text-primary mb-md">Path to Completion</h3>
+<div class="flex flex-col md:flex-row gap-lg md:gap-gutter relative">
+<!-- Connection Line (Desktop) -->
+<div class="hidden md:block absolute top-6 left-6 right-6 h-[1px] bg-outline-variant z-0"></div>
+<!-- Step 1 -->
+<div class="flex-1 relative z-10 flex gap-md md:block">
+<div class="w-12 h-12 rounded-full bg-surface-container border border-outline-variant flex items-center justify-center flex-shrink-0 md:mx-auto md:mb-md">
+<span class="material-symbols-outlined text-on-surface-variant">fact_check</span>
+</div>
+<div>
+<h4 class="font-button text-button text-primary md:text-center mb-xs">Review Options</h4>
+<p class="font-body-md text-body-md text-on-surface-variant md:text-center text-sm">Review the provided mockups, inclusions and approved event scope.</p>
+</div>
+</div>
+<!-- Step 2 (Active) -->
+<div class="flex-1 relative z-10 flex gap-md md:block">
+<div class="w-12 h-12 rounded-full bg-secondary-container border-2 border-secondary flex items-center justify-center flex-shrink-0 md:mx-auto md:mb-md shadow-sm">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">draw</span>
+</div>
+<div>
+<h4 class="font-button text-button text-primary md:text-center mb-xs">Provide Approvals</h4>
+<p class="font-body-md text-body-md text-on-surface-variant md:text-center text-sm">Confirm selections so we can proceed to contracts.</p>
+</div>
+</div>
+<!-- Step 3 -->
+<div class="flex-1 relative z-10 flex gap-md md:block">
+<div class="w-12 h-12 rounded-full bg-surface border border-outline-variant flex items-center justify-center flex-shrink-0 md:mx-auto md:mb-md opacity-50">
+<span class="material-symbols-outlined text-on-surface-variant">handshake</span>
+</div>
+<div>
+<h4 class="font-button text-button text-primary md:text-center mb-xs opacity-50">Mee Events Finalisation</h4>
+<p class="font-body-md text-body-md text-on-surface-variant md:text-center text-sm opacity-50">Mee Events confirms the approved operational arrangements.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Navigation Shell -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-safe bg-surface border-t border-outline-variant h-20 shadow-sm md:hidden rounded-t-xl">
+<button class="flex flex-col items-center justify-center text-on-surface-variant pt-1 group hover:text-primary transition-all">
+<span class="material-symbols-outlined group-active:scale-95 transition-transform duration-150">home</span>
+<span class="font-label-caps text-label-caps mt-1">Home</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant pt-1 group hover:text-primary transition-all">
+<span class="material-symbols-outlined group-active:scale-95 transition-transform duration-150">search</span>
+<span class="font-label-caps text-label-caps mt-1">Explore</span>
+</button>
+<button class="flex flex-col items-center justify-center text-primary border-t-2 border-secondary pt-1 group active:scale-95 transition-transform duration-150">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">event_note</span>
+<span class="font-label-caps text-label-caps mt-1 font-bold">Plan</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant pt-1 group hover:text-primary transition-all">
+<span class="material-symbols-outlined group-active:scale-95 transition-transform duration-150">chat_bubble</span>
+<span class="font-label-caps text-label-caps mt-1">Enquiries</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant pt-1 group hover:text-primary transition-all">
+<span class="material-symbols-outlined group-active:scale-95 transition-transform duration-150">person</span>
+<span class="font-label-caps text-label-caps mt-1">Profile</span>
+</button>
+</nav>
+<!-- Desktop/Tablet Nav (Hidden on mobile) - Simplified representation for structural integrity based on instructions -->
+<nav class="hidden md:flex fixed top-0 right-0 h-16 items-center px-lg z-50 pointer-events-none w-full max-w-container-max mx-auto justify-end gap-lg">
+<div class="pointer-events-auto flex items-center gap-md">
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-primary transition-colors uppercase" href="#">Home</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-primary transition-colors uppercase" href="#">Explore</a>
+<a class="font-label-caps text-label-caps text-primary border-b-2 border-secondary font-bold uppercase py-4" href="#">Plan</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-primary transition-colors uppercase" href="#">Enquiries</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-primary transition-colors uppercase" href="#">Profile</a>
+</div>
+</nav>
+
+
+
+
+</body></html>

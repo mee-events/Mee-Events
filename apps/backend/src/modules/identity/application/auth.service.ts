@@ -3,10 +3,12 @@ import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
 import type {
   LogoutResponse,
+  MobileSwitchableRole,
   RefreshSessionRequest,
   RefreshSessionResponse,
   RequestOtpRequest,
   RequestOtpResponse,
+  SwitchRoleResponse,
   VerifyOtpRequest,
   VerifyOtpResponse,
 } from "@me-event/api-contracts";
@@ -22,6 +24,7 @@ import { DomainError } from "../../../common/errors/domain.error";
 import { AUDIT_SINK, type AuditSink } from "../../audit/audit-event";
 import { authPrincipalCache } from "../../platform-foundation/security/auth-principal-cache";
 import { normalizeMobileNumber } from "../domain/phone-number";
+import { assertActiveAssignment, isMobileSwitchableRole } from "../domain/user";
 import {
   IDENTITY_REPOSITORY,
   type IdentityRepository,
@@ -31,6 +34,8 @@ import { OTP_PROVIDER, type OtpProvider } from "../ports/otp-provider";
 const OTP_TTL_SECONDS = 300;
 const RESEND_AFTER_SECONDS = 60;
 const MAX_ATTEMPTS = 5;
+const OTP_REQUEST_WINDOW_MS = 60 * 60 * 1000;
+const MAX_OTP_REQUESTS_PER_WINDOW = 5;
 const ACCESS_TOKEN_TTL_SECONDS = 900;
 const SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 
@@ -52,15 +57,42 @@ export class AuthService {
       request.mobileNumber,
       request.countryCode,
     );
+    const now = Date.now();
+    const existing =
+      await this.repository.findLatestOpenChallengeByMobile(mobileNumber);
+    if (existing !== undefined && existing.resendAfter.getTime() > now) {
+      const retryAfterSeconds = Math.max(
+        1,
+        Math.ceil((existing.resendAfter.getTime() - now) / 1000),
+      );
+      throw new DomainError(
+        "OTP_RESEND_COOLDOWN",
+        `Wait ${String(retryAfterSeconds)} seconds before requesting another OTP`,
+        429,
+      );
+    }
+
+    const recentChallengeCount = await this.repository.countChallengesSince(
+      mobileNumber,
+      new Date(now - OTP_REQUEST_WINDOW_MS),
+    );
+    if (recentChallengeCount >= MAX_OTP_REQUESTS_PER_WINDOW) {
+      throw new DomainError(
+        "OTP_REQUEST_LIMIT",
+        "Too many OTP requests. Try again later",
+        429,
+      );
+    }
+
     const code = randomInt(100000, 1000000).toString();
     const challengeId = randomUUID();
-    const now = Date.now();
     const codeDigest = this.digest(`${challengeId}:${code}`, "OTP_HMAC_SECRET");
 
     await this.repository.saveChallenge({
       id: challengeId,
       mobileNumber,
       codeDigest,
+      createdAt: new Date(now),
       expiresAt: new Date(now + OTP_TTL_SECONDS * 1000),
       resendAfter: new Date(now + RESEND_AFTER_SECONDS * 1000),
       attemptsRemaining: MAX_ATTEMPTS,
@@ -259,6 +291,69 @@ export class AuthService {
       accessToken,
       refreshToken: nextRefreshToken,
       accessTokenExpiresInSeconds: ACCESS_TOKEN_TTL_SECONDS,
+      activeRole: user.lastActiveRole,
+    };
+  }
+
+  public async switchRole(
+    userId: string,
+    sessionId: string,
+    role: MobileSwitchableRole,
+    requestId: string = randomUUID(),
+  ): Promise<SwitchRoleResponse> {
+    if (!isMobileSwitchableRole(role)) {
+      throw new DomainError(
+        "ROLE_NOT_ASSIGNED",
+        "Role is not switchable on mobile",
+        403,
+      );
+    }
+    const [user, session] = await Promise.all([
+      this.repository.findUserById(userId),
+      this.repository.findSessionById(sessionId),
+    ]);
+    if (
+      user === undefined ||
+      session === undefined ||
+      session.userId !== user.id ||
+      session.revokedAt !== undefined ||
+      Date.parse(session.expiresAt) <= Date.now()
+    ) {
+      throw new DomainError("SESSION_NOT_ACTIVE", "Session is not active", 401);
+    }
+    assertActiveAssignment(user, role);
+    if (user.lastActiveRole === role) {
+      const accessToken = await this.signAccessToken(user.id, session.id, role);
+      return {
+        accessToken,
+        accessTokenExpiresInSeconds: ACCESS_TOKEN_TTL_SECONDS,
+        activeRole: role,
+      };
+    }
+    const fromRole = user.lastActiveRole;
+    const updated = await this.repository.persistRoleSwitch({
+      userId: user.id,
+      role,
+      expectedVersion: user.version,
+      requestId,
+      actorUserId: user.id,
+      actorRole: fromRole,
+      fromRole,
+      toRole: role,
+    });
+    if (updated === undefined) {
+      throw new DomainError(
+        "VERSION_CONFLICT",
+        "User was updated concurrently",
+        409,
+      );
+    }
+    authPrincipalCache.invalidateUser(user.id);
+    const accessToken = await this.signAccessToken(user.id, session.id, role);
+    return {
+      accessToken,
+      accessTokenExpiresInSeconds: ACCESS_TOKEN_TTL_SECONDS,
+      activeRole: role,
     };
   }
 

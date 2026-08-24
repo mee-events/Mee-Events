@@ -273,7 +273,8 @@ class EventOperationsDetail {
   });
 
   factory EventOperationsDetail.fromJson(Map<String, dynamic> json) {
-    final progressJson = json['progress'] as Map<String, dynamic>? ??
+    final progressJson =
+        json['progress'] as Map<String, dynamic>? ??
         <String, dynamic>{
           'id': json['eventRecordId'] as String? ?? '',
           'eventRecordId': json['eventRecordId'] as String? ?? '',

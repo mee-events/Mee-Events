@@ -1,0 +1,299 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Cancellation Confirmation</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&amp;family=EB+Garamond:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary": "#2a0002",
+                        "tertiary-fixed": "#e4e2dd",
+                        "outline-variant": "#dac1bf",
+                        "on-surface-variant": "#544341",
+                        "on-secondary-container": "#785a1a",
+                        "on-error": "#ffffff",
+                        "surface-container-high": "#eae7e7",
+                        "surface-bright": "#fcf9f8",
+                        "on-primary-container": "#cc726d",
+                        "inverse-on-surface": "#f3f0ef",
+                        "outline": "#877270",
+                        "on-primary": "#ffffff",
+                        "on-secondary-fixed-variant": "#5d4201",
+                        "secondary-fixed-dim": "#e9c176",
+                        "secondary-fixed": "#ffdea5",
+                        "on-tertiary-fixed": "#1b1c19",
+                        "surface-container-lowest": "#ffffff",
+                        "surface": "#fcf9f8",
+                        "on-primary-fixed": "#3d0506",
+                        "surface-container-highest": "#e5e2e1",
+                        "background": "#fcf9f8",
+                        "tertiary-fixed-dim": "#c8c6c2",
+                        "surface-variant": "#e5e2e1",
+                        "on-secondary-fixed": "#261900",
+                        "surface-tint": "#954742",
+                        "on-primary-fixed-variant": "#77302d",
+                        "on-surface": "#1c1b1b",
+                        "error-container": "#ffdad6",
+                        "secondary-container": "#fed488",
+                        "inverse-primary": "#ffb3ad",
+                        "surface-dim": "#dcd9d9",
+                        "primary-container": "#4a0e0e",
+                        "error": "#ba1a1a",
+                        "on-tertiary-fixed-variant": "#474744",
+                        "on-secondary": "#ffffff",
+                        "tertiary-container": "#242522",
+                        "on-background": "#1c1b1b",
+                        "tertiary": "#0f100d",
+                        "on-tertiary": "#ffffff",
+                        "surface-container-low": "#f6f3f2",
+                        "inverse-surface": "#313030",
+                        "primary-fixed": "#ffdad7",
+                        "secondary": "#775a19",
+                        "primary-fixed-dim": "#ffb3ad",
+                        "surface-container": "#f0eded",
+                        "on-tertiary-container": "#8c8c88",
+                        "on-error-container": "#93000a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "2xl": "1.25rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "sm": "12px",
+                        "gutter": "24px",
+                        "xs": "4px",
+                        "lg": "48px",
+                        "md": "24px",
+                        "container-max": "1280px",
+                        "xl": "80px",
+                        "base": "8px"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Manrope"],
+                        "label-caps": ["Manrope"],
+                        "button": ["Manrope"],
+                        "h1": ["Manrope"],
+                        "display-hero": ["EB Garamond"],
+                        "h2": ["Manrope"],
+                        "display-hero-mobile": ["EB Garamond"],
+                        "body-lg": ["Manrope"]
+                    },
+                    "fontSize": {
+                        "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "label-caps": ["12px", { "lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "700" }],
+                        "button": ["14px", { "lineHeight": "1", "fontWeight": "600" }],
+                        "h1": ["32px", { "lineHeight": "1.3", "fontWeight": "700" }],
+                        "display-hero": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "500" }],
+                        "h2": ["24px", { "lineHeight": "1.4", "fontWeight": "600" }],
+                        "display-hero-mobile": ["36px", { "lineHeight": "1.2", "fontWeight": "500" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        
+        /* Smooth transition for bottom sheet */
+        .bottom-sheet {
+            transform: translateY(100%);
+            transition: transform 0.3s cubic-bezier(0.2, 0, 0, 1);
+        }
+        .bottom-sheet.open {
+            transform: translateY(0);
+        }
+        .backdrop {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+        .backdrop.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        
+        /* Custom radio button styles to match brand */
+        input[type="radio"]:checked {
+            background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='%23ffffff' xmlns='http://www.w3.org/2000/svg'%3e%3ccircle cx='8' cy='8' r='3'/%3e%3c/svg%3e");
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface font-body-md text-on-surface h-screen w-full overflow-hidden relative" style="overflow: hidden;">
+<!-- Mock Background Content to show context -->
+<div class="h-full w-full p-md flex flex-col gap-gutter">
+<header class="flex items-center justify-between h-14 px-margin-mobile bg-surface shrink-0">
+  <div class="flex items-center gap-3">
+    <div class="w-8 h-8 rounded-full bg-secondary-container flex items-center justify-center cursor-pointer">
+      <span class="material-symbols-outlined text-on-secondary-container text-[20px]">person</span>
+    </div>
+  </div>
+  <div class="absolute left-1/2 -translate-x-1/2">
+    <span class="font-display-hero text-h2 text-primary tracking-tight">Mee Events</span>
+  </div>
+  <div class="flex items-center gap-2">
+    <button class="p-2 hover:bg-surface-container-low rounded-full transition-colors">
+      <span class="material-symbols-outlined text-on-surface-variant">search</span>
+    </button>
+    <button class="p-2 hover:bg-surface-container-low rounded-full transition-colors">
+      <span class="material-symbols-outlined text-on-surface-variant">favorite</span>
+    </button>
+    <button class="p-2 hover:bg-surface-container-low rounded-full transition-colors">
+      <span class="material-symbols-outlined text-on-surface-variant">notifications</span>
+    </button>
+  </div>
+</header>
+<main class="flex-1 overflow-y-auto pb-24"><div class="flex items-center gap-2 px-margin-mobile py-4">
+  <span class="material-symbols-outlined text-primary cursor-pointer">arrow_back</span>
+  <h1 class="font-h1 text-h1 text-primary-container tracking-tight">Enquiry Details</h1>
+</div>
+<div class="bg-surface-container-lowest border border-surface-variant rounded-xl p-md shadow-sm mb-md">
+<p class="font-label-caps text-label-caps text-on-surface-variant mb-2">MEE-HYD-260805-1842</p>
+<h2 class="font-h2 text-h2 text-primary mb-1">Priya &amp; Arjun’s Wedding</h2>
+<p class="font-body-md text-body-md text-on-surface-variant mb-4">Taj Falaknuma Palace, Hyderabad</p>
+<div class="flex gap-4">
+<button class="flex-1 py-3 px-6 rounded-lg font-button text-button bg-primary text-on-primary">Edit Details</button>
+<button class="flex-1 py-3 px-6 rounded-lg font-button text-button bg-transparent text-primary border border-primary" id="trigger-cancel">Cancel Enquiry</button>
+</div>
+</div>
+</main>
+</div>
+<!-- Backdrop -->
+<div class="backdrop fixed inset-0 bg-[#000000]/40 z-40 transition-opacity open" id="sheet-backdrop"></div>
+<!-- Bottom Sheet -->
+<div class="bottom-sheet fixed bottom-0 left-0 right-0 z-50 bg-surface-container-lowest rounded-t-[20px] shadow-[0px_-10px_30px_rgba(42,0,2,0.1)] flex flex-col max-h-[751px] h-[530px] sm:h-auto sm:max-w-[600px] sm:mx-auto open" id="cancellation-sheet">
+<!-- Drag Handle -->
+<div class="w-full flex justify-center pt-4 pb-2 cursor-grab active:cursor-grabbing" id="drag-handle">
+<div class="w-12 h-1.5 bg-surface-variant rounded-full"></div>
+</div>
+<!-- Sheet Content -->
+<div class="flex-1 overflow-y-auto px-gutter pb-gutter flex flex-col">
+<header class="mb-md">
+<h2 class="font-h1 text-h1 text-primary mb-2">Cancel this enquiry?</h2>
+<div class="bg-surface-container-low rounded-lg p-sm border border-surface-variant">
+<p class="font-label-caps text-label-caps text-on-surface-variant mb-1">Ref: MEE-HYD-260805-1842</p>
+<p class="font-body-md text-body-md font-medium text-on-surface">Event: Priya &amp; Arjun’s Wedding</p>
+</div>
+</header>
+<form class="flex-1 flex flex-col gap-6" onsubmit="event.preventDefault();">
+<!-- Reasons -->
+<div>
+<label class="block font-label-caps text-label-caps text-on-surface-variant mb-3">REASON FOR CANCELLATION</label>
+<div class="flex flex-col gap-3">
+<label class="flex items-center gap-3 p-3 rounded-lg border border-surface-variant bg-surface cursor-pointer hover:bg-surface-container-low transition-colors">
+<input class="w-5 h-5 text-primary border-outline focus:ring-primary focus:ring-offset-surface-container-lowest" name="reason" type="radio" value="plans_changed">
+<span class="font-body-md text-body-md">Plans changed</span>
+</label>
+<label class="flex items-center gap-3 p-3 rounded-lg border border-surface-variant bg-surface cursor-pointer hover:bg-surface-container-low transition-colors">
+<input class="w-5 h-5 text-primary border-outline focus:ring-primary focus:ring-offset-surface-container-lowest" name="reason" type="radio" value="postponed">
+<span class="font-body-md text-body-md">Postponed</span>
+</label>
+<label class="flex items-center gap-3 p-3 rounded-lg border border-surface-variant bg-surface cursor-pointer hover:bg-surface-container-low transition-colors">
+<input class="w-5 h-5 text-primary border-outline focus:ring-primary focus:ring-offset-surface-container-lowest" name="reason" type="radio" value="no_longer_need">
+<span class="font-body-md text-body-md">No longer need</span>
+</label>
+<label class="flex items-center gap-3 p-3 rounded-lg border border-surface-variant bg-surface cursor-pointer hover:bg-surface-container-low transition-colors">
+<input class="w-5 h-5 text-primary border-outline focus:ring-primary focus:ring-offset-surface-container-lowest" name="reason" type="radio" value="mistake">
+<span class="font-body-md text-body-md">Mistake</span>
+</label>
+<label class="flex items-center gap-3 p-3 rounded-lg border border-surface-variant bg-surface cursor-pointer hover:bg-surface-container-low transition-colors">
+<input class="w-5 h-5 text-primary border-outline focus:ring-primary focus:ring-offset-surface-container-lowest" name="reason" type="radio" value="other">
+<span class="font-body-md text-body-md">Other</span>
+</label>
+</div>
+</div>
+<!-- Optional Notes -->
+<div>
+<label class="block font-label-caps text-label-caps text-on-surface-variant mb-2" for="cancel-notes">ADDITIONAL NOTES (OPTIONAL)</label>
+<textarea class="w-full rounded-lg border-surface-variant bg-surface focus:border-primary focus:ring-1 focus:ring-primary font-body-md text-body-md p-3" id="cancel-notes" placeholder="Tell us more about why you're cancelling..." rows="3"></textarea>
+</div>
+<!-- Disclaimer -->
+<div class="bg-error-container/20 rounded-lg p-sm border border-error-container/50 flex gap-3 items-start mt-auto">
+<span class="material-symbols-outlined text-error shrink-0">info</span>
+<p class="font-body-md text-body-md text-on-surface text-sm">
+                        Cancelling stops further work on this enquiry. It does not delete your account or saved event plan.
+                    </p>
+</div>
+<!-- Actions -->
+<div class="flex flex-col sm:flex-row-reverse gap-3 pt-2">
+<button class="w-full sm:w-auto flex-1 py-4 px-6 rounded-lg font-button text-button bg-error text-on-error hover:opacity-90 transition-opacity text-center shadow-[0px_10px_30px_rgba(186,26,26,0.15)]" type="button">
+                        Cancel enquiry
+                    </button>
+<button class="w-full sm:w-auto flex-1 py-4 px-6 rounded-lg font-button text-button bg-transparent border border-outline text-on-surface hover:bg-surface-container-low transition-colors text-center" id="btn-keep" type="button">
+                        Keep enquiry
+                    </button>
+</div>
+</form>
+</div>
+</div>
+<script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const sheet = document.getElementById('cancellation-sheet');
+            const backdrop = document.getElementById('sheet-backdrop');
+            const triggerBtn = document.getElementById('trigger-cancel');
+            const keepBtn = document.getElementById('btn-keep');
+
+            function openSheet() {
+                sheet.classList.add('open');
+                backdrop.classList.add('open');
+                document.body.style.overflow = 'hidden'; // Prevent background scrolling
+            }
+
+            function closeSheet() {
+                sheet.classList.remove('open');
+                backdrop.classList.remove('open');
+                document.body.style.overflow = '';
+            }
+
+            // Open for demo purposes automatically
+            setTimeout(openSheet, 500);
+
+            triggerBtn.addEventListener('click', openSheet);
+            keepBtn.addEventListener('click', closeSheet);
+            backdrop.addEventListener('click', closeSheet);
+
+            // Simple drag to dismiss (mobile interaction pattern)
+            let startY = 0;
+            let currentY = 0;
+            const handle = document.getElementById('drag-handle');
+
+            handle.addEventListener('touchstart', (e) => {
+                startY = e.touches[0].clientY;
+                sheet.style.transition = 'none';
+            });
+
+            handle.addEventListener('touchmove', (e) => {
+                currentY = e.touches[0].clientY - startY;
+                if (currentY > 0) {
+                    sheet.style.transform = `translateY(${currentY}px)`;
+                }
+            });
+
+            handle.addEventListener('touchend', (e) => {
+                sheet.style.transition = 'transform 0.3s cubic-bezier(0.2, 0, 0, 1)';
+                if (currentY > 100) { // Threshold to close
+                    closeSheet();
+                }
+                sheet.style.transform = ''; // Reset transform to let CSS class take over
+            });
+        });
+    </script>
+
+
+</body></html>

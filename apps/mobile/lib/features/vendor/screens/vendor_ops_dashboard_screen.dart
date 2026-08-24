@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mee_events/design_system/design_system.dart';
+import 'package:mee_events/features/auth/role_switcher/mobile_roles.dart';
+import 'package:mee_events/features/auth/role_switcher/role_switch_chip.dart';
+import 'package:mee_events/features/auth/role_switcher/show_role_switcher.dart';
 import 'package:mee_events/features/auth/screens/login_screen.dart';
 import 'package:mee_events/features/auth/session_provider.dart';
 import 'package:mee_events/features/operations/screens/operations_issues_screen.dart';
@@ -28,9 +31,9 @@ class VendorOpsDashboardScreen extends ConsumerWidget {
           message: 'Sign in as a vendor owner to view assignments.',
           actionLabel: 'Sign in',
           onAction: () {
-            Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const LoginScreen()),
-            );
+            Navigator.of(
+              context,
+            ).push(MaterialPageRoute(builder: (_) => const LoginScreen()));
           },
         ),
       );
@@ -41,7 +44,18 @@ class VendorOpsDashboardScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: AppColors.canvas,
-      appBar: const MeAppBar(title: 'Vendor'),
+      appBar: MeAppBar(
+        title: 'Vendor',
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: AppSpacing.sm),
+            child: RoleSwitchChip(
+              roleLabel: mobileRoleLabel(session.lastActiveRole),
+              onPressed: () => showRoleSwitcher(context: context, ref: ref),
+            ),
+          ),
+        ],
+      ),
       body: dashboard.when(
         loading: () => const Center(child: MeCircularLoader()),
         error: (error, _) => MeErrorState(

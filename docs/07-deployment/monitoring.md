@@ -52,6 +52,19 @@ doc.
 
 ---
 
+## Minimum production alerting (ops checklist)
+
+Until an APM vendor is chosen, wire at least:
+
+1. Process supervisor restart alerts for the Nest API.
+2. Load-balancer / probe alerts on `GET /api/v1/health/ready` → not ready.
+3. Log alerts for spike in `5xx` and `OTP_RESEND_COOLDOWN` / `OTP_PROVIDER_UNCONFIGURED`.
+4. Disk / Postgres connection saturation alerts on the managed database.
+
+Do not store OTPs or tokens in alert payloads.
+
+---
+
 ## Non-goals (not in-repo)
 
 - No Datadog, New Relic, OpenTelemetry collector, Prometheus, Grafana, or Sentry wiring

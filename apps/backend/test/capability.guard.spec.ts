@@ -60,6 +60,31 @@ describe("CapabilityGuard", () => {
     ).toThrow(ForbiddenException);
   });
 
+  it("rejects CRM lead update when catalogue-review update is required", () => {
+    const guard = guardRequiring("catalog_review.update");
+    expect(() =>
+      guard.canActivate(contextWithPrincipal(principalWithRole("employee"))),
+    ).toThrow(ForbiddenException);
+  });
+
+  it("accepts the catalogue-review capability for an administrator", () => {
+    const guard = guardRequiring("catalog_review.update");
+    expect(
+      guard.canActivate(
+        contextWithPrincipal(principalWithRole("administrator")),
+      ),
+    ).toBe(true);
+  });
+
+  it("accepts catalogue-review read for an administrator", () => {
+    const guard = guardRequiring("catalog_review.read");
+    expect(
+      guard.canActivate(
+        contextWithPrincipal(principalWithRole("administrator")),
+      ),
+    ).toBe(true);
+  });
+
   it("rejects requests without an authenticated principal", () => {
     const guard = guardRequiring("crm_lead.read");
     expect(() => guard.canActivate(contextWithPrincipal(undefined))).toThrow(

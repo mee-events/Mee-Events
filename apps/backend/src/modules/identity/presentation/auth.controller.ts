@@ -16,12 +16,15 @@ import {
 import {
   refreshSessionSchema,
   requestOtpSchema,
+  switchRoleSchema,
   verifyOtpSchema,
   type LogoutResponse,
   type RefreshSessionRequest,
   type RefreshSessionResponse,
   type RequestOtpRequest,
   type RequestOtpResponse,
+  type SwitchRoleRequest,
+  type SwitchRoleResponse,
   type VerifyOtpRequest,
   type VerifyOtpResponse,
 } from "@me-event/api-contracts";
@@ -87,6 +90,27 @@ export class AuthController {
       principal.userId,
       principal.sessionId,
       principal.activeRole,
+      requestIdOf(request),
+    );
+  }
+
+  @Post("switch-role")
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: "Switch the account's active mobile role" })
+  @ApiResponse({ status: HttpStatus.OK })
+  public switchRole(
+    @Body(new ZodValidationPipe(switchRoleSchema)) body: SwitchRoleRequest,
+    @Req() request: AuthenticatedPlatformRequest,
+  ): Promise<SwitchRoleResponse> {
+    const principal = request.user;
+    if (principal === undefined) {
+      throw new UnauthorizedException("Authenticated principal is required");
+    }
+    return this.auth.switchRole(
+      principal.userId,
+      principal.sessionId,
+      body.role,
       requestIdOf(request),
     );
   }

@@ -12,3 +12,9 @@ apps/customer-web/**
 output/**
 outputs/**
 tmp/**
+
+# Proven raw Stitch design material and debug dumps
+design/stitch-screens/**
+
+# Media assets, evidence, and licensing artifacts
+artifacts/**

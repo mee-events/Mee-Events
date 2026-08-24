@@ -13,7 +13,7 @@ Future<void> main() async {
 
   await Supabase.initialize(
     url: dotenv.env['SUPABASE_URL'] ?? '',
-    anonKey: dotenv.env['SUPABASE_ANON_KEY'] ?? '',
+    publishableKey: dotenv.env['SUPABASE_ANON_KEY'] ?? '',
   );
 
   // Lock to portrait orientation (matches the Expo app.json orientation: portrait)
@@ -23,15 +23,13 @@ Future<void> main() async {
   ]);
 
   // Set status bar style to dark (matching Expo StatusBar style="dark")
-  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-    statusBarColor: Colors.transparent,
-    statusBarIconBrightness: Brightness.dark,
-    statusBarBrightness: Brightness.light,
-  ));
-
-  runApp(
-    const ProviderScope(
-      child: MeeEventsApp(),
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.dark,
+      statusBarBrightness: Brightness.light,
     ),
   );
+
+  runApp(const ProviderScope(child: MeeEventsApp()));
 }

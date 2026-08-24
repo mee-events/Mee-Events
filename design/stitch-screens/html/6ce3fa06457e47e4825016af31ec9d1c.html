@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Mee Events - Help and Support</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600;700;800&amp;family=Manrope:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-bright": "#fcf9f8",
+                        "on-tertiary-container": "#8c8c88",
+                        "surface-container-highest": "#e5e2e1",
+                        "surface": "#fcf9f8",
+                        "on-primary": "#ffffff",
+                        "primary": "#2a0002",
+                        "on-secondary": "#ffffff",
+                        "surface-container-high": "#eae7e7",
+                        "primary-fixed-dim": "#ffb3ad",
+                        "on-surface": "#1c1b1b",
+                        "on-error": "#ffffff",
+                        "on-background": "#1c1b1b",
+                        "surface-tint": "#954742",
+                        "error": "#ba1a1a",
+                        "surface-variant": "#e5e2e1",
+                        "on-tertiary-fixed": "#1b1c19",
+                        "background": "#fcf9f8",
+                        "inverse-on-surface": "#f3f0ef",
+                        "on-primary-fixed-variant": "#77302d",
+                        "inverse-surface": "#313030",
+                        "tertiary-container": "#242522",
+                        "error-container": "#ffdad6",
+                        "inverse-primary": "#ffb3ad",
+                        "primary-fixed": "#ffdad7",
+                        "tertiary": "#0f100d",
+                        "on-tertiary-fixed-variant": "#474744",
+                        "surface-container": "#f0eded",
+                        "outline": "#877270",
+                        "secondary-fixed": "#ffdea5",
+                        "on-secondary-fixed-variant": "#5d4201",
+                        "secondary": "#775a19",
+                        "surface-container-low": "#f6f3f2",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary-fixed": "#261900",
+                        "tertiary-fixed": "#e4e2dd",
+                        "on-primary-container": "#cc726d",
+                        "on-surface-variant": "#544341",
+                        "on-primary-fixed": "#3d0506",
+                        "tertiary-fixed-dim": "#c8c6c2",
+                        "primary-container": "#4a0e0e",
+                        "outline-variant": "#dac1bf",
+                        "on-tertiary": "#ffffff",
+                        "surface-dim": "#dcd9d9",
+                        "on-secondary-container": "#785a1a",
+                        "secondary-fixed-dim": "#e9c176",
+                        "secondary-container": "#fed488",
+                        "on-error-container": "#93000a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "container-max": "1280px",
+                        "sm": "12px",
+                        "md": "24px",
+                        "xl": "80px",
+                        "xs": "4px",
+                        "lg": "48px",
+                        "base": "8px",
+                        "gutter": "24px"
+                    },
+                    "fontFamily": {
+                        "display-hero": ["EB Garamond"],
+                        "h1": ["Manrope"],
+                        "button": ["Manrope"],
+                        "label-caps": ["Manrope"],
+                        "h2": ["Manrope"],
+                        "body-lg": ["Manrope"],
+                        "display-hero-mobile": ["EB Garamond"],
+                        "body-md": ["Manrope"]
+                    },
+                    "fontSize": {
+                        "display-hero": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "500" }],
+                        "h1": ["32px", { "lineHeight": "1.3", "fontWeight": "700" }],
+                        "button": ["14px", { "lineHeight": "1", "fontWeight": "600" }],
+                        "label-caps": ["12px", { "lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "700" }],
+                        "h2": ["24px", { "lineHeight": "1.4", "fontWeight": "600" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "display-hero-mobile": ["36px", { "lineHeight": "1.2", "fontWeight": "500" }],
+                        "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen pb-[100px] md:pb-0 font-body-md antialiased selection:bg-primary-container selection:text-on-primary-container">
+<!-- Top App Bar -->
+<header class="w-full top-0 left-0 bg-background dark:bg-background flat no shadows flex justify-between items-center px-gutter py-sm w-full sticky z-40">
+<div class="flex items-center gap-4">
+<button class="text-primary dark:text-primary-fixed-dim hover:opacity-80 transition-opacity flex items-center justify-center p-2 rounded-full">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">menu</span>
+</button>
+<h1 class="font-display-hero-mobile text-display-hero-mobile text-primary dark:text-primary-fixed-dim font-bold tracking-tight">Mee Events</h1>
+</div>
+<div>
+<button class="flex items-center gap-1 font-button text-button text-primary dark:text-primary-fixed-dim hover:opacity-80 transition-opacity">
+                Customer <span class="material-symbols-outlined text-[16px]">arrow_drop_down</span>
+</button>
+</div>
+</header>
+<main class="max-w-[1280px] mx-auto px-4 md:px-gutter pt-lg md:pt-xl pb-xl">
+<!-- Header Section -->
+<section class="text-center mb-xl">
+<h2 class="font-display-hero text-display-hero-mobile md:text-display-hero text-primary mb-md">Help Centre</h2>
+<div class="max-w-2xl mx-auto relative group">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant group-focus-within:text-primary transition-colors z-10">search</span>
+<input class="w-full bg-surface-container-lowest border border-outline-variant/50 rounded-xl py-4 pl-12 pr-4 font-body-md text-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm" placeholder="Search for help..." type="text"/>
+</div>
+</section>
+<!-- Main Content Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+<!-- Left Column: Shortcuts & Contact (Desktop Order) / Mobile Order (Stack) -->
+<div class="lg:col-span-4 flex flex-col gap-lg order-2 lg:order-1">
+<!-- My Support Cases -->
+<div class="bg-surface-container-lowest rounded-[14px] border border-[#E5DED4] p-md shadow-sm hover:shadow-[0px_10px_30px_rgba(74,14,14,0.05)] transition-shadow">
+<h3 class="font-h2 text-h2 text-primary mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary">history</span>
+                        My support cases
+                    </h3>
+<a class="block group" href="#">
+<div class="flex justify-between items-start">
+<div>
+<p class="font-label-caps text-label-caps text-on-surface-variant mb-1">MEE-SUP-2026-0187</p>
+<p class="font-body-md text-body-md text-on-surface group-hover:text-primary transition-colors">Vendor coordination inquiry</p>
+</div>
+<span class="bg-secondary-container text-on-secondary-container font-label-caps text-[10px] px-2 py-1 rounded-full uppercase tracking-wider">Reviewing</span>
+</div>
+<div class="mt-4 pt-4 border-t border-[#E5DED4] flex items-center text-primary font-button text-button group-hover:underline">
+                            View case details <span class="material-symbols-outlined text-[16px] ml-1">arrow_forward</span>
+</div>
+</a>
+</div>
+<!-- Contact Options -->
+<div class="bg-surface-container-lowest rounded-[14px] border border-[#E5DED4] p-md shadow-sm">
+<h3 class="font-h2 text-h2 text-primary mb-4">Contact Mee Events</h3>
+<div class="flex flex-col gap-4">
+<button class="w-full flex items-center justify-between p-4 rounded-lg bg-background hover:bg-surface-container-high transition-colors text-left border border-transparent hover:border-[#E5DED4]">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">chat</span>
+<div>
+<span class="block font-button text-button text-primary">In-app support</span>
+<span class="block font-body-md text-[14px] text-on-surface-variant">Chat with our team</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+</button>
+<button class="w-full flex items-center justify-between p-4 rounded-lg bg-background hover:bg-surface-container-high transition-colors text-left border border-transparent hover:border-[#E5DED4]">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">call</span>
+<div>
+<span class="block font-button text-button text-primary">Request a callback</span>
+<span class="block font-body-md text-[14px] text-on-surface-variant">We'll call you back</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+</button>
+<button class="w-full flex items-center justify-between p-4 rounded-lg bg-background hover:bg-surface-container-high transition-colors text-left border border-transparent hover:border-[#E5DED4]">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">mail</span>
+<div>
+<span class="block font-button text-button text-primary">Email support</span>
+<span class="block font-body-md text-[14px] text-on-surface-variant">Expect a reply in 24h</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Right Column: Categories (Desktop Order) / Mobile Order (Stack) -->
+<div class="lg:col-span-8 order-1 lg:order-2">
+<h3 class="font-h2 text-h2 text-primary mb-md">Browse Categories</h3>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+<!-- Category 1 -->
+<a class="group bg-surface-container-lowest rounded-[14px] border border-[#E5DED4] p-md flex flex-col justify-between hover:shadow-[0px_10px_30px_rgba(74,14,14,0.05)] transition-all hover:-translate-y-1" href="#">
+<span class="material-symbols-outlined text-secondary text-[32px] mb-4 group-hover:scale-110 transition-transform origin-bottom-left" style="font-variation-settings: 'FILL' 1;">event</span>
+<div>
+<h4 class="font-h2 text-[20px] text-primary mb-1">Event planning help</h4>
+<p class="font-body-md text-[14px] text-on-surface-variant">Timelines, vendor coordination, floorplans</p>
+</div>
+</a>
+<!-- Category 2 -->
+<a class="group bg-surface-container-lowest rounded-[14px] border border-[#E5DED4] p-md flex flex-col justify-between hover:shadow-[0px_10px_30px_rgba(74,14,14,0.05)] transition-all hover:-translate-y-1" href="#">
+<span class="material-symbols-outlined text-secondary text-[32px] mb-4 group-hover:scale-110 transition-transform origin-bottom-left" style="font-variation-settings: 'FILL' 1;">payments</span>
+<div>
+<h4 class="font-h2 text-[20px] text-primary mb-1">Payments &amp; quotations</h4>
+<p class="font-body-md text-[14px] text-on-surface-variant">Invoices, payment schedules, pricing</p>
+</div>
+</a>
+<!-- Category 3 -->
+<a class="group bg-surface-container-lowest rounded-[14px] border border-[#E5DED4] p-md flex flex-col justify-between hover:shadow-[0px_10px_30px_rgba(74,14,14,0.05)] transition-all hover:-translate-y-1" href="#">
+<span class="material-symbols-outlined text-secondary text-[32px] mb-4 group-hover:scale-110 transition-transform origin-bottom-left" style="font-variation-settings: 'FILL' 1;">dashboard_customize</span>
+<div>
+<h4 class="font-h2 text-[20px] text-primary mb-1">Event workspace</h4>
+<p class="font-body-md text-[14px] text-on-surface-variant">Navigating your dashboard, tools</p>
+</div>
+</a>
+<!-- Category 4 -->
+<a class="group bg-surface-container-lowest rounded-[14px] border border-[#E5DED4] p-md flex flex-col justify-between hover:shadow-[0px_10px_30px_rgba(74,14,14,0.05)] transition-all hover:-translate-y-1" href="#">
+<span class="material-symbols-outlined text-secondary text-[32px] mb-4 group-hover:scale-110 transition-transform origin-bottom-left" style="font-variation-settings: 'FILL' 1;">photo_library</span>
+<div>
+<h4 class="font-h2 text-[20px] text-primary mb-1">Gallery &amp; deliverables</h4>
+<p class="font-body-md text-[14px] text-on-surface-variant">Accessing photos, videos, sharing</p>
+</div>
+</a>
+<!-- Category 5 -->
+<a class="group bg-surface-container-lowest rounded-[14px] border border-[#E5DED4] p-md flex flex-col justify-between hover:shadow-[0px_10px_30px_rgba(74,14,14,0.05)] transition-all hover:-translate-y-1" href="#">
+<span class="material-symbols-outlined text-secondary text-[32px] mb-4 group-hover:scale-110 transition-transform origin-bottom-left" style="font-variation-settings: 'FILL' 1;">shield_person</span>
+<div>
+<h4 class="font-h2 text-[20px] text-primary mb-1">Account &amp; security</h4>
+<p class="font-body-md text-[14px] text-on-surface-variant">Passwords, privacy, settings</p>
+</div>
+</a>
+<!-- Category 6 -->
+<a class="group bg-surface-container-lowest rounded-[14px] border border-[#E5DED4] p-md flex flex-col justify-between hover:shadow-[0px_10px_30px_rgba(74,14,14,0.05)] transition-all hover:-translate-y-1" href="#">
+<span class="material-symbols-outlined text-secondary text-[32px] mb-4 group-hover:scale-110 transition-transform origin-bottom-left" style="font-variation-settings: 'FILL' 1;">admin_panel_settings</span>
+<div>
+<h4 class="font-h2 text-[20px] text-primary mb-1">Roles &amp; access</h4>
+<p class="font-body-md text-[14px] text-on-surface-variant">Adding family members, permissions</p>
+</div>
+</a>
+<!-- Category 7 -->
+<a class="group bg-surface-container-lowest rounded-[14px] border border-[#E5DED4] p-md flex flex-col justify-between hover:shadow-[0px_10px_30px_rgba(74,14,14,0.05)] transition-all hover:-translate-y-1 sm:col-span-2 lg:col-span-1" href="#">
+<span class="material-symbols-outlined text-secondary text-[32px] mb-4 group-hover:scale-110 transition-transform origin-bottom-left" style="font-variation-settings: 'FILL' 1;">cancel</span>
+<div>
+<h4 class="font-h2 text-[20px] text-primary mb-1">Cancellation &amp; refund info</h4>
+<p class="font-body-md text-[14px] text-on-surface-variant">Policies, processes, timelines</p>
+</div>
+</a>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Nav Bar (Mobile) -->
+<nav class="fixed bottom-0 w-full z-50 rounded-t-xl bg-surface-container-lowest dark:bg-surface-container-low border-t border-outline-variant/30 shadow-sm fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pt-base pb-safe md:hidden">
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors group" href="#">
+<span class="material-symbols-outlined mb-1 group-hover:scale-110 transition-transform">home</span>
+<span class="font-label-caps text-label-caps uppercase tracking-widest text-[10px]">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors group" href="#">
+<span class="material-symbols-outlined mb-1 group-hover:scale-110 transition-transform">explore</span>
+<span class="font-label-caps text-label-caps uppercase tracking-widest text-[10px]">Explore</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors group" href="#">
+<span class="material-symbols-outlined mb-1 group-hover:scale-110 transition-transform">event_note</span>
+<span class="font-label-caps text-label-caps uppercase tracking-widest text-[10px]">Plan</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors group" href="#">
+<span class="material-symbols-outlined mb-1 group-hover:scale-110 transition-transform">chat_bubble</span>
+<span class="font-label-caps text-label-caps uppercase tracking-widest text-[10px]">Enquiries</span>
+</a>
+<a class="flex flex-col items-center justify-center text-primary dark:text-primary-fixed-dim relative after:content-[''] after:w-1 after:h-1 after:bg-secondary after:rounded-full after:mt-1 opacity-70 transition-opacity" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">person</span>
+<span class="font-label-caps text-label-caps uppercase tracking-widest text-[10px]">Profile</span>
+</a>
+</nav>
+</body></html>

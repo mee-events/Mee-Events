@@ -26,7 +26,8 @@ class ApiRequestException implements Exception {
   const ApiRequestException(this.error);
 
   @override
-  String toString() => 'ApiRequestException: ${error.message} (Code: ${error.code})';
+  String toString() =>
+      'ApiRequestException: ${error.message} (Code: ${error.code})';
 }
 
 class ApiConfigurationException implements Exception {

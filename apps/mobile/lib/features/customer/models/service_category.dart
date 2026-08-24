@@ -39,9 +39,5 @@ class CatalogPrice {
   final String unit;
   final String? note;
 
-  const CatalogPrice({
-    required this.amount,
-    required this.unit,
-    this.note,
-  });
+  const CatalogPrice({required this.amount, required this.unit, this.note});
 }

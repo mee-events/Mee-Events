@@ -27,9 +27,9 @@ class ManagerFinanceScreen extends ConsumerWidget {
           message: 'Sign in as a manager to view event finance.',
           actionLabel: 'Sign in',
           onAction: () {
-            Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const LoginScreen()),
-            );
+            Navigator.of(
+              context,
+            ).push(MaterialPageRoute(builder: (_) => const LoginScreen()));
           },
         ),
       );

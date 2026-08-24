@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>Mee Events - Home</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600&amp;family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "outline": "#877270",
+                        "tertiary-fixed": "#e4e2dd",
+                        "on-tertiary-container": "#8c8c88",
+                        "on-background": "#1c1b1b",
+                        "surface-container-high": "#eae7e7",
+                        "surface-container-low": "#f6f3f2",
+                        "secondary": "#775a19",
+                        "on-primary-container": "#cc726d",
+                        "outline-variant": "#dac1bf",
+                        "on-secondary-fixed-variant": "#5d4201",
+                        "inverse-primary": "#ffb3ad",
+                        "on-secondary-container": "#785a1a",
+                        "on-primary-fixed-variant": "#77302d",
+                        "surface": "#fcf9f8",
+                        "secondary-fixed-dim": "#e9c176",
+                        "surface-bright": "#fcf9f8",
+                        "secondary-container": "#fed488",
+                        "on-primary": "#ffffff",
+                        "secondary-fixed": "#ffdea5",
+                        "inverse-surface": "#313030",
+                        "on-tertiary-fixed": "#1b1c19",
+                        "surface-container-highest": "#e5e2e1",
+                        "inverse-on-surface": "#f3f0ef",
+                        "tertiary": "#0f100d",
+                        "primary-container": "#4a0e0e",
+                        "surface-container": "#f0eded",
+                        "error-container": "#ffdad6",
+                        "surface-container-lowest": "#ffffff",
+                        "tertiary-container": "#242522",
+                        "on-error": "#ffffff",
+                        "primary-fixed-dim": "#ffb3ad",
+                        "on-tertiary": "#ffffff",
+                        "tertiary-fixed-dim": "#c8c6c2",
+                        "surface-variant": "#e5e2e1",
+                        "primary-fixed": "#ffdad7",
+                        "surface-tint": "#954742",
+                        "on-secondary": "#ffffff",
+                        "background": "#fcf9f8",
+                        "primary": "#2a0002",
+                        "on-surface": "#1c1b1b",
+                        "on-secondary-fixed": "#261900",
+                        "error": "#ba1a1a",
+                        "on-error-container": "#93000a",
+                        "on-surface-variant": "#544341",
+                        "surface-dim": "#dcd9d9",
+                        "on-tertiary-fixed-variant": "#474744",
+                        "on-primary-fixed": "#3d0506",
+                        "warm-ivory": "#F9F7F2",
+                        "soft-border": "#E5DED4",
+                        "deep-burgundy": "#4A0E0E"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px",
+                        "card": "14px"
+                    },
+                    "spacing": {
+                        "md": "24px",
+                        "sm": "12px",
+                        "xl": "80px",
+                        "xs": "4px",
+                        "gutter": "24px",
+                        "base": "8px",
+                        "lg": "48px",
+                        "container-max": "1280px",
+                        "pb-safe": "env(safe-area-inset-bottom)"
+                    },
+                    "fontFamily": {
+                        "display-hero": ["EB Garamond"],
+                        "button": ["Manrope"],
+                        "h1": ["Manrope"],
+                        "body-lg": ["Manrope"],
+                        "h2": ["Manrope"],
+                        "display-hero-mobile": ["EB Garamond"],
+                        "body-md": ["Manrope"],
+                        "label-caps": ["Manrope"]
+                    },
+                    "fontSize": {
+                        "display-hero": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "500" }],
+                        "button": ["14px", { "lineHeight": "1", "fontWeight": "600" }],
+                        "h1": ["32px", { "lineHeight": "1.3", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "h2": ["24px", { "lineHeight": "1.4", "fontWeight": "600" }],
+                        "display-hero-mobile": ["36px", { "lineHeight": "1.2", "fontWeight": "500" }],
+                        "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "label-caps": ["12px", { "lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { background-color: #F9F7F2; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .card-shadow:hover { box-shadow: 0px 10px 30px rgba(74, 14, 14, 0.05); }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="antialiased text-on-surface pb-[100px] font-body-md bg-warm-ivory">
+<!-- TopAppBar (Web) - Hidden on mobile, visible on md -->
+<header class="hidden md:flex justify-between items-center w-full px-md h-16 max-w-container-max mx-auto bg-surface border-b border-outline-variant flat no shadows docked full-width top-0 z-50 fixed">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">location_on</span>
+<span class="font-display-hero-mobile text-display-hero-mobile text-primary">Mee Events</span>
+</div>
+<div class="flex gap-md">
+<span class="material-symbols-outlined text-primary hover:bg-surface-container transition-colors p-2 rounded-full cursor-pointer">notifications</span>
+</div>
+</header>
+<!-- Mobile Header -->
+<div class="md:hidden pt-8 px-md pb-4 flex justify-between items-start bg-warm-ivory sticky top-0 z-40">
+<div>
+<h1 class="font-display-hero-mobile text-display-hero-mobile text-primary mb-1">Hello, Priya</h1>
+<div class="flex items-center text-on-surface-variant font-label-caps text-label-caps gap-1">
+<span class="material-symbols-outlined text-[16px]">location_on</span>
+<span>Jubilee Hills, Hyderabad • Nov 2024</span>
+</div>
+</div>
+<button class="w-10 h-10 rounded-full bg-surface border border-soft-border flex items-center justify-center relative shadow-sm">
+<span class="material-symbols-outlined text-primary">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full"></span>
+</button>
+</div>
+<!-- Search Bar -->
+<div class="px-md mb-6 md:mt-24">
+<div class="bg-surface rounded-[8px] border border-soft-border flex items-center px-4 py-3 shadow-sm card-shadow transition-shadow">
+<span class="material-symbols-outlined text-on-surface-variant mr-3">search</span>
+<input class="bg-transparent border-none focus:ring-0 w-full font-body-md text-on-surface placeholder-on-surface-variant outline-none" placeholder="Search events and services" type="text"/>
+</div>
+</div>
+<!-- Hero Section -->
+<section class="px-md mb-lg">
+<div class="relative w-full h-[400px] rounded-card overflow-hidden card-shadow transition-shadow border border-soft-border">
+<img class="absolute inset-0 w-full h-full object-cover" data-alt="A cinematic, high-resolution photograph of a lavish traditional South Indian wedding ceremony in Hyderabad. The scene features stunning floral arrangements with marigolds and jasmine, rich silk sarees in deep reds and golds, and soft, warm ambient lighting reflecting off intricate gold jewelry. The mood is joyous, premium, and authentic to Modern Indian aesthetics, set against a warm ivory canvas background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAu9tGx4gY7ZhFjP4kJVfzHNkTJJxlVQ2QXHvHil6Ju2anZsAYqiWNAXUdbTkIqyunrdbEoN1j8lgskl5Zr8dvtGojbSRLHHvow-Czpko-AhUVzMDOfaiFnamBfVJoNOXM0sF0cG8TtkIoehCjB2RZaG5UQDFvAsId9O2DsGqJGSUixbIBg3eJhjdffetM50LoQQFbZ4x-T_WPscu7Ep_x-vT9zbdPy7xzDrIvDFDvy2bTuxIWgYjPx"/>
+<div class="absolute inset-0 bg-gradient-to-t from-primary-container/80 via-transparent to-transparent"></div>
+<div class="absolute bottom-0 left-0 w-full p-md flex flex-col items-start">
+<span class="bg-surface/20 backdrop-blur-md text-on-primary font-label-caps text-label-caps px-3 py-1 rounded-full mb-3 border border-on-primary/30">Curated Experiences</span>
+<h2 class="font-h1 text-h1 text-on-primary mb-4 leading-tight">Crafting Unforgettable Moments</h2>
+<button class="bg-primary-container text-on-primary font-button text-button px-6 py-3 rounded-full flex items-center gap-2 hover:bg-primary transition-colors">
+                    Start planning
+                    <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Occasions (Bento Grid) -->
+<section class="px-md mb-lg">
+<div class="flex justify-between items-end mb-4">
+<h2 class="font-h2 text-h2 text-primary">Occasions</h2>
+<button class="text-secondary font-button text-button hover:underline">View all</button>
+</div>
+<div class="grid grid-cols-2 gap-3 h-[280px]">
+<!-- Main Feature -->
+<div class="col-span-1 row-span-2 rounded-card overflow-hidden relative border border-soft-border group card-shadow transition-all">
+<img class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="An elegant, high-end wedding mandap setup featuring modern minimalist design combined with traditional Indian elements. Soft pastel draping, lush white and pink floral chandeliers, and warm, diffused sunlight creating a romantic, premium atmosphere." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCtNxAyeXyz3kq_NuO8KvVEiLwqiO1Uyd0R-SCPPrctNHFF_rHTPi10cu-5V8o8Bm9KlBF69gjF_Pb3t8hgU9WE8DVrM77H903WP1G-89-eYerjh8DD3n8He2NA64vkfsn7KSDH0dG5F3nTqRrQ0ujNqupIq7fULYqWgL3uHLw9fRH2WLWQyZeKPxu8dDXTPjxs8Xln4Lng6IAI005N9VvQF36qzOU3e0rwG6Sng8U4x28329GHi84Q"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+<div class="absolute bottom-3 left-3">
+<h3 class="text-on-primary font-button text-button">Wedding</h3>
+</div>
+</div>
+<!-- Secondary Features -->
+<div class="col-span-1 row-span-1 rounded-card overflow-hidden relative border border-soft-border group card-shadow transition-all">
+<img class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A vibrant engagement party setting with sophisticated cocktail tables, subtle golden fairy lights, and elegant floral centerpieces. The atmosphere is celebratory and chic, reflecting a modern Indian premium aesthetic in warm tones." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBB6GWfpXo_09o5s_P0XxsVrQFBbRuN-qOBsC2eDma9cw5mkYrfBnZUps3bwm0890eRVNqr_ksROGtMdi27jcB0izt18E5dQxBHIIWrOQrHRzVW9Jj78xqIMupbXAznPAyPUh6ldSIpGfXyuoSNxpgQILvn-stj_2YS_b3KR-2b437iPaI6rXQ9h-2dY1r5wMXCLrJ6s9Fj__UAle2IUiCoBhB4rEGdyfu_NMVbvNbthSf5b2Ni4v7Z"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+<div class="absolute bottom-3 left-3">
+<h3 class="text-on-primary font-button text-button">Engagement</h3>
+</div>
+</div>
+<div class="col-span-1 row-span-1 grid grid-cols-2 gap-3">
+<div class="rounded-[10px] overflow-hidden relative border border-soft-border bg-surface flex items-center justify-center p-2 text-center group">
+<img class="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity" data-alt="A festive, colorful floral rangoli design with brass diyas (lamps) illuminating a luxurious home entrance, capturing the warmth and tradition of a modern Indian housewarming or festival celebration." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDudkLw6hrT8CVV4feD1oghB0J0kDgVLL_r723MDflO8jbN-0MaEXQZa25icpxeM4r0fR7xjvFHBixYVTMaK6IGtjiV_hN0_xTeKBoY0nSwUMiRQPhOYeEBMRsqQ8sK7SJSrTUFN-A2E8XaL4HqmmkoIMya19A7fL_YVwYcU2lZhO67gQp2Inxf8bOPj_Ig78RD0eUz1D_8SoJ0iS2MM6EOSogt2tKl0TZSdUfm7fxPCmakXyAw-z4w"/>
+<h3 class="relative z-10 text-primary font-label-caps text-label-caps bg-surface/80 px-2 py-1 rounded-full backdrop-blur-sm">Festivals</h3>
+</div>
+<div class="rounded-[10px] overflow-hidden relative border border-soft-border bg-surface flex items-center justify-center p-2 text-center group">
+<h3 class="relative z-10 text-primary font-label-caps text-label-caps">More +</h3>
+</div>
+</div>
+</div>
+</section>
+<!-- Popular Services (Horizontal Scroll) -->
+<section class="pl-md mb-lg py-4 bg-surface-container-low border-y border-soft-border">
+<h2 class="font-h2 text-h2 text-primary mb-4 pr-md">Popular Services</h2>
+<div class="flex gap-4 overflow-x-auto hide-scrollbar pb-4 pr-md snap-x">
+<div class="snap-start shrink-0 w-32 flex flex-col items-center gap-3 group">
+<div class="w-20 h-20 rounded-full border border-soft-border bg-surface overflow-hidden p-1 shadow-sm group-hover:border-secondary transition-colors relative">
+<img class="w-full h-full rounded-full object-cover" data-alt="Close up of exquisite floral stage decoration for an Indian event. Deep maroon and soft pink roses intricately arranged with lush green foliage, softly lit to highlight the premium, tactile texture of the blooms." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD6xB5ELlAy7RsRs18yijiOS2Al4pPQ3XQW1EWGEraNJw3IoznILtI_ubowB7Gjnun3go1j1V-Hj4h8eWnauZryhCqWdJodd-mPV_MHwNWoHbPA3PGnX1azgctXiNOEnz1EMyZF1eCiFxAxxMdYWRALUPNEOG2qSGaBvHboXHwuMdiUX8vlwkXFdneaN2mocaFgi9iVYrRo0_uNDadQUpRGxM9K7_r0_Lph9CPvM7QB6uL-E1a--P3q"/>
+</div>
+<span class="font-button text-button text-on-surface text-center">Decoration</span>
+</div>
+<div class="snap-start shrink-0 w-32 flex flex-col items-center gap-3 group">
+<div class="w-20 h-20 rounded-full border border-soft-border bg-surface overflow-hidden p-1 shadow-sm group-hover:border-secondary transition-colors relative">
+<img class="w-full h-full rounded-full object-cover" data-alt="A luxurious spread of modern Indian fusion catering. Beautifully plated hors d'oeuvres on brass trays, surrounded by soft lighting and elegant table settings, conveying a sense of high-end culinary excellence." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB5Hlcguu9udZWPoqXniOIwb1Ama-FQUUAUop_aQLWf5TKm-vvEoXFFDOdYO2fV59UlbeHHAABMnUcRfZlw5X4AnTb0cqrqLDOLEVgalv5LdejARjE9qMXdxPVymDTlyo2r8jawzW7FeO2OUybpeOM6tPEcNJc8cIqBmLNKL1BjPHbGLVUvumONNLuPzRzc_OyqwTknFujyE6JoCPK1_0oCu2tBiSpCgF3BzM-sAXF0aD-eBHVLaLge"/>
+</div>
+<span class="font-button text-button text-on-surface text-center">Catering</span>
+</div>
+<div class="snap-start shrink-0 w-32 flex flex-col items-center gap-3 group">
+<div class="w-20 h-20 rounded-full border border-soft-border bg-surface overflow-hidden p-1 shadow-sm group-hover:border-secondary transition-colors relative">
+<img class="w-full h-full rounded-full object-cover" data-alt="A photographer capturing a candid moment at a lavish Indian event, holding a high-end camera. The background is softly blurred featuring warm festive lights, illustrating professional premium event photography services." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBQuljw6kgPw7y2g8PYqVcwG6ozmH3UKjbMTOAKDNxgm53lsTwILGUkOyRsFDLixZPsVcqKK0jEUpn1LOsFlJNw-GCDk8TwKMJ9rEl7YArlp_RtQZ7bJvDQkup3PH6BKVoWNuD94Al70gEWyRh9YW0qeYg-EkqNNgv3QnmWrR0DjWBTWk6OVGl3jayLrHxk5WnMCWznrMzsMXgPAjtDq4WzCs474wmCYiIvmaPK57m6ifukgBPPaBfA"/>
+</div>
+<span class="font-button text-button text-on-surface text-center">Photography</span>
+</div>
+<div class="snap-start shrink-0 w-32 flex flex-col items-center gap-3 group">
+<div class="w-20 h-20 rounded-full border border-soft-border bg-surface overflow-hidden p-1 shadow-sm group-hover:border-secondary transition-colors relative flex items-center justify-center bg-surface-container">
+<span class="material-symbols-outlined text-primary text-[32px]">arrow_forward</span>
+</div>
+<span class="font-button text-button text-on-surface text-center">View all</span>
+</div>
+</div>
+</section>
+<!-- Curated Offerings -->
+<section class="px-md mb-lg">
+<h2 class="font-h2 text-h2 text-primary mb-4">Curated Mee Events Offerings</h2>
+<div class="flex flex-col gap-4">
+<div class="bg-surface rounded-card p-4 border border-soft-border flex gap-4 card-shadow transition-shadow">
+<div class="w-24 h-24 rounded-[8px] overflow-hidden shrink-0">
+<img class="w-full h-full object-cover" data-alt="A breathtaking heritage venue in Hyderabad at twilight, beautifully illuminated with warm golden lights. The grand architecture and majestic entrance suggest an exclusive, premium location for grand celebrations." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBQ9eT_Ll0pazZCQkL_0oGm-JV6_HgdLVqnP9DZ75ONBIw2t4ilJfI9pEH0TXpuNbfyp8RNehgTMuHOgJVFr_inN3SxsbKf00aOFZfg8YhB7Ud2by6fhB8vZv-dtovZ6Nmh0ipv5h8_hnQIJsSzHfayu4NhXvTJEGQDR8Qs76sVn2MSbmWNTngeatNPwWYzxYmFWVOCAoZBCi1ZSKXbREaILMNk4WhQIhhHX02mIFI4SposwpwA3anr"/>
+</div>
+<div class="flex flex-col justify-between">
+<div>
+<span class="text-secondary font-label-caps text-label-caps mb-1 block">Premium Venue</span>
+<h3 class="font-button text-button text-primary mb-1 line-clamp-2">Heritage Palaces of Hyderabad</h3>
+<p class="font-body-md text-[13px] text-on-surface-variant line-clamp-1">Exclusive access to royal settings</p>
+</div>
+<button class="text-secondary font-button text-[13px] text-left mt-2 flex items-center gap-1">Explore details <span class="material-symbols-outlined text-[14px]">chevron_right</span></button>
+</div>
+</div>
+</div>
+</section>
+<!-- Footer Trust Message -->
+<section class="px-md mb-8 text-center pt-lg border-t border-soft-border pb-6">
+<span class="material-symbols-outlined text-secondary text-[32px] mb-3">verified</span>
+<h3 class="font-display-hero-mobile text-[24px] text-primary mb-2">Crafted with Care</h3>
+<p class="font-body-md text-on-surface-variant max-w-[280px] mx-auto">Every detail is meticulously planned by our experts to ensure your celebration is nothing short of extraordinary.</p>
+</section>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-safe bg-surface border-t border-soft-border h-20 rounded-t-xl shadow-[0_-4px_20px_rgba(74,14,14,0.03)]">
+<!-- Home (Active) -->
+<a class="flex flex-col items-center justify-center text-primary border-t-2 border-secondary pt-1 w-16 scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="font-label-caps text-label-caps">Home</span>
+</a>
+<!-- Explore -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-all pt-1 w-16" href="#">
+<span class="material-symbols-outlined mb-1">search</span>
+<span class="font-label-caps text-label-caps">Explore</span>
+</a>
+<!-- Plan -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-all pt-1 w-16" href="#">
+<span class="material-symbols-outlined mb-1">event_note</span>
+<span class="font-label-caps text-label-caps">Plan</span>
+</a>
+<!-- Enquiries -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-all pt-1 w-16" href="#">
+<span class="material-symbols-outlined mb-1">chat_bubble</span>
+<span class="font-label-caps text-label-caps">Enquiries</span>
+</a>
+<!-- Account -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-all pt-1 w-16" href="#">
+<span class="material-symbols-outlined mb-1">person</span>
+<span class="font-label-caps text-label-caps">Account</span>
+</a>
+</nav>
+</body></html>

@@ -6,6 +6,8 @@ import 'package:mee_events/theme/app_radius.dart';
 import 'package:mee_events/theme/app_spacing.dart';
 import 'package:mee_events/theme/app_typography.dart';
 
+const double _focusedBorderWidth = 1.5;
+
 InputDecoration meInputDecoration({
   String? label,
   String? hint,
@@ -34,11 +36,21 @@ InputDecoration meInputDecoration({
     ),
     focusedBorder: const OutlineInputBorder(
       borderRadius: AppRadius.mdAll,
-      borderSide: BorderSide(color: AppColors.primary, width: 1.5),
+      borderSide: BorderSide(
+        color: AppColors.primary,
+        width: _focusedBorderWidth,
+      ),
     ),
     errorBorder: const OutlineInputBorder(
       borderRadius: AppRadius.mdAll,
       borderSide: BorderSide(color: AppColors.error),
+    ),
+    focusedErrorBorder: const OutlineInputBorder(
+      borderRadius: AppRadius.mdAll,
+      borderSide: BorderSide(
+        color: AppColors.error,
+        width: _focusedBorderWidth,
+      ),
     ),
     labelStyle: AppTypography.bodyMd.copyWith(color: AppColors.muted),
     hintStyle: AppTypography.bodyMd.copyWith(color: AppColors.mutedSoft),
@@ -98,25 +110,36 @@ class MeSearchField extends StatelessWidget {
   const MeSearchField({
     super.key,
     this.controller,
+    this.focusNode,
     this.hint = 'Search',
     this.onChanged,
     this.onClear,
+    this.onSubmitted,
   });
 
   final TextEditingController? controller;
+  final FocusNode? focusNode;
   final String hint;
   final ValueChanged<String>? onChanged;
   final VoidCallback? onClear;
+  final ValueChanged<String>? onSubmitted;
 
   @override
   Widget build(BuildContext context) {
     return TextField(
       controller: controller,
+      focusNode: focusNode,
       onChanged: onChanged,
+      onSubmitted: onSubmitted,
+      textInputAction: TextInputAction.search,
       style: AppTypography.bodyMd,
       decoration: meInputDecoration(
         hint: hint,
-        prefixIcon: const Icon(Icons.search, size: AppIconSize.md, color: AppColors.muted),
+        prefixIcon: const Icon(
+          Icons.search,
+          size: AppIconSize.md,
+          color: AppColors.muted,
+        ),
         suffixIcon: onClear == null
             ? null
             : IconButton(
@@ -217,7 +240,12 @@ class MeDropdown<T> extends StatelessWidget {
         child: DropdownButton<T>(
           value: value,
           isExpanded: true,
-          hint: hint == null ? null : Text(hint!, style: AppTypography.bodyMd.copyWith(color: AppColors.muted)),
+          hint: hint == null
+              ? null
+              : Text(
+                  hint!,
+                  style: AppTypography.bodyMd.copyWith(color: AppColors.muted),
+                ),
           items: items,
           onChanged: onChanged,
           style: AppTypography.bodyMd.copyWith(color: AppColors.ink),
@@ -243,11 +271,12 @@ class MeDateField extends StatelessWidget {
   Widget build(BuildContext context) {
     return OutlinedButton.icon(
       onPressed: onPick,
-      icon: const Icon(Icons.calendar_today, size: AppIconSize.sm, color: AppColors.primary),
-      label: Text(
-        valueText ?? label,
-        style: AppTypography.bodyMd,
+      icon: const Icon(
+        Icons.calendar_today,
+        size: AppIconSize.sm,
+        color: AppColors.primary,
       ),
+      label: Text(valueText ?? label, style: AppTypography.bodyMd),
       style: OutlinedButton.styleFrom(
         foregroundColor: AppColors.ink,
         side: const BorderSide(color: AppColors.hairline),
@@ -278,11 +307,12 @@ class MeTimeField extends StatelessWidget {
   Widget build(BuildContext context) {
     return OutlinedButton.icon(
       onPressed: onPick,
-      icon: const Icon(Icons.schedule, size: AppIconSize.sm, color: AppColors.primary),
-      label: Text(
-        valueText ?? label,
-        style: AppTypography.bodyMd,
+      icon: const Icon(
+        Icons.schedule,
+        size: AppIconSize.sm,
+        color: AppColors.primary,
       ),
+      label: Text(valueText ?? label, style: AppTypography.bodyMd),
       style: OutlinedButton.styleFrom(
         foregroundColor: AppColors.ink,
         side: const BorderSide(color: AppColors.hairline),

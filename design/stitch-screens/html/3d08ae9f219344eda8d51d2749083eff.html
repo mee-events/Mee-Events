@@ -1,0 +1,393 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Set your schedule and event details</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@500&amp;family=Manrope:wght@400;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-tertiary-container": "#8c8c88",
+                      "surface-container": "#f0eded",
+                      "error-container": "#ffdad6",
+                      "on-tertiary-fixed": "#1b1c19",
+                      "background": "#fcf9f8",
+                      "surface-container-low": "#f6f3f2",
+                      "surface-dim": "#dcd9d9",
+                      "on-secondary": "#ffffff",
+                      "tertiary": "#0f100d",
+                      "inverse-on-surface": "#f3f0ef",
+                      "on-primary-fixed-variant": "#77302d",
+                      "on-tertiary": "#ffffff",
+                      "outline-variant": "#dac1bf",
+                      "on-primary-container": "#cc726d",
+                      "on-error-container": "#93000a",
+                      "on-surface": "#1c1b1b",
+                      "outline": "#877270",
+                      "on-error": "#ffffff",
+                      "surface-container-high": "#eae7e7",
+                      "on-secondary-container": "#785a1a",
+                      "inverse-primary": "#ffb3ad",
+                      "tertiary-fixed": "#e4e2dd",
+                      "error": "#ba1a1a",
+                      "tertiary-fixed-dim": "#c8c6c2",
+                      "surface-container-lowest": "#ffffff",
+                      "surface": "#fcf9f8",
+                      "secondary-container": "#fed488",
+                      "secondary": "#775a19",
+                      "primary": "#2a0002",
+                      "on-surface-variant": "#544341",
+                      "on-secondary-fixed-variant": "#5d4201",
+                      "on-tertiary-fixed-variant": "#474744",
+                      "primary-container": "#4a0e0e",
+                      "tertiary-container": "#242522",
+                      "inverse-surface": "#313030",
+                      "primary-fixed": "#ffdad7",
+                      "surface-container-highest": "#e5e2e1",
+                      "on-background": "#1c1b1b",
+                      "secondary-fixed-dim": "#e9c176",
+                      "primary-fixed-dim": "#ffb3ad",
+                      "surface-bright": "#fcf9f8",
+                      "on-primary": "#ffffff",
+                      "surface-variant": "#e5e2e1",
+                      "on-secondary-fixed": "#261900",
+                      "surface-tint": "#954742",
+                      "on-primary-fixed": "#3d0506",
+                      "secondary-fixed": "#ffdea5"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "lg": "48px",
+                      "md": "24px",
+                      "gutter": "24px",
+                      "container-max": "1280px",
+                      "xs": "4px",
+                      "xl": "80px",
+                      "sm": "12px",
+                      "base": "8px"
+              },
+              "fontFamily": {
+                      "display-hero-mobile": [
+                              "EB Garamond"
+                      ],
+                      "h1": [
+                              "Manrope"
+                      ],
+                      "button": [
+                              "Manrope"
+                      ],
+                      "h2": [
+                              "Manrope"
+                      ],
+                      "display-hero": [
+                              "EB Garamond"
+                      ],
+                      "body-md": [
+                              "Manrope"
+                      ],
+                      "body-lg": [
+                              "Manrope"
+                      ],
+                      "label-caps": [
+                              "Manrope"
+                      ]
+              },
+              "fontSize": {
+                      "display-hero-mobile": [
+                              "36px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "h1": [
+                              "32px",
+                              {
+                                      "lineHeight": "1.3",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "button": [
+                              "14px",
+                              {
+                                      "lineHeight": "1",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "h2": [
+                              "24px",
+                              {
+                                      "lineHeight": "1.4",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "display-hero": [
+                              "48px",
+                              {
+                                      "lineHeight": "1.1",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-caps": [
+                              "12px",
+                              {
+                                      "lineHeight": "1",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "700"
+                              }
+                      ]
+              }
+            }
+          }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.fill {
+            font-variation-settings: 'FILL' 1;
+        }
+        
+        input[type="radio"]:checked {
+            background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3ccircle cx='8' cy='8' r='3'/%3e%3c/svg%3e");
+            border-color: transparent;
+            background-color: currentColor;
+            background-size: 100% 100%;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen font-body-md antialiased selection:bg-primary-container selection:text-on-primary-container">
+<!-- App Bar (Transactional variant, minimal) -->
+<header class="sticky top-0 z-40 bg-surface/90 backdrop-blur-md border-b border-outline-variant w-full h-16 flex items-center px-md lg:px-lg">
+  <div class="max-w-container-max mx-auto w-full flex justify-between items-center">
+    <div class="flex items-center gap-md">
+      <button class="w-10 h-10 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center hover:bg-primary transition-colors">
+        <span class="material-symbols-outlined">person</span>
+      </button>
+    </div>
+    <div class="absolute left-1/2 -translate-x-1/2">
+      <span class="font-display-hero-mobile text-[24px] text-primary tracking-tight">Mee Events</span>
+    </div>
+    <div class="flex items-center gap-sm">
+      <button class="p-sm text-on-surface-variant hover:text-primary transition-colors">
+        <span class="material-symbols-outlined">search</span>
+      </button>
+      <button class="p-sm text-on-surface-variant hover:text-primary transition-colors">
+        <span class="material-symbols-outlined">favorite</span>
+      </button>
+      <button class="p-sm text-on-surface-variant hover:text-primary transition-colors">
+        <span class="material-symbols-outlined">notifications</span>
+      </button>
+    </div>
+  </div>
+</header>
+<main class="max-w-3xl mx-auto px-md py-lg lg:py-xl"><div class="flex items-center justify-between mb-md">
+  <button class="text-on-surface-variant hover:text-primary transition-colors flex items-center gap-2 group">
+    <span class="material-symbols-outlined group-hover:-translate-x-1 transition-transform">arrow_back</span>
+    <span class="font-button text-button">Back</span>
+  </button>
+  <div class="font-label-caps text-label-caps text-on-surface-variant tracking-wider">
+    Step 2 of 4 — Schedule
+  </div>
+</div>
+<!-- Header -->
+<div class="mb-lg">
+<h1 class="font-display-hero-mobile text-display-hero-mobile md:font-display-hero md:text-display-hero text-primary mb-sm">Set your schedule and event details</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Define the timeline and requirements for your upcoming celebrations.</p>
+</div>
+<form class="space-y-lg">
+<!-- Functions Section -->
+<section class="space-y-md">
+<h2 class="font-h2 text-h2 text-primary border-b border-outline-variant pb-xs">Functions</h2>
+<!-- Expanded Function: Mehndi -->
+<div class="bg-surface rounded-xl border border-outline-variant overflow-hidden shadow-sm transition-all">
+<!-- Accordion Header (Active) -->
+<button class="w-full flex items-center justify-between p-md bg-surface-container-low hover:bg-surface-container transition-colors text-left border-b border-outline-variant" type="button">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary">spa</span>
+<span class="font-h2 text-h2 text-primary">Mehndi</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant transition-transform rotate-180">expand_more</span>
+</button>
+<!-- Accordion Body -->
+<div class="p-md space-y-lg">
+<!-- Date & Time Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+<div>
+<label class="block font-label-caps text-label-caps text-on-surface-variant mb-xs">Date</label>
+<div class="relative">
+<input class="w-full bg-surface border border-outline-variant rounded-lg px-sm py-sm font-body-md text-on-surface focus:ring-1 focus:ring-primary focus:border-primary transition-colors pl-10" readonly="" type="text" value="12 Dec 2026">
+<span class="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none">calendar_today</span>
+</div>
+</div>
+<div>
+<label class="block font-label-caps text-label-caps text-on-surface-variant mb-xs">Time</label>
+<div class="relative">
+<input class="w-full bg-surface border border-outline-variant rounded-lg px-sm py-sm font-body-md text-on-surface focus:ring-1 focus:ring-primary focus:border-primary transition-colors pl-10" type="text" value="4:00 PM - 9:00 PM">
+<span class="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none">schedule</span>
+</div>
+</div>
+</div>
+<!-- Location & Venue -->
+<div class="space-y-md">
+<div>
+<label class="block font-label-caps text-label-caps text-on-surface-variant mb-xs">Location Area</label>
+<div class="relative">
+<input class="w-full bg-surface border border-outline-variant rounded-lg px-sm py-sm font-body-md text-on-surface focus:ring-1 focus:ring-primary focus:border-primary transition-colors pl-10" type="text" value="Banjara Hills, Hyderabad">
+<span class="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none">location_on</span>
+</div>
+</div>
+<div>
+<label class="block font-label-caps text-label-caps text-on-surface-variant mb-sm">Venue Status</label>
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-sm">
+<label class="relative flex cursor-pointer">
+<input checked="" class="peer sr-only" name="mehndi-venue-status" type="radio" value="booked">
+<div class="w-full p-sm rounded-lg border border-outline-variant bg-surface text-center transition-all peer-checked:bg-primary-container peer-checked:border-primary peer-checked:text-on-primary-container hover:bg-surface-container-low flex flex-col items-center gap-2">
+<span class="material-symbols-outlined text-[20px] fill">check_circle</span>
+<span class="font-button text-button">Venue booked</span>
+</div>
+</label>
+<label class="relative flex cursor-pointer">
+<input class="peer sr-only" name="mehndi-venue-status" type="radio" value="need">
+<div class="w-full p-sm rounded-lg border border-outline-variant bg-surface text-center transition-all peer-checked:bg-primary-container peer-checked:border-primary peer-checked:text-on-primary-container hover:bg-surface-container-low flex flex-col items-center gap-2">
+<span class="material-symbols-outlined text-[20px]">search</span>
+<span class="font-button text-button">Need a venue</span>
+</div>
+</label>
+<label class="relative flex cursor-pointer">
+<input class="peer sr-only" name="mehndi-venue-status" type="radio" value="undecided">
+<div class="w-full p-sm rounded-lg border border-outline-variant bg-surface text-center transition-all peer-checked:bg-primary-container peer-checked:border-primary peer-checked:text-on-primary-container hover:bg-surface-container-low flex flex-col items-center gap-2">
+<span class="material-symbols-outlined text-[20px]">help</span>
+<span class="font-button text-button">Not decided</span>
+</div>
+</label>
+</div>
+</div>
+<div>
+<label class="block font-label-caps text-label-caps text-on-surface-variant mb-xs">Venue Name</label>
+<input class="w-full bg-surface border border-outline-variant rounded-lg px-sm py-sm font-body-md text-on-surface focus:ring-1 focus:ring-primary focus:border-primary transition-colors" type="text" value="Taj Falaknuma Palace">
+</div>
+</div>
+<!-- Guests & Setting -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+<div>
+<label class="block font-label-caps text-label-caps text-on-surface-variant mb-xs">Guest Count</label>
+<div class="relative">
+<input class="w-full bg-surface border border-outline-variant rounded-lg px-sm py-sm font-body-md text-on-surface focus:ring-1 focus:ring-primary focus:border-primary transition-colors pl-10" type="number" value="250">
+<span class="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none">group</span>
+</div>
+</div>
+<div>
+<label class="block font-label-caps text-label-caps text-on-surface-variant mb-xs">Setting</label>
+<select class="w-full bg-surface border border-outline-variant rounded-lg px-sm py-sm font-body-md text-on-surface focus:ring-1 focus:ring-primary focus:border-primary transition-colors">
+<option value="indoor">Indoor</option>
+<option selected="" value="outdoor">Outdoor</option>
+<option value="both">Both (Indoor &amp; Outdoor)</option>
+</select>
+</div>
+</div>
+</div>
+</div>
+<!-- Collapsed Function: Haldi -->
+<div class="bg-surface rounded-xl border border-outline-variant overflow-hidden hover:border-outline transition-colors cursor-pointer group">
+<button class="w-full flex items-center justify-between p-md bg-surface text-left" type="button">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors">wb_sunny</span>
+<span class="font-h2 text-h2 text-on-surface group-hover:text-primary transition-colors">Haldi</span>
+</div>
+<div class="flex items-center gap-md">
+<span class="text-on-surface-variant font-body-md hidden sm:inline">13 Dec 2026</span>
+<span class="material-symbols-outlined text-on-surface-variant transition-transform">expand_more</span>
+</div>
+</button>
+</div>
+<!-- Collapsed Function: Sangeet -->
+<div class="bg-surface rounded-xl border border-outline-variant overflow-hidden hover:border-outline transition-colors cursor-pointer group">
+<button class="w-full flex items-center justify-between p-md bg-surface text-left" type="button">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors">music_note</span>
+<span class="font-h2 text-h2 text-on-surface group-hover:text-primary transition-colors">Sangeet</span>
+</div>
+<div class="flex items-center gap-md">
+<span class="text-on-surface-variant font-body-md hidden sm:inline">13 Dec 2026</span>
+<span class="material-symbols-outlined text-on-surface-variant transition-transform">expand_more</span>
+</div>
+</button>
+</div>
+<button class="flex items-center gap-2 text-primary font-button text-button hover:text-primary-container transition-colors py-sm" type="button">
+<span class="material-symbols-outlined">add</span>
+                    Add another function
+                </button>
+</section>
+<!-- Budget Section -->
+<section class="space-y-md pt-md">
+<div class="flex items-baseline gap-sm border-b border-outline-variant pb-xs">
+<h2 class="font-h2 text-h2 text-primary">Budget Range</h2>
+<span class="font-label-caps text-label-caps text-on-surface-variant">*Current planning estimate</span>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-sm">
+<label class="flex items-center gap-3 p-sm border border-outline-variant rounded-lg bg-surface hover:bg-surface-container-low transition-colors cursor-pointer">
+<input class="text-primary focus:ring-primary focus:ring-offset-0 bg-surface border-outline-variant w-5 h-5" name="budget" type="radio" value="under5">
+<span class="font-body-md text-on-surface">Under ₹5 lakh</span>
+</label>
+<label class="flex items-center gap-3 p-sm border border-outline-variant rounded-lg bg-surface hover:bg-surface-container-low transition-colors cursor-pointer">
+<input checked="" class="text-primary focus:ring-primary focus:ring-offset-0 bg-surface border-outline-variant w-5 h-5" name="budget" type="radio" value="5to10">
+<span class="font-body-md text-on-surface">₹5–10 lakh</span>
+</label>
+<label class="flex items-center gap-3 p-sm border border-outline-variant rounded-lg bg-surface hover:bg-surface-container-low transition-colors cursor-pointer">
+<input class="text-primary focus:ring-primary focus:ring-offset-0 bg-surface border-outline-variant w-5 h-5" name="budget" type="radio" value="10to20">
+<span class="font-body-md text-on-surface">₹10–20 lakh</span>
+</label>
+<label class="flex items-center gap-3 p-sm border border-outline-variant rounded-lg bg-surface hover:bg-surface-container-low transition-colors cursor-pointer">
+<input class="text-primary focus:ring-primary focus:ring-offset-0 bg-surface border-outline-variant w-5 h-5" name="budget" type="radio" value="20plus">
+<span class="font-body-md text-on-surface">₹20 lakh +</span>
+</label>
+</div>
+</section>
+<!-- Actions -->
+<div class="pt-lg flex flex-col-reverse sm:flex-row items-center justify-end gap-md">
+<button class="w-full sm:w-auto font-button text-button text-on-surface hover:text-primary transition-colors px-md py-sm" type="button">
+                    Back to previous step
+                </button>
+<button class="w-full sm:w-auto bg-primary text-on-primary font-button text-button px-xl py-sm rounded-full hover:bg-primary-container transition-colors shadow-[0px_10px_30px_rgba(74,14,14,0.05)]" type="button">
+                    Continue
+                </button>
+</div>
+</form>
+</main>
+
+
+</body></html>

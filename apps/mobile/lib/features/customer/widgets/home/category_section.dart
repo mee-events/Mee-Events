@@ -19,9 +19,7 @@ class CategorySection extends StatelessWidget {
 
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 8),
-      decoration: const BoxDecoration(
-        color: AppColors.canvas,
-      ),
+      decoration: const BoxDecoration(color: AppColors.canvas),
       child: SizedBox(
         height: 72,
         child: ListView.builder(
@@ -37,11 +35,17 @@ class CategorySection extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(_getIcon(category.icon), color: AppColors.muted, size: 28),
+                    Icon(
+                      _getIcon(category.icon),
+                      color: AppColors.muted,
+                      size: 28,
+                    ),
                     const SizedBox(height: 8),
                     Text(
                       category.name,
-                      style: AppTypography.captionSm.copyWith(color: AppColors.muted),
+                      style: AppTypography.captionSm.copyWith(
+                        color: AppColors.muted,
+                      ),
                     ),
                   ],
                 ),
@@ -55,11 +59,16 @@ class CategorySection extends StatelessWidget {
 
   IconData _getIcon(String iconName) {
     switch (iconName) {
-      case 'favorite': return Icons.favorite_border;
-      case 'cake': return Icons.cake_outlined;
-      case 'business': return Icons.business_center_outlined;
-      case 'celebration': return Icons.celebration_outlined;
-      default: return Icons.category_outlined;
+      case 'favorite':
+        return Icons.favorite_border;
+      case 'cake':
+        return Icons.cake_outlined;
+      case 'business':
+        return Icons.business_center_outlined;
+      case 'celebration':
+        return Icons.celebration_outlined;
+      default:
+        return Icons.category_outlined;
     }
   }
 }

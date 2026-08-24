@@ -1,0 +1,80 @@
+PROJECT CONTEXT
+
+Design a production-ready mobile experience for Mee Events, a Hyderabad-based
+managed event marketplace. This is one shared app with Customer, Vendor, and
+Worker roles. Customer is the default role; approved additional roles are
+available through a role switcher.
+
+BUSINESS RULES
+
+Customers browse Mee Events offerings, build an event plan, submit an enquiry,
+approve a quotation, pay Mee Events, and track event delivery. They do not
+compare or choose operational vendors. Vendor identity is visible only when Mee
+Events marks it as disclosed. Vendors manage private base prices, listings,
+assigned work orders, invoices, and settlements; they never see customer prices,
+margins, or competitor data. Workers manage availability, assigned work,
+attendance, proof of work, and earnings; they never see customer or vendor
+financial data and do not directly contact customers.
+
+VISUAL SYSTEM
+
+Use a premium, calm, trustworthy, photography-led Indian event aesthetic. Use
+warm ivory #F9F7F2 for the canvas, white cards, soft warm neutral surfaces,
+deep burgundy #4A0E0E for primary actions, ink #1A1A1A for main text,
+muted brown-grey #68635E for secondary text, thin #E5DED4 borders, and restrained
+gold #C5A059 accents. Display headings use EB Garamond; interface text uses
+Manrope. Use 14 px card radii, 20 px prominent container radii, generous spacing,
+hairline borders, and minimal shadow. Use authentic Indian event photography,
+not illustrations or generic Western wedding imagery. Vendor green and Worker
+blue may appear only as small role-context accents; all roles remain one brand.
+
+UX RULES
+
+Design at 390 x 844. Use one primary action per screen, 44 px minimum touch
+targets, visible form labels, concise Indian English, Indian Rupee formatting,
+and realistic Hyderabad content. Use progressive disclosure and clear status
+text. Do not use emoji decoration, glassmorphism, neon gradients, generic purple
+AI styling, crowded dashboards, card soup, or lorem ipsum.
+
+OUTPUT EXPECTATION
+
+Create polished, implementation-ready mobile screens with consistent reusable
+components, realistic content, clear hierarchy, and complete navigation context.
+Use the exact screen names requested. Do not add unrelated functionality.
+
+MODULE: SHARED STATES AND RESILIENCE
+
+GOAL
+
+Design realistic shared state screens and components for the approved Mee Events
+flows. Reuse the exact visual structure of the approved feature screens. Do not
+introduce a new illustration style.
+
+REQUIRED STATES
+
+Loading uses shape-matched skeletons. Empty states explain why the area is empty
+and give one useful action. Errors preserve customer-entered data and offer a
+specific retry or support action. Offline shows cached content when possible and
+labels queued actions separately from confirmed actions. Expired Session protects
+work in progress and returns to OTP login. Permission Education explains camera,
+photos, notifications, and attendance-location use before the operating-system
+prompt. Duplicate Submission Prevented shows that the first enquiry, payment,
+invoice, check-in, or proof submission is being processed and must not be sent
+again. Restricted Role explains that Vendor or Worker access requires current
+Mee Events approval.
+
+Exact screen names (use these titles exactly):
+1. S15A Loading Skeleton Patterns
+2. S15B Empty State Patterns
+3. S15C Recoverable Error Patterns
+4. S15D Offline and Queued Actions
+5. S15E Expired Session
+6. S15F Permission Education
+7. S15G Duplicate Submission Prevented
+8. S15H Restricted Role or Approval Required
+
+ACCEPTANCE CRITERIA
+
+- No state is a dead end.
+- Queued, pending, and confirmed are visually and verbally distinct.
+- Keep Mee Events burgundy primary, ivory canvas, EB Garamond + Manrope.

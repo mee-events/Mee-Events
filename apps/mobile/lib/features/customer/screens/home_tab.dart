@@ -1,60 +1,203 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mee_events/core/providers/catalog_provider.dart';
+import 'package:mee_events/features/auth/session_provider.dart';
+import 'package:mee_events/features/customer/catalog/catalog_image_resolver.dart';
+import 'package:mee_events/features/customer/favorites/favorites_provider.dart';
+import 'package:mee_events/features/customer/navigation/customer_tab.dart';
+import 'package:mee_events/features/customer/plan/event_plan_provider.dart';
+import 'package:mee_events/features/customer/plan/event_plan_store.dart';
+import 'package:mee_events/features/customer/providers/event_record_providers.dart';
+import 'package:mee_events/features/customer/providers/explore_intent_provider.dart';
+import 'package:mee_events/features/customer/screens/category_detail_screen.dart';
+import 'package:mee_events/features/customer/screens/favorites_screen.dart';
+import 'package:mee_events/features/customer/screens/service_detail_screen.dart';
+import 'package:mee_events/features/customer/search/customer_search_screen.dart';
+import 'package:mee_events/features/customer/widgets/home/discovery_skeletons.dart';
+import 'package:mee_events/features/customer/widgets/home/home_planning_guidance.dart';
+import 'package:mee_events/features/customer/widgets/home/home_planning_hero.dart';
+import 'package:mee_events/features/customer/widgets/home/home_search_bar.dart';
+import 'package:mee_events/features/customer/widgets/home/occasion_section.dart';
+import 'package:mee_events/features/customer/widgets/home/pick_up_section.dart';
+import 'package:mee_events/features/customer/widgets/home/popular_services_section.dart';
+import 'package:mee_events/models/catalog_item.dart';
+import 'package:mee_events/models/catalog_service.dart';
+import 'package:mee_events/models/enquiry.dart';
+import 'package:mee_events/models/event_record.dart';
 import 'package:mee_events/theme/app_colors.dart';
-import '../models/super_app_models.dart';
-import '../data/super_app_dummy_data.dart';
+import 'package:mee_events/theme/app_radius.dart';
+import 'package:mee_events/theme/app_spacing.dart';
+import 'package:mee_events/theme/app_typography.dart';
 
-import '../widgets/home/home_app_bar.dart';
-import '../widgets/home/hero_banner_carousel.dart';
-import '../widgets/home/announcement_card.dart';
-import '../widgets/home/category_section.dart';
-import '../widgets/home/event_service_section.dart';
-import '../widgets/home/recommended_vendors.dart';
-import '../widgets/home/trending_services.dart';
-import '../widgets/home/customer_reviews.dart';
+const kHomeOccasionLimit = 8;
+const kHomeServiceLimit = 10;
 
-class CustomerHomeTab extends StatefulWidget {
-  const CustomerHomeTab({super.key});
+/// Customer Home — search-first discovery that stays premium without photography.
+class CustomerHomeTab extends ConsumerStatefulWidget {
+  const CustomerHomeTab({super.key, this.onNavigate});
+
+  final ValueChanged<CustomerTab>? onNavigate;
 
   @override
-  State<CustomerHomeTab> createState() => _CustomerHomeTabState();
+  ConsumerState<CustomerHomeTab> createState() => _CustomerHomeTabState();
 }
 
-class _CustomerHomeTabState extends State<CustomerHomeTab> {
-  bool _isLoading = false;
-
-  late List<BannerModel> _banners;
-  late List<AnnouncementModel> _announcements;
-  late List<CategoryModel> _topEvents;
-  late List<VendorModel> _recommendedVendors;
-  late List<TrendingServiceModel> _trendingServices;
-  late List<ReviewModel> _reviews;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadData();
-  }
-
-  void _loadData() {
-    _banners = SuperAppDummyData.getBanners();
-    _announcements = SuperAppDummyData.getAnnouncements();
-    _topEvents = SuperAppDummyData.getTopEvents();
-    _recommendedVendors = SuperAppDummyData.getRecommendedVendors();
-    _trendingServices = SuperAppDummyData.getTrendingServices();
-    _reviews = SuperAppDummyData.getReviews();
-  }
-
+class _CustomerHomeTabState extends ConsumerState<CustomerHomeTab> {
   Future<void> _handleRefresh() async {
-    setState(() => _isLoading = true);
-    await Future.delayed(const Duration(seconds: 1)); // Simulate network request
-    setState(() {
-      _loadData();
-      _isLoading = false;
-    });
+    final cachedTypes = ref.read(eventTypesProvider).valueOrNull;
+    final cachedEvents = ref.read(eventsProvider).valueOrNull;
+    final cachedOccasion = matchLiveOccasionCode(
+      pickHomeUpcomingEvent(cachedEvents)?.eventTypeName,
+      cachedTypes,
+    );
+
+    ref.invalidate(eventTypesProvider);
+    ref.invalidate(serviceCategoriesProvider);
+    ref.invalidate(eventsProvider);
+    ref.invalidate(catalogServicesProvider(null));
+    ref.invalidate(enquiriesProvider);
+
+    final typesFuture = ref.read(eventTypesProvider.future);
+    final categoriesFuture = ref.read(serviceCategoriesProvider.future);
+    final eventsFuture = ref.read(eventsProvider.future);
+    final servicesFuture = ref.read(catalogServicesProvider(null).future);
+    final enquiriesFuture = ref.read(enquiriesProvider.future);
+    final planFuture = ref.read(eventPlanProvider.notifier).refresh();
+    final favoritesFuture = ref.read(favoritesProvider.notifier).refresh();
+
+    Future<void> occasionFuture = Future.value();
+    if (cachedOccasion != null) {
+      ref.invalidate(occasionServicesProvider(cachedOccasion));
+      occasionFuture = ref
+          .read(occasionServicesProvider(cachedOccasion).future)
+          .then<void>((_) {}, onError: (_) {});
+    }
+
+    await Future.wait<void>([
+      typesFuture.then<void>((_) {}, onError: (_) {}),
+      categoriesFuture.then<void>((_) {}, onError: (_) {}),
+      eventsFuture.then<void>((_) {}, onError: (_) {}),
+      servicesFuture.then<void>((_) {}, onError: (_) {}),
+      enquiriesFuture.then<void>((_) {}, onError: (_) {}),
+      planFuture.then<void>((_) {}, onError: (_) {}),
+      favoritesFuture.then<void>((_) {}, onError: (_) {}),
+      occasionFuture,
+    ]);
+    if (!mounted) return;
+
+    final types = ref.read(eventTypesProvider).valueOrNull;
+    final events = ref.read(eventsProvider).valueOrNull;
+    final occasionCode = matchLiveOccasionCode(
+      pickHomeUpcomingEvent(events)?.eventTypeName,
+      types,
+    );
+    if (occasionCode == null || occasionCode == cachedOccasion) return;
+
+    ref.invalidate(occasionServicesProvider(occasionCode));
+    try {
+      await ref.read(occasionServicesProvider(occasionCode).future);
+    } catch (_) {}
   }
+
+  void _openFavorites() {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => FavoritesScreen(onNavigateTab: widget.onNavigate),
+      ),
+    );
+  }
+
+  void _onResumeSelect(HomeResumeKind kind) {
+    switch (kind) {
+      case HomeResumeKind.upcoming:
+      case HomeResumeKind.plan:
+        widget.onNavigate?.call(CustomerTab.plan);
+        return;
+      case HomeResumeKind.saved:
+        _openFavorites();
+        return;
+      case HomeResumeKind.enquiry:
+        widget.onNavigate?.call(CustomerTab.enquiries);
+        return;
+    }
+  }
+
+  void _openSearch() {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => CustomerSearchScreen(onNavigateTab: widget.onNavigate),
+      ),
+    );
+  }
+
+  void _openCategory(String code, String title, {required bool isOccasion}) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => CategoryDetailScreen(
+          code: code,
+          title: title,
+          isOccasion: isOccasion,
+        ),
+      ),
+    );
+  }
+
+  void _openService(
+    CatalogService service, {
+    String? occasionCode,
+    String? occasionTitle,
+  }) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => ServiceDetailScreen(
+          code: service.code,
+          title: service.displayName,
+          departmentCode: service.departmentCode,
+          imageUrl: CatalogImageResolver.resolvedHomeImage(
+            code: service.code,
+            coverImageUrl: service.coverImageUrl,
+            iconUrl: service.iconUrl,
+          ),
+          occasionCode: occasionCode,
+          occasionTitle: occasionTitle,
+        ),
+      ),
+    );
+  }
+
+  void _goExplore({required int intent}) {
+    ref.read(exploreIntentProvider.notifier).state = intent;
+    widget.onNavigate?.call(CustomerTab.explore);
+  }
+
+  void _goPlan() => widget.onNavigate?.call(CustomerTab.plan);
 
   @override
   Widget build(BuildContext context) {
+    final eventTypesAsync = ref.watch(eventTypesProvider);
+    final categoriesAsync = ref.watch(serviceCategoriesProvider);
+    final servicesAsync = ref.watch(catalogServicesProvider(null));
+    final eventsAsync = ref.watch(eventsProvider);
+    final planAsync = ref.watch(eventPlanProvider);
+
+    final upcoming = pickHomeUpcomingEvent(eventsAsync.valueOrNull);
+    final occasionCode = matchLiveOccasionCode(
+      upcoming?.eventTypeName,
+      eventTypesAsync.valueOrNull,
+    );
+    final planItems = planAsync.valueOrNull ?? const <EventPlanItem>[];
+    final planCount = planItems.length;
+    final contextualCodes = <String>{};
+    if (upcoming != null && occasionCode != null) {
+      final contextual =
+          ref.watch(occasionServicesProvider(occasionCode)).valueOrNull ??
+          const [];
+      contextualCodes.addAll(contextual.map((item) => item.code));
+    }
+
     return Scaffold(
       backgroundColor: AppColors.canvas,
       body: RefreshIndicator(
@@ -62,69 +205,471 @@ class _CustomerHomeTabState extends State<CustomerHomeTab> {
         color: AppColors.primary,
         backgroundColor: AppColors.canvas,
         child: CustomScrollView(
-          physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+          physics: const BouncingScrollPhysics(
+            parent: AlwaysScrollableScrollPhysics(),
+          ),
           slivers: [
-            const HomeAppBar(),
-            if (_isLoading)
-              const SliverToBoxAdapter(
-                child: SizedBox(
-                  height: 300, 
-                  child: Center(child: CircularProgressIndicator(color: AppColors.primary)),
+            SliverToBoxAdapter(
+              child: Semantics(
+                sortKey: const OrdinalSortKey(1),
+                explicitChildNodes: true,
+                child: HomeSearchBar(
+                  hint: kHomeSearchHint,
+                  semanticLabel: kHomeSearchHint,
+                  onTap: _openSearch,
                 ),
-              )
-            else ...[
+              ),
+            ),
+            SliverToBoxAdapter(
+              child: Semantics(
+                sortKey: const OrdinalSortKey(2),
+                explicitChildNodes: true,
+                child: _buildHero(
+                  eventsAsync,
+                  upcoming,
+                  matchLiveOccasion(
+                    upcoming?.eventTypeName,
+                    eventTypesAsync.valueOrNull,
+                  ),
+                ),
+              ),
+            ),
+            const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.xl)),
+            ..._buildResumeSlivers(upcoming),
+            if (planItems.isNotEmpty) ...[
               SliverToBoxAdapter(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    HeroBannerCarousel(banners: _banners),
-                    const SizedBox(height: 16),
-                    AnnouncementCard(announcements: _announcements),
-                    const SizedBox(height: 24),
-                  ],
+                child: HomePlanPreviewSection(
+                  items: planItems,
+                  onReviewPlan: _goPlan,
                 ),
               ),
-              
-              // Dynamically render each Top Event as its own Section
-              SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (context, index) {
-                    final event = _topEvents[index];
-                    final eventServices = SuperAppDummyData.getServicesForEvent(event.name);
-                    
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 24.0),
-                      child: EventServiceSection(
-                        eventId: event.id,
-                        eventName: event.name,
-                        subcategories: eventServices,
-                        onShowAll: () {
-                          // TODO: Navigate to event specific all services page
-                        },
-                      ),
-                    );
-                  },
-                  childCount: _topEvents.length,
-                ),
-              ),
-
-              SliverToBoxAdapter(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    RecommendedVendorsSection(vendors: _recommendedVendors),
-                    const SizedBox(height: 32),
-                    TrendingServicesSection(services: _trendingServices),
-                    const SizedBox(height: 32),
-                    CustomerReviewsSection(reviews: _reviews),
-                    const SizedBox(height: 80), // Footer Space for Bottom Navigation
-                  ],
-                ),
-              ),
+              const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.lg)),
             ],
+            ..._buildOccasionsSlivers(eventTypesAsync),
+            if (upcoming != null && occasionCode != null)
+              ..._buildContinuePlanningSlivers(occasionCode, upcoming),
+            ..._buildDepartmentSlivers(
+              servicesAsync,
+              categoriesAsync,
+              excludeCodes: contextualCodes,
+            ),
+            const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.xxxl)),
+            SliverToBoxAdapter(
+              child: HomeHowItWorksSection(onBuildPlan: _goPlan),
+            ),
+            const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.md)),
+            const SliverToBoxAdapter(child: HomeConfidenceStrip()),
+            const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.lg)),
+            SliverToBoxAdapter(
+              child: HomeFinalPlanPanel(
+                onExploreOccasions: () => _goExplore(intent: 0),
+                onReviewPlan: _goPlan,
+                planCount: planCount,
+              ),
+            ),
+            const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.xxxl)),
           ],
         ),
       ),
     );
   }
+
+  List<Widget> _buildResumeSlivers(EventRecordSummary? upcoming) {
+    final planAsync = ref.watch(eventPlanProvider);
+    final savedAsync = ref.watch(favoritesProvider);
+    final session = ref.watch(sessionProvider);
+    final enquiriesAsync = session == null
+        ? const AsyncValue<List<Enquiry>?>.data(null)
+        : ref.watch(enquiriesProvider);
+
+    final enquiry = session == null
+        ? null
+        : pickHomeResumeEnquiry(enquiriesAsync.valueOrNull);
+    final cards = <HomeResumeCardData>[
+      ?homeUpcomingResumeCard(upcoming),
+      ?homePlanResumeCard(planAsync.valueOrNull),
+      ?homeSavedResumeCard(savedAsync.valueOrNull),
+      if (enquiry != null) homeEnquiryResumeCard(enquiry),
+    ];
+
+    final waiting =
+        (planAsync.isLoading && !planAsync.hasValue) ||
+        (savedAsync.isLoading && !savedAsync.hasValue) ||
+        (session != null &&
+            enquiriesAsync.isLoading &&
+            !enquiriesAsync.hasValue);
+
+    if (cards.isEmpty) {
+      if (waiting) {
+        return const [
+          SliverToBoxAdapter(child: HomeResumeSkeleton()),
+          SliverToBoxAdapter(child: SizedBox(height: AppSpacing.lg)),
+        ];
+      }
+      return const [];
+    }
+
+    return [
+      SliverToBoxAdapter(
+        child: HomeResumeSection(cards: cards, onSelect: _onResumeSelect),
+      ),
+      const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.lg)),
+    ];
+  }
+
+  Widget _buildHero(
+    AsyncValue<List<EventRecordSummary>?> eventsAsync,
+    EventRecordSummary? upcoming,
+    CatalogItem? matchedOccasion,
+  ) {
+    if (eventsAsync.isLoading && !eventsAsync.hasValue) {
+      return const HomeHeroSkeleton();
+    }
+    return HomePlanningHero(
+      event: upcoming,
+      imageUrl: CatalogImageResolver.resolvedHomeImage(
+        code: matchedOccasion?.code ?? '',
+        remoteUrl: matchedOccasion?.coverImageUrl,
+      ),
+      onPlan: _goPlan,
+    );
+  }
+
+  List<Widget> _buildOccasionsSlivers(
+    AsyncValue<List<CatalogItem>> eventTypesAsync,
+  ) {
+    if (eventTypesAsync.isLoading && !eventTypesAsync.hasValue) {
+      return const [
+        SliverToBoxAdapter(child: HomeOccasionRailSkeleton()),
+        SliverToBoxAdapter(child: SizedBox(height: AppSpacing.lg)),
+      ];
+    }
+    if (eventTypesAsync.hasError && !eventTypesAsync.hasValue) {
+      return [
+        SliverToBoxAdapter(
+          child: HomeSectionError(
+            title: 'Occasions unavailable',
+            onRetry: () => ref.invalidate(eventTypesProvider),
+          ),
+        ),
+        const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.lg)),
+      ];
+    }
+    final items = homeOccasionSubset(eventTypesAsync.valueOrNull ?? const []);
+    if (items.isEmpty) return const [];
+    return [
+      SliverToBoxAdapter(
+        child: OccasionSection(
+          title: 'What are you planning?',
+          items: items,
+          onTileTap: (item) =>
+              _openCategory(item.code, item.displayName, isOccasion: true),
+          onViewAll: () => _goExplore(intent: 0),
+        ),
+      ),
+      const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.xxxl)),
+    ];
+  }
+
+  List<Widget> _buildContinuePlanningSlivers(
+    String occasionCode,
+    EventRecordSummary upcoming,
+  ) {
+    final servicesAsync = ref.watch(occasionServicesProvider(occasionCode));
+    if (servicesAsync.isLoading && !servicesAsync.hasValue) {
+      return const [
+        SliverToBoxAdapter(child: HomeServiceRailSkeleton()),
+        SliverToBoxAdapter(child: SizedBox(height: AppSpacing.lg)),
+      ];
+    }
+    if (servicesAsync.hasError && !servicesAsync.hasValue) {
+      return const [];
+    }
+    final services = sortedCatalogServices(
+      servicesAsync.valueOrNull ?? const [],
+    );
+    if (services.isEmpty) return const [];
+    final visible = services.take(kHomeServiceLimit).toList();
+    final typeName = upcoming.eventTypeName.trim();
+    final title = typeName.isEmpty ? 'Continue Planning' : 'For Your $typeName';
+    return [
+      SliverToBoxAdapter(
+        child: EventServicesSection(
+          title: title,
+          services: visible,
+          viewAllSemanticLabel: 'View all $typeName services',
+          onTap: (service) => _openService(
+            service,
+            occasionCode: occasionCode,
+            occasionTitle: upcoming.eventTypeName,
+          ),
+          onViewAll: () => _openCategory(
+            occasionCode,
+            upcoming.eventTypeName,
+            isOccasion: true,
+          ),
+        ),
+      ),
+      const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.xl)),
+    ];
+  }
+
+  List<Widget> _buildDepartmentSlivers(
+    AsyncValue<List<CatalogService>> servicesAsync,
+    AsyncValue<List<CatalogItem>> categoriesAsync, {
+    required Set<String> excludeCodes,
+  }) {
+    if (servicesAsync.isLoading && !servicesAsync.hasValue) {
+      return const [SliverToBoxAdapter(child: HomeServiceRailSkeleton())];
+    }
+    if (servicesAsync.hasError && !servicesAsync.hasValue) {
+      return [
+        SliverToBoxAdapter(
+          child: HomeSectionError(
+            title: 'Services unavailable',
+            onRetry: () => ref.invalidate(catalogServicesProvider(null)),
+          ),
+        ),
+      ];
+    }
+    final departments = categoriesAsync.hasValue
+        ? categoriesAsync.valueOrNull ?? const <CatalogItem>[]
+        : const <CatalogItem>[];
+    final rails = groupHomeDepartmentRails(
+      services: servicesAsync.valueOrNull ?? const [],
+      departments: departments,
+      excludeCodes: excludeCodes,
+    );
+    if (rails.isEmpty) return const [];
+    return [
+      for (var i = 0; i < rails.length; i++) ...[
+        SliverToBoxAdapter(
+          child: ColoredBox(
+            color: i.isOdd
+                ? AppColors.goldSoft.withValues(alpha: 0.35)
+                : AppColors.canvas,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: AppSpacing.xl),
+              child: EventServicesSection(
+                title: rails[i].title,
+                services: rails[i].services,
+                onTap: _openService,
+                onViewAll: () => _goExplore(intent: 1),
+                viewAllSemanticLabel: 'View all services',
+              ),
+            ),
+          ),
+        ),
+      ],
+    ];
+  }
+}
+
+class HomeConfidenceStrip extends StatelessWidget {
+  const HomeConfidenceStrip({super.key});
+
+  static const items = [
+    (Icons.event_available_outlined, 'Plan in one place'),
+    (Icons.verified_outlined, 'Managed by Mee Events'),
+    (Icons.request_quote_outlined, 'Quote before booking'),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+      child: Semantics(
+        container: true,
+        label: items.map((item) => item.$2).join('. '),
+        child: ExcludeSemantics(
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(
+              vertical: AppSpacing.md,
+              horizontal: AppSpacing.md,
+            ),
+            decoration: BoxDecoration(
+              color: AppColors.goldSoft,
+              borderRadius: BorderRadius.circular(AppRadius.md),
+              border: Border.all(
+                color: AppColors.goldAccent.withValues(alpha: 0.35),
+              ),
+            ),
+            child: Column(
+              children: [
+                for (var i = 0; i < items.length; i++) ...[
+                  if (i > 0)
+                    Divider(
+                      height: AppSpacing.md,
+                      color: AppColors.goldAccent.withValues(alpha: 0.28),
+                    ),
+                  Row(
+                    children: [
+                      Icon(items[i].$1, size: 20, color: AppColors.primary),
+                      const SizedBox(width: AppSpacing.sm),
+                      Expanded(
+                        child: Text(
+                          items[i].$2,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTypography.caption.copyWith(
+                            color: AppColors.inkLight,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+List<CatalogItem> homeOccasionSubset(List<CatalogItem> items) {
+  final filtered = items.where((item) => !item.isServiceEntry).toList()
+    ..sort(_compareDisplayOrder);
+  return filtered;
+}
+
+class HomeServiceRail {
+  const HomeServiceRail({
+    required this.id,
+    required this.title,
+    required this.services,
+  });
+
+  final String id;
+  final String title;
+  final List<CatalogService> services;
+}
+
+List<HomeServiceRail> groupHomeDepartmentRails({
+  required List<CatalogService> services,
+  required List<CatalogItem> departments,
+  Iterable<String> excludeCodes = const [],
+}) {
+  final excluded = {for (final code in excludeCodes) code};
+  final seen = <String>{};
+  final remaining = <CatalogService>[];
+  for (final service in sortedCatalogServices(services)) {
+    if (excluded.contains(service.code) || !seen.add(service.code)) {
+      continue;
+    }
+    remaining.add(service);
+  }
+
+  final orderedDepartments =
+      departments.where((item) => !item.isServiceEntry).toList()
+        ..sort(_compareDisplayOrder);
+
+  final assigned = <String>{};
+  final rails = <HomeServiceRail>[];
+  for (final department in orderedDepartments) {
+    final group = remaining
+        .where((service) => service.departmentCode == department.code)
+        .toList();
+    if (group.isEmpty) continue;
+    assigned.addAll(group.map((service) => service.code));
+    rails.add(
+      HomeServiceRail(
+        id: department.code,
+        title: department.displayName,
+        services: group,
+      ),
+    );
+  }
+
+  final more = remaining
+      .where((service) => !assigned.contains(service.code))
+      .toList();
+  if (more.isNotEmpty) {
+    rails.add(
+      HomeServiceRail(id: 'more', title: 'More services', services: more),
+    );
+  }
+  return rails;
+}
+
+List<CatalogService> homeServiceSubset(List<CatalogService> items) {
+  return sortedCatalogServices(items);
+}
+
+List<CatalogService> sortedCatalogServices(List<CatalogService> items) {
+  final copy = [...items]
+    ..sort((a, b) {
+      final order = a.displayOrder.compareTo(b.displayOrder);
+      if (order != 0) return order;
+      return a.code.compareTo(b.code);
+    });
+  return copy;
+}
+
+int _compareDisplayOrder(CatalogItem a, CatalogItem b) {
+  final order = a.displayOrder.compareTo(b.displayOrder);
+  if (order != 0) return order;
+  return a.code.compareTo(b.code);
+}
+
+EventRecordSummary? pickHomeUpcomingEvent(List<EventRecordSummary>? events) {
+  if (events == null || events.isEmpty) return null;
+  final now = DateTime.now();
+  EventRecordSummary? best;
+  DateTime? bestDate;
+  for (final event in events) {
+    final parsed = DateTime.tryParse(event.eventDate ?? '');
+    if (parsed != null &&
+        parsed.isBefore(now.subtract(const Duration(days: 1)))) {
+      continue;
+    }
+    if (best == null) {
+      best = event;
+      bestDate = parsed;
+      continue;
+    }
+    if (parsed == null) continue;
+    if (bestDate == null || parsed.isBefore(bestDate)) {
+      best = event;
+      bestDate = parsed;
+    }
+  }
+  return best;
+}
+
+CatalogItem? matchLiveOccasion(
+  String? eventTypeName,
+  List<CatalogItem>? occasions,
+) {
+  if (eventTypeName == null || eventTypeName.isEmpty || occasions == null) {
+    return null;
+  }
+  final needle = _canonicalLabel(eventTypeName);
+  if (needle.isEmpty) return null;
+  for (final item in occasions) {
+    if (item.isServiceEntry) continue;
+    if (_canonicalLabel(item.code) == needle ||
+        _canonicalLabel(item.displayName) == needle) {
+      return item;
+    }
+  }
+  return null;
+}
+
+String? matchLiveOccasionCode(
+  String? eventTypeName,
+  List<CatalogItem>? occasions,
+) {
+  return matchLiveOccasion(eventTypeName, occasions)?.code;
+}
+
+String _canonicalLabel(String raw) {
+  return raw
+      .toLowerCase()
+      .trim()
+      .replaceAll(RegExp(r'[-_]+'), ' ')
+      .replaceAll(RegExp(r'\s+'), ' ');
 }

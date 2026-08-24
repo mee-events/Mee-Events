@@ -25,6 +25,14 @@ Validated in `apps/backend/src/config/environment.ts`:
 | `REFRESH_TOKEN_HMAC_SECRET` | Min length 32                                        |
 | `ALLOWED_ORIGINS`           | Non-empty comma-separated origins                    |
 
+When `OTP_PROVIDER=external`, also set (not Zod-validated yet; fail-closed at
+send time):
+
+| Variable           | Purpose                        |
+| ------------------ | ------------------------------ |
+| `SMS_OTP_ENDPOINT` | Vendor HTTP endpoint           |
+| `SMS_OTP_API_KEY`  | Vendor credential from secrets |
+
 **Fail closed:** `APP_ENV=production` with `OTP_PROVIDER=local` is rejected.
 
 Example files may also list `SUPABASE_URL` / `SUPABASE_SERVICE_KEY`. Those are

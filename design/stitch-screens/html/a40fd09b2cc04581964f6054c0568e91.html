@@ -1,0 +1,276 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Wedding Planning - Mee Events</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "primary-container": "#4a0e0e",
+                    "outline-variant": "#dac1bf",
+                    "on-surface-variant": "#544341",
+                    "on-tertiary-container": "#8c8c88",
+                    "secondary-fixed-dim": "#e9c176",
+                    "surface-container-low": "#f6f3f2",
+                    "on-tertiary-fixed-variant": "#474744",
+                    "surface-container-highest": "#e5e2e1",
+                    "on-error-container": "#93000a",
+                    "on-primary-fixed-variant": "#77302d",
+                    "on-surface": "#1c1b1b",
+                    "tertiary-fixed-dim": "#c8c6c2",
+                    "tertiary": "#0f100d",
+                    "on-primary": "#ffffff",
+                    "primary-fixed-dim": "#ffb3ad",
+                    "on-error": "#ffffff",
+                    "on-secondary-container": "#785a1a",
+                    "surface-container-lowest": "#ffffff",
+                    "primary-fixed": "#ffdad7",
+                    "outline": "#877270",
+                    "primary": "#2a0002",
+                    "inverse-primary": "#ffb3ad",
+                    "on-tertiary": "#ffffff",
+                    "tertiary-container": "#242522",
+                    "on-tertiary-fixed": "#1b1c19",
+                    "on-secondary-fixed": "#261900",
+                    "error-container": "#ffdad6",
+                    "on-primary-fixed": "#3d0506",
+                    "surface-container": "#f0eded",
+                    "background": "#fcf9f8",
+                    "surface-tint": "#954742",
+                    "surface": "#fcf9f8",
+                    "on-secondary": "#ffffff",
+                    "inverse-on-surface": "#f3f0ef",
+                    "secondary-fixed": "#ffdea5",
+                    "surface-dim": "#dcd9d9",
+                    "error": "#ba1a1a",
+                    "surface-variant": "#e5e2e1",
+                    "tertiary-fixed": "#e4e2dd",
+                    "surface-bright": "#fcf9f8",
+                    "secondary-container": "#fed488",
+                    "surface-container-high": "#eae7e7",
+                    "inverse-surface": "#313030",
+                    "on-secondary-fixed-variant": "#5d4201",
+                    "secondary": "#775a19",
+                    "on-background": "#1c1b1b",
+                    "on-primary-container": "#cc726d"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "sm": "12px",
+                    "gutter": "24px",
+                    "xs": "4px",
+                    "xl": "80px",
+                    "container-max": "1280px",
+                    "md": "24px",
+                    "base": "8px",
+                    "lg": "48px"
+            },
+            "fontFamily": {
+                    "body-md": [
+                            "Manrope"
+                    ],
+                    "display-hero-mobile": [
+                            "EB Garamond"
+                    ],
+                    "display-hero": [
+                            "EB Garamond"
+                    ],
+                    "h2": [
+                            "Manrope"
+                    ],
+                    "label-caps": [
+                            "Manrope"
+                    ],
+                    "body-lg": [
+                            "Manrope"
+                    ],
+                    "h1": [
+                            "Manrope"
+                    ],
+                    "button": [
+                            "Manrope"
+                    ]
+            },
+            "fontSize": {
+                    "body-md": [
+                            "16px",
+                            {
+                                    "lineHeight": "1.6",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "display-hero-mobile": [
+                            "36px",
+                            {
+                                    "lineHeight": "1.2",
+                                    "fontWeight": "500"
+                            }
+                    ],
+                    "display-hero": [
+                            "48px",
+                            {
+                                    "lineHeight": "1.1",
+                                    "letterSpacing": "-0.02em",
+                                    "fontWeight": "500"
+                            }
+                    ],
+                    "h2": [
+                            "24px",
+                            {
+                                    "lineHeight": "1.4",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "label-caps": [
+                            "12px",
+                            {
+                                    "lineHeight": "1",
+                                    "letterSpacing": "0.05em",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "body-lg": [
+                            "18px",
+                            {
+                                    "lineHeight": "1.6",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "h1": [
+                            "32px",
+                            {
+                                    "lineHeight": "1.3",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "button": [
+                            "14px",
+                            {
+                                    "lineHeight": "1",
+                                    "fontWeight": "600"
+                            }
+                    ]
+            }
+          }
+        },
+      }
+    </script>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@500&amp;family=Manrope:wght@400;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<style>
+        .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined';
+            font-weight: normal;
+            font-style: normal;
+            font-size: 24px;
+            line-height: 1;
+            letter-spacing: normal;
+            text-transform: none;
+            display: inline-block;
+            white-space: nowrap;
+            word-wrap: normal;
+            direction: ltr;
+            -webkit-font-feature-settings: 'liga';
+            -webkit-font-smoothing: antialiased;
+        }
+        body {
+            background-color: #F9F7F2; /* Warm Ivory Canvas override as per style guide */
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="text-on-surface font-body-md bg-[#F9F7F2] antialiased selection:bg-primary selection:text-on-primary pb-32">
+<!-- Top Navigation (Transactional/Task-focused page, so we hide standard nav and use a dedicated top bar) -->
+<header class="sticky top-0 z-50 bg-[#F9F7F2]/90 backdrop-blur-md border-b border-outline-variant/30 flex justify-between items-center px-gutter py-sm w-full transition-all duration-300">
+<button class="flex items-center justify-center p-2 rounded-full hover:bg-surface-container-low transition-colors text-on-surface">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<div class="font-h1 text-h1-mobile md:text-h1 text-primary tracking-tight">Wedding</div>
+<button class="flex items-center justify-center p-2 rounded-full hover:bg-surface-container-low transition-colors text-on-surface">
+<span class="material-symbols-outlined" data-weight="fill" style="font-variation-settings: 'FILL' 0;">favorite</span>
+</button>
+</header>
+<main class="max-w-container-max mx-auto">
+<!-- Hero Section -->
+<section class="relative w-full h-[530px] md:h-[618px] mb-lg px-0 md:px-gutter mt-4 md:mt-8">
+<div class="w-full h-full md:rounded-[24px] overflow-hidden relative shadow-[0px_10px_30px_rgba(74,14,14,0.05)] border border-[#E5DED4]">
+<img class="w-full h-full object-cover" data-alt="A breathtaking, cinematic shot of an opulent Indian wedding mandap setup. The scene is bathed in warm, golden hour lighting, highlighting intricate floral arrangements of marigolds and roses. Elegant drapery in deep burgundy and ivory tones cascades elegantly. The mood is grand, celebratory, and culturally rich, embodying Modern Indian Premium luxury. High-resolution editorial style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDDFchzII3pCrBEn3WH9reDXIgIl5_IddfchHiUoiYFztMYEW0EuFyRBtA2T9qSvfUmIF0TRwolKAqCQn3cvhjNZsGo2utt33pal_1PPFFP_59f1f-kbn52kE0J5ihhg321uQvNheovRvDVcHCVRmRZDD2jNtpZ1DFI-DOO1MIQouJKng3XF7CZJvZhHJHpuinJiJ03hK4ATj_cdt_I2M-EYokhCQhlhlpDnOdcX53qobw-3W9xnb23">
+<div class="absolute inset-0 bg-gradient-to-t from-tertiary/60 to-transparent"></div>
+<div class="absolute bottom-0 left-0 p-gutter md:p-lg text-on-primary">
+<span class="inline-block px-3 py-1 bg-surface/20 backdrop-blur-sm rounded-full font-label-caps text-label-caps text-on-primary mb-4 border border-on-primary/30">Mee Events Premium</span>
+<h1 class="font-display-hero-mobile text-display-hero-mobile md:font-display-hero md:text-display-hero mb-2 text-white">The Grand Indian Wedding</h1>
+<p class="font-body-lg text-body-lg max-w-2xl text-on-primary/90 hidden md:block">Experience the pinnacle of celebration. From intimate rituals to magnificent receptions, we craft weddings that resonate with timeless elegance and modern sophistication.</p>
+</div>
+</div>
+</section>
+<!-- Planning Intro & CTA -->
+<section class="px-gutter mb-xl flex flex-col md:flex-row gap-lg items-center justify-between">
+<div class="md:w-2/3">
+<h2 class="font-h2 text-h2 text-primary mb-4">Curate Your Perfect Journey</h2>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-3xl">A wedding is not just an event; it's a tapestry of beautiful moments. At Mee Events, we specialize in weaving together the vibrant traditions of Indian weddings with seamless, high-end execution. Let us handle the intricacies while you savor the joy.</p>
+</div>
+<div class="md:w-1/3 flex justify-start md:justify-end">
+<button class="bg-[#4a0e0e] text-white font-button text-button py-4 px-8 rounded-full shadow-[0px_10px_30px_rgba(74,14,14,0.15)] hover:shadow-[0px_15px_40px_rgba(74,14,14,0.25)] transition-all hover:-translate-y-1 w-full md:w-auto">
+                    Start a Wedding plan
+                </button>
+</div>
+</section>
+<!-- Functions Grid (Bento Style) -->
+<section class="px-gutter mb-xl">
+<div class="flex items-center justify-between mb-8">
+<h2 class="font-h2 text-h2 text-on-surface">Wedding Functions</h2>
+<span class="font-label-caps text-label-caps text-outline">6 EVENTS</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 auto-rows-[250px]">
+<!-- Engagement -->
+<div class="relative rounded-[14px] overflow-hidden border border-[#E5DED4] group cursor-pointer shadow-sm hover:shadow-[0px_10px_30px_rgba(74,14,14,0.08)] transition-all md:col-span-2 md:row-span-1">
+<img class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="An elegant engagement ring exchange ceremony set in a luxurious, modern banquet hall. Soft, warm ambient lighting illuminates delicate pastel floral decor. A sophisticated, refined atmosphere capturing the beginning of a matrimonial journey. Editorial Indian luxury aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDPJ7TJnKDTzDKtN6NcGlVKm2HWublb4jUCO4czUO0EQdpdrxeFv5xGfCp__nHchv_56Z_R0NizVSbJfQAqXCaprDJyrByc8h9yeKRyopX-dWZOuUQ9KX4ebUxsRpZRhmCSUHqT3AXT0pW_1GwqxpOOktbVAEJDs9qVftymJb7LNNw1tcUYu3mDrHAdXGbVcZl6Zz2555jNJchgyAlTZYAMoKDWUyBiR7CMNe_MDSmOgWtkWL3pyryD">
+<div class="absolute inset-0 bg-gradient-to-t from-tertiary/70 via-tertiary/20 to-transparent"></div>
+<div class="absolute bottom-0 left-0 p-6">
+<h3 class="font-h2 text-h2 text-white mb-1">Engagement</h3>
+<p class="font-body-md text-body-md text-white/80">The formal beginning of togetherness.</p>
+</div>
+</div>
+<!-- Mehndi -->
+<div class="relative rounded-[14px] overflow-hidden border border-[#E5DED4] group cursor-pointer shadow-sm hover:shadow-[0px_10px_30px_rgba(74,14,14,0.08)] transition-all md:col-span-1 md:row-span-2">
+<img class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="Vibrant Mehndi ceremony setting. Colorful, ornate marigold decorations against a bright, festive backdrop. Detailed henna artistry in progress on a bride's hands. Sunlight streaming in, creating a joyful, warm, and highly celebratory mood. Modern Indian Premium style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuALwiB1guqYq467plYpM7abc9H11ujf7_L092cABuKRCMjBptlnWkNhX-9hLOirXo-Rv-iS1sKkRR8lHCdQ5LWQENRGs2j--z5j_MxMFWOAB7fb8A93-mVcHzcKeZ48balaTQ_DK594amK0kVJJu-3C38m2MdfeP9H3ew2OErJnHuFP_aX1d9MJk2uoABUT522I_Bzu2wUjXZL6x9DjxYSIuc9VvDkayjYJA1rLzu9xtlsuvvOmjyTl">
+<div class="absolute inset-0 bg-gradient-to-t from-tertiary/70 via-tertiary/20 to-transparent"></div>
+<div class="absolute bottom-0 left-0 p-6">
+<h3 class="font-h2 text-h2 text-white mb-1">Mehndi</h3>
+<p class="font-body-md text-body-md text-white/80">Vibrant art and joyful celebrations.</p>
+</div>
+</div>
+<!-- Haldi -->
+<div class="relative rounded-[14px] overflow-hidden border border-[#E5DED4] group cursor-pointer shadow-sm hover:shadow-[0px_10px_30px_rgba(74,14,14,0.08)] transition-all md:col-span-1 md:row-span-1">
+<img class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="A radiant Haldi ceremony outdoors. Bright yellow floral setups, brass urlis filled with water and petals. People joyously applying turmeric paste. The lighting is sunny and bright, emphasizing a festive and auspicious atmosphere. Editorial photography." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB5JKQXK1Hed2TXD0nLCQevCtOEWGeWnflRUp39JvIHVy17_N5DJpKrWMYQJxMAv1GW6RvkErh0bLPIu4r2PAjXls5mRPj8XR_Zk-HV7bJSqN_dYPYgb8QwZgdsAFHMXbrxnG5F1QZXTerzLmMNle0nC5O_MsYeZnuWKViEUpWGDfXJEol7cLTcjqugK0m-bSnLif8jz5_E5ohDfs1xp9I5aRzKNw7yw4qb3UA7AE2cC69GlOlGioTt">
+<div class="absolute inset-0 bg-gradient-to-t from-tertiary/70 via-tertiary/20 to-transparent"></div>
+<div class="absolute bottom-0 left-0 p-6">
+<h3 class="font-h2 text-h2 text-white mb-1">Haldi</h3>
+<p class="font-body-md text-body-md text-white/80">Auspicious beginnings.</p>
+</div>
+</div>
+<!-- Sangeet -->
+<div class="relative rounded-[14px] overflow-hidden border border-[#E5DED4] group cursor-pointer shadow-sm hover:shadow-[0px_10px_30px_rgba(74,14,14,0.08)] transition-all md:col-span-1 md:row-span-1 bg-surface-container-low flex flex-col justify-end p-6">
+<h3 class="font-h2 text-h2 text-primary mb-1">Sangeet</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-4">Music, dance, and revelry.</p>
+<button class="text-primary font-button text-button flex items-center gap-2 group-hover:gap-3 transition-all w-max">
+                        Explore concepts <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+</div>
+</section>
+</main>
+</body></html>

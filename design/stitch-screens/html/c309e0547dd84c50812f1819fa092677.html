@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>00B — Mee Events Components</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@500&amp;family=Manrope:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "outline": "#877270",
+                      "tertiary-fixed": "#e4e2dd",
+                      "on-tertiary-container": "#8c8c88",
+                      "on-background": "#1c1b1b",
+                      "surface-container-high": "#eae7e7",
+                      "surface-container-low": "#f6f3f2",
+                      "secondary": "#775a19",
+                      "on-primary-container": "#cc726d",
+                      "outline-variant": "#dac1bf",
+                      "on-secondary-fixed-variant": "#5d4201",
+                      "inverse-primary": "#ffb3ad",
+                      "on-secondary-container": "#785a1a",
+                      "on-primary-fixed-variant": "#77302d",
+                      "surface": "#fcf9f8",
+                      "secondary-fixed-dim": "#e9c176",
+                      "surface-bright": "#fcf9f8",
+                      "secondary-container": "#fed488",
+                      "on-primary": "#ffffff",
+                      "secondary-fixed": "#ffdea5",
+                      "inverse-surface": "#313030",
+                      "on-tertiary-fixed": "#1b1c19",
+                      "surface-container-highest": "#e5e2e1",
+                      "inverse-on-surface": "#f3f0ef",
+                      "tertiary": "#0f100d",
+                      "primary-container": "#4a0e0e",
+                      "surface-container": "#f0eded",
+                      "error-container": "#ffdad6",
+                      "surface-container-lowest": "#ffffff",
+                      "tertiary-container": "#242522",
+                      "on-error": "#ffffff",
+                      "primary-fixed-dim": "#ffb3ad",
+                      "on-tertiary": "#ffffff",
+                      "tertiary-fixed-dim": "#c8c6c2",
+                      "surface-variant": "#e5e2e1",
+                      "primary-fixed": "#ffdad7",
+                      "surface-tint": "#954742",
+                      "on-secondary": "#ffffff",
+                      "background": "#fcf9f8",
+                      "primary": "#2a0002",
+                      "on-surface": "#1c1b1b",
+                      "on-secondary-fixed": "#261900",
+                      "error": "#ba1a1a",
+                      "on-error-container": "#93000a",
+                      "on-surface-variant": "#544341",
+                      "surface-dim": "#dcd9d9",
+                      "on-tertiary-fixed-variant": "#474744",
+                      "on-primary-fixed": "#3d0506"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "md": "24px",
+                      "sm": "12px",
+                      "xl": "80px",
+                      "xs": "4px",
+                      "gutter": "24px",
+                      "base": "8px",
+                      "lg": "48px",
+                      "container-max": "1280px"
+              },
+              "fontFamily": {
+                      "display-hero": [
+                              "EB Garamond"
+                      ],
+                      "button": [
+                              "Manrope"
+                      ],
+                      "h1": [
+                              "Manrope"
+                      ],
+                      "body-lg": [
+                              "Manrope"
+                      ],
+                      "h2": [
+                              "Manrope"
+                      ],
+                      "display-hero-mobile": [
+                              "EB Garamond"
+                      ],
+                      "body-md": [
+                              "Manrope"
+                      ],
+                      "label-caps": [
+                              "Manrope"
+                      ]
+              },
+              "fontSize": {
+                      "display-hero": [
+                              "48px",
+                              {
+                                      "lineHeight": "1.1",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "button": [
+                              "14px",
+                              {
+                                      "lineHeight": "1",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "h1": [
+                              "32px",
+                              {
+                                      "lineHeight": "1.3",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "h2": [
+                              "24px",
+                              {
+                                      "lineHeight": "1.4",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "display-hero-mobile": [
+                              "36px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-caps": [
+                              "12px",
+                              {
+                                      "lineHeight": "1",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "700"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+        body { background-color: #F9F7F2; }
+        .soft-border { border-color: #E5DED4; }
+        .card-shadow:hover { box-shadow: 0px 10px 30px rgba(74, 14, 14, 0.05); }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="font-body-md text-on-surface antialiased pb-32">
+<!-- Header -->
+<header class="bg-surface-lowest pt-lg pb-md px-md md:px-lg border-b soft-border sticky top-0 z-10">
+<div class="max-w-container-max mx-auto">
+<h1 class="font-display-hero text-display-hero text-primary">00B — Mee Events Components</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant mt-sm">Modern Indian Premium UI Library.</p>
+</div>
+</header>
+<main class="max-w-container-max mx-auto px-md md:px-lg py-xl space-y-xl">
+<!-- 1. Buttons -->
+<section class="space-y-lg">
+<h2 class="font-h2 text-h2 text-on-surface border-b soft-border pb-base">1. Buttons &amp; Actions</h2>
+<div class="flex flex-wrap gap-md items-center">
+<!-- Primary -->
+<button class="bg-primary text-on-primary font-button text-button px-6 py-4 rounded-full transition-transform hover:scale-[1.02] active:scale-95 flex items-center gap-2">
+                    Start planning
+                </button>
+<button class="bg-primary text-on-primary font-button text-button px-6 py-4 rounded-full transition-transform hover:scale-[1.02] active:scale-95 flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                    Create Event
+                </button>
+<!-- Secondary -->
+<button class="bg-transparent border soft-border text-primary font-button text-button px-6 py-4 rounded-full transition-colors hover:bg-surface-container flex items-center gap-2">
+                    View Enquiries
+                </button>
+<!-- Outline -->
+<button class="bg-transparent border border-primary text-primary font-button text-button px-6 py-4 rounded-full transition-colors hover:bg-primary hover:text-on-primary flex items-center gap-2">
+                    Outline Action
+                </button>
+<!-- Text -->
+<button class="bg-transparent text-primary font-button text-button px-4 py-4 rounded-full transition-colors hover:bg-surface-container flex items-center gap-2">
+                    Text Button
+                </button>
+<!-- Destructive -->
+<button class="bg-error text-on-error font-button text-button px-6 py-4 rounded-full transition-transform hover:scale-[1.02] active:scale-95 flex items-center gap-2">
+                    Cancel Event
+                </button>
+</div>
+</section>
+<!-- 4. Cards -->
+<section class="space-y-lg">
+<h2 class="font-h2 text-h2 text-on-surface border-b soft-border pb-base">4. Cards &amp; Containers</h2>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-md">
+<!-- Event Card -->
+<article class="bg-surface-container-lowest rounded-[14px] border soft-border overflow-hidden card-shadow transition-all group">
+<div class="h-48 w-full relative">
+<img class="w-full h-full object-cover" data-alt="A grand Indian wedding reception setup in Hyderabad. High-resolution photography framing luxurious floral arrangements in deep reds and golds. The lighting is warm and celebratory, reflecting a modern premium aesthetic on a warm ivory canvas. Elegant drapery in the background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCOGm-AxO6KGPXnhcEGBUMb7m8nvpyGO7cbddCeBltI-l9MMgxQ3E_xcg1FNwWG0OSMpRGVQF_3bvEGyqR7IPwykEL8b_Y3QrnB65OCbmMbWYrloV_dR76qyqRgPa51JtzHgi9YOdxOME64lm5A5Jo1PPeqgnOBPWcrONEDOTeTgutgx-Vzj0YYamBFQOQ2MBh7eAUhrIeJPlzckqFMab3HLRkWEf3isxKDc2RNFp4m0KXH0cb8o7l7"/>
+<div class="absolute top-4 right-4 bg-surface-container-lowest/90 backdrop-blur-sm px-3 py-1 rounded-full border soft-border">
+<span class="font-label-caps text-label-caps text-primary tracking-wider">UPCOMING</span>
+</div>
+</div>
+<div class="p-md space-y-sm">
+<div class="flex justify-between items-start">
+<h3 class="font-h2 text-h2 text-on-surface">Ananya &amp; Rahul's Sangeet</h3>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">location_on</span> Taj Falaknuma Palace, Hyderabad
+                        </p>
+<p class="font-body-md text-body-md text-on-surface-variant flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">event</span> 24th Nov 2024
+                        </p>
+</div>
+</article>
+</div>
+</section>
+</main>
+</body></html>

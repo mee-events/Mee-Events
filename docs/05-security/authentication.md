@@ -38,12 +38,13 @@ sequenceDiagram
   Auth->>DB: revoke session
 ```
 
-| Step        | Endpoint                        | Auth   | Behavior                                                                                                                      |
-| ----------- | ------------------------------- | ------ | ----------------------------------------------------------------------------------------------------------------------------- |
-| Request OTP | `POST /api/v1/auth/otp/request` | Public | Normalize E.164 mobile; create challenge; send code via OTP provider                                                          |
-| Verify OTP  | `POST /api/v1/auth/otp/verify`  | Public | Constant-time digest compare; consume challenge once; create user if needed (default role `customer`); issue session + tokens |
-| Refresh     | `POST /api/v1/auth/refresh`     | Public | Rotate opaque refresh; extend session; issue new access JWT                                                                   |
-| Logout      | `POST /api/v1/auth/logout`      | Bearer | Revoke current device session; invalidate principal cache                                                                     |
+| Step        | Endpoint                        | Auth   | Behavior                                                                                                                                                         |
+| ----------- | ------------------------------- | ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Request OTP | `POST /api/v1/auth/otp/request` | Public | Normalize E.164 mobile; create challenge; send code via OTP provider                                                                                             |
+| Verify OTP  | `POST /api/v1/auth/otp/verify`  | Public | Constant-time digest compare; consume challenge once; create user if needed (default role `customer`); issue session + tokens                                    |
+| Refresh     | `POST /api/v1/auth/refresh`     | Public | Rotate opaque refresh; extend session; issue new access JWT                                                                                                      |
+| Logout      | `POST /api/v1/auth/logout`      | Bearer | Revoke current device session; invalidate principal cache                                                                                                        |
+| Switch role | `POST /api/v1/auth/switch-role` | Bearer | Confirm an active mobile assignment; persist `lastActiveRole`; invalidate all cached principals for the user; issue a new access JWT for the same device session |
 
 ---
 
@@ -84,27 +85,37 @@ Logout audits `identity.session.revoked` with reason `logout`.
 
 ## OTP providers
 
-| Setting                 | Behavior                                                                              |
-| ----------------------- | ------------------------------------------------------------------------------------- |
-| `OTP_PROVIDER=local`    | `LocalOtpProvider` (development/tests). Production startup **rejects** local provider |
-| `OTP_PROVIDER=external` | Intended for approved SMS providers; wire only through the OTP provider port          |
+| Setting                 | Behavior                                                                                                                        |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| `OTP_PROVIDER=local`    | `LocalOtpProvider` (development/tests). Production startup **rejects** local provider                                           |
+| `OTP_PROVIDER=external` | `ExternalOtpProvider` — requires `SMS_OTP_ENDPOINT` + `SMS_OTP_API_KEY`; fail-closed until the SMS vendor HTTP adapter is wired |
 
-In development with local provider, a debug code may be returned for testing.
-Never log OTPs or tokens in production logs.
+In development with local provider, a debug code may be returned for testing
+(mobile auto-fills; ERP login surfaces it). Never log OTPs or tokens in
+production logs.
 
 ---
 
 ## Gaps vs ADR 0002
 
 ADR 0002 calls for server-side request rate limits and resend cooldown
-enforcement. **Today:**
+enforcement.
+
+**Implemented now:**
 
 - Challenge attempts and expiry are enforced.
-- `resendAfter` is returned as a client hint.
-- Redis-backed (or other) per-mobile request throttling is **not** implemented
-  in the auth service.
+- Per-mobile **resend cooldown** is enforced server-side (`OTP_RESEND_COOLDOWN`
+  / HTTP 429) using the latest open challenge’s `resendAfter`.
+- A PostgreSQL-backed per-mobile request window allows at most five OTP
+  challenges per hour (`OTP_REQUEST_LIMIT` / HTTP 429). Because all replicas
+  share PostgreSQL, the limit is enforced across backend instances.
 
-Treat distributed rate limiting as a production hardening item
+**Still open for production:**
+
+- Edge/IP throttling to limit abuse spread across many mobile numbers.
+- Vendor SMS delivery + delivery callbacks.
+
+Treat edge/IP throttling as the remaining rate-limit hardening item
 ([identity-foundation.md](./identity-foundation.md)).
 
 ---

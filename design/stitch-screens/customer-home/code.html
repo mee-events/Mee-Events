@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Mee Events - Home</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&amp;family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+                "on-background": "#1b1c1c",
+                "surface-container-low": "#f5f3f3",
+                "outline-variant": "#c4c7c7",
+                "error-container": "#ffdad6",
+                "on-tertiary-fixed-variant": "#474745",
+                "on-primary-fixed": "#1c1b1b",
+                "secondary-fixed": "#ffddb3",
+                "inverse-primary": "#c8c6c5",
+                "inverse-surface": "#303031",
+                "on-tertiary-container": "#858481",
+                "on-secondary": "#ffffff",
+                "primary": "#000000",
+                "surface-dim": "#dbdad9",
+                "surface-variant": "#e4e2e2",
+                "surface-container": "#efeded",
+                "tertiary-fixed": "#e5e2df",
+                "error": "#ba1a1a",
+                "inverse-on-surface": "#f2f0f0",
+                "surface-container-highest": "#e4e2e2",
+                "surface-container-high": "#e9e8e7",
+                "tertiary-fixed-dim": "#c8c6c3",
+                "on-tertiary-fixed": "#1c1c1a",
+                "tertiary-container": "#1c1c1a",
+                "on-surface": "#1b1c1c",
+                "secondary-container": "#fdd7a7",
+                "on-secondary-fixed-variant": "#5b421f",
+                "secondary": "#755a34",
+                "primary-container": "#1c1b1b",
+                "on-primary-fixed-variant": "#474746",
+                "surface": "#fbf9f8",
+                "on-error": "#ffffff",
+                "surface-tint": "#5f5e5e",
+                "on-tertiary": "#ffffff",
+                "surface-bright": "#fbf9f8",
+                "primary-fixed-dim": "#c8c6c5",
+                "outline": "#747878",
+                "secondary-fixed-dim": "#e5c192",
+                "on-error-container": "#93000a",
+                "on-primary-container": "#858383",
+                "on-surface-variant": "#444748",
+                "on-secondary-fixed": "#291800",
+                "on-primary": "#ffffff",
+                "on-secondary-container": "#785c36",
+                "tertiary": "#000000",
+                "surface-container-lowest": "#ffffff",
+                "primary-fixed": "#e5e2e1",
+                "background": "#fbf9f8"
+        },
+        "borderRadius": {
+                "DEFAULT": "0.125rem",
+                "lg": "0.25rem",
+                "xl": "0.5rem",
+                "full": "0.75rem"
+        },
+        "spacing": {
+                "container-max": "1280px",
+                "margin-mobile": "20px",
+                "gutter": "24px",
+                "unit": "8px",
+                "margin-desktop": "64px",
+                "gutter-grid": "16px",
+                "stack-lg": "32px",
+                "stack-sm": "8px",
+                "margin-page": "20px",
+                "section-gap": "48px",
+                "stack-md": "16px"
+        },
+        "fontFamily": {
+                "headline-lg": [
+                        "Playfair Display"
+                ],
+                "headline-md": [
+                        "Playfair Display"
+                ],
+                "title-lg": [
+                        "Plus Jakarta Sans"
+                ],
+                "display-lg-mobile": [
+                        "Playfair Display"
+                ],
+                "body-md": [
+                        "Plus Jakarta Sans"
+                ],
+                "display-lg": [
+                        "Playfair Display"
+                ],
+                "caption": [
+                        "Plus Jakarta Sans"
+                ],
+                "body-lg": [
+                        "Plus Jakarta Sans"
+                ],
+                "label-md": [
+                        "Plus Jakarta Sans"
+                ],
+                "label-sm": [
+                        "Plus Jakarta Sans"
+                ]
+        },
+        "fontSize": {
+                "headline-lg": [
+                        "48px",
+                        {
+                                "lineHeight": "1.2",
+                                "fontWeight": "600"
+                        }
+                ],
+                "headline-md": [
+                        "32px",
+                        {
+                                "lineHeight": "1.3",
+                                "fontWeight": "600"
+                        }
+                ],
+                "title-lg": [
+                        "20px",
+                        {
+                                "lineHeight": "1.5",
+                                "letterSpacing": "0.02em",
+                                "fontWeight": "600"
+                        }
+                ],
+                "display-lg-mobile": [
+                        "40px",
+                        {
+                                "lineHeight": "1.2",
+                                "letterSpacing": "-0.01em",
+                                "fontWeight": "700"
+                        }
+                ],
+                "body-md": [
+                        "16px",
+                        {
+                                "lineHeight": "1.6",
+                                "fontWeight": "400"
+                        }
+                ],
+                "display-lg": [
+                        "64px",
+                        {
+                                "lineHeight": "1.1",
+                                "letterSpacing": "-0.02em",
+                                "fontWeight": "700"
+                        }
+                ],
+                "caption": [
+                        "12px",
+                        {
+                                "lineHeight": "1.4",
+                                "fontWeight": "500"
+                        }
+                ],
+                "body-lg": [
+                        "18px",
+                        {
+                                "lineHeight": "1.6",
+                                "fontWeight": "400"
+                        }
+                ],
+                "label-md": [
+                        "14px",
+                        {
+                                "lineHeight": "1.4",
+                                "letterSpacing": "0.08em",
+                                "fontWeight": "600"
+                        }
+                ],
+                "label-sm": [
+                        "12px",
+                        {
+                                "lineHeight": "16px",
+                                "fontWeight": "500"
+                        }
+                ]
+        }
+},
+    },
+  }
+</script>
+<style>
+        /* Custom scrollbar for horizontal lists */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        /* Carousel styles */
+        .carousel-track {
+            display: flex;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .carousel-slide {
+            flex: 0 0 100%;
+            height: 100%;
+        }
+        .carousel-dot {
+            transition: all 0.3s ease;
+        }
+    </style>
+</head>
+<body class="bg-[#F9F7F2] text-on-surface antialiased pb-24 font-body-md">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-[#F9F7F2]/90 backdrop-blur-md pb-4 pt-safe">
+<div class="flex items-center justify-between px-margin-page h-16">
+<div class="w-10 h-10 rounded-full bg-[#C5A059] text-white flex items-center justify-center font-label-md font-bold shadow-sm">
+                PS
+            </div>
+<h1 class="font-headline-md text-[#4A0E0E]">Mee Events</h1>
+<div class="flex items-center gap-4 text-[#4A0E0E]">
+<button class="relative hover:bg-surface-container-high/50 p-2 rounded-full transition-colors">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">favorite</span>
+</button>
+<button class="relative hover:bg-surface-container-high/50 p-2 rounded-full transition-colors">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full"></span>
+</button>
+</div>
+</div>
+<!-- Search Bar -->
+<div class="px-margin-page mt-2">
+<div class="relative w-full shadow-sm rounded-full bg-white flex items-center px-4 py-3 border border-outline-variant/30 focus-within:border-[#C5A059] transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant mr-3">search</span>
+<input class="w-full bg-transparent border-none focus:ring-0 text-body-md text-on-surface placeholder-on-surface-variant/70 p-0" placeholder="Search events, services, venues..." type="text"/>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="pt-[140px] px-margin-page flex flex-col gap-section-gap">
+<!-- Hero Banner -->
+<section class="relative w-full h-[180px] rounded-[20px] overflow-hidden shadow-lg group">
+<div class="absolute inset-0 w-full h-full carousel-track" id="hero-carousel-track" style="transform: translateX(-200%);">
+<div class="carousel-slide">
+<img alt="Premium Indian Wedding Reception" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida/AP1WRLvPWfiHmN_8FiCY3QHYpV2jciefZYhgFBAvP4Ao7FNKuRWfNM8L0ziVJ4spwOpodEjwt57QQTmcWOJ3LuKnE7DCvUQHJxL9yzrS0RsxgcIQDmv1gdhU2rIlfZr20CzrZPjQqU5vgImOU_jZlzbC3j-hURSH5NqkuRI0DzZOne2jr02OycwFL7xWA1PcfA7ZcUU224HwPUiU_OKb8La7sw3ONAxmGzVcVO3G0TloBNV75ne41zYOGS5LWes"/>
+</div>
+<div class="carousel-slide">
+<img alt="Modern kids birthday party" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida/AP1WRLvt6EEsINXm8V_sj3Fr_JaGU0spHXmIErSGzf7DZYe62yK2b7pb19eRVgvCOkIAXoZa_IdvxBc7ipbdllyzfEA8CULn-j29fPyASE85W_wSf8qP2_e5-QFp5i41P-uz-LeFRkthy3X602rlT_MakN49-JDGg9yLt308DvKrtUZcJXXFMCO2YYN6D6u1kn9KKJuA3mUf8jWFrcRNO_3TivcY-RGdqcmXaaa5VXcaA_uqPsfc2LZyDFpDRw"/>
+</div>
+<div class="carousel-slide">
+<img alt="High-end luxury wedding reception" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida/AP1WRLtFQ4g2CNIVLwXKTOfW8cZDFHhORRCuqx4--IWug2uepemJz2CSHDA6CeXZSAE0fr1NryB3QZesOw-p2txmInuuGGkNF6E5Yh0V6YZeekeA0BszjjgbCDx0PSyj0XIThdoqmhnazXEjW836jDh2L7kIGskYALPQDpvx-nPCY7Qvo6ZgxgWosVsag3kaAPvMAgxhADRY8NdeKW1wYrSzLLvA3uaKD3YLWIDCe5nJ2vUGy_nLxQ-rI-Z5u80"/>
+</div>
+</div>
+<div class="absolute inset-0 bg-gradient-to-r from-[#4A0E0E]/90 to-transparent pointer-events-none"></div>
+<div class="absolute inset-0 p-6 flex flex-col justify-center max-w-[70%] pointer-events-none">
+<h2 class="font-headline-md text-white mb-2 leading-tight pointer-events-auto">Plan your perfect celebration</h2>
+<p class="font-label-sm text-white/90 mb-4 pointer-events-auto">Trusted event experts in Hyderabad</p>
+<button class="bg-[#C5A059] text-white font-label-md px-4 py-2 rounded-full w-max shadow-[0_4px_12px_rgba(197,160,89,0.3)] hover:scale-105 transition-transform pointer-events-auto">
+                    Start Planning
+                </button>
+</div>
+<!-- Navigation Dots -->
+<div class="absolute bottom-4 right-6 flex gap-2 z-10">
+<button aria-label="Slide 1" class="carousel-dot h-2 rounded-full bg-white/60 hover:bg-white/90 w-2" data-index="0"></button>
+<button aria-label="Slide 2" class="carousel-dot h-2 rounded-full bg-white/60 hover:bg-white/90 w-2" data-index="1"></button>
+<button aria-label="Slide 3" class="carousel-dot h-2 rounded-full bg-[#C5A059] w-4" data-index="2"></button>
+</div>
+</section>
+<!-- Notice Bar -->
+<div class="bg-[#F4F0E9] rounded-xl p-4 flex items-center gap-3 shadow-sm border border-outline-variant/20">
+<div class="w-10 h-10 rounded-full bg-white flex items-center justify-center text-[#C5A059] shadow-sm">
+<span class="material-symbols-outlined">calendar_month</span>
+</div>
+<div>
+<p class="font-label-sm text-on-surface-variant">Upcoming</p>
+<p class="font-label-md text-[#4A0E0E]">Aarav's Birthday in 12 days</p>
+</div>
+</div>
+<!-- Event Categories -->
+<section class="flex flex-col gap-stack-lg">
+<div class="flex flex-col gap-6">
+<!-- Wedding -->
+<div class="flex flex-col gap-3">
+<h4 class="font-label-md text-on-surface font-bold">Wedding</h4>
+<div class="flex overflow-x-auto hide-scrollbar gap-4 pb-2">
+<button class="flex flex-col items-center gap-2 min-w-[100px] w-[100px] relative group">
+<div class="absolute top-2 right-2 z-10 w-6 h-6 rounded-full bg-white/80 backdrop-blur flex items-center justify-center text-[#4A0E0E] shadow-sm">
+<span class="material-symbols-outlined text-[14px]">favorite</span>
+</div>
+<div class="w-full aspect-square rounded-[14px] overflow-hidden bg-surface-container-high shadow-sm border border-outline-variant/20">
+<img alt="Management (Corporate)" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB__MuGKvMW8yXFwlRFvG8gAh1I7W2EhDTjedhdE9xoyXKxLw27wpo4KxzabSYcLZSNStCL8utVSvGJ2gYt5tlBj9hqwLqho4PyayqM9xjfnqEGPv6mqtm5Woc7maoM8LYLJSjd2_0j9kQc_27TQXgo0WDlDT_ACoaIHPIT1XMX3CuVoZocQdlZRAZmMAQqKfqv2Cl42oF1nyd4JEQOIqbp3as8kJL5eAro_SAqEFhrLBWwVML9n0Mz"/>
+</div>
+<span class="font-label-sm text-center text-on-surface line-clamp-1">Management</span>
+</button>
+<button class="flex flex-col items-center gap-2 min-w-[100px] w-[100px] relative group">
+<div class="absolute top-2 right-2 z-10 w-6 h-6 rounded-full bg-white/80 backdrop-blur flex items-center justify-center text-[#4A0E0E] shadow-sm">
+<span class="material-symbols-outlined text-[14px]">favorite</span>
+</div>
+<div class="w-full aspect-square rounded-[14px] overflow-hidden bg-surface-container-high shadow-sm border border-outline-variant/20">
+<img alt="Haldi" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDESMe_LjbNTq82xY465lS8rVddjgsncNPVLWv03CzUh-9rBfxe9L2e2ZiP3RnCY96Kz_uX-sdMo9bDo2IiBfPnpOReIa9IX6S1dawC8XbXElOt9m6dJp-FoXLSvInoeFlZM3W5x8X6zJjjuoR7dC_rkKjtKD7bUOr-DmI5OJPj_RmWgGveqseqe179FqouI_u9EakbFJAr6sMTEJsBHedrq1gUK9zM52XIznxD1_Xn8Ay9CX00o_XN"/>
+</div>
+<span class="font-label-sm text-center text-on-surface line-clamp-1">Haldi</span>
+</button>
+<button class="flex flex-col items-center gap-2 min-w-[100px] w-[100px] relative group">
+<div class="absolute top-2 right-2 z-10 w-6 h-6 rounded-full bg-white/80 backdrop-blur flex items-center justify-center text-[#4A0E0E] shadow-sm">
+<span class="material-symbols-outlined text-[14px]">favorite</span>
+</div>
+<div class="w-full aspect-square rounded-[14px] overflow-hidden bg-surface-container-high shadow-sm border border-outline-variant/20">
+<img alt="Sangeet" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDIsz1a6vga-9diylR14V7jQXOFIHo-keAz5OJdx_4OmTnrMjBgkB53MX3DQqmxQYxRXBfgoE8lB9NYeUzsVN_--kPtK-vUeIvB_VaIVQ3hmMot7xvoCFEQpvdvDMHzgwwLjUoe_w9W-ACTbeWyCCsT4C33fNQMRLuMNte5uy7DEybNcecXYfX1UYClyVZJrYgWPsgvCv_0GK586IV2Or4LCuMbgIBQx9aZd9ej8OCgTqK3W52BZ_vP"/>
+</div>
+<span class="font-label-sm text-center text-on-surface line-clamp-1">Sangeet</span>
+</button>
+<button class="flex flex-col items-center gap-2 min-w-[100px] w-[100px] relative group"><div class="absolute top-2 right-2 z-10 w-6 h-6 rounded-full bg-white/80 backdrop-blur flex items-center justify-center text-[#4A0E0E] shadow-sm"><span class="material-symbols-outlined text-[14px]">favorite</span></div><div class="w-full aspect-square rounded-[14px] overflow-hidden bg-surface-container-high shadow-sm border border-outline-variant/20"><img alt="Decor" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCRNvQFJ83sPmkABf7PE8vrY_AVBmtm9c_rx1YZYnLhVpsZZ36exVEygcopNv0xHj3pPXvo32fsWJ9PFXTKWjlRABeVKRJ13sGYpXp8jRvUSjp-aKM3QTCt8kpoi6Yy-_TWARbGkErlZJpdRM1--V0sNl4-AUWhIkhL6dOCEl3LfT38ZhVEhJD3zXAof0Zh_DyU_1C6ex7gAMmP65A0odHEuQ8ntQ7z2KWKEnv4Y14WFwdUjlRXYCOS"/></div><span class="font-label-sm text-center text-on-surface line-clamp-1">Decor</span></button><button class="flex flex-col items-center gap-2 min-w-[100px] w-[100px] relative group"><div class="absolute top-2 right-2 z-10 w-6 h-6 rounded-full bg-white/80 backdrop-blur flex items-center justify-center text-[#4A0E0E] shadow-sm"><span class="material-symbols-outlined text-[14px]">favorite</span></div><div class="w-full aspect-square rounded-[14px] overflow-hidden bg-surface-container-high shadow-sm border border-outline-variant/20"><img alt="Catering" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDS3Lq9eelk7LNaqxBvBu2BNqJpziVAuf6smNuGvUYmWkUosl246LsJiFFR2OBGHZT1sVfTBTwmsmA2b2yTIbY4rxJyGOiZdmGs104C0jiAUf0dRFwFqYxGm5AwH7dmkcG0ff5T6rmrpp8QZZUgPnC8JmgSHzJg5AO4ocvTNcDjZIlKqCgqbdhzbVSxHjOD2kjtuSdUhShxWUGHT5tagdgrraEOH56-YBfSqaKHk2z1VODNaJ7vPVEN"/></div><span class="font-label-sm text-center text-on-surface line-clamp-1">Catering</span></button><button class="flex flex-col items-center gap-2 min-w-[100px] w-[100px] relative group"><div class="absolute top-2 right-2 z-10 w-6 h-6 rounded-full bg-white/80 backdrop-blur flex items-center justify-center text-[#4A0E0E] shadow-sm"><span class="material-symbols-outlined text-[14px]">favorite</span></div><div class="w-full aspect-square rounded-[14px] overflow-hidden bg-surface-container-high shadow-sm border border-outline-variant/20"><img alt="Photography" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuABoWphMwczB6H9VcpgNwjzWYZ8-qOLYFhY2M8QzPVpPERKJ0P9gaLERdv-4dwn7IWgLGgDfs7TZaiqRaHnlvUTbSsiqD6UBenBUFu1zwM4TQhq3AS9cKpoWuk2da4k7cg5yzNg06ccCFLd0hRJrdMZ2rnTXYs_XtbQGpAuCx8WGIVQVNL0_N9xZJf0EPtZ_WE82bKvwyZAR6RBLR1FLgzFWFRbo8q64rVoUE4VmpLqwpW3Jbu7eU8y"/></div><span class="font-label-sm text-center text-on-surface line-clamp-1">Photography</span></button><button class="flex items-center justify-center min-w-[100px] h-[100px] text-[#C5A059] font-label-md gap-1 hover:underline"><span class="whitespace-nowrap">View All</span><span class="material-symbols-outlined text-[18px]">chevron_right</span></button></div>
+</div>
+<!-- Birthday -->
+<div class="flex flex-col gap-3">
+<h4 class="font-label-md text-on-surface font-bold">Birthday</h4>
+<div class="flex overflow-x-auto hide-scrollbar gap-4 pb-2">
+<button class="flex flex-col items-center gap-2 min-w-[100px] w-[100px] relative group">
+<div class="absolute top-2 right-2 z-10 w-6 h-6 rounded-full bg-white/80 backdrop-blur flex items-center justify-center text-[#4A0E0E] shadow-sm">
+<span class="material-symbols-outlined text-[14px]">favorite</span>
+</div>
+<div class="w-full aspect-square rounded-[14px] overflow-hidden bg-surface-container-high shadow-sm border border-outline-variant/20">
+<img alt="Kids Party" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAxrdQ0YcNn8ZW_bB7LTZQoL21DraARvBE9XsIE0bCjPIzUL4054lr7lDDJl-B0zeJ-uPvl0vzCqzMFpFO4InHcsnBP7qoNX4MErIUBX_iVIVyj3ctNfm4_2SfVL-Ll7oRg6B__98igGLBkauWYigLwo3Mn0b9WEjRgiSjli2GH8jOAIESKPgJV8Z4i13YomEl6BXqBK3e7QpPCYEhES1W-MYZ7cEM7cxN05dW8hY-H_3RH93U0OgMQ"/>
+</div>
+<span class="font-label-sm text-center text-on-surface line-clamp-1">Kids Party</span>
+</button>
+<button class="flex flex-col items-center gap-2 min-w-[100px] w-[100px] relative group">
+<div class="absolute top-2 right-2 z-10 w-6 h-6 rounded-full bg-white/80 backdrop-blur flex items-center justify-center text-[#4A0E0E] shadow-sm">
+<span class="material-symbols-outlined text-[14px]">favorite</span>
+</div>
+<div class="w-full aspect-square rounded-[14px] overflow-hidden bg-surface-container-high shadow-sm border border-outline-variant/20">
+<img alt="1st Birthday" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDB2m0WlO1eaqwmWSK5KwL5BaTt2JQTDnpnRobElNyCe1YycFfxtVToMcQnezbtB8ddAdeab7hj27IfGPIRWwuL6cVY_QIgzjXxV85zaTWuoAzWNZxqfkY7ZAFT1lPLnLFwnM90hJsSppWSm2vrjZtlrdqFTaanx_zShbzLd0XL1humSAQDDQmNnoq2DXpvQ_ZW4ZzD7A9n6FUGXy8565-6eRNzdiZy61Fi2I3R9dMk3sV-SwkAPxKd"/>
+</div>
+<span class="font-label-sm text-center text-on-surface line-clamp-1">1st Birthday</span>
+</button>
+<button class="flex flex-col items-center gap-2 min-w-[100px] w-[100px] relative group">
+<div class="absolute top-2 right-2 z-10 w-6 h-6 rounded-full bg-white/80 backdrop-blur flex items-center justify-center text-[#4A0E0E] shadow-sm">
+<span class="material-symbols-outlined text-[14px]">favorite</span>
+</div>
+<div class="w-full aspect-square rounded-[14px] overflow-hidden bg-surface-container-high shadow-sm border border-outline-variant/20">
+<img alt="Theme Party" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD5lOM4S0-_07p32PBp4uFEGl403fIUbkyrict4df9yM2ManOEE4UDWfxcH6xq7cr8pOl6Qfdc1sezdeCZni8m9Kl70g99bDhx423ptNwf18d90SFDH76xp3bND-Rto-sVRpnZ5rn-1yAjOhJa-9SFq4DTNXs0JXUNK_cBh-gWDGjmTBkuEEOJldGiU8Eh1BjFall-kU-vKr3C-QH9-CBULO2ekq71Pt58iJsa55l-Dez_hjX4zmJgk"/>
+</div>
+<span class="font-label-sm text-center text-on-surface line-clamp-1">Theme Party</span>
+</button>
+<button class="flex flex-col items-center gap-2 min-w-[100px] w-[100px] relative group">
+<div class="absolute top-2 right-2 z-10 w-6 h-6 rounded-full bg-white/80 backdrop-blur flex items-center justify-center text-[#4A0E0E] shadow-sm">
+<span class="material-symbols-outlined text-[14px]">favorite</span>
+</div>
+<div class="w-full aspect-square rounded-[14px] overflow-hidden bg-surface-container-high shadow-sm border border-outline-variant/20">
+<img alt="Teen Party" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBda2BgBj2cQDydDbvLDIA-o9r0QP4rwkj5SicmCd9FKpTHEE-8Q__sFJCZeoNQqjKhmbas2he7oxwvNeAXlJWxSVmqmkeVQRKEy8Eyjpf2glAm148zR30--7eftq5Z1DujYpvfUfxNfTS6KPtQfRP5kzJO2sO07m2XO769mr4I7efJrmD-JdVjBNiYGqES6NCFFYqu6mmOAKgAxXD4ppSBGYnqzcTg7UNV-Zh7jbVsSGpHbZWcB48v"/>
+</div>
+<span class="font-label-sm text-center text-on-surface line-clamp-1">Teen Party</span>
+</button>
+<button class="flex flex-col items-center gap-2 min-w-[100px] w-[100px] relative group">
+<div class="absolute top-2 right-2 z-10 w-6 h-6 rounded-full bg-white/80 backdrop-blur flex items-center justify-center text-[#4A0E0E] shadow-sm">
+<span class="material-symbols-outlined text-[14px]">favorite</span>
+</div>
+<div class="w-full aspect-square rounded-[14px] overflow-hidden bg-surface-container-high shadow-sm border border-outline-variant/20">
+<img alt="Naming Ceremony" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuChRW3ZU5fSYuCwvBuGGnBCy4b6roa0LpHsr2mQKG0KCYvNoZuAJxv8Kh5Iq8kpvsUUFXp7WR24xsW7Ymn2S5QcA_pLvWjWw0LVCc7ORgKIfVuzMY-X2OXpi6RC6qyr428PIeBkrzK24nlQ7mScxo21CNPTPwzu8c5_TafR0rbLioFwKS56-ZLz-9XhXS0seLjGCKcYaoXRVbNGwBUEjR3gaGpg6MSgoeJrGnoiNkmZ3A_H8BKsl7aS"/>
+</div>
+<span class="font-label-sm text-center text-on-surface line-clamp-1">Naming Ceremony</span>
+</button>
+<button class="flex flex-col items-center gap-2 min-w-[100px] w-[100px] relative group">
+<div class="absolute top-2 right-2 z-10 w-6 h-6 rounded-full bg-white/80 backdrop-blur flex items-center justify-center text-[#4A0E0E] shadow-sm">
+<span class="material-symbols-outlined text-[14px]">favorite</span>
+</div>
+<div class="w-full aspect-square rounded-[14px] overflow-hidden bg-surface-container-high shadow-sm border border-outline-variant/20">
+<img alt="Outdoor Celebration" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBATVm4aMc5lfdBtl7gtPuu-22Mwwy6kfDcyEvPwNaqh6d_PBGuASg66aAQGOIosZn3oEeI7rxQPzWghBkhwCTh8Ft-6QvqwjBbWjPLOXrTL8SmidtnQUmct7kNDWRXk9ooQydraVhFJLVNKoykQg-tDumI-BriztvkmoBjirTWj1cb8Q0wY25jcRPHHybqtZY85vaFr7bGZeT41TcMRuOt3HH8-H7Q8SgmYAhtK-hUJmmqeRoymSQA"/>
+</div>
+<span class="font-label-sm text-center text-on-surface line-clamp-1">Outdoor Celebration</span>
+</button>
+<button class="flex items-center justify-center min-w-[100px] h-[100px] text-[#C5A059] font-label-md gap-1 hover:underline"><span class="whitespace-nowrap">View All</span><span class="material-symbols-outlined text-[18px]">chevron_right</span></button>
+</div>
+</div>
+</div>
+</section>
+<!-- Popular Services -->
+<section class="flex flex-col gap-stack-md">
+<h3 class="font-headline-md text-[#4A0E0E]">Popular Services</h3>
+<div class="flex overflow-x-auto hide-scrollbar gap-4 pb-4">
+<div class="min-w-[140px] w-[140px] bg-white rounded-[14px] overflow-hidden shadow-sm border border-outline-variant/20 relative group flex flex-col">
+<button class="absolute top-2 right-2 z-10 w-6 h-6 rounded-full bg-white/80 backdrop-blur flex items-center justify-center text-[#4A0E0E] shadow-sm">
+<span class="material-symbols-outlined text-[16px]">favorite</span>
+</button>
+<div class="aspect-square w-full relative">
+<img class="w-full h-full object-cover" data-alt="Beautiful event floral decoration close up, vibrant marigolds and roses, soft warm lighting, premium Indian wedding decor style" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCRNvQFJ83sPmkABf7PE8vrY_AVBmtm9c_rx1YZYnLhVpsZZ36exVEygcopNv0xHj3pPXvo32fsWJ9PFXTKWjlRABeVKRJ13sGYpXp8jRvUSjp-aKM3QTCt8kpoi6Yy-_TWARbGkErlZJpdRM1--V0sNl4-AUWhIkhL6dOCEl3LfT38ZhVEhJD3zXAof0Zh_DyU_1C6ex7gAMmP65A0odHEuQ8ntQ7z2KWKEnv4Y14WFwdUjlRXYCOS"/>
+</div>
+<div class="p-3 flex flex-col gap-1">
+<h4 class="font-label-md text-[#4A0E0E] line-clamp-1">Decoration</h4>
+<p class="text-[12px] text-[#C5A059] font-bold">from Rs.15,000</p>
+</div>
+</div>
+<div class="min-w-[140px] w-[140px] bg-white rounded-[14px] overflow-hidden shadow-sm border border-outline-variant/20 relative group flex flex-col">
+<button class="absolute top-2 right-2 z-10 w-6 h-6 rounded-full bg-white/80 backdrop-blur flex items-center justify-center text-[#4A0E0E] shadow-sm">
+<span class="material-symbols-outlined text-[16px]">favorite</span>
+</button>
+<div class="aspect-square w-full relative">
+<img class="w-full h-full object-cover" data-alt="Professional event photographer capturing a candid moment, shallow depth of field, warm ambient light, high-end wedding photography setup" src="https://lh3.googleusercontent.com/aida-public/AB6AXuABoWphMwczB6H9VcpgNwjzWYZ8-qOLYFhY2M8QzPVpPERKJ0P9gaLERdv-4dwn7IWgLGgDfs7TZaiqRaHnlvUTbSsiqD6UBenBUFu1zwM4TQhq3AS9cKpoWuk2da4k7cg5yzNg06ccCFLd0hRJrdMZ2rnTXYs_XtbQGpAuCx8WGIVQVNL0_N9xZJf0EPtZ_WE82bKvwyZAR6RBLR1FLgzFWFRbo8q64rVoUE4VmpLqwpW3Jbu7eU8y"/>
+</div>
+<div class="p-3 flex flex-col gap-1">
+<h4 class="font-label-md text-[#4A0E0E] line-clamp-1">Photography</h4>
+<p class="text-[12px] text-[#C5A059] font-bold">from Rs.25,000</p>
+</div>
+</div>
+<div class="min-w-[140px] w-[140px] bg-white rounded-[14px] overflow-hidden shadow-sm border border-outline-variant/20 relative group flex flex-col">
+<button class="absolute top-2 right-2 z-10 w-6 h-6 rounded-full bg-white/80 backdrop-blur flex items-center justify-center text-[#4A0E0E] shadow-sm">
+<span class="material-symbols-outlined text-[16px]">favorite</span>
+</button>
+<div class="aspect-square w-full relative">
+<img class="w-full h-full object-cover" data-alt="Luxurious catering food display, elegant silver chafing dishes, premium gourmet Indian cuisine spread, soft moody lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDS3Lq9eelk7LNaqxBvBu2BNqJpziVAuf6smNuGvUYmWkUosl246LsJiFFR2OBGHZT1sVfTBTwmsmA2b2yTIbY4rxJyGOiZdmGs104C0jiAUf0dRFwFqYxGm5AwH7dmkcG0ff5T6rmrpp8QZZUgPnC8JmgSHzJg5AO4ocvTNcDjZIlKqCgqbdhzbVSxHjOD2kjtuSdUhShxWUGHT5tagdgrraEOH56-YBfSqaKHk2z1VODNaJ7vPVEN"/>
+</div>
+<div class="p-3 flex flex-col gap-1">
+<h4 class="font-label-md text-[#4A0E0E] line-clamp-1">Catering</h4>
+<p class="text-[12px] text-[#C5A059] font-bold">from Rs.1,000/plate</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Curated Packages -->
+<section class="flex flex-col gap-stack-md">
+<h3 class="font-headline-md text-[#4A0E0E]">Curated by Mee Events</h3>
+<div class="flex overflow-x-auto hide-scrollbar gap-4 pb-4">
+<div class="min-w-[240px] w-[240px] bg-white rounded-[14px] overflow-hidden shadow-sm border border-outline-variant/20 flex flex-col">
+<div class="h-32 w-full relative">
+<img alt="Complete Wedding Package" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDeZB6jv-sBXjsbe8kuE56j5c10EHC5ugotknZ5ERj_Dt2RadmS0tr4maxBg7bnySxkwmGE1C7qtxNOVDnOCGNM8uhhdKx-oY1Z-AJ0ANOuFXOXuXtunscMGTr2QulqrQwJc0sYL9NChZY4W2eRWpE_HaxjSLLmXcEzEVt2gMJB8N5MJBluyDErNpfAfvUR-EEszZhvmAtyLpm7_uG3DwGRIb0mwwh_wcNKZZh40ZQv9rm_1Lmm2xQD"/>
+</div>
+<div class="p-3 flex flex-col gap-1">
+<h4 class="font-label-md text-on-surface line-clamp-1">Complete Wedding</h4>
+<p class="text-[14px] text-[#C5A059] font-bold">Rs.2,50,000</p>
+</div>
+</div>
+<div class="min-w-[240px] w-[240px] bg-white rounded-[14px] overflow-hidden shadow-sm border border-outline-variant/20 flex flex-col">
+<div class="h-32 w-full relative">
+<img alt="Premium Engagement Package" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDfWB1SsxqFcI2SOrZpg4mjO3EdTGRJuEKIgP8oWKTF9CDB0FWxDHL9mnpBajna1hVPsLzIRv70u-l9qZbJ6cwCbRrgjM3Le5PqpXbmxg2utQxDoHLd51tLMl-2HPbu1ZhfqkBRUNahvklAQNoCQDqHtCogY5lOUayb0w_RS3d9aEEZiGKdIKNLmM9ow1EIHO2IoCbQFXI3O7dRH9O--gvk1abgY4O43bMvDy0OMdSsTfWJmricfaNZ"/>
+</div>
+<div class="p-3 flex flex-col gap-1">
+<h4 class="font-label-md text-on-surface line-clamp-1">Premium Engagement</h4>
+<p class="text-[14px] text-[#C5A059] font-bold">Rs.1,50,000</p>
+</div>
+</div>
+<div class="min-w-[240px] w-[240px] bg-white rounded-[14px] overflow-hidden shadow-sm border border-outline-variant/20 flex flex-col">
+<div class="h-32 w-full relative">
+<img alt="Corporate Gala Package" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB__MuGKvMW8yXFwlRFvG8gAh1I7W2EhDTjedhdE9xoyXKxLw27wpo4KxzabSYcLZSNStCL8utVSvGJ2gYt5tlBj9hqwLqho4PyayqM9xjfnqEGPv6mqtm5Woc7maoM8LYLJSjd2_0j9kQc_27TQXgo0WDlDT_ACoaIHPIT1XMX3CuVoZocQdlZRAZmMAQqKfqv2Cl42oF1nyd4JEQOIqbp3as8kJL5eAro_SAqEFhrLBWwVML9n0Mz"/>
+</div>
+<div class="p-3 flex flex-col gap-1">
+<h4 class="font-label-md text-on-surface line-clamp-1">Corporate Gala</h4>
+<p class="text-[14px] text-[#C5A059] font-bold">Rs.3,00,000</p>
+</div>
+</div>
+<div class="min-w-[240px] w-[240px] bg-white rounded-[14px] overflow-hidden shadow-sm border border-outline-variant/20 flex flex-col">
+<div class="h-32 w-full relative">
+<img alt="Grand Birthday Celebration" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAxrdQ0YcNn8ZW_bB7LTZQoL21DraARvBE9XsIE0bCjPIzUL4054lr7lDDJl-B0zeJ-uPvl0vzCqzMFpFO4InHcsnBP7qoNX4MErIUBX_iVIVyj3ctNfm4_2SfVL-Ll7oRg6B__98igGLBkauWYigLwo3Mn0b9WEjRgiSjli2GH8jOAIESKPgJV8Z4i13YomEl6BXqBK3e7QpPCYEhES1W-MYZ7cEM7cxN05dW8hY-H_3RH93U0OgMQ"/>
+</div>
+<div class="p-3 flex flex-col gap-1">
+<h4 class="font-label-md text-on-surface line-clamp-1">Grand Birthday</h4>
+<p class="text-[14px] text-[#C5A059] font-bold">Rs.1,00,000</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Trending Venues -->
+<section class="flex flex-col gap-stack-md">
+<h3 class="font-headline-md text-[#4A0E0E]">Trending Venues</h3>
+<div class="flex overflow-x-auto hide-scrollbar gap-4 pb-4">
+<div class="min-w-[280px] w-[280px] bg-white rounded-[14px] overflow-hidden shadow-sm border border-outline-variant/20 flex flex-col">
+<div class="h-40 w-full relative">
+<img alt="Luxury Banquet Hall" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCHzZ49T8LtBnU4x0-GLZQm1EdFLpyCq9eLjagn5qEhkIzTiqhorpJkS9NwTKTs4MesUbM1A1xP2MBFoc_1obgdNtyFQN-vBD8apFVW2s73WegFTESS-DrEgnZtWt1-b3xCsjAo88gPWsrw3Ryf7QONHDrNSRbH-tFHPVSTgruaRX67gh68LUU-LPHIXqhBqEPAX8h2RtnY27X0duQZLT9DwLQNZWaPGmdcEvDEYAVE05iDlF3z7xtP"/>
+</div>
+<div class="p-4 flex flex-col gap-2">
+<h4 class="font-label-md text-[#4A0E0E] font-bold">The Grand Heritage</h4>
+<p class="text-[14px] text-on-surface-variant flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">location_on</span> Banjara Hills</p>
+</div>
+</div>
+<div class="min-w-[280px] w-[280px] bg-white rounded-[14px] overflow-hidden shadow-sm border border-outline-variant/20 flex flex-col">
+<div class="h-40 w-full relative">
+<img alt="Outdoor Lawn" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDIsz1a6vga-9diylR14V7jQXOFIHo-keAz5OJdx_4OmTnrMjBgkB53MX3DQqmxQYxRXBfgoE8lB9NYeUzsVN_--kPtK-vUeIvB_VaIVQ3hmMot7xvoCFEQpvdvDMHzgwwLjUoe_w9W-ACTbeWyCCsT4C33fNQMRLuMNte5uy7DEybNcecXYfX1UYClyVZJrYgWPsgvCv_0GK586IV2Or4LCuMbgIBQx9aZd9ej8OCgTqK3W52BZ_vP"/>
+</div>
+<div class="p-4 flex flex-col gap-2">
+<h4 class="font-label-md text-[#4A0E0E] font-bold">Lakeside Lawns</h4>
+<p class="text-[14px] text-on-surface-variant flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">location_on</span> Jubilee Hills</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Recent Success Stories -->
+<section class="flex flex-col gap-stack-md pb-6">
+<h3 class="font-headline-md text-[#4A0E0E]">Recent Success Stories</h3>
+<div class="flex overflow-x-auto hide-scrollbar gap-4 pb-4">
+<div class="min-w-[300px] w-[300px] bg-[#F4F0E9] rounded-[14px] p-4 shadow-sm border border-outline-variant/20 flex flex-col gap-3">
+<div class="flex items-center gap-3">
+<img alt="Client" class="w-12 h-12 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDeZB6jv-sBXjsbe8kuE56j5c10EHC5ugotknZ5ERj_Dt2RadmS0tr4maxBg7bnySxkwmGE1C7qtxNOVDnOCGNM8uhhdKx-oY1Z-AJ0ANOuFXOXuXtunscMGTr2QulqrQwJc0sYL9NChZY4W2eRWpE_HaxjSLLmXcEzEVt2gMJB8N5MJBluyDErNpfAfvUR-EEszZhvmAtyLpm7_uG3DwGRIb0mwwh_wcNKZZh40ZQv9rm_1Lmm2xQD"/>
+<div>
+<h4 class="font-label-md text-[#4A0E0E] font-bold">Priya &amp; Rahul</h4>
+<p class="text-[12px] text-on-surface-variant">Wedding</p>
+</div>
+</div>
+<p class="text-sm text-on-surface italic">"The Mee Events team made our dream wedding a reality. Everything was perfect!"</p>
+</div>
+<div class="min-w-[300px] w-[300px] bg-[#F4F0E9] rounded-[14px] p-4 shadow-sm border border-outline-variant/20 flex flex-col gap-3">
+<div class="flex items-center gap-3">
+<img alt="Client" class="w-12 h-12 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAxrdQ0YcNn8ZW_bB7LTZQoL21DraARvBE9XsIE0bCjPIzUL4054lr7lDDJl-B0zeJ-uPvl0vzCqzMFpFO4InHcsnBP7qoNX4MErIUBX_iVIVyj3ctNfm4_2SfVL-Ll7oRg6B__98igGLBkauWYigLwo3Mn0b9WEjRgiSjli2GH8jOAIESKPgJV8Z4i13YomEl6BXqBK3e7QpPCYEhES1W-MYZ7cEM7cxN05dW8hY-H_3RH93U0OgMQ"/>
+<div>
+<h4 class="font-label-md text-[#4A0E0E] font-bold">Neha Sharma</h4>
+<p class="text-[12px] text-on-surface-variant">1st Birthday</p>
+</div>
+</div>
+<p class="text-sm text-on-surface italic">"Flawless execution for my daughter's first birthday. Highly recommend their services."</p>
+</div>
+</div>
+</section>
+<!-- Trust Strip -->
+<section class="py-6 flex justify-between items-center border-t border-b border-outline-variant/20 bg-white/50 rounded-lg shadow-sm mb-4">
+<div class="flex flex-col items-center gap-1 text-center px-2">
+<span class="material-symbols-outlined text-[#C5A059] text-[28px] font-light">star</span>
+<span class="font-label-sm text-[11px] text-[#4A0E0E] font-bold">500+ Events Delivered</span>
+</div>
+<div class="w-px h-10 bg-outline-variant/40"></div>
+<div class="flex flex-col items-center gap-1 text-center px-2">
+<span class="material-symbols-outlined text-[#C5A059] text-[28px] font-light">verified_user</span>
+<span class="font-label-sm text-[11px] text-[#4A0E0E] font-bold">Verified Partners</span>
+</div>
+<div class="w-px h-10 bg-outline-variant/40"></div>
+<div class="flex flex-col items-center gap-1 text-center px-2">
+<span class="material-symbols-outlined text-[#C5A059] text-[28px] font-light">support_agent</span>
+<span class="font-label-sm text-[11px] text-[#4A0E0E] font-bold">Dedicated Manager</span>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 rounded-t-xl bg-surface-container-lowest border-t border-outline-variant/10 shadow-[0_-4px_20px_rgba(74,14,14,0.05)] md:hidden">
+<div class="flex justify-around items-center h-20 px-2 pb-safe">
+<!-- Active Home -->
+<button class="flex flex-col items-center justify-center bg-[#4A0E0E]/10 text-[#4A0E0E] rounded-[14px] px-4 py-2 w-16">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="font-label-sm text-[10px] mt-1">Home</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-high transition-all rounded-[14px] px-2 py-2 w-16">
+<span class="material-symbols-outlined">explore</span>
+<span class="font-label-sm text-[10px] mt-1">Explore</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-high transition-all rounded-[14px] px-2 py-2 w-16">
+<span class="material-symbols-outlined">event_note</span>
+<span class="font-label-sm text-[10px] mt-1">Plan</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-high transition-all rounded-[14px] px-2 py-2 w-16">
+<span class="material-symbols-outlined">chat_bubble</span>
+<span class="font-label-sm text-[10px] mt-1">Enquiry</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-high transition-all rounded-[14px] px-2 py-2 w-16">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-sm text-[10px] mt-1">Profile</span>
+</button>
+</div>
+</nav>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const track = document.getElementById('hero-carousel-track');
+        const dots = document.querySelectorAll('.carousel-dot');
+        let currentIndex = 0;
+        const totalSlides = dots.length;
+
+        function updateCarousel(index) {
+            track.style.transform = `translateX(-${index * 100}%)`;
+            dots.forEach((dot, i) => {
+                if (i === index) {
+                    dot.classList.add('bg-[#C5A059]', 'w-4');
+                    dot.classList.remove('bg-white/60', 'hover:bg-white/90', 'w-2');
+                } else {
+                    dot.classList.remove('bg-[#C5A059]', 'w-4');
+                    dot.classList.add('bg-white/60', 'hover:bg-white/90', 'w-2');
+                }
+            });
+        }
+
+        function nextSlide() {
+            currentIndex = (currentIndex + 1) % totalSlides;
+            updateCarousel(currentIndex);
+        }
+
+        let interval = setInterval(nextSlide, 3500);
+
+        dots.forEach((dot) => {
+            dot.addEventListener('click', (e) => {
+                currentIndex = parseInt(e.target.getAttribute('data-index'));
+                updateCarousel(currentIndex);
+                clearInterval(interval);
+                interval = setInterval(nextSlide, 3500);
+            });
+        });
+    });
+</script>
+</body></html>

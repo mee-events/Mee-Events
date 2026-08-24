@@ -11,13 +11,17 @@ import 'package:mee_events/models/api_error.dart';
 class ApiClient {
   final String baseUrl;
   final String? accessToken;
+  final Future<String?> Function()? refreshAccessToken;
+  final http.Client Function() _clientFactory;
 
   static const Duration _timeout = Duration(seconds: 15);
 
   ApiClient({
     required this.baseUrl,
     this.accessToken,
-  }) {
+    this.refreshAccessToken,
+    http.Client Function()? clientFactory,
+  }) : _clientFactory = clientFactory ?? http.Client.new {
     if (baseUrl.isEmpty) {
       throw const ApiConfigurationException('baseUrl cannot be empty');
     }
@@ -30,40 +34,23 @@ class ApiClient {
     T Function(Map<String, dynamic>)? fromJson,
   }) async {
     final uri = Uri.parse('$baseUrl$path');
-    final client = http.Client();
+    final client = _clientFactory();
 
     try {
-      final headers = <String, String>{
-        'Accept': 'application/json',
-        if (accessToken != null) 'Authorization': 'Bearer $accessToken',
-        if (body != null) 'Content-Type': 'application/json',
-      };
       final encodedBody = body == null ? null : jsonEncode(body);
 
-      final http.Response response;
-      switch (method) {
-        case 'GET':
-          response = await client.get(uri, headers: headers).timeout(_timeout);
-        case 'POST':
-          response = await client
-              .post(uri, headers: headers, body: encodedBody)
-              .timeout(_timeout);
-        case 'PUT':
-          response = await client
-              .put(uri, headers: headers, body: encodedBody)
-              .timeout(_timeout);
-        case 'DELETE':
-          response = await client
-              .delete(uri, headers: headers, body: encodedBody)
-              .timeout(_timeout);
-        default:
-          throw ApiRequestException(
-            ApiError(
-              statusCode: 0,
-              code: 'UNSUPPORTED_METHOD',
-              message: 'Unsupported method $method',
-            ),
+      var response = await _send(client, uri, method, encodedBody, accessToken);
+      if (response.statusCode == 401 && refreshAccessToken != null) {
+        final refreshedToken = await refreshAccessToken!();
+        if (refreshedToken != null) {
+          response = await _send(
+            client,
+            uri,
+            method,
+            encodedBody,
+            refreshedToken,
           );
+        }
       }
 
       final responseBody = utf8.decode(response.bodyBytes);
@@ -113,6 +100,36 @@ class ApiClient {
     } finally {
       client.close();
     }
+  }
+
+  Future<http.Response> _send(
+    http.Client client,
+    Uri uri,
+    String method,
+    String? encodedBody,
+    String? token,
+  ) {
+    final headers = <String, String>{
+      'Accept': 'application/json',
+      if (token != null) 'Authorization': 'Bearer $token',
+      if (encodedBody != null) 'Content-Type': 'application/json',
+    };
+
+    final request = switch (method) {
+      'GET' => client.get(uri, headers: headers),
+      'POST' => client.post(uri, headers: headers, body: encodedBody),
+      'PUT' => client.put(uri, headers: headers, body: encodedBody),
+      'PATCH' => client.patch(uri, headers: headers, body: encodedBody),
+      'DELETE' => client.delete(uri, headers: headers, body: encodedBody),
+      _ => throw ApiRequestException(
+        ApiError(
+          statusCode: 0,
+          code: 'UNSUPPORTED_METHOD',
+          message: 'Unsupported method $method',
+        ),
+      ),
+    };
+    return request.timeout(_timeout);
   }
 
   /// Network failures surface as low-level socket/XHR errors that mean nothing

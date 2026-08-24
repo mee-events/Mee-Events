@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Mee Events - Event Completed Home</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@500&amp;family=Manrope:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "outline-variant": "#dac1bf",
+                        "surface-container": "#f0eded",
+                        "surface-container-high": "#eae7e7",
+                        "on-primary-fixed-variant": "#77302d",
+                        "on-tertiary-container": "#8c8c88",
+                        "on-surface-variant": "#544341",
+                        "on-surface": "#1c1b1b",
+                        "tertiary-fixed": "#e4e2dd",
+                        "secondary-fixed": "#ffdea5",
+                        "outline": "#877270",
+                        "primary-container": "#4a0e0e",
+                        "primary-fixed-dim": "#ffb3ad",
+                        "on-secondary-container": "#785a1a",
+                        "tertiary-fixed-dim": "#c8c6c2",
+                        "secondary": "#775a19",
+                        "on-tertiary": "#ffffff",
+                        "surface-variant": "#e5e2e1",
+                        "background": "#fcf9f8",
+                        "surface-container-highest": "#e5e2e1",
+                        "surface-container-lowest": "#ffffff",
+                        "on-background": "#1c1b1b",
+                        "primary": "#2a0002",
+                        "on-secondary": "#ffffff",
+                        "inverse-primary": "#ffb3ad",
+                        "error": "#ba1a1a",
+                        "surface-container-low": "#f6f3f2",
+                        "on-primary-container": "#cc726d",
+                        "on-error-container": "#93000a",
+                        "tertiary": "#0f100d",
+                        "on-secondary-fixed": "#261900",
+                        "primary-fixed": "#ffdad7",
+                        "on-error": "#ffffff",
+                        "surface-dim": "#dcd9d9",
+                        "on-secondary-fixed-variant": "#5d4201",
+                        "surface-bright": "#fcf9f8",
+                        "secondary-container": "#fed488",
+                        "inverse-surface": "#313030",
+                        "error-container": "#ffdad6",
+                        "surface-tint": "#954742",
+                        "tertiary-container": "#242522",
+                        "on-primary": "#ffffff",
+                        "inverse-on-surface": "#f3f0ef",
+                        "on-tertiary-fixed": "#1b1c19",
+                        "on-tertiary-fixed-variant": "#474744",
+                        "on-primary-fixed": "#3d0506",
+                        "surface": "#fcf9f8",
+                        "secondary-fixed-dim": "#e9c176"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "lg": "48px",
+                        "container-max": "1280px",
+                        "xs": "4px",
+                        "sm": "12px",
+                        "gutter": "24px",
+                        "md": "24px",
+                        "xl": "80px",
+                        "base": "8px",
+                        "safe": "env(safe-area-inset-bottom, 24px)"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Manrope"],
+                        "label-caps": ["Manrope"],
+                        "body-lg": ["Manrope"],
+                        "h1": ["Manrope"],
+                        "display-hero-mobile": ["EB Garamond"],
+                        "display-hero": ["EB Garamond"],
+                        "button": ["Manrope"],
+                        "h2": ["Manrope"]
+                    },
+                    "fontSize": {
+                        "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "label-caps": ["12px", { "lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "h1": ["32px", { "lineHeight": "1.3", "fontWeight": "700" }],
+                        "display-hero-mobile": ["36px", { "lineHeight": "1.2", "fontWeight": "500" }],
+                        "display-hero": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "500" }],
+                        "button": ["14px", { "lineHeight": "1", "fontWeight": "600" }],
+                        "h2": ["24px", { "lineHeight": "1.4", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.fill {
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-background text-on-background min-h-screen font-body-md text-body-md pb-safe antialiased">
+<!-- TopAppBar -->
+<header class="w-full top-0 left-0 bg-background flex justify-between items-center px-gutter py-sm shadow-[0_1px_0_0_rgba(218,193,191,0.3)] sticky z-40">
+<button aria-label="Menu" class="text-on-surface-variant hover:opacity-80 transition-opacity p-2 -ml-2">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<div class="font-display-hero-mobile text-display-hero-mobile text-primary font-medium tracking-tight">Mee Events</div>
+<button class="flex items-center gap-1 font-button text-button text-primary bg-surface-container-lowest border border-outline-variant rounded-full px-3 py-1.5 hover:bg-surface-container-low transition-colors">
+            Customer <span class="text-xs">▾</span>
+</button>
+</header>
+<main class="max-w-container-max mx-auto px-gutter py-lg md:py-xl md:grid md:grid-cols-12 md:gap-gutter pb-32">
+<!-- Hero Section -->
+<div class="md:col-span-12 mb-lg text-center md:text-left">
+<h1 class="font-display-hero-mobile text-display-hero-mobile md:font-display-hero md:text-display-hero text-primary mb-sm">
+                A beautiful celebration, completed
+            </h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl">
+                Thank you for choosing Mee Events. The memories have been made, and we are finalizing the remaining details.
+            </p>
+</div>
+<!-- Left Column: Details & Progress -->
+<div class="md:col-span-8 flex flex-col gap-lg">
+<!-- Event Details Card -->
+<div class="bg-surface-container-lowest rounded-[14px] border border-[#E5DED4] p-md flex flex-col md:flex-row gap-md overflow-hidden relative group hover:shadow-[0px_10px_30px_rgba(74,14,14,0.05)] transition-shadow duration-300">
+<div class="md:w-1/3 aspect-[4/3] md:aspect-auto md:h-full relative rounded-lg overflow-hidden shrink-0 bg-surface-variant">
+<img alt="Event Image" class="w-full h-full object-cover absolute inset-0 mix-blend-multiply opacity-90" data-alt="A warm, cinematic, high-resolution photo of an Indian wedding mandap decoration, empty after the ceremony, beautifully lit with soft, warm golden hour light, reflecting a modern Indian premium aesthetic in ivory, burgundy, and gold tones. Elegant and luxurious." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCqTNqv2tsXbaEMnCedYGRbMqlZay8N2cyRq4Yj7NCMEikgWRq5kvWw0xlJWr7LUwi3g1G1ipv8mMoJTRnVWprFkkN1cBR9W9gyqsdvuJ0JFOG_FsPLmhuRD4RHHfWQRBsJkEuEQW_Q8D3UNTeepmOiVyGxT-YRP-yTdXvNBu3LdkjxOC9D2FLojSy-ZD7tridlE4Du--9v7FHvoUcQNPNHB0sogqMft0pKks3IEyGGoE14jLHz8082"/>
+</div>
+<div class="flex-1 flex flex-col justify-center">
+<div class="flex justify-between items-start mb-2">
+<span class="font-label-caps text-label-caps text-on-surface-variant bg-surface-container px-2 py-1 rounded-full uppercase tracking-widest">Completed</span>
+<span class="font-body-md text-body-md text-on-surface-variant text-sm">MEE-BKG-2026-0418</span>
+</div>
+<h2 class="font-h2 text-h2 text-primary mb-1">Aarav &amp; Ananya Wedding</h2>
+<p class="font-body-md text-body-md text-on-surface-variant flex items-center gap-2 mb-1">
+<span class="material-symbols-outlined text-[18px]">location_on</span> Taj Krishna, Hyderabad
+                    </p>
+<p class="font-body-md text-body-md text-on-surface-variant flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">calendar_today</span> 12–14 December 2026
+                    </p>
+</div>
+</div>
+<!-- Post-event Progress Bento -->
+<div>
+<h3 class="font-h2 text-h2 text-primary mb-md">Post-event progress</h3>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div class="bg-surface-container-lowest border border-[#E5DED4] rounded-[14px] p-md flex items-start gap-3">
+<div class="bg-surface-container p-2 rounded-full text-secondary shrink-0">
+<span class="material-symbols-outlined fill">check_circle</span>
+</div>
+<div>
+<h4 class="font-button text-button text-on-surface mb-1">Event delivery</h4>
+<p class="text-sm text-on-surface-variant">All on-site services completed successfully.</p>
+</div>
+</div>
+<div class="bg-surface-container-lowest border border-[#E5DED4] rounded-[14px] p-md flex items-start gap-3">
+<div class="bg-secondary-fixed p-2 rounded-full text-on-secondary-fixed shrink-0">
+<span class="material-symbols-outlined">description</span>
+</div>
+<div>
+<h4 class="font-button text-button text-on-surface mb-1">Final documentation</h4>
+<p class="text-sm text-on-surface-variant">In progress. Expected within 3 days.</p>
+</div>
+</div>
+<div class="bg-surface-container-lowest border border-[#E5DED4] rounded-[14px] p-md flex items-start gap-3">
+<div class="bg-surface-container p-2 rounded-full text-on-surface-variant shrink-0">
+<span class="material-symbols-outlined">photo_library</span>
+</div>
+<div>
+<h4 class="font-button text-button text-on-surface mb-1">Gallery processing</h4>
+<ul class="text-sm text-on-surface-variant list-disc pl-4 space-y-1">
+<li>Gallery preview expected 20 December 2026</li>
+<li>Final gallery expected 10 January 2027</li>
+<li>Highlight film expected 20 January 2027</li>
+</ul>
+</div>
+</div>
+<div class="bg-surface-container-lowest border border-[#E5DED4] rounded-[14px] p-md flex items-start gap-3 hover:shadow-[0px_10px_30px_rgba(74,14,14,0.05)] transition-shadow cursor-pointer">
+<div class="bg-primary-container p-2 rounded-full text-on-primary-container shrink-0">
+<span class="material-symbols-outlined">rate_review</span>
+</div>
+<div>
+<h4 class="font-button text-button text-on-surface mb-1">Feedback available</h4>
+<p class="text-sm text-on-surface-variant">Share your experience with us.</p>
+<span class="text-sm text-primary font-semibold mt-1 inline-block">Share feedback →</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Manager Message -->
+<div class="bg-[#F9F7F2] border border-[#E5DED4] rounded-[14px] p-md relative overflow-hidden">
+<div class="absolute top-0 right-0 w-32 h-32 bg-primary-fixed-dim opacity-10 rounded-bl-full"></div>
+<div class="flex items-start gap-md relative z-10">
+<div class="w-12 h-12 rounded-full overflow-hidden shrink-0 border border-outline-variant">
+<img alt="Event Manager" class="w-full h-full object-cover" data-alt="Professional headshot of an elegant Indian female event manager, warm smile, wearing a subtle burgundy blazer over a light blouse, well-lit studio lighting, modern premium corporate aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCESOKkCXkvWNL9BhYwwTO1tkyCEvYPnQnbvDDui83JQpnuzXTjILZiX94EUKFUirz8rk9g9iolltUsHxV0cc7iL0rrZPKDJvEmYdthRG93CspZ7ARQ_wofxdSIx60GaEYjO5jM8tBVwXqJjHmTJj9udy6QbpDu5IwL_RKrgpHMm1yrqV-xCNdaEzAHUYC_pbScqAlEkUyXHSJ86Iqdc0JEoBRoXB5yXNDPuU4LvL0d60cklDEgzFwt"/>
+</div>
+<div>
+<p class="font-body-md text-body-md text-on-surface-variant italic mb-4">
+                            "It was an absolute honor to orchestrate your special days. We hope the memories bring you joy for a lifetime. Please reach out if you need anything as we finalize the post-event details."
+                        </p>
+<p class="font-button text-button text-on-surface">Priya</p>
+<p class="text-sm text-on-surface-variant">Event Manager, Mee Events</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Column: Financial & Actions -->
+<div class="md:col-span-4 flex flex-col gap-lg mt-lg md:mt-0">
+<!-- Financial Card -->
+<div class="bg-surface-container-lowest rounded-[14px] border border-[#E5DED4] p-md hover:shadow-[0px_10px_30px_rgba(74,14,14,0.05)] transition-shadow">
+<h3 class="font-h2 text-h2 text-primary mb-4">Final Account</h3>
+<div class="flex justify-between items-baseline mb-1">
+<span class="font-body-md text-body-md text-on-surface-variant">Final balance</span>
+<span class="font-h1 text-h1 text-on-surface">₹1,18,000</span>
+</div>
+<p class="text-sm text-on-surface-variant mb-6 flex justify-between border-b border-outline-variant/30 pb-4">
+<span>Due date</span>
+<span class="font-semibold">16 December 2026</span>
+</p>
+<button class="w-full bg-primary text-on-primary font-button text-button py-3 rounded-lg hover:opacity-90 transition-opacity mb-3">
+                    View final account
+                </button>
+</div>
+<!-- Quick Actions -->
+<div class="bg-surface-container-lowest rounded-[14px] border border-[#E5DED4] p-md">
+<h3 class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest mb-4">Quick Actions</h3>
+<ul class="flex flex-col gap-2">
+<li>
+<button class="w-full flex items-center justify-between p-3 rounded-lg hover:bg-surface-container transition-colors group">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors">inventory_2</span>
+<span class="font-button text-button text-on-surface">Track deliverables</span>
+</div>
+<span class="material-symbols-outlined text-outline-variant group-hover:text-primary transition-colors">chevron_right</span>
+</button>
+</li>
+<li class="border-t border-outline-variant/20">
+<button class="w-full flex items-center justify-between p-3 rounded-lg hover:bg-surface-container transition-colors group">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors">collections</span>
+<span class="font-button text-button text-on-surface">View gallery status</span>
+</div>
+<span class="material-symbols-outlined text-outline-variant group-hover:text-primary transition-colors">chevron_right</span>
+</button>
+</li>
+<li class="border-t border-outline-variant/20">
+<button class="w-full flex items-center justify-between p-3 rounded-lg hover:bg-surface-container transition-colors group">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors">rate_review</span>
+<span class="font-button text-button text-on-surface">Share feedback</span>
+</div>
+<span class="material-symbols-outlined text-outline-variant group-hover:text-primary transition-colors">chevron_right</span>
+</button>
+</li>
+<li class="border-t border-outline-variant/20">
+<button class="w-full flex items-center justify-between p-3 rounded-lg hover:bg-surface-container transition-colors group">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors">support_agent</span>
+<span class="font-button text-button text-on-surface">Get post-event support</span>
+</div>
+<span class="material-symbols-outlined text-outline-variant group-hover:text-primary transition-colors">chevron_right</span>
+</button>
+</li>
+</ul>
+</div>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pt-base pb-safe bg-surface-container-lowest border-t border-outline-variant/30 rounded-t-xl shadow-sm md:hidden">
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-colors w-16" href="#">
+<span class="material-symbols-outlined mb-1">home</span>
+<span class="font-label-caps text-label-caps uppercase tracking-widest text-[10px]">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-colors w-16" href="#">
+<span class="material-symbols-outlined mb-1">explore</span>
+<span class="font-label-caps text-label-caps uppercase tracking-widest text-[10px]">Explore</span>
+</a>
+<a class="flex flex-col items-center justify-center text-primary relative after:content-[''] after:w-1 after:h-1 after:bg-secondary after:rounded-full after:mt-1 hover:text-primary transition-colors w-16 active:scale-95" href="#">
+<span class="material-symbols-outlined fill mb-1">event_note</span>
+<span class="font-label-caps text-label-caps uppercase tracking-widest text-[10px]">Plan</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-colors w-16" href="#">
+<span class="material-symbols-outlined mb-1">chat_bubble</span>
+<span class="font-label-caps text-label-caps uppercase tracking-widest text-[10px]">Enquiries</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-colors w-16" href="#">
+<span class="material-symbols-outlined mb-1">person</span>
+<span class="font-label-caps text-label-caps uppercase tracking-widest text-[10px]">Profile</span>
+</a>
+</nav>
+</body></html>

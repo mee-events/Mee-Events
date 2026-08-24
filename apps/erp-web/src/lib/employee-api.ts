@@ -24,9 +24,11 @@ import type {
   EventTaskSummary,
   EventTimelineEntry,
   EventTimelineResponse,
+  LeadDetailResponse,
   LeadListResponse,
   LeadRequirementsRequest,
   LeadSummary,
+  UpdateLeadStatusRequest,
   ManagerAssignmentListResponse,
   ManagerAssignmentSummary,
   ManagerCandidateListResponse,
@@ -34,6 +36,7 @@ import type {
   PaymentListResponse,
   QuotationDetailResponse,
   QuotationListResponse,
+  RefreshSessionResponse,
   RequestOtpResponse,
   UpdateEventRecordRequest,
   UpdateEventTaskRequest,
@@ -144,6 +147,12 @@ import type {
   EventCompletionSummary,
   UpdateCompletionChecklistRequest,
   CompleteEventOperationsRequest,
+  CatalogReviewProduct,
+  CatalogMediaCoverage,
+  CatalogReviewMedia,
+  UpdateCatalogContentStatusRequest,
+  UpdateCatalogMediaRequest,
+  UpsertCatalogMediaRequest,
 } from "@me-event/api-contracts";
 
 const apiBaseUrl = (
@@ -151,6 +160,7 @@ const apiBaseUrl = (
 ).replace(/\/+$/, "");
 
 const SESSION_STORAGE_KEY = "mee-events.employee-session";
+let refreshInFlight: Promise<EmployeeSession | null> | null = null;
 
 export interface EmployeeSession {
   readonly accessToken: string;
@@ -176,19 +186,16 @@ async function request<T>(
   init: RequestInit & { accessToken?: string } = {},
 ): Promise<T> {
   const { accessToken, ...rest } = init;
-  const headers: Record<string, string> = {
-    Accept: "application/json",
-    ...(rest.body === undefined ? {} : { "Content-Type": "application/json" }),
-    ...(accessToken === undefined
-      ? {}
-      : { Authorization: `Bearer ${accessToken}` }),
-  };
+  const storedSession = accessToken === undefined ? null : readStoredSession();
+  const currentAccessToken = storedSession?.accessToken ?? accessToken;
 
-  const response = await fetch(`${apiBaseUrl}${path}`, {
-    ...rest,
-    headers,
-    cache: "no-store",
-  });
+  let response = await sendRequest(path, rest, currentAccessToken);
+  if (response.status === 401 && accessToken !== undefined) {
+    const refreshedSession = await refreshStoredSession();
+    if (refreshedSession !== null) {
+      response = await sendRequest(path, rest, refreshedSession.accessToken);
+    }
+  }
 
   if (!response.ok) {
     let message = `Request failed (${response.status}).`;
@@ -210,6 +217,74 @@ async function request<T>(
   }
 
   return (await response.json()) as T;
+}
+
+function sendRequest(
+  path: string,
+  init: RequestInit,
+  accessToken?: string,
+): Promise<Response> {
+  const headers: Record<string, string> = {
+    Accept: "application/json",
+    ...(init.body === undefined ? {} : { "Content-Type": "application/json" }),
+    ...(accessToken === undefined
+      ? {}
+      : { Authorization: `Bearer ${accessToken}` }),
+  };
+
+  return fetch(`${apiBaseUrl}${path}`, {
+    ...init,
+    headers,
+    cache: "no-store",
+  });
+}
+
+function refreshStoredSession(): Promise<EmployeeSession | null> {
+  if (refreshInFlight !== null) {
+    return refreshInFlight;
+  }
+
+  const current = readStoredSession();
+  if (current === null || current.refreshToken.length === 0) {
+    clearStoredSession();
+    return Promise.resolve(null);
+  }
+
+  const refresh = rotateStoredSession(current);
+  refreshInFlight = refresh;
+  void refresh.finally(() => {
+    if (refreshInFlight === refresh) {
+      refreshInFlight = null;
+    }
+  });
+  return refresh;
+}
+
+async function rotateStoredSession(
+  current: EmployeeSession,
+): Promise<EmployeeSession | null> {
+  try {
+    const response = await sendRequest("/auth/refresh", {
+      method: "POST",
+      body: JSON.stringify({ refreshToken: current.refreshToken }),
+    });
+    if (!response.ok) {
+      clearStoredSession();
+      return null;
+    }
+
+    const tokens = (await response.json()) as RefreshSessionResponse;
+    const refreshed: EmployeeSession = {
+      ...current,
+      accessToken: tokens.accessToken,
+      refreshToken: tokens.refreshToken,
+    };
+    storeSession(refreshed);
+    return refreshed;
+  } catch {
+    clearStoredSession();
+    return null;
+  }
 }
 
 export function requestOtp(mobileNumber: string): Promise<RequestOtpResponse> {
@@ -275,9 +350,21 @@ export function claimLead(
 export function getLead(
   session: EmployeeSession,
   leadId: string,
-): Promise<LeadSummary> {
-  return request<LeadSummary>(`/crm/leads/${leadId}`, {
+): Promise<LeadDetailResponse> {
+  return request<LeadDetailResponse>(`/crm/leads/${leadId}`, {
     method: "GET",
+    accessToken: session.accessToken,
+  });
+}
+
+export function updateLeadStatus(
+  session: EmployeeSession,
+  leadId: string,
+  body: UpdateLeadStatusRequest,
+): Promise<LeadDetailResponse> {
+  return request<LeadDetailResponse>(`/crm/leads/${leadId}/status`, {
+    method: "PATCH",
+    body: JSON.stringify(body),
     accessToken: session.accessToken,
   });
 }
@@ -671,6 +758,83 @@ export function listServiceCategories(
     readonly serviceCategories: readonly ServiceCategorySummary[];
   }>("/catalog/service-categories", {
     method: "GET",
+    accessToken: session.accessToken,
+  });
+}
+
+export function listCatalogReviewProducts(
+  session: EmployeeSession,
+): Promise<{ readonly products: readonly CatalogReviewProduct[] }> {
+  return request<{ readonly products: readonly CatalogReviewProduct[] }>(
+    "/erp/catalog/products",
+    {
+      method: "GET",
+      accessToken: session.accessToken,
+    },
+  );
+}
+
+export function updateCatalogProductContent(
+  session: EmployeeSession,
+  code: string,
+  body: UpdateCatalogContentStatusRequest,
+): Promise<CatalogReviewProduct> {
+  return request<CatalogReviewProduct>(`/erp/catalog/products/${code}`, {
+    method: "PATCH",
+    body: JSON.stringify(body),
+    accessToken: session.accessToken,
+  });
+}
+
+export function listCatalogMediaCoverage(
+  session: EmployeeSession,
+): Promise<CatalogMediaCoverage> {
+  return request<CatalogMediaCoverage>("/erp/catalog/media/coverage", {
+    method: "GET",
+    accessToken: session.accessToken,
+  });
+}
+
+export function listCatalogReviewMedia(
+  session: EmployeeSession,
+  query?: { readonly entityType?: string; readonly entityCode?: string },
+): Promise<{ readonly media: readonly CatalogReviewMedia[] }> {
+  const params = new URLSearchParams();
+  if (query?.entityType) {
+    params.set("entityType", query.entityType);
+  }
+  if (query?.entityCode) {
+    params.set("entityCode", query.entityCode);
+  }
+  const suffix = params.toString() === "" ? "" : `?${params.toString()}`;
+  return request<{ readonly media: readonly CatalogReviewMedia[] }>(
+    `/erp/catalog/media${suffix}`,
+    {
+      method: "GET",
+      accessToken: session.accessToken,
+    },
+  );
+}
+
+export function upsertCatalogMedia(
+  session: EmployeeSession,
+  body: UpsertCatalogMediaRequest,
+): Promise<CatalogReviewMedia> {
+  return request<CatalogReviewMedia>("/erp/catalog/media", {
+    method: "POST",
+    body: JSON.stringify(body),
+    accessToken: session.accessToken,
+  });
+}
+
+export function updateCatalogMedia(
+  session: EmployeeSession,
+  id: string,
+  body: UpdateCatalogMediaRequest,
+): Promise<CatalogReviewMedia> {
+  return request<CatalogReviewMedia>(`/erp/catalog/media/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify(body),
     accessToken: session.accessToken,
   });
 }

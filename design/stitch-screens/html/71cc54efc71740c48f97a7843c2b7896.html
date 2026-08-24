@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Media Viewer &amp; Privacy Controls</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600;700&amp;family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "outline-variant": "#dac1bf",
+                      "surface-container": "#f0eded",
+                      "surface-container-high": "#eae7e7",
+                      "on-primary-fixed-variant": "#77302d",
+                      "on-tertiary-container": "#8c8c88",
+                      "on-surface-variant": "#544341",
+                      "on-surface": "#1c1b1b",
+                      "tertiary-fixed": "#e4e2dd",
+                      "secondary-fixed": "#ffdea5",
+                      "outline": "#877270",
+                      "primary-container": "#4a0e0e",
+                      "primary-fixed-dim": "#ffb3ad",
+                      "on-secondary-container": "#785a1a",
+                      "tertiary-fixed-dim": "#c8c6c2",
+                      "secondary": "#775a19",
+                      "on-tertiary": "#ffffff",
+                      "surface-variant": "#e5e2e1",
+                      "background": "#fcf9f8",
+                      "surface-container-highest": "#e5e2e1",
+                      "surface-container-lowest": "#ffffff",
+                      "on-background": "#1c1b1b",
+                      "primary": "#2a0002",
+                      "on-secondary": "#ffffff",
+                      "inverse-primary": "#ffb3ad",
+                      "error": "#ba1a1a",
+                      "surface-container-low": "#f6f3f2",
+                      "on-primary-container": "#cc726d",
+                      "on-error-container": "#93000a",
+                      "tertiary": "#0f100d",
+                      "on-secondary-fixed": "#261900",
+                      "primary-fixed": "#ffdad7",
+                      "on-error": "#ffffff",
+                      "surface-dim": "#dcd9d9",
+                      "on-secondary-fixed-variant": "#5d4201",
+                      "surface-bright": "#fcf9f8",
+                      "secondary-container": "#fed488",
+                      "inverse-surface": "#313030",
+                      "error-container": "#ffdad6",
+                      "surface-tint": "#954742",
+                      "tertiary-container": "#242522",
+                      "on-primary": "#ffffff",
+                      "inverse-on-surface": "#f3f0ef",
+                      "on-tertiary-fixed": "#1b1c19",
+                      "on-tertiary-fixed-variant": "#474744",
+                      "on-primary-fixed": "#3d0506",
+                      "surface": "#fcf9f8",
+                      "secondary-fixed-dim": "#e9c176"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "lg": "48px",
+                      "container-max": "1280px",
+                      "xs": "4px",
+                      "sm": "12px",
+                      "gutter": "24px",
+                      "md": "24px",
+                      "xl": "80px",
+                      "base": "8px"
+              },
+              "fontFamily": {
+                      "body-md": ["Manrope"],
+                      "label-caps": ["Manrope"],
+                      "body-lg": ["Manrope"],
+                      "h1": ["Manrope"],
+                      "display-hero-mobile": ["EB Garamond"],
+                      "display-hero": ["EB Garamond"],
+                      "button": ["Manrope"],
+                      "h2": ["Manrope"]
+              },
+              "fontSize": {
+                      "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                      "label-caps": ["12px", {"lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "700"}],
+                      "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                      "h1": ["32px", {"lineHeight": "1.3", "fontWeight": "700"}],
+                      "display-hero-mobile": ["36px", {"lineHeight": "1.2", "fontWeight": "500"}],
+                      "display-hero": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "500"}],
+                      "button": ["14px", {"lineHeight": "1", "fontWeight": "600"}],
+                      "h2": ["24px", {"lineHeight": "1.4", "fontWeight": "600"}]
+              }
+            }
+          }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .icon-fill {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        
+        /* Custom Toggle Switch Styles */
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: #2a0002; /* primary */
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #2a0002; /* primary */
+        }
+        .toggle-checkbox:checked + .toggle-label:after {
+            transform: translateX(100%);
+            border-color: white;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-tertiary text-on-tertiary font-body-md antialiased h-screen w-full overflow-hidden flex flex-col relative selection:bg-primary-fixed-dim selection:text-primary">
+<!-- Main Media Canvas -->
+<main class="relative flex-1 w-full bg-tertiary overflow-hidden">
+<img class="absolute inset-0 w-full h-full object-cover opacity-90" data-alt="A breathtaking, high-end editorial wedding photograph capturing a candid moment of the bride and groom under a grand floral archway. The lighting is cinematic and dramatic, with warm, golden hour sunlight filtering through the flowers, casting soft shadows. The aesthetic is modern luxury with a tactile, intimate feel, utilizing deep, rich colors contrasted against the pristine white of the bridal gown." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBchIGUnCIh5AUyu80_V3qHIiqHLqHr7Hw0hQBoKKOgVgk-0rP-RI8LZgJMdLYk8VwG624vyjeSbZUPOLNzoVUNsTsyw8q6y0i8jLNlILbJtmsP7-LHCJmyPXeW4bxea5FA4aFkn1gOXVjQ45VIft6A4pi9wXGWiv4GXhWjEhbSSc4FerA3jih0O1o3ZNcaHezJ11xtHUPzYcHFyj70DHVSagfvB53oBy7gPrV08vLtkn3ClohDNV2k"/>
+<!-- Top Gradient Protection -->
+<div class="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-black/60 to-transparent pointer-events-none z-10"></div>
+<!-- Custom Top Actions Overlay (Contextual to Viewer) -->
+<div class="absolute top-0 left-0 w-full flex justify-between items-center px-4 py-6 z-20">
+<div class="flex items-center gap-4">
+<button class="w-10 h-10 flex items-center justify-center rounded-full bg-black/20 backdrop-blur-md text-white hover:bg-black/40 transition-colors">
+<span class="material-symbols-outlined text-[20px]">arrow_back</span>
+</button>
+<div class="flex flex-col">
+<span class="font-button text-button text-white">Wedding</span>
+<span class="font-label-caps text-[10px] text-white/70">1 of 142</span>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<button class="w-10 h-10 flex items-center justify-center rounded-full bg-black/20 backdrop-blur-md text-white hover:bg-black/40 transition-colors">
+<span class="material-symbols-outlined text-[20px]">favorite</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-full bg-black/20 backdrop-blur-md text-white hover:bg-black/40 transition-colors">
+<span class="material-symbols-outlined text-[20px]">download</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-full bg-black/20 backdrop-blur-md text-white hover:bg-black/40 transition-colors">
+<span class="material-symbols-outlined text-[20px]">share</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-full bg-black/20 backdrop-blur-md text-white hover:bg-black/40 transition-colors">
+<span class="material-symbols-outlined text-[20px]">info</span>
+</button>
+</div>
+</div>
+</main>
+<!-- Bottom Sheet: Privacy Controls -->
+<!-- Note: In a real app this would be hidden/animated, showing static state for design evaluation -->
+<div class="absolute bottom-[72px] md:bottom-0 left-0 w-full z-40 flex justify-center pb-4 px-4 md:px-0">
+<div class="bg-surface-container-lowest w-full md:w-[480px] rounded-[24px] shadow-[0px_10px_40px_rgba(42,0,2,0.15)] flex flex-col border border-outline-variant/30 overflow-hidden">
+<!-- Drag Handle -->
+<div class="w-full flex justify-center pt-4 pb-2">
+<div class="w-12 h-1.5 bg-surface-dim rounded-full"></div>
+</div>
+<div class="px-6 pb-6 flex flex-col gap-6">
+<!-- Header -->
+<div class="flex flex-col gap-1">
+<h2 class="font-h2 text-h2 text-on-surface">Private-sharing controls</h2>
+<p class="font-body-md text-body-md text-on-surface-variant flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px]">lock</span>
+                        Gallery is private by default
+                    </p>
+</div>
+<!-- Controls Section -->
+<div class="flex flex-col gap-0 border border-outline-variant/40 rounded-xl overflow-hidden bg-surface">
+<!-- Main Toggle -->
+<div class="flex justify-between items-center p-4 bg-surface-container-lowest">
+<div class="flex flex-col">
+<span class="font-button text-button text-on-surface">Create share link</span>
+<span class="font-label-caps text-label-caps text-on-surface-variant mt-1">Requires confirmation</span>
+</div>
+<div class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
+<input class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer z-10 transition-transform duration-200 ease-in-out border-surface-variant top-0 -left-1" id="toggle1" name="toggle" type="checkbox"/>
+<label class="toggle-label block overflow-hidden h-6 rounded-full bg-surface-variant cursor-pointer transition-colors duration-200 ease-in-out" for="toggle1"></label>
+</div>
+</div>
+<div class="w-full h-px bg-outline-variant/30"></div>
+<!-- Expandable Options (Visualized as visible for design completeness) -->
+<div class="p-4 flex flex-col gap-4 bg-surface-container-lowest/50">
+<!-- Input Row: Expiry -->
+<div class="flex flex-col gap-2">
+<label class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest">Optional Expiry Date</label>
+<div class="flex items-center bg-surface-container-lowest border border-outline-variant/50 rounded-lg px-3 py-2.5 focus-within:border-primary transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant mr-2 text-[20px]">calendar_today</span>
+<input class="bg-transparent border-none outline-none w-full font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant/50 focus:ring-0 p-0" placeholder="Select date..." type="text"/>
+</div>
+</div>
+<!-- Input Row: Access Code -->
+<div class="flex flex-col gap-2">
+<label class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest">Access Code</label>
+<div class="flex items-center bg-surface-container-lowest border border-outline-variant/50 rounded-lg px-3 py-2.5 focus-within:border-primary transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant mr-2 text-[20px]">key</span>
+<input class="bg-transparent border-none outline-none w-full font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant/50 focus:ring-0 p-0" placeholder="e.g. MEE2024" type="text"/>
+</div>
+</div>
+<!-- Secondary Toggle -->
+<div class="flex justify-between items-center py-2 mt-2">
+<span class="font-button text-button text-on-surface">Allow downloads</span>
+<div class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
+<input class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer z-10 transition-transform duration-200 ease-in-out border-surface-variant top-0 -left-1" id="toggle2" name="toggle2" type="checkbox"/>
+<label class="toggle-label block overflow-hidden h-6 rounded-full bg-surface-variant cursor-pointer transition-colors duration-200 ease-in-out" for="toggle2"></label>
+</div>
+</div>
+</div>
+</div>
+<!-- Actions -->
+<div class="flex flex-col gap-3 mt-2">
+<button class="w-full py-3.5 rounded-lg bg-surface-variant text-on-surface-variant font-button text-button flex justify-center items-center gap-2 opacity-50 cursor-not-allowed" disabled="">
+<span class="material-symbols-outlined text-[18px]">add_link</span>
+                        Confirm &amp; Generate Link
+                    </button>
+<button class="w-full py-3 rounded-lg bg-transparent text-on-surface-variant font-button text-button flex justify-center items-center gap-2 opacity-50 cursor-not-allowed" disabled="">
+<span class="material-symbols-outlined text-[18px]">link_off</span>
+                        Revoke existing links
+                    </button>
+</div>
+</div>
+</div>
+</div>
+<!-- JSON: BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 rounded-t-xl bg-surface-container-lowest border-t border-outline-variant/30 shadow-sm block md:hidden">
+<div class="flex justify-around items-center px-4 pt-base pb-safe h-[72px]">
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-colors gap-1 w-16" href="#">
+<span class="material-symbols-outlined text-[24px]">home</span>
+<span class="font-label-caps text-label-caps uppercase tracking-widest text-[10px]">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-colors gap-1 w-16" href="#">
+<span class="material-symbols-outlined text-[24px]">explore</span>
+<span class="font-label-caps text-label-caps uppercase tracking-widest text-[10px]">Explore</span>
+</a>
+<!-- ACTIVE ITEM: Plan -->
+<a class="flex flex-col items-center justify-center text-primary relative after:content-[''] after:w-1 after:h-1 after:bg-secondary after:rounded-full after:mt-1 hover:text-primary transition-colors opacity-70 gap-1 w-16" href="#">
+<span class="material-symbols-outlined text-[24px] icon-fill">event_note</span>
+<span class="font-label-caps text-label-caps uppercase tracking-widest text-[10px]">Plan</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-colors gap-1 w-16" href="#">
+<span class="material-symbols-outlined text-[24px]">chat_bubble</span>
+<span class="font-label-caps text-label-caps uppercase tracking-widest text-[10px]">Enquiries</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-colors gap-1 w-16" href="#">
+<span class="material-symbols-outlined text-[24px]">person</span>
+<span class="font-label-caps text-label-caps uppercase tracking-widest text-[10px]">Profile</span>
+</a>
+</div>
+</nav>
+</body></html>

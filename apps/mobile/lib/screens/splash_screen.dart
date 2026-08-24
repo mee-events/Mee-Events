@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:mee_events/theme/app_colors.dart';
+import 'package:mee_events/theme/app_gradients.dart';
 import 'package:mee_events/theme/app_typography.dart';
 import 'package:mee_events/screens/onboarding_screen.dart';
 
@@ -11,7 +12,8 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMixin {
+class _SplashScreenState extends State<SplashScreen>
+    with TickerProviderStateMixin {
   late AnimationController _logoController;
   late AnimationController _titleController;
   late AnimationController _taglineController;
@@ -40,24 +42,16 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
     );
 
     _logoScaleAnimation = Tween<double>(begin: 0.5, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _logoController,
-        curve: Curves.elasticOut,
-      ),
+      CurvedAnimation(parent: _logoController, curve: Curves.elasticOut),
     );
 
-    _titleFadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _titleController,
-        curve: Curves.easeIn,
-      ),
-    );
+    _titleFadeAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _titleController, curve: Curves.easeIn));
 
     _taglineFadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _taglineController,
-        curve: Curves.easeIn,
-      ),
+      CurvedAnimation(parent: _taglineController, curve: Curves.easeIn),
     );
 
     _startAnimations();
@@ -79,13 +73,12 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
       if (mounted) {
         Navigator.of(context).pushReplacement(
           PageRouteBuilder(
-            pageBuilder: (context, animation, secondaryAnimation) => const OnboardingScreen(),
-            transitionsBuilder: (context, animation, secondaryAnimation, child) {
-              return FadeTransition(
-                opacity: animation,
-                child: child,
-              );
-            },
+            pageBuilder: (context, animation, secondaryAnimation) =>
+                const OnboardingScreen(),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+                  return FadeTransition(opacity: animation, child: child);
+                },
             transitionDuration: const Duration(milliseconds: 800),
           ),
         );
@@ -106,16 +99,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
     return Scaffold(
       body: Container(
         width: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              AppColors.ink,
-              AppColors.inkLight,
-            ],
-          ),
-        ),
+        decoration: const BoxDecoration(gradient: AppGradients.brandPremium),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -131,7 +115,11 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                     width: 120,
                     height: 120,
                     color: AppColors.primary,
-                    child: const Icon(Icons.event, color: AppColors.ink, size: 60),
+                    child: const Icon(
+                      Icons.event,
+                      color: AppColors.onPrimary,
+                      size: 60,
+                    ),
                   ),
                 ),
               ),
@@ -152,7 +140,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
               child: Text(
                 'Celebrate Every Moment',
                 style: AppTypography.bodyMd.copyWith(
-                  color: AppColors.canvas.withOpacity(0.7),
+                  color: AppColors.canvas.withValues(alpha: 0.7),
                 ),
               ),
             ),

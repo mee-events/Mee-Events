@@ -1,0 +1,214 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Enquiry Received - Mee Events</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600&amp;family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-container": "#8c8c88",
+                        "surface-container": "#f0eded",
+                        "error-container": "#ffdad6",
+                        "on-tertiary-fixed": "#1b1c19",
+                        "background": "#fcf9f8",
+                        "surface-container-low": "#f6f3f2",
+                        "surface-dim": "#dcd9d9",
+                        "on-secondary": "#ffffff",
+                        "tertiary": "#0f100d",
+                        "inverse-on-surface": "#f3f0ef",
+                        "on-primary-fixed-variant": "#77302d",
+                        "on-tertiary": "#ffffff",
+                        "outline-variant": "#dac1bf",
+                        "on-primary-container": "#cc726d",
+                        "on-error-container": "#93000a",
+                        "on-surface": "#1c1b1b",
+                        "outline": "#877270",
+                        "on-error": "#ffffff",
+                        "surface-container-high": "#eae7e7",
+                        "on-secondary-container": "#785a1a",
+                        "inverse-primary": "#ffb3ad",
+                        "tertiary-fixed": "#e4e2dd",
+                        "error": "#ba1a1a",
+                        "tertiary-fixed-dim": "#c8c6c2",
+                        "surface-container-lowest": "#ffffff",
+                        "surface": "#fcf9f8",
+                        "secondary-container": "#fed488",
+                        "secondary": "#775a19",
+                        "primary": "#2a0002",
+                        "on-surface-variant": "#544341",
+                        "on-secondary-fixed-variant": "#5d4201",
+                        "on-tertiary-fixed-variant": "#474744",
+                        "primary-container": "#4a0e0e",
+                        "tertiary-container": "#242522",
+                        "inverse-surface": "#313030",
+                        "primary-fixed": "#ffdad7",
+                        "surface-container-highest": "#e5e2e1",
+                        "on-background": "#1c1b1b",
+                        "secondary-fixed-dim": "#e9c176",
+                        "primary-fixed-dim": "#ffb3ad",
+                        "surface-bright": "#fcf9f8",
+                        "on-primary": "#ffffff",
+                        "surface-variant": "#e5e2e1",
+                        "on-secondary-fixed": "#261900",
+                        "surface-tint": "#954742",
+                        "on-primary-fixed": "#3d0506",
+                        "secondary-fixed": "#ffdea5"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "lg": "48px",
+                        "md": "24px",
+                        "gutter": "24px",
+                        "container-max": "1280px",
+                        "xs": "4px",
+                        "xl": "80px",
+                        "sm": "12px",
+                        "base": "8px"
+                    },
+                    "fontFamily": {
+                        "display-hero-mobile": ["EB Garamond"],
+                        "h1": ["Manrope"],
+                        "button": ["Manrope"],
+                        "h2": ["Manrope"],
+                        "display-hero": ["EB Garamond"],
+                        "body-md": ["Manrope"],
+                        "body-lg": ["Manrope"],
+                        "label-caps": ["Manrope"]
+                    },
+                    "fontSize": {
+                        "display-hero-mobile": ["36px", { "lineHeight": "1.2", "fontWeight": "500" }],
+                        "h1": ["32px", { "lineHeight": "1.3", "fontWeight": "700" }],
+                        "button": ["14px", { "lineHeight": "1", "fontWeight": "600" }],
+                        "h2": ["24px", { "lineHeight": "1.4", "fontWeight": "600" }],
+                        "display-hero": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "500" }],
+                        "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "label-caps": ["12px", { "lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: #F9F7F2; /* Warm Ivory Canvas */
+        }
+        .card-surface {
+            background-color: #FFFFFF;
+            border: 1px solid #E5DED4; /* Soft Border */
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="min-h-screen flex flex-col items-center md:p-lg antialiased"><header class="w-full bg-surface border-b border-outline-variant px-md py-sm flex items-center justify-between sticky top-0 z-50">
+    <div class="flex items-center gap-sm">
+        <div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center text-on-primary cursor-pointer">
+            <span class="material-symbols-outlined">person</span>
+        </div>
+    </div>
+    <div class="absolute left-1/2 -translate-x-1/2">
+        <span class="font-display-hero-mobile text-h2 text-primary">Mee Events</span>
+    </div>
+    <div class="flex items-center gap-sm">
+        <button class="p-xs hover:bg-surface-container rounded-full transition-colors">
+            <span class="material-symbols-outlined text-on-surface-variant">search</span>
+        </button>
+        <button class="p-xs hover:bg-surface-container rounded-full transition-colors">
+            <span class="material-symbols-outlined text-on-surface-variant">favorite</span>
+        </button>
+        <button class="p-xs hover:bg-surface-container rounded-full transition-colors">
+            <span class="material-symbols-outlined text-on-surface-variant">notifications</span>
+        </button>
+    </div>
+</header>
+<!-- Suppressed TopAppBar and BottomNavBar as this is a transactional success/milestone screen -->
+<main class="w-full max-w-2xl mx-auto flex flex-col items-center text-center"><div class="w-full flex items-center gap-md mb-md">
+    <button class="p-xs hover:bg-surface-container rounded-full transition-colors">
+        <span class="material-symbols-outlined text-on-surface">arrow_back</span>
+    </button>
+    <h2 class="font-h2 text-h2 text-on-surface">Enquiry Status</h2>
+</div>
+<!-- Icon & Header -->
+<div class="mb-lg flex flex-col items-center">
+<div class="w-20 h-20 rounded-full bg-surface-container flex items-center justify-center mb-md shadow-sm border border-outline-variant">
+<span class="material-symbols-outlined text-primary text-4xl" style="font-variation-settings: 'FILL' 1;">
+                    check_circle
+                </span>
+</div>
+<h1 class="font-display-hero-mobile text-display-hero-mobile md:font-display-hero md:text-display-hero text-on-surface mb-sm">
+                Your enquiry has been received
+            </h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-md mx-auto">
+                Reference: <span class="font-bold text-on-surface">MEE-HYD-260805-1842</span>
+</p>
+</div>
+<!-- Summary Card -->
+<div class="card-surface rounded-xl p-md w-full mb-lg text-left shadow-[0px_10px_30px_rgba(74,14,14,0.02)]">
+<div class="flex items-center justify-between border-b border-outline-variant pb-md mb-md">
+<h2 class="font-h2 text-h2 text-on-surface">Enquiry Details</h2>
+<div class="bg-surface-container px-sm py-base rounded-full border border-outline-variant flex items-center gap-xs">
+<span class="material-symbols-outlined text-secondary text-sm">pending</span>
+<span class="font-label-caps text-label-caps text-on-surface-variant">Status: Received</span>
+</div>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-md">
+<div>
+<p class="font-label-caps text-label-caps text-on-surface-variant mb-xs">Event Name</p>
+<p class="font-body-md text-body-md text-on-surface font-medium">Priya &amp; Arjun’s Wedding</p>
+</div>
+<div>
+<p class="font-label-caps text-label-caps text-on-surface-variant mb-xs">Dates</p>
+<p class="font-body-md text-body-md text-on-surface font-medium">12 - 14 Dec 2026</p>
+</div>
+<div class="sm:col-span-2">
+<p class="font-label-caps text-label-caps text-on-surface-variant mb-xs">Location</p>
+<p class="font-body-md text-body-md text-on-surface font-medium flex items-center gap-xs">
+<span class="material-symbols-outlined text-on-surface-variant text-base">location_on</span>
+                        Banjara Hills, Hyderabad
+                    </p>
+</div>
+</div>
+</div>
+<!-- Next Steps -->
+<div class="card-surface rounded-xl p-md w-full mb-lg text-left">
+<h3 class="font-h2 text-h2 text-on-surface mb-md">Next Steps</h3>
+<ul class="space-y-sm">
+<li class="flex items-start gap-sm">
+<span class="material-symbols-outlined text-secondary mt-xs">hourglass_empty</span>
+<p class="font-body-md text-body-md text-on-surface-variant">Our premium event specialists at Mee Events will review your details.</p>
+</li>
+<li class="flex items-start gap-sm pt-sm border-t border-outline-variant">
+<span class="material-symbols-outlined text-secondary mt-xs">mail</span>
+<p class="font-body-md text-body-md text-on-surface-variant">You will receive a tailored update and consultation schedule within 24-48 hours.</p>
+</li>
+</ul>
+</div>
+<!-- Actions -->
+<div class="flex flex-col sm:flex-row gap-md w-full justify-center">
+<button class="bg-primary-container text-on-primary font-button text-button py-sm px-lg rounded hover:bg-primary transition-colors flex items-center justify-center gap-xs shadow-[0px_10px_30px_rgba(74,14,14,0.05)]">
+                View enquiry
+                <span class="material-symbols-outlined text-base">arrow_forward</span>
+</button>
+<button class="bg-transparent border border-primary-container text-primary-container font-button text-button py-sm px-lg rounded hover:bg-surface-container transition-colors flex items-center justify-center">
+                Return home
+            </button>
+</div>
+</main>
+
+
+</body></html>

@@ -1,0 +1,33 @@
+{
+  "project": "Mee Events Redesign Concepts",
+  "projectUrl": "https://stitch.withgoogle.com/projects/4200285447239326275",
+  "capturedAt": "2026-08-05",
+  "visibleApprox": 181,
+  "modules": {
+    "foundation_auth": 15,
+    "customer_C02_C05": 36,
+    "quotation_C06": 13,
+    "workspace_post_account_C07_C09": 59,
+    "vendor_V09_V11": 26,
+    "worker_W12_W14": 22,
+    "shared_S15": 8
+  },
+  "vendorComplete": [
+    "V09A-I (9)",
+    "V10A-I (9)",
+    "V11A-H (8)"
+  ],
+  "workerNote": "W12F Review and Declaration source exists but canvas instance stuck as Generating Screen (hidden). Re-generate W12F if needed.",
+  "workerPresent": [
+    "W12A-E,G,H",
+    "W13A-I",
+    "W14A-F"
+  ],
+  "sharedComplete": [
+    "S15A-H (8)"
+  ],
+  "designSystem": "Mee Events default (#4A0E0E, #C5A059, EB Garamond, Manrope)",
+  "canvasLayout": "Clustered by journey: Foundation, Customer discovery/plan, Quotation, Workspace/Account, Vendor, Worker, Shared states",
+  "exportNote": "Stitch Export UI limits to 16 screens per ZIP. Golden-path batch selected for first export; remaining modules require additional batched exports.",
+  "imageEdit": "Hero photography refine prompt submitted for C02/C03/C04/C07 golden surfaces"
+}

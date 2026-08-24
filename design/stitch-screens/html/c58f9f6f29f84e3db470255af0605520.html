@@ -1,0 +1,266 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Mee Events - Mobile Login</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&amp;family=EB+Garamond:wght@500&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "secondary-fixed": "#ffdea5",
+                      "surface-tint": "#954742",
+                      "surface": "#fcf9f8",
+                      "inverse-on-surface": "#f3f0ef",
+                      "secondary-fixed-dim": "#e9c176",
+                      "on-tertiary": "#ffffff",
+                      "surface-container-low": "#f6f3f2",
+                      "surface-container-high": "#eae7e7",
+                      "inverse-primary": "#ffb3ad",
+                      "on-tertiary-fixed": "#1b1c19",
+                      "tertiary-fixed-dim": "#c8c6c2",
+                      "on-primary-fixed-variant": "#77302d",
+                      "background": "#fcf9f8",
+                      "surface-variant": "#e5e2e1",
+                      "surface-bright": "#fcf9f8",
+                      "on-surface": "#1c1b1b",
+                      "on-tertiary-fixed-variant": "#474744",
+                      "on-error-container": "#93000a",
+                      "primary-fixed": "#ffdad7",
+                      "on-surface-variant": "#544341",
+                      "on-primary-fixed": "#3d0506",
+                      "on-background": "#1c1b1b",
+                      "on-primary": "#ffffff",
+                      "secondary-container": "#fed488",
+                      "surface-container-lowest": "#ffffff",
+                      "surface-container": "#f0eded",
+                      "on-secondary-fixed": "#261900",
+                      "outline-variant": "#dac1bf",
+                      "tertiary": "#0f100d",
+                      "on-tertiary-container": "#8c8c88",
+                      "outline": "#877270",
+                      "on-error": "#ffffff",
+                      "primary-fixed-dim": "#ffb3ad",
+                      "inverse-surface": "#313030",
+                      "on-secondary": "#ffffff",
+                      "on-secondary-fixed-variant": "#5d4201",
+                      "error-container": "#ffdad6",
+                      "tertiary-container": "#242522",
+                      "secondary": "#775a19",
+                      "surface-dim": "#dcd9d9",
+                      "on-secondary-container": "#785a1a",
+                      "primary": "#2a0002",
+                      "primary-container": "#4a0e0e",
+                      "error": "#ba1a1a",
+                      "tertiary-fixed": "#e4e2dd",
+                      "on-primary-container": "#cc726d",
+                      "surface-container-highest": "#e5e2e1"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "md": "24px",
+                      "base": "8px",
+                      "sm": "12px",
+                      "lg": "48px",
+                      "xs": "4px",
+                      "container-max": "1280px",
+                      "gutter": "24px",
+                      "xl": "80px"
+              },
+              "fontFamily": {
+                      "h1": [
+                              "Manrope"
+                      ],
+                      "body-lg": [
+                              "Manrope"
+                      ],
+                      "display-hero-mobile": [
+                              "EB Garamond"
+                      ],
+                      "body-md": [
+                              "Manrope"
+                      ],
+                      "display-hero": [
+                              "EB Garamond"
+                      ],
+                      "button": [
+                              "Manrope"
+                      ],
+                      "label-caps": [
+                              "Manrope"
+                      ],
+                      "h2": [
+                              "Manrope"
+                      ]
+              },
+              "fontSize": {
+                      "h1": [
+                              "32px",
+                              {
+                                      "lineHeight": "1.3",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "display-hero-mobile": [
+                              "36px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "display-hero": [
+                              "48px",
+                              {
+                                      "lineHeight": "1.1",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "button": [
+                              "14px",
+                              {
+                                      "lineHeight": "1",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "label-caps": [
+                              "12px",
+                              {
+                                      "lineHeight": "1",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "h2": [
+                              "24px",
+                              {
+                                      "lineHeight": "1.4",
+                                      "fontWeight": "600"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+        body {
+            background-color: #F9F7F2; /* Warm Ivory Canvas */
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="min-h-screen flex flex-col items-center justify-between font-body-md text-on-surface antialiased overflow-hidden selection:bg-secondary-fixed selection:text-on-secondary-fixed">
+<!-- Top Navigation (Back Button) -->
+<header class="w-full max-w-md px-md py-md flex items-center justify-start absolute top-0 left-0 right-0 mx-auto z-10">
+<button aria-label="Go back" class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container transition-colors duration-200 text-on-surface">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">arrow_back</span>
+</button>
+</header>
+<!-- Main Content Area -->
+<main class="w-full max-w-md px-md pt-xl pb-lg flex flex-col flex-1 justify-center z-0 mt-lg">
+<!-- Branding & Header -->
+<div class="text-center mb-lg fade-in-up">
+<h1 class="font-display-hero-mobile text-display-hero-mobile text-primary mb-sm">
+                Mee Events
+            </h1>
+<h2 class="font-h2 text-h2 text-on-surface mb-xs">
+                Welcome to Mee Events
+            </h2>
+<p class="font-body-md text-body-md text-on-surface-variant">
+                Enter your mobile number to continue
+            </p>
+</div>
+<!-- Form Area -->
+<form class="flex flex-col space-y-md fade-in-up delay-100" id="loginForm" onsubmit="event.preventDefault();">
+<!-- Mobile Number Input -->
+<div class="relative group">
+<label class="block font-label-caps text-label-caps text-on-surface-variant mb-xs uppercase tracking-wider" for="mobile_number">
+                    Mobile Number
+                </label>
+<div class="flex items-center bg-surface border border-[#E5DED4] rounded-lg focus-within:border-primary focus-within:ring-1 focus-within:ring-primary transition-all duration-200 overflow-hidden">
+<div class="flex items-center justify-center px-sm py-sm bg-surface-container-low border-r border-[#E5DED4]">
+<span class="font-body-md text-body-md text-on-surface font-semibold">+91</span>
+</div>
+<input class="flex-1 bg-transparent border-none focus:ring-0 px-sm py-sm font-body-md text-body-md text-on-surface placeholder:text-outline-variant w-full" id="mobile_number" inputmode="numeric" maxlength="10" name="mobile_number" pattern="[0-9]*" placeholder="00000 00000" required="" type="tel">
+</div>
+</div>
+<!-- Primary Action -->
+<button class="w-full py-md bg-primary-container text-on-primary rounded-full font-button text-button hover:bg-primary transition-colors duration-300 shadow-[0px_10px_30px_rgba(74,14,14,0.05)] flex justify-center items-center group/btn mt-md" type="submit">
+<span>Continue</span>
+<span class="material-symbols-outlined ml-xs opacity-0 -translate-x-2 group-hover/btn:opacity-100 group-hover/btn:translate-x-0 transition-all duration-300" style="font-size: 18px;">arrow_forward</span>
+</button>
+<div class="text-center mt-sm">
+<a class="font-button text-button text-surface-tint hover:text-primary transition-colors duration-200 underline decoration-1 underline-offset-4" href="#">
+                    Having trouble?
+                </a>
+</div>
+</form>
+</main>
+<!-- Footer Terms -->
+<footer class="w-full max-w-md px-md pb-md text-center fade-in-up delay-200">
+<p class="font-body-md text-[13px] text-on-surface-variant leading-relaxed">
+            By continuing, you agree to our 
+            <a class="text-on-surface underline decoration-1 underline-offset-2 hover:text-primary transition-colors" href="#">Terms of Service</a> 
+            and 
+            <a class="text-on-surface underline decoration-1 underline-offset-2 hover:text-primary transition-colors" href="#">Privacy Policy</a>.
+        </p>
+</footer>
+<style>
+        .fade-in-up {
+            animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        
+        .delay-100 {
+            animation-delay: 0.1s;
+        }
+        
+        .delay-200 {
+            animation-delay: 0.2s;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+<script>
+        // Simple visual feedback for input
+        const inputField = document.getElementById('mobile_number');
+        inputField.addEventListener('input', function(e) {
+            // Allow only numbers
+            this.value = this.value.replace(/[^0-9]/g, '');
+        });
+    </script>
+</body></html>

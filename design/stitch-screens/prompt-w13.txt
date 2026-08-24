@@ -1,0 +1,100 @@
+PROJECT CONTEXT
+
+Design a production-ready mobile experience for Mee Events, a Hyderabad-based
+managed event marketplace. This is one shared app with Customer, Vendor, and
+Worker roles. Customer is the default role; approved additional roles are
+available through a role switcher.
+
+BUSINESS RULES
+
+Customers browse Mee Events offerings, build an event plan, submit an enquiry,
+approve a quotation, pay Mee Events, and track event delivery. They do not
+compare or choose operational vendors. Vendor identity is visible only when Mee
+Events marks it as disclosed. Vendors manage private base prices, listings,
+assigned work orders, invoices, and settlements; they never see customer prices,
+margins, or competitor data. Workers manage availability, assigned work,
+attendance, proof of work, and earnings; they never see customer or vendor
+financial data and do not directly contact customers.
+
+VISUAL SYSTEM
+
+Use a premium, calm, trustworthy, photography-led Indian event aesthetic. Use
+warm ivory #F9F7F2 for the canvas, white cards, soft warm neutral surfaces,
+deep burgundy #4A0E0E for primary actions, ink #1A1A1A for main text,
+muted brown-grey #68635E for secondary text, thin #E5DED4 borders, and restrained
+gold #C5A059 accents. Display headings use EB Garamond; interface text uses
+Manrope. Use 14 px card radii, 20 px prominent container radii, generous spacing,
+hairline borders, and minimal shadow. Use authentic Indian event photography,
+not illustrations or generic Western wedding imagery. Vendor green and Worker
+blue may appear only as small role-context accents; all roles remain one brand.
+
+UX RULES
+
+Design at 390 x 844. Use one primary action per screen, 44 px minimum touch
+targets, visible form labels, concise Indian English, Indian Rupee formatting,
+and realistic Hyderabad content. Use progressive disclosure and clear status
+text. Do not use emoji decoration, glassmorphism, neon gradients, generic purple
+AI styling, crowded dashboards, card soup, or lorem ipsum.
+
+OUTPUT EXPECTATION
+
+Create polished, implementation-ready mobile screens with consistent reusable
+components, realistic content, clear hierarchy, and complete navigation context.
+Use the exact screen names requested. Do not add unrelated functionality.
+
+MODULE: WORKER FIELD EXECUTION
+
+WORKER NAVIGATION
+
+Use five bottom destinations: Home, Assignments, Availability, Earnings,
+Profile. Use worker blue #3B5F9C only as a small role-context accent; keep the shared Mee
+Events brand system.
+
+FIELD UX PRIORITIES
+
+Design for bright outdoor conditions, one-handed use, limited time, intermittent
+connectivity, and users with varied digital confidence. Use large status labels,
+short instructions, generous tap targets, and persistent clarity about queued
+versus server-confirmed actions.
+
+REQUIRED EXPERIENCE
+
+Worker Home shows availability status, next assignment, check-in readiness,
+important announcement, and a single context-sensitive primary action.
+
+Assignment Offer shows event type, locality, reporting time, expected duration,
+Mee Events supervisor, role, duties summary, payable amount if authorised,
+response deadline, and Accept or Decline. Reveal no customer contact and no event
+financials.
+
+Assignments and Daily Schedule separates offers, upcoming, active, and completed.
+Assignment Detail shows venue directions, reporting point, supervisor, schedule,
+work instructions, checklist, required items, help, and attendance controls.
+
+Check In requests location permission only if required, explains why, shows
+distance or verification condition, time, and manual-help path. Create confirmed,
+outside permitted area, permission denied, and offline queued treatments without
+making the screen feel punitive.
+
+Active Checklist uses large checkboxes, progress, notes, photo-required markers,
+and blocked-task escalation. Proof of Work supports photo capture, caption,
+supervisor sign-off where required, upload progress, retry, and queued offline.
+
+Incident or Help prioritises safety with Emergency, Injury, Material issue,
+Schedule issue, Missing resource, and Other. It contacts Mee Events operations,
+not the customer.
+
+Check Out summarises completed tasks, exceptions, evidence, actual time, and
+completion declaration. Clearly separate submitted for supervisor approval from
+approved completion.
+
+Exact screen names (use these titles exactly):
+1. W13A Worker Home
+2. W13B Assignment Offer
+3. W13C Assignments and Daily Schedule
+4. W13D Assignment Detail
+5. W13E Check In — Location Consent
+6. W13F Active Assignment Checklist
+7. W13G Submit Proof of Work
+8. W13H Report Incident or Get Help
+9. W13I Check Out and Completion

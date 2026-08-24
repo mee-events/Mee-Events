@@ -45,6 +45,8 @@ dependencies:
   supabase_flutter: ^2.16.0
   flutter_dotenv: ^6.0.1
   http: ^1.6.0
+  flutter_secure_storage: ^10.3.1
+  shared_preferences: ^2.5.3
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -63,8 +65,56 @@ flutter:
     - assets/images/home/banners/
     - assets/images/home/trending/
     - assets/images/vendors/
-    - assets/images/subcategory/engagement/
-    - assets/images/subcategory/pre_wedding/
-    - assets/images/subcategory/mehndi/
-    - assets/images/subcategory/sangeet/
-    - assets/images/subcategory/wedding/
+    - assets/images/subcategory/engagement/catering/
+    - assets/images/subcategory/engagement/dj_lighting/
+    - assets/images/subcategory/engagement/entertainment/
+    - assets/images/subcategory/engagement/flower_garlands/
+    - assets/images/subcategory/engagement/grand_entry/
+    - assets/images/subcategory/engagement/house_decoration/
+    - assets/images/subcategory/engagement/mehndi_makeup/
+    - assets/images/subcategory/engagement/photography/
+    - assets/images/subcategory/engagement/special_effects/
+    - assets/images/subcategory/engagement/stage_decoration/
+    - assets/images/subcategory/engagement/wedding_gifts/
+    - assets/images/subcategory/pre_wedding/bachelor_party/
+    - assets/images/subcategory/pre_wedding/backdrops/
+    - assets/images/subcategory/pre_wedding/flower_garlands/
+    - assets/images/subcategory/pre_wedding/haldi/
+    - assets/images/subcategory/pre_wedding/house_decoration/
+    - assets/images/subcategory/pre_wedding/mangalasnanam/
+    - assets/images/subcategory/pre_wedding/mehndi_makeup/
+    - assets/images/subcategory/pre_wedding/photography/
+    - assets/images/subcategory/pre_wedding/puja_items/
+    - assets/images/subcategory/pre_wedding/wedding_gifts/
+    - assets/images/subcategory/mehndi/backdrops/
+    - assets/images/subcategory/mehndi/catering/
+    - assets/images/subcategory/mehndi/dj_lighting/
+    - assets/images/subcategory/mehndi/entertainment/
+    - assets/images/subcategory/mehndi/mehndi_makeup/
+    - assets/images/subcategory/mehndi/photography/
+    - assets/images/subcategory/mehndi/special_effects/
+    - assets/images/subcategory/mehndi/tent_house/
+    - assets/images/subcategory/sangeet/band_bharat/
+    - assets/images/subcategory/sangeet/catering/
+    - assets/images/subcategory/sangeet/dj_lighting/
+    - assets/images/subcategory/sangeet/entertainment/
+    - assets/images/subcategory/sangeet/flower_garlands/
+    - assets/images/subcategory/sangeet/grand_entry/
+    - assets/images/subcategory/sangeet/mehndi_makeup/
+    - assets/images/subcategory/sangeet/photography/
+    - assets/images/subcategory/sangeet/special_effects/
+    - assets/images/subcategory/sangeet/stage_decoration/
+    - assets/images/subcategory/sangeet/tent_house/
+    - assets/images/subcategory/wedding/band_bharat/
+    - assets/images/subcategory/wedding/catering/
+    - assets/images/subcategory/wedding/dj_lighting/
+    - assets/images/subcategory/wedding/entertainment/
+    - assets/images/subcategory/wedding/flower_garlands/
+    - assets/images/subcategory/wedding/grand_entry/
+    - assets/images/subcategory/wedding/mandapam/
+    - assets/images/subcategory/wedding/mehndi_makeup/
+    - assets/images/subcategory/wedding/photography/
+    - assets/images/subcategory/wedding/puja_items/
+    - assets/images/subcategory/wedding/special_effects/
+    - assets/images/subcategory/wedding/wedding_concepts/
+    - assets/images/subcategory/wedding/wedding_gifts/

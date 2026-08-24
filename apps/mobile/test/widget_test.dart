@@ -3,7 +3,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mee_events/theme/theme.dart';
 
 void main() {
-  testWidgets('AppTheme.light applies Mee Events brand primary', (tester) async {
+  testWidgets('AppTheme.light applies Mee Events brand primary', (
+    tester,
+  ) async {
     late ColorScheme scheme;
     await tester.pumpWidget(
       MaterialApp(

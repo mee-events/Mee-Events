@@ -30,7 +30,9 @@ class _VendorProgressScreenState extends ConsumerState<VendorProgressScreen> {
     if (_summary.text.trim().isEmpty) return;
     setState(() => _busy = true);
     try {
-      await ref.read(vendorOperationsRepositoryProvider).progress(
+      await ref
+          .read(vendorOperationsRepositoryProvider)
+          .progress(
             assignmentId: widget.assignmentId,
             summary: _summary.text.trim(),
             status: _status,
@@ -52,7 +54,7 @@ class _VendorProgressScreenState extends ConsumerState<VendorProgressScreen> {
         padding: const EdgeInsets.all(AppSpacing.lg),
         children: [
           DropdownButtonFormField<String>(
-            value: _status,
+            initialValue: _status,
             items: const [
               DropdownMenuItem(value: 'planning', child: Text('Planning')),
               DropdownMenuItem(value: 'travelling', child: Text('Travelling')),

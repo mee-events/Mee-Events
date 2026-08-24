@@ -29,9 +29,9 @@ class _OperationsAttendanceScreenState
       ref.invalidate(operationsDashboardProvider);
     } catch (error) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(error.toString())),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(error.toString())));
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -49,16 +49,12 @@ class _OperationsAttendanceScreenState
           children: [
             TextField(
               controller: eventController,
-              decoration: const InputDecoration(
-                labelText: 'Event record ID',
-              ),
+              decoration: const InputDecoration(labelText: 'Event record ID'),
             ),
             const SizedBox(height: AppSpacing.sm),
             TextField(
               controller: workerController,
-              decoration: const InputDecoration(
-                labelText: 'Worker ID',
-              ),
+              decoration: const InputDecoration(labelText: 'Worker ID'),
             ),
           ],
         ),
@@ -94,9 +90,7 @@ class _OperationsAttendanceScreenState
         title: const Text('Check out'),
         content: TextField(
           controller: logController,
-          decoration: const InputDecoration(
-            labelText: 'Attendance log ID',
-          ),
+          decoration: const InputDecoration(labelText: 'Attendance log ID'),
         ),
         actions: [
           TextButton(
@@ -133,9 +127,9 @@ class _OperationsAttendanceScreenState
           message: 'Sign in to manage attendance.',
           actionLabel: 'Sign in',
           onAction: () {
-            Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const LoginScreen()),
-            );
+            Navigator.of(
+              context,
+            ).push(MaterialPageRoute(builder: (_) => const LoginScreen()));
           },
         ),
       );

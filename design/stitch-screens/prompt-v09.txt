@@ -1,0 +1,88 @@
+PROJECT CONTEXT
+
+Design a production-ready mobile experience for Mee Events, a Hyderabad-based
+managed event marketplace. This is one shared app with Customer, Vendor, and
+Worker roles. Customer is the default role; approved additional roles are
+available through a role switcher.
+
+BUSINESS RULES
+
+Customers browse Mee Events offerings, build an event plan, submit an enquiry,
+approve a quotation, pay Mee Events, and track event delivery. They do not
+compare or choose operational vendors. Vendor identity is visible only when Mee
+Events marks it as disclosed. Vendors manage private base prices, listings,
+assigned work orders, invoices, and settlements; they never see customer prices,
+margins, or competitor data. Workers manage availability, assigned work,
+attendance, proof of work, and earnings; they never see customer or vendor
+financial data and do not directly contact customers.
+
+VISUAL SYSTEM
+
+Use a premium, calm, trustworthy, photography-led Indian event aesthetic. Use
+warm ivory #F9F7F2 for the canvas, white cards, soft warm neutral surfaces,
+deep burgundy #4A0E0E for primary actions, ink #1A1A1A for main text,
+muted brown-grey #68635E for secondary text, thin #E5DED4 borders, and restrained
+gold #C5A059 accents. Display headings use EB Garamond; interface text uses
+Manrope. Use 14 px card radii, 20 px prominent container radii, generous spacing,
+hairline borders, and minimal shadow. Use authentic Indian event photography,
+not illustrations or generic Western wedding imagery. Vendor green and Worker
+blue may appear only as small role-context accents; all roles remain one brand.
+
+UX RULES
+
+Design at 390 x 844. Use one primary action per screen, 44 px minimum touch
+targets, visible form labels, concise Indian English, Indian Rupee formatting,
+and realistic Hyderabad content. Use progressive disclosure and clear status
+text. Do not use emoji decoration, glassmorphism, neon gradients, generic purple
+AI styling, crowded dashboards, card soup, or lorem ipsum.
+
+OUTPUT EXPECTATION
+
+Create polished, implementation-ready mobile screens with consistent reusable
+components, realistic content, clear hierarchy, and complete navigation context.
+Use the exact screen names requested. Do not add unrelated functionality.
+
+MODULE: VENDOR ONBOARDING AND APPROVAL
+
+USER GOAL
+
+Apply to offer sale products, rental products, services, or any combination
+through Mee Events and clearly understand the review process.
+
+REQUIRED EXPERIENCE
+
+Create the nine named screens as a progressive application with save-and-exit,
+step progress, clear document privacy, and no false promise of approval.
+Capture offering types; legal/business identity; owner and contact details;
+address; Hyderabad service areas; categories; verification requirements;
+document upload; an initial listing with private vendor base price; review;
+declaration; and submission result.
+
+The review screen must explicitly state: Mee Events reviews the application and
+listings; Mee Events controls final customer pricing; vendor base prices are
+private; public vendor identity is controlled by Mee Events.
+
+Status supports Draft, Submitted, Under review, Changes requested, Resubmitted,
+Approved, Rejected, Suspended, and Revoked. Changes Requested shows actionable
+reviewer feedback per section, due guidance, edit links, and Resubmit. An
+unapproved vendor must not see an approved vendor dashboard.
+
+Exact screen names (use these titles exactly):
+1. V09A Become a Vendor — Overview
+2. V09B Vendor Application — Offering Types
+3. V09C Vendor Application — Business and Owner
+4. V09D Vendor Application — Service Areas and Categories
+5. V09E Vendor Application — Verification Documents
+6. V09F Vendor Application — Initial Listing
+7. V09G Vendor Application — Review and Declaration
+8. V09H Vendor Application — Status
+9. V09I Vendor Application — Changes Requested
+
+Use soft vendor green #167463 only on the role chip / small role marker. Keep Mee Events burgundy as the primary brand colour.
+
+ACCEPTANCE CRITERIA
+
+- Long application feels manageable.
+- Uploaded verification files appear private and secure.
+- Base price and customer price are never confused.
+- Status and next action are always explicit.

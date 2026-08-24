@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Approval Detail: Décor Concept</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600&amp;family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+                  "primary-fixed-dim": "#ffb3ad",
+                  "primary": "#2a0002",
+                  "on-primary-fixed-variant": "#77302d",
+                  "on-background": "#1c1b1b",
+                  "tertiary": "#0f100d",
+                  "on-primary-fixed": "#3d0506",
+                  "tertiary-fixed-dim": "#c8c6c2",
+                  "outline": "#877270",
+                  "error-container": "#ffdad6",
+                  "on-surface": "#1c1b1b",
+                  "surface-container": "#f0eded",
+                  "error": "#ba1a1a",
+                  "on-secondary-fixed": "#261900",
+                  "surface-variant": "#e5e2e1",
+                  "surface-container-high": "#eae7e7",
+                  "on-primary": "#ffffff",
+                  "on-tertiary-fixed-variant": "#474744",
+                  "outline-variant": "#dac1bf",
+                  "surface-bright": "#fcf9f8",
+                  "on-secondary-fixed-variant": "#5d4201",
+                  "surface-tint": "#954742",
+                  "inverse-surface": "#313030",
+                  "surface-container-low": "#f6f3f2",
+                  "tertiary-container": "#242522",
+                  "surface-dim": "#dcd9d9",
+                  "surface-container-highest": "#e5e2e1",
+                  "primary-fixed": "#ffdad7",
+                  "tertiary-fixed": "#e4e2dd",
+                  "on-surface-variant": "#544341",
+                  "secondary-fixed-dim": "#e9c176",
+                  "primary-container": "#4a0e0e",
+                  "on-secondary-container": "#785a1a",
+                  "secondary-fixed": "#ffdea5",
+                  "on-tertiary-container": "#8c8c88",
+                  "surface": "#fcf9f8",
+                  "on-error-container": "#93000a",
+                  "surface-container-lowest": "#ffffff",
+                  "secondary": "#775a19",
+                  "inverse-primary": "#ffb3ad",
+                  "on-primary-container": "#cc726d",
+                  "secondary-container": "#fed488",
+                  "inverse-on-surface": "#f3f0ef",
+                  "background": "#fcf9f8",
+                  "on-secondary": "#ffffff",
+                  "on-tertiary": "#ffffff",
+                  "on-tertiary-fixed": "#1b1c19",
+                  "on-error": "#ffffff"
+          },
+          "borderRadius": {
+                  "DEFAULT": "0.25rem",
+                  "lg": "0.5rem",
+                  "xl": "0.75rem",
+                  "full": "9999px"
+          },
+          "spacing": {
+                  "lg": "48px",
+                  "xl": "80px",
+                  "container-max": "1280px",
+                  "sm": "12px",
+                  "gutter": "24px",
+                  "md": "24px",
+                  "xs": "4px",
+                  "base": "8px"
+          },
+          "fontFamily": {
+                  "display-hero-mobile": [
+                          "EB Garamond"
+                  ],
+                  "body-lg": [
+                          "Manrope"
+                  ],
+                  "button": [
+                          "Manrope"
+                  ],
+                  "h1": [
+                          "Manrope"
+                  ],
+                  "h2": [
+                          "Manrope"
+                  ],
+                  "label-caps": [
+                          "Manrope"
+                  ],
+                  "body-md": [
+                          "Manrope"
+                  ],
+                  "display-hero": [
+                          "EB Garamond"
+                  ]
+          },
+          "fontSize": {
+                  "display-hero-mobile": [
+                          "36px",
+                          {
+                                  "lineHeight": "1.2",
+                                  "fontWeight": "500"
+                          }
+                  ],
+                  "body-lg": [
+                          "18px",
+                          {
+                                  "lineHeight": "1.6",
+                                  "fontWeight": "400"
+                          }
+                  ],
+                  "button": [
+                          "14px",
+                          {
+                                  "lineHeight": "1",
+                                  "fontWeight": "600"
+                          }
+                  ],
+                  "h1": [
+                          "32px",
+                          {
+                                  "lineHeight": "1.3",
+                                  "fontWeight": "700"
+                          }
+                  ],
+                  "h2": [
+                          "24px",
+                          {
+                                  "lineHeight": "1.4",
+                                  "fontWeight": "600"
+                          }
+                  ],
+                  "label-caps": [
+                          "12px",
+                          {
+                                  "lineHeight": "1",
+                                  "letterSpacing": "0.05em",
+                                  "fontWeight": "700"
+                          }
+                  ],
+                  "body-md": [
+                          "16px",
+                          {
+                                  "lineHeight": "1.6",
+                                  "fontWeight": "400"
+                          }
+                  ],
+                  "display-hero": [
+                          "48px",
+                          {
+                                  "lineHeight": "1.1",
+                                  "letterSpacing": "-0.02em",
+                                  "fontWeight": "500"
+                          }
+                  ]
+          }
+  },
+      },
+    }
+  </script>
+<style>
+    body {
+      background-color: #F9F7F2; /* Warm Ivory Canvas */
+    }
+    
+    .card-shadow:hover {
+      box-shadow: 0px 10px 30px rgba(74, 14, 14, 0.05);
+    }
+    
+    .soft-border {
+      border-color: #E5DED4;
+    }
+    
+    /* Overlay for modal */
+    #approval-modal, #request-changes-modal {
+      display: none;
+      backdrop-filter: blur(4px);
+    }
+    
+    #approval-modal.active, #request-changes-modal.active {
+      display: flex;
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="text-on-background font-body-md bg-[#F9F7F2] pb-24 md:pb-0">
+<!-- TopAppBar -->
+<header class="bg-surface dark:bg-surface-dim docked full-width top-0 border-b border-outline-variant dark:border-outline flat no shadows sticky z-40">
+<div class="flex justify-between items-center w-full px-md h-16 max-w-container-max mx-auto">
+<div class="flex items-center gap-4">
+<button class="text-primary dark:text-primary-fixed-dim hover:bg-surface-container dark:hover:bg-surface-container-high transition-colors p-2 rounded-full hidden md:block">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<span class="font-display-hero-mobile text-display-hero-mobile text-primary dark:text-primary-fixed-dim">Mee Events</span>
+</div>
+<div>
+<button class="text-primary dark:text-primary-fixed-dim hover:bg-surface-container dark:hover:bg-surface-container-high transition-colors p-2 rounded-full">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Main Content -->
+<main class="max-w-container-max mx-auto px-md md:px-lg pt-lg pb-xl flex flex-col gap-lg">
+<!-- Header Section -->
+<section class="flex flex-col md:flex-row md:items-end justify-between gap-md border-b soft-border pb-md">
+<div>
+<div class="flex items-center gap-2 mb-2">
+<span class="bg-[#F9F7F2] text-on-surface-variant font-label-caps text-label-caps px-3 py-1 rounded-full soft-border border">Sangeet</span>
+<span class="text-on-surface-variant font-label-caps text-label-caps">Version 2</span>
+</div>
+<h1 class="font-display-hero-mobile md:font-display-hero text-display-hero-mobile md:text-display-hero text-primary mb-2">Décor Concept</h1>
+<p class="text-on-surface-variant flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">person</span>
+          Prepared by Mee Events
+        </p>
+</div>
+<div class="flex items-center gap-4">
+<a class="text-on-surface-variant text-sm underline hover:text-primary transition-colors" href="#">Version history</a>
+<button class="flex items-center gap-2 text-primary hover:bg-surface-container transition-colors px-4 py-2 rounded-lg soft-border border bg-surface">
+<span class="material-symbols-outlined">download</span>
+<span class="font-button text-button">Download PDF</span>
+</button>
+</div>
+</section>
+<!-- Content Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+<!-- Left Column: Visuals -->
+<div class="lg:col-span-8 flex flex-col gap-md">
+<!-- Moodboard / Gallery -->
+<div class="bg-surface rounded-[14px] border soft-border p-sm md:p-md card-shadow transition-shadow">
+<h2 class="font-h2 text-h2 text-primary mb-md">Concept Gallery</h2>
+<div class="grid grid-cols-2 md:grid-cols-3 gap-sm">
+<div class="col-span-2 md:col-span-2 row-span-2 aspect-[4/3] rounded-lg overflow-hidden relative soft-border border">
+<div class="bg-cover bg-center w-full h-full absolute inset-0" data-alt="A grand Indian Sangeet stage design featuring opulent floral arrangements in deep burgundy and gold, softly illuminated by warm, ambient lighting. The modern premium aesthetic blends traditional motifs with contemporary elegance in a high-end editorial style." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAayScfoMRI76mEDWXX9Gck0tRAdxtPTb5k7aFerEPlSv-Dbyt0XLVZMbpc8IZzKQ29Fdsf4lCEBnnpd6w63FBhMx7s_9o-h75WtlGMdoeiLqomxvpXvZGlUJ9_Z6Xy3fT_kSd4GpN1n18_nK3EkPYpySmMzuDOyHyVyPiSmwymNOfWR5pFyA0eeo82jz5qNj6YXm1os0EEn7KnyHLt3Yp31qp25NKps1CeITKQHziKSuV5ThYJI4g7')"></div>
+</div>
+<div class="aspect-square rounded-lg overflow-hidden relative soft-border border">
+<div class="bg-cover bg-center w-full h-full absolute inset-0" data-alt="Detailed close-up of luxurious seating arrangements for an Indian Sangeet. Velvet upholstery in rich jewel tones, accented with delicate gold framing. The lighting is intimate and warm, creating a welcoming, tactile elegance consistent with a modern premium event." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAYNEtM87YS79EJCUGmPHjTzX5JeFjCk6KLNiDnVrNdVjspGyXJVjmugW-3jKMpZYqTyt9E-p5FqqdB1K6YyHdO7x7lZuS0MT3kJpqvHGbR703xXhKF4AZs0sLBn5kO8y32DDf04EKtxIupG45MJ05Wsxonba-WxOAlfQ8pm0HtvjgTpUw3HSmfA8BPnNuSDDbAAu_YmCqCI3p_yExqApqDcDWGw1-T0FmWGyLVutSj-8iu6mRIvlux')"></div>
+</div>
+<div class="aspect-square rounded-lg overflow-hidden relative soft-border border">
+<div class="bg-cover bg-center w-full h-full absolute inset-0" data-alt="Intricate floral table centerpieces for a high-end Sangeet celebration. Richly textured blooms in shades of crimson and cream, set against crisp white linens. Soft, sophisticated lighting highlights the tactile elegance and exclusive atmosphere of the event design." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCN5HAEYP4X4aTqZRfGKtQU5e0m-TdQj_7FIZixtBIo6DfLdei1AlDKD7mm5oehCeOIH9XL9oolE8qCth7WJA8T37KMP6tlP4qMLaT-sH27upAgQw8tZDqvlS4OL5jS-kPQz9DIaZ6yUrh1dnBbBJYMylFPMlXLO1vgSwnxX6ALSP9IsyIQfoKRJfMJ9cR9_Nnn7G8_iN4jb9o8EaKGBjOaA_sCxSLkYAkfFtv88eNcJrToT1EHJuJk')"></div>
+</div>
+</div>
+</div>
+<!-- Color Palette -->
+<div class="bg-surface rounded-[14px] border soft-border p-md card-shadow transition-shadow">
+<h2 class="font-h2 text-h2 text-primary mb-md">Color Palette</h2>
+<div class="flex flex-wrap gap-4">
+<div class="flex flex-col items-center gap-2">
+<div class="w-16 h-16 rounded-full bg-[#4a0e0e] border border-white shadow-sm"></div>
+<span class="font-label-caps text-label-caps text-on-surface-variant">Burgundy</span>
+</div>
+<div class="flex flex-col items-center gap-2">
+<div class="w-16 h-16 rounded-full bg-[#e9c176] border border-white shadow-sm"></div>
+<span class="font-label-caps text-label-caps text-on-surface-variant">Antique Gold</span>
+</div>
+<div class="flex flex-col items-center gap-2">
+<div class="w-16 h-16 rounded-full bg-[#F9F7F2] border soft-border shadow-sm"></div>
+<span class="font-label-caps text-label-caps text-on-surface-variant">Warm Ivory</span>
+</div>
+<div class="flex flex-col items-center gap-2">
+<div class="w-16 h-16 rounded-full bg-[#cc726d] border border-white shadow-sm"></div>
+<span class="font-label-caps text-label-caps text-on-surface-variant">Rose Blush</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Column: Details & Actions -->
+<div class="lg:col-span-4 flex flex-col gap-md">
+<!-- Details Card -->
+<div class="bg-surface rounded-[14px] border soft-border p-md card-shadow transition-shadow flex flex-col gap-6">
+<div>
+<h3 class="font-label-caps text-label-caps text-on-surface-variant mb-2">Stage Concept</h3>
+<p class="text-on-background">A tiered, architectural backdrop featuring interwoven floral arches and integrated LED uplighting to create a sense of depth and grandeur while maintaining a modern, clean silhouette.</p>
+</div>
+<div class="h-[1px] w-full bg-[#E5DED4]"></div>
+<div>
+<h3 class="font-label-caps text-label-caps text-on-surface-variant mb-2">Seating Direction</h3>
+<p class="text-on-background">Lounge-style groupings utilizing velvet sofas in deep burgundy, paired with brass-accented coffee tables to foster an intimate, celebratory atmosphere.</p>
+</div>
+<div class="h-[1px] w-full bg-[#E5DED4]"></div>
+<div>
+<h3 class="font-label-caps text-label-caps text-on-surface-variant mb-2">Floral Direction</h3>
+<p class="text-on-background">Lush, cascading installations focusing on rich, textural blooms. Primary floral elements will utilize deep reds and creams to contrast against the architectural gold elements.</p>
+</div>
+<div class="h-[1px] w-full bg-[#E5DED4]"></div>
+<div>
+<h3 class="font-label-caps text-label-caps text-on-surface-variant mb-2">Included Scope</h3>
+<ul class="list-disc pl-5 text-on-background space-y-1">
+<li>Main Stage Backdrop &amp; Flooring</li>
+<li>Guest Lounge Furniture (for 150 pax)</li>
+<li>Entrance Floral Archway</li>
+<li>Ambient Lighting Package</li>
+</ul>
+</div>
+</div>
+<!-- Notes -->
+<div class="bg-[#f6f3f2] rounded-[14px] border soft-border p-md">
+<h3 class="font-label-caps text-label-caps text-on-surface-variant mb-2 flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">edit_note</span>
+            Notes from Priya
+          </h3>
+<p class="text-on-background italic">"We've updated the floral density on the stage per your feedback in Version 1 to ensure a more opulent feel without crowding the performance area."</p>
+</div>
+<!-- Sticky Actions (Desktop) / Normal (Mobile) -->
+<div class="mt-auto pt-md flex flex-col gap-4 sticky top-24">
+<button class="w-full bg-primary-container text-on-primary py-4 px-6 rounded-lg font-button text-button hover:bg-primary transition-colors text-center shadow-lg shadow-[#4a0e0e]/10" onclick="document.getElementById('approval-modal').classList.add('active')">
+            Approve concept
+          </button>
+<button class="w-full bg-transparent border border-primary-container text-primary-container py-4 px-6 rounded-lg font-button text-button hover:bg-surface-container transition-colors text-center" onclick="document.getElementById('request-changes-modal').classList.add('active')">
+            Request changes
+          </button>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden bg-surface dark:bg-surface-dim docked full-width bottom-0 rounded-t-xl border-t border-outline-variant dark:border-outline shadow-sm fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-safe h-20">
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant pt-1 hover:text-primary dark:hover:text-primary-fixed-dim transition-all" href="#">
+<span class="material-symbols-outlined mb-1">home</span>
+<span class="font-label-caps text-label-caps">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant pt-1 hover:text-primary dark:hover:text-primary-fixed-dim transition-all" href="#">
+<span class="material-symbols-outlined mb-1">search</span>
+<span class="font-label-caps text-label-caps">Explore</span>
+</a>
+<a class="flex flex-col items-center justify-center text-primary dark:text-primary-fixed-dim border-t-2 border-secondary pt-1 scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">event_note</span>
+<span class="font-label-caps text-label-caps">Plan</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant pt-1 hover:text-primary dark:hover:text-primary-fixed-dim transition-all" href="#">
+<span class="material-symbols-outlined mb-1">chat_bubble</span>
+<span class="font-label-caps text-label-caps">Enquiries</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant pt-1 hover:text-primary dark:hover:text-primary-fixed-dim transition-all" href="#">
+<span class="material-symbols-outlined mb-1">person</span>
+<span class="font-label-caps text-label-caps">Account</span>
+</a>
+</nav>
+<!-- Modals -->
+<!-- Approval Modal -->
+<div class="fixed inset-0 z-[100] bg-black/40 items-center justify-center p-4" id="approval-modal">
+<div class="bg-surface rounded-[14px] border soft-border p-md max-w-md w-full shadow-2xl">
+<div class="flex justify-between items-center mb-6">
+<h2 class="font-h2 text-h2 text-primary">Confirm Approval</h2>
+<button class="text-on-surface-variant hover:text-primary" onclick="document.getElementById('approval-modal').classList.remove('active')">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<p class="text-on-background mb-6">You are approving Version 2 of the Sangeet Décor Concept.</p>
+<label class="flex items-start gap-3 mb-8 cursor-pointer">
+<input class="mt-1 rounded border-outline-variant text-primary-container focus:ring-primary-container h-5 w-5 bg-white" type="checkbox"/>
+<span class="text-sm text-on-background">I have reviewed this concept and acknowledge that further structural changes may incur additional design fees.</span>
+</label>
+<div class="flex gap-4">
+<button class="flex-1 bg-transparent border border-outline-variant text-on-surface-variant py-3 rounded-lg font-button text-button hover:bg-surface-container transition-colors" onclick="document.getElementById('approval-modal').classList.remove('active')">
+          Cancel
+        </button>
+<button class="flex-1 bg-primary-container text-on-primary py-3 rounded-lg font-button text-button hover:bg-primary transition-colors opacity-50 cursor-not-allowed">
+          Confirm
+        </button>
+</div>
+</div>
+</div>
+<!-- Request Changes Modal -->
+<div class="fixed inset-0 z-[100] bg-black/40 items-center justify-center p-4" id="request-changes-modal">
+<div class="bg-surface rounded-[14px] border soft-border p-md max-w-lg w-full shadow-2xl">
+<div class="flex justify-between items-center mb-6">
+<h2 class="font-h2 text-h2 text-primary">Request Changes</h2>
+<button class="text-on-surface-variant hover:text-primary" onclick="document.getElementById('request-changes-modal').classList.remove('active')">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<div class="mb-6">
+<label class="block font-label-caps text-label-caps text-on-surface-variant mb-2" for="change-message">Message for Design Team</label>
+<textarea class="w-full bg-white border soft-border rounded-lg p-3 text-on-background focus:ring-1 focus:ring-primary-container focus:border-primary-container resize-none" id="change-message" placeholder="Please detail the adjustments you'd like to see..." rows="5"></textarea>
+</div>
+<div class="flex gap-4">
+<button class="flex-1 bg-transparent border border-outline-variant text-on-surface-variant py-3 rounded-lg font-button text-button hover:bg-surface-container transition-colors" onclick="document.getElementById('request-changes-modal').classList.remove('active')">
+          Cancel
+        </button>
+<button class="flex-1 bg-primary-container text-on-primary py-3 rounded-lg font-button text-button hover:bg-primary transition-colors">
+          Send Request
+        </button>
+</div>
+</div>
+</div>
+</body></html>

@@ -1,0 +1,315 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Mee Events - Mehndi Ceremony</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@500&amp;family=Manrope:wght@400;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "primary-container": "#4a0e0e",
+                      "outline-variant": "#dac1bf",
+                      "on-surface-variant": "#544341",
+                      "on-tertiary-container": "#8c8c88",
+                      "secondary-fixed-dim": "#e9c176",
+                      "surface-container-low": "#f6f3f2",
+                      "on-tertiary-fixed-variant": "#474744",
+                      "surface-container-highest": "#e5e2e1",
+                      "on-error-container": "#93000a",
+                      "on-primary-fixed-variant": "#77302d",
+                      "on-surface": "#1c1b1b",
+                      "tertiary-fixed-dim": "#c8c6c2",
+                      "tertiary": "#0f100d",
+                      "on-primary": "#ffffff",
+                      "primary-fixed-dim": "#ffb3ad",
+                      "on-error": "#ffffff",
+                      "on-secondary-container": "#785a1a",
+                      "surface-container-lowest": "#ffffff",
+                      "primary-fixed": "#ffdad7",
+                      "outline": "#877270",
+                      "primary": "#2a0002",
+                      "inverse-primary": "#ffb3ad",
+                      "on-tertiary": "#ffffff",
+                      "tertiary-container": "#242522",
+                      "on-tertiary-fixed": "#1b1c19",
+                      "on-secondary-fixed": "#261900",
+                      "error-container": "#ffdad6",
+                      "on-primary-fixed": "#3d0506",
+                      "surface-container": "#f0eded",
+                      "background": "#fcf9f8",
+                      "surface-tint": "#954742",
+                      "surface": "#fcf9f8",
+                      "on-secondary": "#ffffff",
+                      "inverse-on-surface": "#f3f0ef",
+                      "secondary-fixed": "#ffdea5",
+                      "surface-dim": "#dcd9d9",
+                      "error": "#ba1a1a",
+                      "surface-variant": "#e5e2e1",
+                      "tertiary-fixed": "#e4e2dd",
+                      "surface-bright": "#fcf9f8",
+                      "secondary-container": "#fed488",
+                      "surface-container-high": "#eae7e7",
+                      "inverse-surface": "#313030",
+                      "on-secondary-fixed-variant": "#5d4201",
+                      "secondary": "#775a19",
+                      "on-background": "#1c1b1b",
+                      "on-primary-container": "#cc726d"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "sm": "12px",
+                      "gutter": "24px",
+                      "xs": "4px",
+                      "xl": "80px",
+                      "container-max": "1280px",
+                      "md": "24px",
+                      "base": "8px",
+                      "lg": "48px"
+              },
+              "fontFamily": {
+                      "body-md": [
+                              "Manrope"
+                      ],
+                      "display-hero-mobile": [
+                              "EB Garamond"
+                      ],
+                      "display-hero": [
+                              "EB Garamond"
+                      ],
+                      "h2": [
+                              "Manrope"
+                      ],
+                      "label-caps": [
+                              "Manrope"
+                      ],
+                      "body-lg": [
+                              "Manrope"
+                      ],
+                      "h1": [
+                              "Manrope"
+                      ],
+                      "button": [
+                              "Manrope"
+                      ]
+              },
+              "fontSize": {
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "display-hero-mobile": [
+                              "36px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "display-hero": [
+                              "48px",
+                              {
+                                      "lineHeight": "1.1",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "h2": [
+                              "24px",
+                              {
+                                      "lineHeight": "1.4",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "label-caps": [
+                              "12px",
+                              {
+                                      "lineHeight": "1",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "h1": [
+                              "32px",
+                              {
+                                      "lineHeight": "1.3",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "button": [
+                              "14px",
+                              {
+                                      "lineHeight": "1",
+                                      "fontWeight": "600"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+        .tactile-shadow:hover {
+            box-shadow: 0px 10px 30px rgba(74, 14, 14, 0.05);
+        }
+        .img-inner-glow {
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.2);
+        }
+      </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface antialiased font-body-md selection:bg-primary-container selection:text-on-primary">
+<!-- Top Navigation (Contextual departure, hiding global nav, showing focused header) -->
+<header class="sticky top-0 z-50 bg-surface/90 backdrop-blur-md border-b border-outline-variant flex justify-between items-center px-gutter py-sm w-full max-w-container-max mx-auto transition-all duration-300">
+<a class="flex items-center gap-2 text-primary hover:opacity-80 transition-opacity" href="#">
+<span class="material-symbols-outlined text-[24px]">arrow_back</span>
+<span class="font-button text-button">Back to Wedding</span>
+</a>
+<div class="font-display-hero-mobile md:font-display-hero text-display-hero-mobile md:text-display-hero text-primary tracking-tight">Mee Events</div>
+<button class="text-on-surface-variant hover:bg-surface-container-low p-2 rounded-full transition-colors">
+<span class="material-symbols-outlined">favorite_border</span>
+</button>
+</header>
+<main class="max-w-container-max mx-auto px-gutter py-lg md:py-xl space-y-xl">
+<!-- Hero Section: Asymmetric Layout -->
+<section class="grid grid-cols-1 md:grid-cols-12 gap-gutter items-center">
+<div class="md:col-span-5 space-y-md">
+<h1 class="font-display-hero-mobile md:font-display-hero text-display-hero-mobile md:text-display-hero text-primary">The Mehndi Ceremony</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant leading-relaxed">
+                    A vibrant celebration of art, love, and joyous beginnings. The Mehndi ceremony is a colorful pre-wedding festivity where intricate henna designs adorn the bride's hands and feet, accompanied by music, dance, and laughter with close family and friends.
+                </p>
+<div class="pt-sm">
+<button class="bg-primary-container text-on-primary font-button text-button py-3 px-8 rounded-full hover:bg-primary transition-colors tactile-shadow inline-flex items-center gap-2">
+<span>Add Mehndi to plan</span>
+<span class="material-symbols-outlined text-[18px]">add</span>
+</button>
+</div>
+</div>
+<div class="md:col-span-7 relative h-[530px] min-h-[400px] rounded-xl overflow-hidden img-inner-glow border border-outline-variant">
+<img class="absolute inset-0 w-full h-full object-cover" data-alt="A vibrant and joyous Indian Mehndi ceremony in a lush outdoor setting. The bride, wearing a bright yellow and pink floral lehenga, sits surrounded by friends and family. A skilled henna artist applies intricate designs to her hands. The scene is decorated with colorful marigold garlands, plush floor seating, and soft, natural afternoon sunlight filtering through colorful drapes. Modern Indian premium aesthetic, warm ivory tones, high-resolution photography." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB7w7SpCbqFTP2HaLd1XSK4NIN1kF5PqNWr552shDQDToN538--hnmUpHkTaPdGYpgGTiq9JvNDjkJf-KUKtHhSmlgCzl06ISe53MzFUTL-UYne5JOaBVEc1kV4eYxyh2I45HtB0mlcKISoLbQcZkRbzLkqo0XX_hoEfICtNEZZ0_vKFRZe4PZBzMarCMsEsvnR9Xf4S4zVzgqa8UOrQWnP5awfM9vX3ZT0rSLYbgJ8yu4Re_qIO0ok">
+</div>
+</section>
+<!-- Suggested Requirements: Bento Grid -->
+<section class="space-y-lg">
+<div class="flex items-end justify-between border-b border-outline-variant pb-xs">
+<h2 class="font-h1 text-h1 text-primary">Essential Elements</h2>
+<span class="font-label-caps text-label-caps text-on-surface-variant">Curated for you</span>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-gutter">
+<!-- Bento Item 1 -->
+<div class="bg-surface rounded-[14px] border border-outline-variant p-md flex flex-col items-center text-center space-y-sm tactile-shadow transition-shadow cursor-pointer hover:bg-surface-container-low group">
+<div class="w-16 h-16 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-[32px]">palette</span>
+</div>
+<h3 class="font-button text-button text-on-surface">Mehndi Artist</h3>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm">Expert henna design</p>
+</div>
+<!-- Bento Item 2 -->
+<div class="bg-surface rounded-[14px] border border-outline-variant p-md flex flex-col items-center text-center space-y-sm tactile-shadow transition-shadow cursor-pointer hover:bg-surface-container-low group">
+<div class="w-16 h-16 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-[32px]">chair_alt</span>
+</div>
+<h3 class="font-button text-button text-on-surface">Decor &amp; Seating</h3>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm">Vibrant backdrops</p>
+</div>
+<!-- Bento Item 3 -->
+<div class="bg-surface rounded-[14px] border border-outline-variant p-md flex flex-col items-center text-center space-y-sm tactile-shadow transition-shadow cursor-pointer hover:bg-surface-container-low group">
+<div class="w-16 h-16 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-[32px]">local_florist</span>
+</div>
+<h3 class="font-button text-button text-on-surface">Floral Jewellery</h3>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm">Fresh bespoke pieces</p>
+</div>
+<!-- Bento Item 4 -->
+<div class="bg-surface rounded-[14px] border border-outline-variant p-md flex flex-col items-center text-center space-y-sm tactile-shadow transition-shadow cursor-pointer hover:bg-surface-container-low group">
+<div class="w-16 h-16 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-[32px]">photo_camera</span>
+</div>
+<h3 class="font-button text-button text-on-surface">Photography</h3>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm">Candid memories</p>
+</div>
+</div>
+</section>
+<!-- Popular Offerings: Glassmorphism / Elegant Cards -->
+<section class="space-y-lg">
+<div class="flex items-end justify-between border-b border-outline-variant pb-xs">
+<h2 class="font-h1 text-h1 text-primary">Popular Mee Events Themes</h2>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-gutter">
+<!-- Theme Card 1 -->
+<div class="relative h-[300px] rounded-xl overflow-hidden group cursor-pointer border border-outline-variant tactile-shadow">
+<img class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" data-alt="A modern, vibrant 'Rajasthan Royal' themed Mehndi setup. Bright magenta, orange, and yellow fabrics draped elegantly like a desert tent. Vintage Rajasthani umbrellas, low seating with plush embroidered cushions, and brass decorative elements. Warm, inviting lighting, premium Indian style aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDsk_Eik2vkEtcWFush04M_nnvK80GEdRokx_-iWgINIJCf4SJjUBmri8Zx73hOCdjMQ4eN2HTC_rReTA_tXSXMGZtUIZdcJw_dWQlJLosM_O-7q_7SzdmWOCjXWKeAvto8WDYySqlAfpdnr9Jbw0Wq7IdFanLsA5pr5r1x9-tW9yHUjUp2i5I9i2wlZeR4NBHyIJh7Fsv_hLR84PBMhSm1huMFeJCK6u1FgK7UH4Ee9c77hkvXAaEr">
+<div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
+<div class="absolute bottom-0 left-0 p-md w-full">
+<div class="flex justify-between items-end">
+<div>
+<span class="inline-block bg-secondary-fixed-dim text-on-secondary-fixed-variant font-label-caps text-label-caps px-3 py-1 rounded-full mb-2">Featured</span>
+<h3 class="font-h2 text-h2 text-on-primary">The Royal Bazaar</h3>
+</div>
+<button class="w-10 h-10 rounded-full bg-on-primary/20 backdrop-blur-md flex items-center justify-center text-on-primary hover:bg-on-primary/40 transition-colors">
+<span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Theme Card 2 -->
+<div class="relative h-[300px] rounded-xl overflow-hidden group cursor-pointer border border-outline-variant tactile-shadow">
+<img class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" data-alt="A chic 'Pastel Floral' themed Mehndi setup in a modern, light-filled glasshouse venue. Soft blush pink, mint green, and lavender floral arrangements creating a whimsical backdrop. Elegant white lounge furniture, delicate fairy lights, and an overall airy, premium, and sophisticated Indian aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCgL2eKj5G2QUH_5iN5V_hwm9N_ucIM4oVJP8onkCX1BMzK7fx-FILXa8KfwWm0k6gbEhMRngrq2cNRmZ1gHH5nweP7eAAntZL8VsUFO6QdrCydrTdRofCvSQbS2P7lMea1eMqkMxIi3Z_ddU3oivoetfXgnPvRMG1e39DejYnenjnUS4ZxD7Tk1mGQxnPCsEBcb-visck0Pg2kQsj3LkBbI4nqomsn6B_vDMilG0RcEhPa8hGUjdSU">
+<div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
+<div class="absolute bottom-0 left-0 p-md w-full">
+<div class="flex justify-between items-end">
+<div>
+<span class="inline-block bg-surface-container-low text-on-surface-variant font-label-caps text-label-caps px-3 py-1 rounded-full mb-2">Modern</span>
+<h3 class="font-h2 text-h2 text-on-primary">Pastel Paradise</h3>
+</div>
+<button class="w-10 h-10 rounded-full bg-on-primary/20 backdrop-blur-md flex items-center justify-center text-on-primary hover:bg-on-primary/40 transition-colors">
+<span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Planning Questions Preview -->
+<section class="bg-surface-container-low rounded-[14px] border border-outline-variant p-lg md:p-xl flex flex-col md:flex-row items-center justify-between gap-lg">
+<div class="space-y-md md:w-2/3">
+<h2 class="font-h2 text-h2 text-primary">Customize your Mehndi</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Answer a few quick questions to help us tailor the perfect vendors and decor for your specific style and guest count.</p>
+<div class="flex gap-4">
+<button class="bg-transparent border border-primary text-primary font-button text-button py-2 px-6 rounded-full hover:bg-primary-container hover:text-on-primary hover:border-primary-container transition-colors">Preview Questions</button>
+</div>
+</div>
+<div class="md:w-1/3 flex justify-center">
+<div class="w-32 h-32 rounded-full bg-surface-container-highest flex items-center justify-center text-primary-container shadow-inner">
+<span class="material-symbols-outlined text-[64px]">tune</span>
+</div>
+</div>
+</section>
+</main>
+<!-- Contextual suppression of bottom nav for focused task -->
+<div class="hidden">
+<!-- BottomNav Placeholder for layout consistency if needed later, but suppressed here based on 'linear/focused journey' rules -->
+</div>
+</body></html>

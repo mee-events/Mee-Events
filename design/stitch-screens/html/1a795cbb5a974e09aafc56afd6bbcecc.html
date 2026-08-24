@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Switch Role - Mee Events</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&amp;family=EB+Garamond:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "secondary-fixed": "#ffdea5",
+                      "surface-tint": "#954742",
+                      "surface": "#fcf9f8",
+                      "inverse-on-surface": "#f3f0ef",
+                      "secondary-fixed-dim": "#e9c176",
+                      "on-tertiary": "#ffffff",
+                      "surface-container-low": "#f6f3f2",
+                      "surface-container-high": "#eae7e7",
+                      "inverse-primary": "#ffb3ad",
+                      "on-tertiary-fixed": "#1b1c19",
+                      "tertiary-fixed-dim": "#c8c6c2",
+                      "on-primary-fixed-variant": "#77302d",
+                      "background": "#fcf9f8",
+                      "surface-variant": "#e5e2e1",
+                      "surface-bright": "#fcf9f8",
+                      "on-surface": "#1c1b1b",
+                      "on-tertiary-fixed-variant": "#474744",
+                      "on-error-container": "#93000a",
+                      "primary-fixed": "#ffdad7",
+                      "on-surface-variant": "#544341",
+                      "on-primary-fixed": "#3d0506",
+                      "on-background": "#1c1b1b",
+                      "on-primary": "#ffffff",
+                      "secondary-container": "#fed488",
+                      "surface-container-lowest": "#ffffff",
+                      "surface-container": "#f0eded",
+                      "on-secondary-fixed": "#261900",
+                      "outline-variant": "#dac1bf",
+                      "tertiary": "#0f100d",
+                      "on-tertiary-container": "#8c8c88",
+                      "outline": "#877270",
+                      "on-error": "#ffffff",
+                      "primary-fixed-dim": "#ffb3ad",
+                      "inverse-surface": "#313030",
+                      "on-secondary": "#ffffff",
+                      "on-secondary-fixed-variant": "#5d4201",
+                      "error-container": "#ffdad6",
+                      "tertiary-container": "#242522",
+                      "secondary": "#775a19",
+                      "surface-dim": "#dcd9d9",
+                      "on-secondary-container": "#785a1a",
+                      "primary": "#2a0002",
+                      "primary-container": "#4a0e0e",
+                      "error": "#ba1a1a",
+                      "tertiary-fixed": "#e4e2dd",
+                      "on-primary-container": "#cc726d",
+                      "surface-container-highest": "#e5e2e1"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "md": "24px",
+                      "base": "8px",
+                      "sm": "12px",
+                      "lg": "48px",
+                      "xs": "4px",
+                      "container-max": "1280px",
+                      "gutter": "24px",
+                      "xl": "80px"
+              },
+              "fontFamily": {
+                      "h1": ["Manrope"],
+                      "body-lg": ["Manrope"],
+                      "display-hero-mobile": ["EB Garamond"],
+                      "body-md": ["Manrope"],
+                      "display-hero": ["EB Garamond"],
+                      "button": ["Manrope"],
+                      "label-caps": ["Manrope"],
+                      "h2": ["Manrope"]
+              },
+              "fontSize": {
+                      "h1": ["32px", {"lineHeight": "1.3", "fontWeight": "700"}],
+                      "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                      "display-hero-mobile": ["36px", {"lineHeight": "1.2", "fontWeight": "500"}],
+                      "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                      "display-hero": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "500"}],
+                      "button": ["14px", {"lineHeight": "1", "fontWeight": "600"}],
+                      "label-caps": ["12px", {"lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "700"}],
+                      "h2": ["24px", {"lineHeight": "1.4", "fontWeight": "600"}]
+              }
+            }
+          }
+        }
+    </script>
+<style>
+        .bottom-sheet-enter {
+            transform: translateY(100%);
+            opacity: 0;
+        }
+        .bottom-sheet-enter-active {
+            transform: translateY(0);
+            opacity: 1;
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease-out;
+        }
+        .backdrop-enter {
+            opacity: 0;
+        }
+        .backdrop-enter-active {
+            opacity: 1;
+            transition: opacity 0.3s ease-out;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface font-body-md text-body-md antialiased overflow-hidden flex items-end justify-center min-h-screen">
+<!-- Backdrop -->
+<div aria-hidden="true" class="fixed inset-0 bg-on-surface/20 backdrop-blur-sm z-40 backdrop-enter-active"></div>
+<!-- Bottom Sheet -->
+<div class="relative w-full max-w-lg bg-surface rounded-t-[24px] shadow-[0px_-10px_40px_rgba(74,14,14,0.08)] z-50 bottom-sheet-enter-active flex flex-col max-h-[795px]">
+<!-- Drag Handle / Header Area -->
+<div class="pt-sm pb-md px-md flex flex-col items-center sticky top-0 bg-surface rounded-t-[24px] z-10">
+<div class="w-12 h-1 bg-surface-variant rounded-full mb-md"></div>
+<div class="flex items-center justify-between w-full">
+<h2 class="font-display-hero-mobile text-display-hero-mobile text-on-surface">Switch role</h2>
+<button aria-label="Close" class="p-xs rounded-full hover:bg-surface-container-high transition-colors text-on-surface-variant">
+<span aria-hidden="true" class="material-symbols-outlined">close</span>
+</button>
+</div>
+</div>
+<!-- Role Options List -->
+<div class="px-md pb-md overflow-y-auto flex-1 flex flex-col gap-base">
+<!-- Customer (Active) -->
+<button aria-current="true" class="w-full min-h-[64px] rounded-xl border border-primary-container bg-surface-container-low p-sm flex items-center gap-md text-left group hover:bg-surface-container transition-colors relative overflow-hidden">
+<div class="flex-shrink-0 w-12 h-12 rounded-full bg-primary-container/10 flex items-center justify-center text-primary-container">
+<span aria-hidden="true" class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">person</span>
+</div>
+<div class="flex-1 min-w-0">
+<p class="font-button text-button text-primary-container mb-1">Customer</p>
+<p class="font-label-caps text-label-caps text-on-surface-variant truncate normal-case tracking-normal">Plan your events</p>
+</div>
+<div class="flex-shrink-0 text-primary-container">
+<span aria-hidden="true" class="material-symbols-outlined">check_circle</span>
+</div>
+<!-- Active Indicator Border -->
+<div aria-hidden="true" class="absolute inset-0 border-2 border-primary-container rounded-xl pointer-events-none"></div>
+</button>
+<!-- Vendor (Approved) -->
+<button class="w-full min-h-[64px] rounded-xl border border-surface-variant bg-surface hover:bg-surface-container-low p-sm flex items-center gap-md text-left group transition-colors">
+<div class="flex-shrink-0 w-12 h-12 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant group-hover:text-primary-container transition-colors">
+<span aria-hidden="true" class="material-symbols-outlined">storefront</span>
+</div>
+<div class="flex-1 min-w-0">
+<p class="font-button text-button text-on-surface mb-1 group-hover:text-primary-container transition-colors">Vendor</p>
+<p class="font-label-caps text-label-caps text-on-surface-variant truncate normal-case tracking-normal">Manage bookings</p>
+</div>
+<div class="flex-shrink-0 text-outline opacity-0 group-hover:opacity-100 transition-opacity">
+<span aria-hidden="true" class="material-symbols-outlined">arrow_forward_ios</span>
+</div>
+</button>
+<!-- Worker (Approved) -->
+<button class="w-full min-h-[64px] rounded-xl border border-surface-variant bg-surface hover:bg-surface-container-low p-sm flex items-center gap-md text-left group transition-colors">
+<div class="flex-shrink-0 w-12 h-12 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant group-hover:text-primary-container transition-colors">
+<span aria-hidden="true" class="material-symbols-outlined">engineering</span>
+</div>
+<div class="flex-1 min-w-0">
+<p class="font-button text-button text-on-surface mb-1 group-hover:text-primary-container transition-colors">Worker</p>
+<p class="font-label-caps text-label-caps text-on-surface-variant truncate normal-case tracking-normal">Execute tasks</p>
+</div>
+<div class="flex-shrink-0 text-outline opacity-0 group-hover:opacity-100 transition-opacity">
+<span aria-hidden="true" class="material-symbols-outlined">arrow_forward_ios</span>
+</div>
+</button>
+</div>
+<!-- Footer -->
+<div class="p-md bg-surface-container-lowest border-t border-surface-variant flex flex-col gap-sm sticky bottom-0">
+<p class="font-label-caps text-label-caps text-on-surface-variant text-center normal-case tracking-normal leading-relaxed">
+                You use one Mee Events account. Available roles depend on current approval.
+            </p>
+<button class="w-full py-sm px-md rounded-lg font-button text-button text-primary-container hover:bg-primary-container/5 transition-colors border border-transparent hover:border-primary-container/20">
+                Manage applications
+            </button>
+</div>
+</div>
+</body></html>

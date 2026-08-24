@@ -1,9 +1,14 @@
 import { Inject, Injectable } from "@nestjs/common";
-import type { ContactPreference, EnquiryStatus } from "@me-event/api-contracts";
+import type {
+  ContactPreference,
+  EnquiryStatus,
+  LeadStatus,
+  PlanItemSnapshot,
+} from "@me-event/api-contracts";
 import type { Pool, PoolClient } from "pg";
 import { PG_POOL } from "../../../database/database.module";
 import type {
-  CreateEnquiryWithLeadInput,
+  CreateEnquiryInput,
   EnquiryDetail,
   EnquiryListItem,
   EnquiryRepository,
@@ -22,7 +27,9 @@ interface EnquiryRow {
   readonly budget_min: string | null;
   readonly budget_max: string | null;
   readonly notes: string | null;
+  readonly preferred_external_vendor: string | null;
   readonly service_requirements: readonly string[];
+  readonly plan_items: readonly PlanItemSnapshot[] | null;
   readonly contact_preference: ContactPreference;
   readonly status: EnquiryStatus;
   readonly submitted_at: Date | null;
@@ -33,9 +40,9 @@ interface EnquiryRow {
 export class PostgresEnquiryRepository implements EnquiryRepository {
   public constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
 
-  public async createEnquiryWithLead(
-    input: CreateEnquiryWithLeadInput,
-  ): Promise<{ enquiryId: string; leadId: string }> {
+  public async createEnquiry(
+    input: CreateEnquiryInput,
+  ): Promise<{ enquiryId: string }> {
     const client = await this.pool.connect();
     try {
       await client.query("BEGIN");
@@ -53,10 +60,10 @@ export class PostgresEnquiryRepository implements EnquiryRepository {
         `INSERT INTO enquiries (
            branch_id, customer_id, event_type_id, reference_code,
            event_date, location, guest_count, budget_min, budget_max,
-           notes, service_requirements, contact_preference,
-           status, submitted_at
+           notes, preferred_external_vendor, service_requirements, plan_items,
+           contact_preference, status, submitted_at
          )
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12,
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14,
                  'received', now())
          RETURNING id, version`,
         [
@@ -70,7 +77,9 @@ export class PostgresEnquiryRepository implements EnquiryRepository {
           input.budgetMin ?? null,
           input.budgetMax ?? null,
           input.notes ?? null,
+          input.preferredExternalVendor ?? null,
           JSON.stringify(input.serviceCategoryCodes),
+          JSON.stringify(input.planItems),
           input.contactPreference,
         ],
       );
@@ -79,38 +88,12 @@ export class PostgresEnquiryRepository implements EnquiryRepository {
         throw new Error("INSERT INTO enquiries returned no row");
       }
 
-      const leadResult = await client.query<{ id: string; version: number }>(
-        `INSERT INTO leads (
-           branch_id, enquiry_id, customer_id, source, status,
-           first_response_due_at
-         )
-         VALUES ($1, $2, $3, 'mobile_app', 'new', $4)
-         RETURNING id, version`,
-        [input.branchId, enquiry.id, customerId, input.firstResponseDueAt],
-      );
-      const lead = leadResult.rows[0];
-      if (lead === undefined) {
-        throw new Error("INSERT INTO leads returned no row");
-      }
-
-      await client.query(
-        `INSERT INTO lead_activities (lead_id, actor_user_id, activity_type, content)
-         VALUES ($1, $2, 'status_change', $3)`,
-        [
-          lead.id,
-          input.userId,
-          `Lead created from enquiry ${input.referenceCode}`,
-        ],
-      );
-
       await client.query(
         `INSERT INTO audit_events (
            request_id, actor_user_id, actor_role, branch_id,
            entity_type, entity_id, action, after_version, metadata
          )
-         VALUES
-           ($1, $2, 'customer', $3, 'enquiry', $4, 'enquiry.created', $5, $6),
-           ($1, $2, 'customer', $3, 'lead', $7, 'crm.lead.created', $8, $9)`,
+         VALUES ($1, $2, 'customer', $3, 'enquiry', $4, 'enquiry.created', $5, $6)`,
         [
           input.requestId,
           input.userId,
@@ -118,9 +101,6 @@ export class PostgresEnquiryRepository implements EnquiryRepository {
           enquiry.id,
           enquiry.version,
           JSON.stringify({ referenceCode: input.referenceCode }),
-          lead.id,
-          lead.version,
-          JSON.stringify({ enquiryId: enquiry.id }),
         ],
       );
 
@@ -128,21 +108,21 @@ export class PostgresEnquiryRepository implements EnquiryRepository {
         `INSERT INTO outbox_events (
            topic, aggregate_type, aggregate_id, aggregate_version, payload
          )
-         VALUES ('crm.lead.created', 'lead', $1, $2, $3)`,
+         VALUES ('enquiry.submitted', 'enquiry', $1, $2, $3)`,
         [
-          lead.id,
-          lead.version,
+          enquiry.id,
+          enquiry.version,
           JSON.stringify({
-            leadId: lead.id,
             enquiryId: enquiry.id,
             branchId: input.branchId,
-            referenceCode: input.referenceCode,
+            customerId,
+            firstResponseDueAt: input.firstResponseDueAt.toISOString(),
           }),
         ],
       );
 
       await client.query("COMMIT");
-      return { enquiryId: enquiry.id, leadId: lead.id };
+      return { enquiryId: enquiry.id };
     } catch (error) {
       await client.query("ROLLBACK");
       throw error;
@@ -190,6 +170,53 @@ export class PostgresEnquiryRepository implements EnquiryRepository {
       : DEFAULT_LEAD_SLA_MINUTES;
   }
 
+  public async syncStatusFromCrmLead(
+    enquiryId: string,
+    leadStatus: LeadStatus,
+  ): Promise<void> {
+    if (leadStatus === "claimed") {
+      await this.pool.query(
+        `UPDATE enquiries
+         SET status = 'contact_pending'
+         WHERE id = $1 AND status IN ('submitted', 'received')`,
+        [enquiryId],
+      );
+      return;
+    }
+
+    if (leadStatus === "contacted") {
+      await this.pool.query(
+        `UPDATE enquiries
+         SET status = 'in_discussion'
+         WHERE id = $1
+           AND status IN (
+             'received', 'contact_pending', 'in_discussion', 'submitted'
+           )`,
+        [enquiryId],
+      );
+      return;
+    }
+
+    if (leadStatus === "qualified" || leadStatus === "quoted") {
+      await this.pool.query(
+        `UPDATE enquiries
+         SET status = 'proposal_expected'
+         WHERE id = $1`,
+        [enquiryId],
+      );
+      return;
+    }
+
+    if (leadStatus === "lost" || leadStatus === "closed") {
+      await this.pool.query(
+        `UPDATE enquiries
+         SET status = 'closed'
+         WHERE id = $1`,
+        [enquiryId],
+      );
+    }
+  }
+
   private async upsertCustomer(
     client: PoolClient,
     userId: string,
@@ -223,7 +250,9 @@ const SELECT_ENQUIRY = `
     e.budget_min,
     e.budget_max,
     e.notes,
+    e.preferred_external_vendor,
     e.service_requirements,
+    COALESCE(e.plan_items, '[]'::jsonb) AS plan_items,
     e.contact_preference,
     e.status,
     e.submitted_at,
@@ -255,11 +284,42 @@ function toDetail(row: EnquiryRow): EnquiryDetail {
   return {
     ...toListItem(row),
     serviceCategoryCodes: row.service_requirements,
+    planItems: parsePlanItems(row.plan_items),
     contactPreference: row.contact_preference,
     ...(row.budget_min === null ? {} : { budgetMin: Number(row.budget_min) }),
     ...(row.budget_max === null ? {} : { budgetMax: Number(row.budget_max) }),
     ...(row.notes === null ? {} : { notes: row.notes }),
+    ...(row.preferred_external_vendor === null
+      ? {}
+      : { preferredExternalVendor: row.preferred_external_vendor }),
   };
+}
+
+function parsePlanItems(value: unknown): readonly PlanItemSnapshot[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+  const items: PlanItemSnapshot[] = [];
+  for (const item of value) {
+    if (item === null || typeof item !== "object") {
+      continue;
+    }
+    const row = item as Record<string, unknown>;
+    if (
+      typeof row.productCode === "string" &&
+      typeof row.displayName === "string" &&
+      typeof row.serviceCode === "string" &&
+      typeof row.catalogVersion === "number"
+    ) {
+      items.push({
+        productCode: row.productCode,
+        displayName: row.displayName,
+        serviceCode: row.serviceCode,
+        catalogVersion: row.catalogVersion,
+      });
+    }
+  }
+  return items;
 }
 
 function toDateOnly(value: Date): string {

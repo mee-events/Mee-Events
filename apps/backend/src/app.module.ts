@@ -18,6 +18,7 @@ import { PaymentsModule } from "./modules/payments/payments.module";
 import { PlatformFoundationModule } from "./modules/platform-foundation/platform-foundation.module";
 import { AccessTokenGuard } from "./modules/platform-foundation/security/access-token.guard";
 import { QuotationsModule } from "./modules/quotations/quotations.module";
+import { SearchModule } from "./modules/search/search.module";
 import { VendorsModule } from "./modules/vendors/vendors.module";
 import { WorkersModule } from "./modules/workers/workers.module";
 import { InventoryModule } from "./modules/inventory/inventory.module";
@@ -52,6 +53,7 @@ import { OperationsModule } from "./modules/operations/operations.module";
     IdentityModule,
     PlatformFoundationModule,
     CatalogModule,
+    SearchModule,
     EnquiriesModule,
     CrmModule,
     QuotationsModule,

@@ -25,9 +25,7 @@ class AsyncStateView extends StatelessWidget {
 
     switch (state) {
       case AsyncState.loading:
-        return Center(
-          child: CircularProgressIndicator(color: AppColors.ink),
-        );
+        return Center(child: CircularProgressIndicator(color: AppColors.ink));
       case AsyncState.error:
         icon = Icons.error_outline;
         iconColor = AppColors.error;
@@ -64,9 +62,7 @@ class AsyncStateView extends StatelessWidget {
             const SizedBox(height: AppSpacing.lg),
             ElevatedButton(
               onPressed: onRetry,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.ink,
-              ),
+              style: ElevatedButton.styleFrom(backgroundColor: AppColors.ink),
               child: const Text('Retry'),
             ),
           ],

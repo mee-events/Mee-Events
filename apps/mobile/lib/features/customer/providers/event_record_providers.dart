@@ -16,14 +16,11 @@ final eventsProvider = FutureProvider.autoDispose((ref) async {
   return ref.watch(eventRecordRepositoryProvider).listMine();
 });
 
-final eventRecordProvider =
-    FutureProvider.autoDispose.family<EventRecordDetail?, String>((
-  ref,
-  eventId,
-) async {
-  final session = ref.watch(sessionProvider);
-  if (session == null) {
-    return null;
-  }
-  return ref.watch(eventRecordRepositoryProvider).getById(eventId);
-});
+final eventRecordProvider = FutureProvider.autoDispose
+    .family<EventRecordDetail?, String>((ref, eventId) async {
+      final session = ref.watch(sessionProvider);
+      if (session == null) {
+        return null;
+      }
+      return ref.watch(eventRecordRepositoryProvider).getById(eventId);
+    });

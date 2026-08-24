@@ -40,7 +40,11 @@ class MeEmptyState extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(config.icon, size: AppIconSize.hero, color: AppColors.muted),
+            Icon(
+              config.icon,
+              size: AppIconSize.hero,
+              color: AppColors.mutedSoft,
+            ),
             const SizedBox(height: AppSpacing.md),
             Text(title ?? config.title, style: AppTypography.titleMd),
             const SizedBox(height: AppSpacing.xs),
@@ -51,7 +55,11 @@ class MeEmptyState extends StatelessWidget {
             ),
             if (actionLabel != null && onAction != null) ...[
               const SizedBox(height: AppSpacing.xl),
-              MeButton.text(label: actionLabel!, onPressed: onAction),
+              MeButton.primary(
+                label: actionLabel!,
+                onPressed: onAction,
+                expand: false,
+              ),
             ],
           ],
         ),
@@ -59,7 +67,9 @@ class MeEmptyState extends StatelessWidget {
     );
   }
 
-  static ({IconData icon, String title, String message}) _configFor(MeEmptyKind kind) {
+  static ({IconData icon, String title, String message}) _configFor(
+    MeEmptyKind kind,
+  ) {
     switch (kind) {
       case MeEmptyKind.orders:
         return (

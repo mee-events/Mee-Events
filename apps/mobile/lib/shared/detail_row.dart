@@ -7,11 +7,7 @@ class DetailRow extends StatelessWidget {
   final String label;
   final String value;
 
-  const DetailRow({
-    super.key,
-    required this.label,
-    required this.value,
-  });
+  const DetailRow({super.key, required this.label, required this.value});
 
   @override
   Widget build(BuildContext context) {
