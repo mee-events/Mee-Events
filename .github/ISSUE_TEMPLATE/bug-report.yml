@@ -1,0 +1,74 @@
+name: Bug report
+description: Report reproducible incorrect behavior in Mee Events
+title: "[Bug]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Do not include passwords, OTPs, tokens, customer data or exploit details. Report security vulnerabilities through a private GitHub Security Advisory.
+  - type: dropdown
+    id: surface
+    attributes:
+      label: Affected surface
+      options:
+        - Flutter — Customer
+        - Flutter — Vendor
+        - Flutter — Worker
+        - Employee CRM/ERP
+        - Backend API
+        - PostgreSQL/migrations
+        - CI/deployment
+        - Documentation
+    validations:
+      required: true
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What is wrong, and what should happen instead?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Reproduction steps
+      description: Use safe development/test data only.
+      placeholder: |
+        1. Sign in as...
+        2. Open...
+        3. Perform...
+        4. Observe...
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence
+      description: Add sanitized logs, screenshots, API responses or database evidence.
+  - type: input
+    id: commit
+    attributes:
+      label: Commit or version
+      placeholder: c6d798c or app version
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Operational severity
+      options:
+        - P0 — production outage or critical data loss
+        - P1 — core workflow blocked
+        - P2 — major degradation with workaround
+        - P3 — minor or cosmetic issue
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Reporter checks
+      options:
+        - label: I searched for an existing issue.
+          required: true
+        - label: I removed secrets and personal/customer data.
+          required: true
+        - label: I reproduced this on the stated commit/environment.
+          required: true

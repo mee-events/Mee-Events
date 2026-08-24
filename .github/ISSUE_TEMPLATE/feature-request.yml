@@ -1,0 +1,67 @@
+name: Feature request
+description: Propose one controlled product or engineering outcome
+title: "[Feature]: "
+body:
+  - type: dropdown
+    id: area
+    attributes:
+      label: Product area
+      options:
+        - Customer mobile
+        - Vendor mobile
+        - Worker mobile
+        - CRM
+        - ERP/operations
+        - Backend/platform
+        - Security/reliability
+        - Infrastructure/release
+        - Documentation/tooling
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem to solve
+      description: Describe the user/business problem, not a preferred implementation.
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Desired outcome
+      description: What observable result should exist when this is complete?
+    validations:
+      required: true
+  - type: textarea
+    id: flow
+    attributes:
+      label: End-to-end workflow impact
+      description: Explain affected stages from Customer through CRM, fulfilment, operations and finance.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      placeholder: |
+        - [ ] UI and state behavior
+        - [ ] API/database behavior
+        - [ ] Auth and validation
+        - [ ] Loading/empty/error/success behavior
+        - [ ] Tests and documentation
+    validations:
+      required: true
+  - type: textarea
+    id: constraints
+    attributes:
+      label: Constraints and out of scope
+      description: Note architecture, security, data, deadline or explicit non-goals.
+  - type: checkboxes
+    id: readiness
+    attributes:
+      label: Request checks
+      options:
+        - label: This is one controlled outcome, not a request to build the entire platform.
+          required: true
+        - label: I reviewed the current PRD/architecture before proposing this change.
+          required: true

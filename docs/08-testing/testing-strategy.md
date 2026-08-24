@@ -22,17 +22,19 @@ Related: [Backend Handbook](../02-architecture/backend.md),
                     │  Unit / guards  │  ← Vitest (primary mass)
                     │  / services     │
                     ├─────────────────┤
-                    │  Flutter widget │  ← thin (2 files)
+                    │  Flutter unit / │  ← provider, model and widget coverage
+                    │  widget         │
                     └─────────────────┘
 ```
 
-| Layer                           | Runner         | What exists                                                                   |
-| ------------------------------- | -------------- | ----------------------------------------------------------------------------- |
-| Pure domain + guards + services | Vitest         | Majority of `apps/backend/test/*.spec.ts`                                     |
-| Module foundation / workflow    | Vitest         | `*-foundation.spec.ts`, `quotation-payment-workflow.spec.ts`, Pattern B probe |
-| Flutter widgets                 | `flutter test` | `apps/mobile/test/` (theme + design-system)                                   |
-| Postgres/Redis integration      | —              | **None** in CI or Vitest                                                      |
-| Browser / device E2E            | —              | **None** (no Playwright / Cypress / Detox)                                    |
+| Layer                           | Runner         | What exists                                                               |
+| ------------------------------- | -------------- | ------------------------------------------------------------------------- |
+| Pure domain + guards + services | Vitest         | Backend suite: 173 tests across 30 files at the current verified baseline |
+| Module foundation / workflow    | Vitest         | `*-foundation.spec.ts`, quotation/payment workflow and Pattern B probes   |
+| Employee CRM/ERP components     | Vitest         | 2 tests across API-client and catalog-review behavior                     |
+| Flutter unit and widget tests   | `flutter test` | 435 tests across models, providers, stores, navigation and customer UI    |
+| Postgres/Redis integration      | —              | **None** in CI or Vitest                                                  |
+| Browser / device E2E            | —              | **None** (no Playwright / Cypress / Detox)                                |
 
 Details: [unit-tests.md](./unit-tests.md), [integration-tests.md](./integration-tests.md),
 [e2e-tests.md](./e2e-tests.md).
@@ -41,12 +43,12 @@ Details: [unit-tests.md](./unit-tests.md), [integration-tests.md](./integration-
 
 ## Surfaces
 
-| Surface                                    | Status                                                                        |
-| ------------------------------------------ | ----------------------------------------------------------------------------- |
-| Backend (`@me-event/backend`)              | Primary suite — `vitest run`, ~19 specs under `apps/backend/test/`            |
-| Mobile (`apps/mobile`)                     | Thin widget coverage; checks run in the CI **flutter** job, not root `verify` |
-| ERP (`@me-event/erp-web`)                  | `vitest run --passWithNoTests` — **zero** test files                          |
-| Packages (`api-contracts`, `shared-types`) | No `test` scripts                                                             |
+| Surface                                    | Status                                                                     |
+| ------------------------------------------ | -------------------------------------------------------------------------- |
+| Backend (`@me-event/backend`)              | Primary suite — 173 tests across 30 files at the current verified baseline |
+| Mobile (`apps/mobile`)                     | 435 tests; CI also runs formatting, analysis and a development APK build   |
+| ERP (`@me-event/erp-web`)                  | 2 Vitest tests; broad route/workflow coverage remains incomplete           |
+| Packages (`api-contracts`, `shared-types`) | No `test` scripts                                                          |
 
 ---
 
