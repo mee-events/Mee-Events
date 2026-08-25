@@ -16,7 +16,44 @@ if (!supabaseUrl || !supabaseKey) {
 const supabase = createClient(supabaseUrl, supabaseKey);
 const BUCKET_NAME = "mee-events-assets";
 
-const isValidImageURL = async (url: string) => {
+type SubcategoryRow = {
+  readonly id: string;
+  readonly name: string;
+  readonly image: string | null;
+};
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
+function asSubcategoryRows(data: unknown): SubcategoryRow[] {
+  if (!Array.isArray(data)) {
+    return [];
+  }
+
+  const rows: SubcategoryRow[] = [];
+  for (const item of data) {
+    if (
+      !isRecord(item) ||
+      typeof item.id !== "string" ||
+      typeof item.name !== "string"
+    ) {
+      continue;
+    }
+    const image = item.image;
+    if (image !== null && image !== undefined && typeof image !== "string") {
+      continue;
+    }
+    rows.push({
+      id: item.id,
+      name: item.name,
+      image: typeof image === "string" ? image : null,
+    });
+  }
+  return rows;
+}
+
+const isValidImageURL = async (url: string): Promise<boolean> => {
   if (!url || url.includes("pinterest.com")) return false;
 
   try {
@@ -36,7 +73,7 @@ const isValidImageURL = async (url: string) => {
   }
 };
 
-const getFallbackUnsplashURL = (category: string) => {
+const getFallbackUnsplashURL = (category: string): string => {
   const keyword = encodeURIComponent(category.toLowerCase());
   return `https://loremflickr.com/800/600/${keyword},event,wedding/all`;
 };
@@ -56,7 +93,7 @@ const uploadImageToStorage = async (
     const contentType = response.headers.get("content-type") || "image/jpeg";
 
     console.log(`Uploading to Supabase Storage: ${storagePath}...`);
-    const { data, error } = await supabase.storage
+    const { error } = await supabase.storage
       .from(BUCKET_NAME)
       .upload(storagePath, buffer, {
         contentType,
@@ -76,7 +113,7 @@ const uploadImageToStorage = async (
   }
 };
 
-async function processSubcategories() {
+async function processSubcategories(): Promise<void> {
   const { data: subcategories, error } = await supabase
     .from("subcategories")
     .select("*");
@@ -86,8 +123,8 @@ async function processSubcategories() {
     return;
   }
 
-  for (const subcategory of subcategories) {
-    const currentImageUrl = subcategory.image || "";
+  for (const subcategory of asSubcategoryRows(subcategories)) {
+    const currentImageUrl = subcategory.image ?? "";
 
     // Check if it's already a valid Supabase Storage URL
     if (currentImageUrl.includes("supabase.co/storage")) {
@@ -108,7 +145,7 @@ async function processSubcategories() {
     }
 
     try {
-      const extension = urlToProcess.split("?")[0].split(".").pop() || "jpg";
+      const extension = urlToProcess.split("?")[0]?.split(".").pop() ?? "jpg";
       const storagePath = `event-images/${subcategory.id}.${extension}`;
 
       const newStorageUrl = await uploadImageToStorage(
@@ -129,7 +166,7 @@ async function processSubcategories() {
   }
 }
 
-async function runMigration() {
+async function runMigration(): Promise<void> {
   console.log("Starting Supabase image migration script...");
   try {
     // Ensure bucket exists
@@ -146,4 +183,4 @@ async function runMigration() {
   }
 }
 
-runMigration().catch(console.error);
+void runMigration().catch(console.error);

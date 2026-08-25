@@ -21,7 +21,10 @@ const ASSETS_DIR = path.resolve(
   "../../../apps/mobile/assets/images",
 );
 
-async function uploadDirectory(directoryPath: string, parentPath: string = "") {
+async function uploadDirectory(
+  directoryPath: string,
+  parentPath: string = "",
+): Promise<void> {
   const files = fs.readdirSync(directoryPath);
 
   for (const file of files) {
@@ -43,7 +46,7 @@ async function uploadDirectory(directoryPath: string, parentPath: string = "") {
       try {
         const fileBuffer = fs.readFileSync(fullPath);
 
-        const { data, error } = await supabase.storage
+        const { error } = await supabase.storage
           .from(BUCKET_NAME)
           .upload(destination, fileBuffer, {
             upsert: true, // Overwrite if exists
@@ -62,7 +65,7 @@ async function uploadDirectory(directoryPath: string, parentPath: string = "") {
   }
 }
 
-async function runMigration() {
+async function runMigration(): Promise<void> {
   console.log("Starting Asset Upload to Supabase Storage...");
   console.log(`Scanning local assets directory: ${ASSETS_DIR}`);
 
@@ -94,4 +97,4 @@ async function runMigration() {
   }
 }
 
-runMigration().catch(console.error);
+void runMigration().catch(console.error);

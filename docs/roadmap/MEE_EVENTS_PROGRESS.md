@@ -1,15 +1,15 @@
 # Mee Events — Progress Tracker
 
-- **Updated:** 25 August 2026 22:22 IST (Asia/Kolkata, +0530); STAB-04
+- **Updated:** 25 August 2026 22:50 IST (Asia/Kolkata, +0530); STAB-05
 - **Repository:** `/Users/vinaychilagani/Desktop/Mee Event V1`
 - **Baseline application commit:** `master` / `9e2a442d91c137ec97a349d1a55697ae8d79d5df`
 - **STAB-01 snapshot HEAD:** `ca994985a898d42da2a8d717041b93a8f8f0dc4c`
 - **Current phase:** Phase 0 — Stabilization
 - **Phase gate:** **NOT PASSED**
-- **Last completed task:** STAB-04 — Formatting
-- **Current task:** None — STAB-04 closed as instructed
-- **Next task:** STAB-05 — Lint
-- **Latest application commit:** STAB-03 remains the last application/dependency change; STAB-04 is documentation of formatting verification. Use Git history for hashes.
+- **Last completed task:** STAB-05 — Lint
+- **Current task:** None — STAB-05 closed as instructed
+- **Next task:** STAB-06 — TypeScript typecheck
+- **Latest application commit:** STAB-05 closed backend script lint coverage. Use Git history for hashes.
 
 ## Status key
 
@@ -173,10 +173,60 @@ Honesty checks (read-only, no write, not committed into the ignore set): `artifa
 - SQL migrations, `.env.example`, Dart, PNG, and other no-parser files are not Prettier-owned (359 tracked files with no inferred parser). Dart is covered by `dart format`. SQL has no dedicated formatter.
 - `apps/mobile/macos` and `web` are not in `.prettierignore`. Prettier already formats `web/index.html` and `manifest.json`. Swift is no-parser. Acceptable.
 
+## STAB-05 — Lint
+
+- [x] **STAB-05** Lint — completed 25 August 2026 22:50 IST. Next: STAB-06. Do not start STAB-06 in this block.
+
+Independent re-verification after STAB-04. ESLint 9.17.0 in all four pnpm TypeScript workspaces. Every workspace lint uses `--max-warnings=0`. No ESLint or TypeScript upgrades. No plugins added. No `eslint-disable` / `@ts-ignore` / `@ts-nocheck` in owned application source.
+
+| Workspace                 | ESLint | Configuration                              | Command                                                | Actual files                                              | Errors | Warnings | Result |
+| ------------------------- | ------ | ------------------------------------------ | ------------------------------------------------------ | --------------------------------------------------------- | ------ | -------- | ------ |
+| `@me-event/backend`       | 9.17.0 | `apps/backend/eslint.config.mjs`           | `eslint "{src,test,scripts}/**/*.ts" --max-warnings=0` | 163 (129 src + 32 test + 2 scripts)                       | 0      | 0        | PASS   |
+| `@me-event/erp-web`       | 9.17.0 | `apps/erp-web/eslint.config.mjs`           | `eslint . --max-warnings=0`                            | 65 including `next.config.ts`, tests, `eslint.config.mjs` | 0      | 0        | PASS   |
+| `@me-event/api-contracts` | 9.17.0 | `packages/api-contracts/eslint.config.mjs` | `eslint src --max-warnings=0`                          | 1 (`src/index.ts`)                                        | 0      | 0        | PASS   |
+| `@me-event/shared-types`  | 9.17.0 | `packages/shared-types/eslint.config.mjs`  | `eslint src --max-warnings=0`                          | 1 (`src/index.ts`)                                        | 0      | 0        | PASS   |
+| Root `pnpm lint`          | —      | workspace configs above                    | recursive `--if-present lint`                          | four workspaces above                                     | 0      | 0        | PASS   |
+
+### Coverage gap closed
+
+Backend lint previously targeted only `{src,test}/**/*.ts`. Active operational scripts `scripts/migrate_images.ts` and `scripts/upload_assets_to_supabase.ts` were unlinted. They are now in the lint glob and `tsconfig.json` `include`. `tsconfig.build.json` excludes `scripts` so Nest production compile still emits only `src`. Scripts were typed to pass `strictTypeChecked` (no `any`, no new suppressions). They still must not print `SUPABASE_SERVICE_KEY`; they log missing-key names, paths, and errors only.
+
+### Deliberate exclusions
+
+| Path                                  | Reason                                                                     |
+| ------------------------------------- | -------------------------------------------------------------------------- |
+| `apps/backend/eslint.config.mjs`      | ESLint config; type-aware TS project rules are inappropriate               |
+| `packages/*/eslint.config.mjs`        | Same; package lint is `eslint src`                                         |
+| `apps/erp-web/next-env.d.ts`          | Generated Next types reference; still linted by `eslint .` (PASS)          |
+| `scripts/scaffold_image_library.js`   | Root CJS media scaffold, not in a pnpm workspace; no root ESLint toolchain |
+| `design/stitch-screens/**/*.js`       | Raw Stitch evidence, not a pnpm workspace (STAB-04)                        |
+| Flutter/Dart, SQL, native Android/iOS | Not ESLint-owned                                                           |
+
+### Rule exceptions reviewed (backend `eslint.config.mjs`)
+
+| Rule                                                            | Scope               | Reason                                             | Security                                     | Result                              |
+| --------------------------------------------------------------- | ------------------- | -------------------------------------------------- | -------------------------------------------- | ----------------------------------- |
+| `@typescript-eslint/no-extraneous-class` off                    | backend app         | NestJS modules/providers are class-based           | None                                         | Keep                                |
+| `@typescript-eslint/require-await` off                          | backend app         | Nest interface methods often `async` without await | Does not disable floating-promise rules      | Keep                                |
+| `@typescript-eslint/no-unnecessary-condition` off               | backend app         | Zod `.default()` vs request partials               | Noise, not authz bypass                      | Keep                                |
+| `@typescript-eslint/no-unnecessary-boolean-literal-compare` off | backend app         | Same                                               | None                                         | Keep                                |
+| `@typescript-eslint/no-non-null-assertion` off                  | backend app         | Existing Nest/pg patterns                          | Residual; do not add new `!` to silence lint | Keep as-is; no new assertions added |
+| `@typescript-eslint/unbound-method` off                         | `test/**/*.ts` only | Reflect metadata on `Prototype.method`             | Test-only                                    | Keep                                |
+| unused vars ignore `^_`                                         | backend app         | Explicit unused bindings                           | None                                         | Keep                                |
+| `restrict-template-expressions` allow number/boolean            | backend app         | Log/message interpolation                          | Still forbids arbitrary objects              | Keep                                |
+
+Promise/unsafe rules remain **error**: `no-floating-promises`, `no-misused-promises`, `no-unsafe-*`, `no-explicit-any`, `no-implied-eval`. ERP: `next/core-web-vitals` + `next/typescript`; `react-hooks/rules-of-hooks` error; `react-hooks/exhaustive-deps` and `@next/next/no-img-element` are Next defaults at warn but `--max-warnings=0` still fails the command. No specialized secret-logging ESLint plugin (future, not this block).
+
+### Suppressions
+
+Zero `eslint-disable`, `eslint-disable-next-line`, `@ts-ignore`, `@ts-expect-error`, `@ts-nocheck` in owned workspace `.ts`/`.tsx`/`.js`/`.mjs`.
+
 ## Latest verification
 
 | Verification                  | Result                          | Evidence summary                                                                              |
 | ----------------------------- | ------------------------------- | --------------------------------------------------------------------------------------------- |
+| STAB-05 root lint             | **PASS**                        | ESLint 9.17.0; 0 errors / 0 warnings; scripts now covered                                     |
+| STAB-05 backend scripts       | **PASS**                        | `migrate_images.ts` and `upload_assets_to_supabase.ts` linted; type-aware; no secret logs     |
 | STAB-04 root Prettier         | **PASS**                        | Prettier 3.4.2; 372 parser-matched tracked files; 0 drift                                     |
 | STAB-04 Dart format           | **PASS**                        | Dart 3.12.2; 200 files in `lib`+`test`; 0 changed                                             |
 | STAB-04 exclusions            | **PASS**                        | All `.prettierignore` entries classified; no owned TS/Dart failure hidden                     |
@@ -236,7 +286,7 @@ Do not ask for these until their dependent block is approaching, unless early pr
 - [x] STAB-02 Environment verification
 - [x] STAB-03 Dependency verification
 - [x] STAB-04 Formatting
-- [ ] STAB-05 Lint
+- [x] STAB-05 Lint
 - [ ] STAB-06 TypeScript typecheck
 - [ ] STAB-07 Backend tests
 - [ ] STAB-08 ERP tests

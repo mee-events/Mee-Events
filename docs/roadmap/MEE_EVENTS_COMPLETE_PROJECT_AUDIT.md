@@ -7,6 +7,7 @@
 - **STAB-01 snapshot:** 25 August 2026 19:08 IST (Asia/Kolkata) at `ca994985a898d42da2a8d717041b93a8f8f0dc4c` (audit documentation commit on top of the audited application tree; no application-file delta)
 - **STAB-03 dependency baseline:** 25 August 2026 IST. Canonical register `docs/05-security/dependency-security.md`. Final `pnpm audit`: 0 critical, 0 high, 0 moderate, 2 low.
 - **STAB-04 formatting baseline:** 25 August 2026 22:22 IST. Prettier 3.4.2 and Dart format 3.12.2 both PASS with 0 owned-source drift. See `docs/roadmap/MEE_EVENTS_PROGRESS.md` STAB-04.
+- **STAB-05 lint baseline:** 25 August 2026 22:50 IST. ESLint 9.17.0; root lint 0/0; backend scripts now covered. See `docs/roadmap/MEE_EVENTS_PROGRESS.md` STAB-05.
 - **Audit type:** Read-only implementation, configuration, test, security, release, documentation, and artifact inspection
 - **Decision:** **NOT PRODUCTION-READY**
 
@@ -43,6 +44,7 @@ Verified locally:
 - Backend: **173/173 tests PASS** across 30 files.
 - ERP web: **2/2 tests PASS** across 2 files.
 - Flutter format check — **PASS**, 199 files unchanged at original audit. **STAB-04:** `dart format --output=none --set-exit-if-changed lib test` — **PASS**, 200 files, 0 changed. Root `pnpm format:check` — **PASS**.
+- Root `pnpm lint` — **PASS** at original audit. **STAB-05:** coverage extended to `apps/backend/scripts/**/*.ts`; ESLint 9.17.0; 0 errors / 0 warnings.
 - Flutter analysis with fatal infos — **PASS**.
 - Flutter tests — **435/435 PASS**.
 - Flutter dev debug APK — **PASS**.
@@ -541,7 +543,7 @@ PHASE 11 Android release
 PHASE 12 iOS release
 ```
 
-No phase begins until the preceding gate is verified and recorded. The current phase is **Phase 0 — Stabilization**. **STAB-01**, **STAB-02**, **STAB-03**, and **STAB-04** are complete. The next execution block is **STAB-05 — Lint**. Do not start STAB-05 in the STAB-04 session.
+No phase begins until the preceding gate is verified and recorded. The current phase is **Phase 0 — Stabilization**. **STAB-01** through **STAB-05** are complete. The next execution block is **STAB-06 — TypeScript typecheck**. Do not start STAB-06 in the STAB-05 session.
 
 ## 19. Definition of complete
 
