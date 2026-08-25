@@ -2,7 +2,7 @@
 
 - **Baseline:** Complete repository audit dated 25 August 2026
 - **Current phase:** Phase 0 — Stabilization
-- **Next block:** STAB-03 — Dependency verification
+- **Next block:** STAB-04 — Formatting
 - **Rule:** One block → verify → document → commit → stop.
 
 This file is the definitive ordered work inventory. The phase order is mandatory even when a later task has a higher risk priority. Do not start Customer until the Phase 0 gate passes; do not start Vendor until Customer passes; continue one major module at a time.
@@ -43,7 +43,7 @@ Status marks in this file describe execution, not how much scaffold already exis
 
 - [x] **STAB-01 Repository snapshot** — Objective: freeze branch/commit/worktree/toolchain/module/test baseline; State: **DONE** 25 August 2026; Scope: Git, root manifests, CI, native metadata, `docs/roadmap`; Action: record reproducible snapshot only; Depends/Risk: none, risk of overwriting user work; Test/Security: read-only Git/status/version checks and secret-safe output; DoD: clean/dirty state, branch, commit, remotes, versions, module inventory, known failures and evidence recorded; Next: STAB-02.
 - [x] **STAB-02 Environment verification** — Objective: prove documented local configuration without exposing secrets; State: **DONE** 25 August 2026; Scope: `.env*.example`, ignored local env presence, backend Zod schema, Flutter/ERP env readers; Action: compare required keys and fail-closed rules; Depends/Risk: STAB-01, secret leakage; Test/Security: boot/config tests with placeholders, never print values; DoD: dev/test/staging/prod key matrix reconciled and missing conditional validation logged; Next: STAB-03.
-- [ ] **STAB-03 Dependency verification** — Objective: establish supported and secure dependency baseline; State: **BROKEN** (4 critical, 29 high); Scope: all manifests/lockfiles and Flutter constraints; Action: classify direct/transitive/runtime/dev advisories and create safe upgrade slices; Depends/Risk: STAB-02, breaking framework changes; Test/Security: SCA plus full verify/build after each slice; DoD: zero unaccepted critical/high advisories and documented exceptions/upgrade proof; Next: STAB-04.
+- [x] **STAB-03 Dependency verification** — Objective: establish supported and secure dependency baseline; State: **DONE** 25 August 2026; Scope: all manifests/lockfiles and Flutter constraints; Action: classify direct/transitive/runtime/dev advisories and create safe upgrade slices; Depends/Risk: STAB-02, breaking framework changes; Test/Security: SCA plus full verify/build after each slice; DoD: zero unaccepted critical/high advisories and documented exceptions/upgrade proof; Next: STAB-04. Evidence: `docs/05-security/dependency-security.md`. Final audit 0 critical / 0 high / 0 moderate / 2 low.
 - [ ] **STAB-04 Formatting** — Objective: prove owned source/docs are formatted without hiding defects; State: audit run **DONE**, execution unchecked; Scope: root formatter config and owned files, excluding proven raw/generated design evidence; Action: rerun check and inspect any diff; Depends/Risk: STAB-03, broad churn; Test/Security: `format:check`, no secret/generated ingestion; DoD: green check, narrow diff, exclusions justified; Next: STAB-05.
 - [ ] **STAB-05 Lint** — Objective: zero lint errors/warnings in owned TypeScript workspaces; State: audit run **DONE**, execution unchecked; Scope: ESLint configs/backend/ERP/packages; Action: rerun and fix causes, never disable broadly; Depends/Risk: STAB-04; Test/Security: root lint and targeted security-rule review; DoD: all workspace lint commands green; Next: STAB-06.
 - [ ] **STAB-06 TypeScript typecheck** — Objective: prove backend/ERP/contracts compile-time consistency; State: audit run **DONE**, execution unchecked; Scope: TS configs and workspaces; Action: run root typecheck and resolve root causes; Depends/Risk: STAB-05; Test/Security: strict typecheck, no `any` escape to silence auth/data issues; DoD: all typechecks green; Next: STAB-07.
@@ -64,7 +64,7 @@ Status marks in this file describe execution, not how much scaffold already exis
 
 ### P0 security work packages (executed inside STAB-20, not in parallel)
 
-- [ ] **SEC-01 Dependency remediation** — Objective: remove 4 critical/29 high advisories; State: **BROKEN**; Scope: Next/React, Vitest/Vite and transitive lockfile; Action: supported upgrades/codemods only; Depends/Risk: STAB-03, framework regressions; Test/Security: audit + verify + browser smoke; DoD: no unaccepted critical/high and patched versions recorded; Next: SEC-02.
+- [x] **SEC-01 Dependency remediation** — Objective: remove 4 critical/29 high advisories; State: **DONE** via STAB-03 on 25 August 2026; Scope: Next/React, Vitest/Vite and transitive lockfile; Action: supported upgrades/codemods only; Depends/Risk: STAB-03, framework regressions; Test/Security: audit + verify + browser smoke; DoD: no unaccepted critical/high and patched versions recorded; Next: SEC-02. Residual lows and Dependabot/CI SCA remain for STAB-16 / later eslint and supabase-js slices.
 - [ ] **SEC-02 Branch and BOLA closure** — Objective: scope every employee read/mutation to active branch/resource; State: **BROKEN**; Scope: CRM/quotes/ops/manager/vendor/worker/inventory/finance services/adapters/controllers; Action: inventory every ID route and add branch predicates; Depends/Risk: SEC-01, authorization regressions; Test/Security: same/cross-branch allow/404 matrix; DoD: no unscoped route and tests prove denial; Next: SEC-03.
 - [ ] **SEC-03 Authentication atomicity and session control** — Objective: remove OTP/refresh races and stale-session accumulation; State: **PARTIAL/HIGH**; Scope: identity service/repository/mobile device ID; Action: transactional conditional consume/rotation, stable installation ID, revoke-all/session list; Depends/Risk: SEC-02, account lockout; Test/Security: concurrent OTP/refresh/reinstall/logout/reuse tests; DoD: one-time semantics and session visibility proven; Next: SEC-04.
 - [ ] **SEC-04 Outbox and idempotency reliability** — Objective: prevent duplicate/stranded lifecycle effects; State: **BROKEN/MISSING**; Scope: outbox processors and `idempotency_records`; Action: lease/recovery/dead-letter/dedupe/metrics; Depends/Risk: SEC-03 and DB tests; Test/Security: crash/restart/duplicate/concurrent delivery tests; DoD: exactly-once business outcome under at-least-once processing; Next: SEC-05.
@@ -286,16 +286,16 @@ Status marks in this file describe execution, not how much scaffold already exis
 - [ ] **POLISH-05 Support and runbooks** — Objective: founder/operator can diagnose and respond; State: **MISSING**; Scope: customer support, incidents, providers, data correction; Action: severity/ownership/escalation/runbooks; Depends/Risk: production topology; Test/Security: tabletop drills and redaction; DoD: named owners and successful drills; Next: POLISH-06.
 - [ ] **POLISH-06 Final launch checklist** — Objective: prove the complete definition of done; State: **MISSING**; Scope: all evidence; Action: verify, never infer; Depends/Risk: IOS-10 and all prior gates; Test/Security: repeat critical journeys/security/restore/rollback; DoD: every required item checked with artifact/owner/date; Next: maintain/operate.
 
-## Last closed execution block — STAB-02
+## Last closed execution block — STAB-03
 
 ### TASK ID
 
-`STAB-02`
+`STAB-03`
 
 ### RESULT
 
-Completed 25 August 2026. Environment matrix lives in `docs/07-deployment/environment.md`. Backend, ERP, and Flutter fail-closed rules were tested with synthetic placeholders. Local `.env` files were not read or changed.
+Completed 25 August 2026. Secure dependency baseline is in `docs/05-security/dependency-security.md`. JavaScript critical/high advisories remediations verified; Flutter had no affecting critical/high advisories. Two low JavaScript findings remain with ownership. Phase 0 gate is still not passed.
 
 ### NEXT TASK
 
-`STAB-03 Dependency verification`. Stop after committing STAB-02. Do not start STAB-03 in the same session.
+`STAB-04 Formatting`. Stop after committing STAB-03. Do not start STAB-04 in the same session.

@@ -5,6 +5,7 @@
 - **Branch audited:** `master` tracking `origin/master`
 - **Audited commit:** `9e2a442d91c137ec97a349d1a55697ae8d79d5df`
 - **STAB-01 snapshot:** 25 August 2026 19:08 IST (Asia/Kolkata) at `ca994985a898d42da2a8d717041b93a8f8f0dc4c` (audit documentation commit on top of the audited application tree; no application-file delta)
+- **STAB-03 dependency baseline:** 25 August 2026 IST. Canonical register `docs/05-security/dependency-security.md`. Final `pnpm audit`: 0 critical, 0 high, 0 moderate, 2 low.
 - **Audit type:** Read-only implementation, configuration, test, security, release, documentation, and artifact inspection
 - **Decision:** **NOT PRODUCTION-READY**
 
@@ -16,7 +17,7 @@ Mee Events is a substantial **connected-platform foundation**, not a finished ev
 
 The end-to-end business lifecycle is **not yet proven**. The employee lead inbox is fixture-backed, external OTP is a fail-closed stub, payments are manual records rather than provider-verified transactions, PDFs and file storage are placeholders, notification outbox intents have no delivery publisher, there is no live PostgreSQL integration suite, and there is no browser/device E2E suite. Employee Mobile does not exist as a separate product.
 
-Release is blocked by multiple concrete issues: critical/high dependency advisories, branch/resource scoping gaps on employee record-by-ID operations, a production Android manifest without `INTERNET`, debug signing of the production APK, an iOS target Flutter reports as not configured, missing production infrastructure, and missing real providers.
+Release is blocked by multiple concrete issues: remaining application security work (employee branch/resource scoping), a production Android manifest without `INTERNET`, debug signing of the production APK, an iOS target Flutter reports as not configured, missing production infrastructure, and missing real providers. JavaScript critical/high dependency advisories recorded in the 25 August audit were remediated in STAB-03 (`docs/05-security/dependency-security.md`); two low findings remain.
 
 **No single overall percentage is reported.** A single number would hide the large difference between foundation code and verified production operation.
 
@@ -46,7 +47,7 @@ Verified locally:
 - Flutter dev debug APK — **PASS**.
 - Flutter production release APK compile — **PASS**, but the binary is unusable for production because it lacks network permission and is signed by the Android debug certificate.
 - iOS unsigned release build — **FAIL**, `Application not configured for iOS`.
-- Package security audit — **FAIL**, 74 findings: 4 critical, 29 high, 31 moderate, 10 low.
+- Package security audit — **FAIL at original audit**, 74 findings: 4 critical, 29 high, 31 moderate, 10 low. **STAB-03 re-audit 25 August 2026 (IST):** remediations applied; final `pnpm audit` 0 critical, 0 high, 0 moderate, 2 low. See `docs/05-security/dependency-security.md`.
 
 Not verified:
 
@@ -217,10 +218,10 @@ The complete Customer → CRM → Quotation → Payment → Booking → Event �
 - Customer PDF/documents/notifications/payment screens expose foundations or honest placeholders, not production integrations.
 - Error/empty/loading states exist in many screens; offline transactional behavior does not.
 - Design repository contains 230 Stitch screens with a keep/delete plan; it is design evidence, not implemented product proof.
+- Two low JavaScript advisories remain after STAB-03 (`@supabase/auth-js`, `@eslint/plugin-kit`); owned, not accepted as critical/high.
 
 ### BROKEN
 
-- Dependency security baseline: 4 critical and 29 high advisories.
 - ERP Lead Inbox uses fixture leads instead of real CRM list data.
 - Production Android APK lacks `android.permission.INTERNET`.
 - Production Android APK is signed by `CN=Android Debug`.
@@ -327,10 +328,10 @@ Critical and high findings are release blockers unless explicitly risk-accepted 
 
 ### CRITICAL
 
-| ID       | Finding                                                                            | Evidence / impact                                                                                           | Required action                                                                                                |
-| -------- | ---------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| SEC-C-01 | Production Next.js dependency has critical RCE and authorization-bypass advisories | ERP uses Next `15.1.3`; package audit identifies critical React Flight RCE and middleware bypass advisories | Upgrade to a supported patched Next/React line, review release notes, rerun all tests/builds/audit, add CI SCA |
-| SEC-C-02 | Test toolchain has critical Vitest file-read/RCE advisories                        | Backend and ERP use Vitest `2.1.8`; risk is primarily developer/CI exposure, especially UI/API server modes | Upgrade Vitest/Vite dependency chain, prevent exposed test servers, verify lockfile and CI                     |
+| ID       | Finding                                                                            | Evidence / impact                                                                                        | Required action                                                              |
+| -------- | ---------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| SEC-C-01 | Production Next.js dependency has critical RCE and authorization-bypass advisories | **Closed in STAB-03.** ERP now uses Next `15.5.23`. Final audit has 0 Next critical/high.                | Keep Next on a supported 15.x patch line; add scheduled SCA in STAB-16       |
+| SEC-C-02 | Test toolchain has critical Vitest file-read/RCE advisories                        | **Closed in STAB-03.** Backend and ERP use Vitest `3.2.7` with Vite `6.4.3`. Tests use `vitest run` only | Do not expose Vitest UI/API servers; Node 22 / Vitest 5 is a later migration |
 
 ### HIGH
 
@@ -466,7 +467,7 @@ No files were deleted.
 
 ## 16. Release blockers
 
-1. Upgrade/remediate critical and high dependency advisories.
+1. ~~Upgrade/remediate critical and high dependency advisories.~~ **Done in STAB-03** (2 low remain; see `docs/05-security/dependency-security.md`).
 2. Close employee branch/resource IDOR/BOLA gaps and add denial tests.
 3. Prove PostgreSQL migrations and real adapters in integration tests.
 4. Replace fixture CRM lead inbox and enforce employee bootstrap/capability routing.
@@ -539,7 +540,7 @@ PHASE 11 Android release
 PHASE 12 iOS release
 ```
 
-No phase begins until the preceding gate is verified and recorded. The current phase is **Phase 0 — Stabilization**. **STAB-01** and **STAB-02** are complete. The next execution block is **STAB-03 — Dependency verification**.
+No phase begins until the preceding gate is verified and recorded. The current phase is **Phase 0 — Stabilization**. **STAB-01**, **STAB-02**, and **STAB-03** are complete. The next execution block is **STAB-04 — Formatting**. Do not start STAB-04 in the STAB-03 session.
 
 ## 19. Definition of complete
 

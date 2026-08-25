@@ -1,15 +1,15 @@
 # Mee Events — Progress Tracker
 
-- **Updated:** 25 August 2026 19:08 IST (Asia/Kolkata, +0530); STAB-02 25 August 2026 ~19:50 IST
+- **Updated:** 25 August 2026 ~20:30 IST (Asia/Kolkata, +0530); STAB-03
 - **Repository:** `/Users/vinaychilagani/Desktop/Mee Event V1`
 - **Baseline application commit:** `master` / `9e2a442d91c137ec97a349d1a55697ae8d79d5df`
 - **STAB-01 snapshot HEAD:** `ca994985a898d42da2a8d717041b93a8f8f0dc4c`
 - **Current phase:** Phase 0 — Stabilization
 - **Phase gate:** **NOT PASSED**
-- **Last completed task:** STAB-02 — Environment verification
-- **Current task:** None — STAB-02 closed as instructed
-- **Next task:** STAB-03 — Dependency verification
-- **Latest application commit:** STAB-02 includes scoped configuration readers/validators; use Git history for the STAB-02 hash.
+- **Last completed task:** STAB-03 — Dependency verification
+- **Current task:** None — STAB-03 closed as instructed
+- **Next task:** STAB-04 — Formatting
+- **Latest application commit:** STAB-03 establishes the secure dependency baseline; use Git history for the STAB-03 hash. Canonical evidence: `docs/05-security/dependency-security.md`.
 
 ## Status key
 
@@ -111,29 +111,50 @@ Local env files remain ignored and untracked. Values were not read. No provider 
 Targeted backend, ERP, and Flutter environment tests with synthetic placeholders only.
 Backend suite 188/188 (was 173; environment spec now 17 cases). ERP 8/8 (was 2; plus 6 environment cases). Flutter `environment_test.dart` 6/6.
 
+## STAB-03 — Dependency verification
+
+- [x] **STAB-03** Dependency verification — completed 25 August 2026 (IST). Next: STAB-04. Do not start STAB-04 in this block.
+
+Canonical register: `docs/05-security/dependency-security.md`.
+
+| Surface                | Result                                                                                                                |
+| ---------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| Fresh `pnpm audit`     | Initial 4 critical / 29 high / 31 moderate / 10 low. Production-only 2 / 19 / 26 / 7                                  |
+| Remediation            | Next 15.5.23, Vitest 3.2.7, Nest 11.2.x + swagger 11.4.7, documented exact `pnpm.overrides` for remaining transitives |
+| Final `pnpm audit`     | 0 critical / 0 high / 0 moderate / 2 low. Production-only 0 / 0 / 0 / 1                                               |
+| Flutter/Dart           | No critical/high. OSV 0 findings on 123 hosted lockfile packages. No pubspec changes                                  |
+| Accepted critical/high | **None**                                                                                                              |
+| Compatibility verify   | Frozen install, format, lint, typecheck, backend 188/188, ERP 8/8, shared/backend/ERP production builds PASS          |
+
+Phase 0 gate remains **NOT PASSED**. STAB-11/12/13 are not closed by these compatibility builds.
+
 ## Latest verification
 
-| Verification                  | Result                          | Evidence summary                                                                       |
-| ----------------------------- | ------------------------------- | -------------------------------------------------------------------------------------- |
-| STAB-02 environment contracts | **PASS**                        | Matrix in `docs/07-deployment/environment.md`; fail-closed tests with synthetic values |
-| STAB-01 remote default        | **PASS with local drift**       | GitHub HEAD is `master`; local `origin/HEAD` still stale-points at `main`              |
-| STAB-01 secrets               | **PASS**                        | Env values not read; only template key names and ignored-file presence                 |
-| STAB-01 application tree      | **PASS**                        | No application file changes versus `9e2a442`                                           |
-| Git start state (audit)       | **PASS**                        | Clean `master` worktree at audited baseline; local `origin/HEAD` still stale           |
-| Node / pnpm                   | **PASS**                        | Node `20.20.2`; pnpm `9.15.4`                                                          |
-| Flutter / Dart                | **PASS**                        | Flutter `3.44.8`; Dart `3.12.2`                                                        |
-| Root TypeScript verification  | **PASS**                        | format, lint, typecheck, tests, backend build, ERP build                               |
-| Backend tests                 | **PASS**                        | 173/173 across 30 files                                                                |
-| ERP tests                     | **PASS but weak**               | 2/2 across 2 files                                                                     |
-| Flutter format                | **PASS**                        | 199 files unchanged                                                                    |
-| Flutter analysis              | **PASS**                        | no issues with fatal infos                                                             |
-| Flutter tests                 | **PASS**                        | 435/435                                                                                |
-| Android dev debug build       | **PASS**                        | APK compiled                                                                           |
-| Android prod release compile  | **COMPILE PASS / RELEASE FAIL** | 69.1 MB APK; no INTERNET permission; Android Debug certificate                         |
-| iOS unsigned release build    | **FAIL**                        | `Application not configured for iOS`                                                   |
-| Dependency audit              | **FAIL**                        | 74 total: 4 critical, 29 high, 31 moderate, 10 low                                     |
-| PostgreSQL integration        | **NOT VERIFIED / BLOCKED**      | Docker daemon unavailable; no in-repo integration suite                                |
-| Browser/device E2E            | **MISSING**                     | No framework/suite                                                                     |
+| Verification                  | Result                          | Evidence summary                                                                              |
+| ----------------------------- | ------------------------------- | --------------------------------------------------------------------------------------------- |
+| STAB-03 JavaScript audit      | **PASS**                        | Final 0 critical / 0 high / 0 moderate / 2 low; see `docs/05-security/dependency-security.md` |
+| STAB-03 Flutter/Dart review   | **PASS**                        | OSV 0 findings; no discontinued direct packages; no pubspec changes                           |
+| STAB-03 unaccepted crit/high  | **PASS (none remain)**          | No founder acceptance used                                                                    |
+| STAB-03 compatibility verify  | **PASS**                        | Frozen install, format, lint, typecheck, 188 backend tests, 8 ERP tests, Nest/Next builds     |
+| STAB-02 environment contracts | **PASS**                        | Matrix in `docs/07-deployment/environment.md`; fail-closed tests with synthetic values        |
+| STAB-01 remote default        | **PASS with local drift**       | GitHub HEAD is `master`; local `origin/HEAD` still stale-points at `main`                     |
+| STAB-01 secrets               | **PASS**                        | Env values not read; only template key names and ignored-file presence                        |
+| STAB-01 application tree      | **PASS**                        | No application file changes versus `9e2a442`                                                  |
+| Git start state (audit)       | **PASS**                        | Clean `master` worktree at audited baseline; local `origin/HEAD` still stale                  |
+| Node / pnpm                   | **PASS**                        | Node `20.20.2`; pnpm `9.15.4`                                                                 |
+| Flutter / Dart                | **PASS**                        | Flutter `3.44.8`; Dart `3.12.2`                                                               |
+| Root TypeScript verification  | **PASS**                        | format, lint, typecheck, tests, backend build, ERP build                                      |
+| Backend tests                 | **PASS**                        | 173/173 across 30 files                                                                       |
+| ERP tests                     | **PASS but weak**               | 2/2 across 2 files                                                                            |
+| Flutter format                | **PASS**                        | 199 files unchanged                                                                           |
+| Flutter analysis              | **PASS**                        | no issues with fatal infos                                                                    |
+| Flutter tests                 | **PASS**                        | 435/435                                                                                       |
+| Android dev debug build       | **PASS**                        | APK compiled                                                                                  |
+| Android prod release compile  | **COMPILE PASS / RELEASE FAIL** | 69.1 MB APK; no INTERNET permission; Android Debug certificate                                |
+| iOS unsigned release build    | **FAIL**                        | `Application not configured for iOS`                                                          |
+| Dependency audit              | **FAIL**                        | 74 total: 4 critical, 29 high, 31 moderate, 10 low                                            |
+| PostgreSQL integration        | **NOT VERIFIED / BLOCKED**      | Docker daemon unavailable; no in-repo integration suite                                       |
+| Browser/device E2E            | **MISSING**                     | No framework/suite                                                                            |
 
 ## Known release blockers
 
@@ -165,7 +186,7 @@ Do not ask for these until their dependent block is approaching, unless early pr
 
 - [x] STAB-01 Repository snapshot
 - [x] STAB-02 Environment verification
-- [ ] STAB-03 Dependency verification
+- [x] STAB-03 Dependency verification
 - [ ] STAB-04 Formatting
 - [ ] STAB-05 Lint
 - [ ] STAB-06 TypeScript typecheck
@@ -186,7 +207,7 @@ Do not ask for these until their dependent block is approaching, unless early pr
 
 ### Phase 0 security packages
 
-- [ ] SEC-01 Dependency remediation
+- [x] SEC-01 Dependency remediation — closed by STAB-03 (`docs/05-security/dependency-security.md`); remaining work is low-severity follow-up, not unaccepted critical/high
 - [ ] SEC-02 Branch and BOLA closure
 - [ ] SEC-03 Authentication atomicity and session control
 - [ ] SEC-04 Outbox and idempotency reliability
