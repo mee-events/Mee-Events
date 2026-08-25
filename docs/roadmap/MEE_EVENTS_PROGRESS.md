@@ -1,15 +1,15 @@
 # Mee Events — Progress Tracker
 
-- **Updated:** 25 August 2026 22:50 IST (Asia/Kolkata, +0530); STAB-05
+- **Updated:** 25 August 2026 23:38 IST (Asia/Kolkata, +0530); STAB-06
 - **Repository:** `/Users/vinaychilagani/Desktop/Mee Event V1`
 - **Baseline application commit:** `master` / `9e2a442d91c137ec97a349d1a55697ae8d79d5df`
 - **STAB-01 snapshot HEAD:** `ca994985a898d42da2a8d717041b93a8f8f0dc4c`
 - **Current phase:** Phase 0 — Stabilization
 - **Phase gate:** **NOT PASSED**
-- **Last completed task:** STAB-05 — Lint
-- **Current task:** None — STAB-05 closed as instructed
-- **Next task:** STAB-06 — TypeScript typecheck
-- **Latest application commit:** STAB-05 closed backend script lint coverage. Use Git history for hashes.
+- **Last completed task:** STAB-06 — TypeScript typecheck
+- **Current task:** None — STAB-06 closed as instructed
+- **Next task:** STAB-07 — Backend tests
+- **Latest application commit:** STAB-05 closed backend script lint coverage; STAB-06 is documentation-only. Use Git history for hashes.
 
 ## Status key
 
@@ -221,38 +221,118 @@ Promise/unsafe rules remain **error**: `no-floating-promises`, `no-misused-promi
 
 Zero `eslint-disable`, `eslint-disable-next-line`, `@ts-ignore`, `@ts-expect-error`, `@ts-nocheck` in owned workspace `.ts`/`.tsx`/`.js`/`.mjs`.
 
+## STAB-06 — TypeScript typecheck
+
+- [x] **STAB-06** TypeScript typecheck — completed 25 August 2026 23:38 IST. Next: STAB-07. Do not start STAB-07 in this block.
+
+Independent re-verification after STAB-05 began on clean `master` at `52c751674b37c504ca8a5d0bed8b1e364b2ed83f`, tracking `origin/master`, ahead 6 and behind 0. No root TypeScript project exists or is needed: the root command recursively invokes the four workspace scripts. All four resolve the directly declared TypeScript **5.7.2**. The lockfile also contains TypeScript 5.9.3 only as a transitive Nest CLI/schematics dependency; it is not the `tsc` used by any workspace.
+
+### Project inventory and actual file coverage
+
+| Workspace / project                       | Compiler                  | Configuration / inheritance                                                                                     | Command                                                                                      | Intended and actual root-file scope                                                                                                                                     | Important exclusions                                                                                                 | Errors / result                             |
+| ----------------------------------------- | ------------------------- | --------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- | ------------------------------------------- |
+| `@me-event/backend` development/typecheck | 5.7.2                     | `apps/backend/tsconfig.json`; no base config                                                                    | `corepack pnpm --filter @me-event/backend typecheck` → `tsc -p tsconfig.json --noEmit`       | 163/163 tracked roots: 129 `src/**/*.ts`, 32 `test/**/*.ts`, 2 `scripts/**/*.ts`                                                                                        | `node_modules`; `dist` is compiler output and therefore excluded automatically                                       | 0 / **PASS**                                |
+| Backend production build                  | 5.7.2                     | `apps/backend/tsconfig.build.json` extends `tsconfig.json`; Nest CLI uses it with `sourceRoot: src`             | `nest build` (scope inspection only; STAB-11 not started)                                    | 129/129 production `src/**/*.ts` roots                                                                                                                                  | `test`, `scripts`, `**/*.spec.ts`, `node_modules`, `dist`; operational scripts are typechecked above but not emitted | 0 configuration/coverage defects / **PASS** |
+| `@me-event/erp-web`                       | 5.7.2                     | `apps/erp-web/tsconfig.json`; Next plugin; no base config                                                       | `corepack pnpm --filter @me-event/erp-web typecheck` → `tsc --noEmit`                        | 64/64 maintained roots (62 `src` TS/TSX including tests, `next.config.ts`, `next-env.d.ts`) plus 49 currently generated ignored `.next/types` roots = 113 current roots | `node_modules`; `.next/types/**/*.ts` is optional generated input; no `rootDir`/`outDir`                             | 0 / **PASS**                                |
+| `@me-event/shared-types`                  | 5.7.2                     | `packages/shared-types/tsconfig.json`; no base config                                                           | `corepack pnpm --filter @me-event/shared-types typecheck` → `tsc -p tsconfig.json --noEmit`  | 1/1 maintained root: `src/index.ts`                                                                                                                                     | `dist`; `rootDir: src`, `outDir: dist`, declarations enabled                                                         | 0 / **PASS**                                |
+| `@me-event/api-contracts`                 | 5.7.2                     | `packages/api-contracts/tsconfig.json` extends `../shared-types/tsconfig.json` and overrides `rootDir`/`outDir` | `corepack pnpm --filter @me-event/api-contracts typecheck` → `tsc -p tsconfig.json --noEmit` | 1/1 maintained root: `src/index.ts`; imports shared workspace declarations                                                                                              | `dist`; inherited declaration/strictness settings retained                                                           | 0 / **PASS**                                |
+| Root workspace orchestration              | workspace compilers above | No root `tsconfig*.json` and no project references                                                              | `corepack pnpm typecheck` → recursive `--if-present typecheck`                               | All four TypeScript workspaces; 229 maintained TS/TSX/declaration roots in repository coverage                                                                          | Flutter/Dart, raw design JS and root utility JS are not TypeScript workspace source                                  | 0 / **PASS**                                |
+
+The maintained-file inventory and `tsc --showConfig` root lists match exactly. No active owned `.ts`/`.tsx` file is outside an intended project. STAB-05 changed only backend include/build-exclude scope; it did not weaken a compiler option.
+
+### Effective compiler settings
+
+| Setting                                       | Backend development / build                               | ERP web              | Shared types / API contracts     |
+| --------------------------------------------- | --------------------------------------------------------- | -------------------- | -------------------------------- |
+| `strict`, `noImplicitAny`, `strictNullChecks` | `true`                                                    | `true`               | `true`                           |
+| `noUncheckedIndexedAccess`                    | `true`                                                    | not enabled          | `true`                           |
+| `exactOptionalPropertyTypes`                  | `true`                                                    | not enabled          | `true`                           |
+| `skipLibCheck`                                | `true`                                                    | `true`               | `true`                           |
+| `noEmit`                                      | command-line `true`; build emits                          | `true`               | command-line `true`; build emits |
+| `isolatedModules`                             | compiler default (`false`)                                | `true`               | compiler default (`false`)       |
+| `module` / `moduleResolution`                 | `commonjs` / TypeScript 5.7 implicit default (not pinned) | `esnext` / `bundler` | `nodenext` / `nodenext`          |
+| `target`                                      | `ES2022`                                                  | `ES2017`             | `ES2022`                         |
+| `rootDir` / `outDir`                          | inferred / `dist`                                         | unset / unset        | `src` / `dist`                   |
+| declarations                                  | enabled                                                   | not enabled          | enabled                          |
+
+`skipLibCheck: true` skips checking third-party declaration-file bodies; it does **not** skip owned application roots, tests, scripts or package source. Residual risk is incompatible/inaccurate dependency declarations. ERP's missing `noUncheckedIndexedAccess` and `exactOptionalPropertyTypes`, and backend's implicit `moduleResolution`, are existing hardening gaps; no setting was removed or weakened in STAB-06.
+
+### Generated Next type handling
+
+The ERP include list names `.next/types/**/*.ts`, but TypeScript treats the absent glob as empty. The current ignored `.next/types` directory contributed 49 generated route/declaration roots and passed. A temporary clean-checkout-equivalent copy containing the 64 maintained ERP roots, the same config and dependencies, but no `.next`, also passed with 0 errors. Stale generated files therefore neither mask the maintained-source result nor make a clean checkout dependent on a prior Next build. `.next`, `dist` and `*.tsbuildinfo` remain ignored and untracked.
+
+### Type-escape inventory and security review
+
+AST and text searches covered owned TypeScript/TSX source, tests and operational scripts.
+
+| Category                                                                  | Count                      | Classification / security result                                                                                   |
+| ------------------------------------------------------------------------- | -------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| Explicit `any`, `as any`, `@ts-ignore`, `@ts-expect-error`, `@ts-nocheck` | 0                          | No unsafe compiler escape or suppression                                                                           |
+| Source/script double assertions and non-null assertions                   | 0 / 0                      | No active source escape of these forms                                                                             |
+| Test double assertions / non-null assertions                              | 23 / 17                    | Existing test-fixture mocks and checked fixture indexing only; no production boundary                              |
+| Active `as` expressions                                                   | 255                        | 110 literal-preserving `as const`; 89 exhaustive `as never`; 56 narrowed/generic/framework assertions. No `as any` |
+| Broad index signatures                                                    | 0                          | None found in owned TS/TSX                                                                                         |
+| `JSON.parse`                                                              | 3                          | Two taxonomy test fixtures; one ERP session boundary with partial field checks                                     |
+| Typed PostgreSQL `query<T>` calls                                         | 299 across 17 source files | Compile-time row models and explicit mapping, but no general runtime row decoder; existing data-boundary debt      |
+
+Representative security-sensitive boundaries were inspected: environment validation, authenticated principals, JWT/session claims, role/capability maps, branch resolution, Zod DTO inference/pipe use, pagination, PostgreSQL row mapping, audit/outbox/timeline payloads, payment/quotation/booking/event identifiers and money, external OTP, ERP API/session handling, and operational Supabase scripts. Positive evidence: JWT payloads begin as `Record<string, unknown>` and roles are narrowed against the shared union; sessions/users/role assignments are reloaded and checked; branch resolution uses scoped assignments; request DTOs are Zod-derived and parsed; outbox JSONB payloads begin as `unknown` and are narrowed; environment schemas fail closed; external OTP is fail-closed; operational script rows are narrowed from `unknown`; money is represented as decimal strings in response/database models.
+
+Known gaps, none introduced here:
+
+1. **Medium — ERP/API owner:** `response.json()` is asserted to generic contract types, refresh responses are asserted, and stored session JSON validates only part of `EmployeeSession`. Add runtime response/session schemas before treating network/storage values as trusted.
+2. **Medium — Backend/Data owner:** PostgreSQL `query<T>` generics provide compile-time shapes but not runtime validation for enum/date/JSON values. Add adapter-boundary validation, prioritized for identity, authorization, payments and branch-scoped rows; STAB-15 integration tests should exercise the live shapes.
+3. **Medium — Backend/Finance owner:** several existing money paths use `Number(decimalString)` without an explicit finite/decimal guard. Replace with a validated decimal policy before provider-backed finance/payment work.
+4. **Low — ERP owner:** ERP does not enable `noUncheckedIndexedAccess` or `exactOptionalPropertyTypes`. Evaluate separately because enabling either can create broad migration work; they were not disabled to obtain this baseline.
+5. **Low — Backend/Security owner:** dormant `RolesGuard`/`RequireRoles` code models `user.roles`, while the active principal uses `activeRole` plus `roleAssignments`. It is unregistered and unused; align or remove it before any future activation. Active authorization uses the typed `CapabilityGuard`.
+
+Typechecking proves compile-time consistency, not runtime validation. These existing gaps remain visible for their named owners and do not hide a TypeScript error or active source exclusion. No application source, TypeScript configuration or generated output changed. Commit wording: `docs(roadmap): record STAB-06 typecheck verification`.
+
+### Checks executed
+
+- Individual backend, ERP, shared-types and API-contracts typechecks: **PASS**, 0 errors each.
+- Root `corepack pnpm typecheck`: **PASS**, all four workspace scripts, 0 errors.
+- ERP with present generated types and a no-`.next` clean-checkout-equivalent: **PASS**, 0 errors each.
+- Shared-types and API-contract declaration builds: **PASS**. Root lint: **PASS**, 0 errors / 0 warnings. Root formatting: **PASS**, 0 drift. `git diff --check`: **PASS**. Diff-only credential-pattern scan: **PASS**, 0 findings.
+- Tests: not run because no runtime code changed; STAB-07 and STAB-08 were not started.
+- Phase 0 gate remains **NOT PASSED**. Next permitted block: **STAB-07 — Backend tests**.
+
 ## Latest verification
 
-| Verification                  | Result                          | Evidence summary                                                                              |
-| ----------------------------- | ------------------------------- | --------------------------------------------------------------------------------------------- |
-| STAB-05 root lint             | **PASS**                        | ESLint 9.17.0; 0 errors / 0 warnings; scripts now covered                                     |
-| STAB-05 backend scripts       | **PASS**                        | `migrate_images.ts` and `upload_assets_to_supabase.ts` linted; type-aware; no secret logs     |
-| STAB-04 root Prettier         | **PASS**                        | Prettier 3.4.2; 372 parser-matched tracked files; 0 drift                                     |
-| STAB-04 Dart format           | **PASS**                        | Dart 3.12.2; 200 files in `lib`+`test`; 0 changed                                             |
-| STAB-04 exclusions            | **PASS**                        | All `.prettierignore` entries classified; no owned TS/Dart failure hidden                     |
-| STAB-03 JavaScript audit      | **PASS**                        | Final 0 critical / 0 high / 0 moderate / 2 low; see `docs/05-security/dependency-security.md` |
-| STAB-03 Flutter/Dart review   | **PASS**                        | OSV 0 findings; no discontinued direct packages; no pubspec changes                           |
-| STAB-03 unaccepted crit/high  | **PASS (none remain)**          | No founder acceptance used                                                                    |
-| STAB-03 compatibility verify  | **PASS**                        | Frozen install, format, lint, typecheck, 188 backend tests, 8 ERP tests, Nest/Next builds     |
-| STAB-02 environment contracts | **PASS**                        | Matrix in `docs/07-deployment/environment.md`; fail-closed tests with synthetic values        |
-| STAB-01 remote default        | **PASS with local drift**       | GitHub HEAD is `master`; local `origin/HEAD` still stale-points at `main`                     |
-| STAB-01 secrets               | **PASS**                        | Env values not read; only template key names and ignored-file presence                        |
-| STAB-01 application tree      | **PASS**                        | No application file changes versus `9e2a442`                                                  |
-| Git start state (audit)       | **PASS**                        | Clean `master` worktree at audited baseline; local `origin/HEAD` still stale                  |
-| Node / pnpm                   | **PASS**                        | Node `20.20.2`; pnpm `9.15.4`                                                                 |
-| Flutter / Dart                | **PASS**                        | Flutter `3.44.8`; Dart `3.12.2`                                                               |
-| Root TypeScript verification  | **PASS**                        | format, lint, typecheck, tests, backend build, ERP build                                      |
-| Backend tests                 | **PASS**                        | 173/173 across 30 files                                                                       |
-| ERP tests                     | **PASS but weak**               | 2/2 across 2 files                                                                            |
-| Flutter format                | **PASS**                        | STAB-04: 200 Dart files, 0 changed (audit-era count was 199)                                  |
-| Flutter analysis              | **PASS**                        | no issues with fatal infos                                                                    |
-| Flutter tests                 | **PASS**                        | 435/435                                                                                       |
-| Android dev debug build       | **PASS**                        | APK compiled                                                                                  |
-| Android prod release compile  | **COMPILE PASS / RELEASE FAIL** | 69.1 MB APK; no INTERNET permission; Android Debug certificate                                |
-| iOS unsigned release build    | **FAIL**                        | `Application not configured for iOS`                                                          |
-| Dependency audit              | **PASS (STAB-03)**              | 0 critical / 0 high remaining; 2 low owned. See `docs/05-security/dependency-security.md`     |
-| PostgreSQL integration        | **NOT VERIFIED / BLOCKED**      | Docker daemon unavailable; no in-repo integration suite                                       |
-| Browser/device E2E            | **MISSING**                     | No framework/suite                                                                            |
+| Verification                  | Result                          | Evidence summary                                                                               |
+| ----------------------------- | ------------------------------- | ---------------------------------------------------------------------------------------------- |
+| STAB-06 root typecheck        | **PASS**                        | TypeScript 5.7.2; four workspaces; 0 errors                                                    |
+| STAB-06 maintained coverage   | **PASS**                        | 229 roots; backend source/tests/scripts, ERP source/tests/config, both packages all covered    |
+| STAB-06 backend build scope   | **PASS**                        | 129 production roots; tests/scripts/specs excluded from emission only                          |
+| STAB-06 ERP generated types   | **PASS**                        | 49 present generated roots pass; no-`.next` 64-root clean equivalent also passes               |
+| STAB-06 type/security review  | **PASS with documented debt**   | No explicit `any`/suppressions/source double/non-null assertions; five owned follow-ups logged |
+| STAB-05 root lint             | **PASS**                        | ESLint 9.17.0; 0 errors / 0 warnings; scripts now covered                                      |
+| STAB-05 backend scripts       | **PASS**                        | `migrate_images.ts` and `upload_assets_to_supabase.ts` linted; type-aware; no secret logs      |
+| STAB-04 root Prettier         | **PASS**                        | Prettier 3.4.2; 372 parser-matched tracked files; 0 drift                                      |
+| STAB-04 Dart format           | **PASS**                        | Dart 3.12.2; 200 files in `lib`+`test`; 0 changed                                              |
+| STAB-04 exclusions            | **PASS**                        | All `.prettierignore` entries classified; no owned TS/Dart failure hidden                      |
+| STAB-03 JavaScript audit      | **PASS**                        | Final 0 critical / 0 high / 0 moderate / 2 low; see `docs/05-security/dependency-security.md`  |
+| STAB-03 Flutter/Dart review   | **PASS**                        | OSV 0 findings; no discontinued direct packages; no pubspec changes                            |
+| STAB-03 unaccepted crit/high  | **PASS (none remain)**          | No founder acceptance used                                                                     |
+| STAB-03 compatibility verify  | **PASS**                        | Frozen install, format, lint, typecheck, 188 backend tests, 8 ERP tests, Nest/Next builds      |
+| STAB-02 environment contracts | **PASS**                        | Matrix in `docs/07-deployment/environment.md`; fail-closed tests with synthetic values         |
+| STAB-01 remote default        | **PASS with local drift**       | GitHub HEAD is `master`; local `origin/HEAD` still stale-points at `main`                      |
+| STAB-01 secrets               | **PASS**                        | Env values not read; only template key names and ignored-file presence                         |
+| STAB-01 application tree      | **PASS**                        | No application file changes versus `9e2a442`                                                   |
+| Git start state (audit)       | **PASS**                        | Clean `master` worktree at audited baseline; local `origin/HEAD` still stale                   |
+| Node / pnpm                   | **PASS**                        | Node `20.20.2`; pnpm `9.15.4`                                                                  |
+| Flutter / Dart                | **PASS**                        | Flutter `3.44.8`; Dart `3.12.2`                                                                |
+| Root TypeScript verification  | **PASS**                        | format, lint, typecheck, tests, backend build, ERP build                                       |
+| Backend tests                 | **PASS**                        | 173/173 across 30 files                                                                        |
+| ERP tests                     | **PASS but weak**               | 2/2 across 2 files                                                                             |
+| Flutter format                | **PASS**                        | STAB-04: 200 Dart files, 0 changed (audit-era count was 199)                                   |
+| Flutter analysis              | **PASS**                        | no issues with fatal infos                                                                     |
+| Flutter tests                 | **PASS**                        | 435/435                                                                                        |
+| Android dev debug build       | **PASS**                        | APK compiled                                                                                   |
+| Android prod release compile  | **COMPILE PASS / RELEASE FAIL** | 69.1 MB APK; no INTERNET permission; Android Debug certificate                                 |
+| iOS unsigned release build    | **FAIL**                        | `Application not configured for iOS`                                                           |
+| Dependency audit              | **PASS (STAB-03)**              | 0 critical / 0 high remaining; 2 low owned. See `docs/05-security/dependency-security.md`      |
+| PostgreSQL integration        | **NOT VERIFIED / BLOCKED**      | Docker daemon unavailable; no in-repo integration suite                                        |
+| Browser/device E2E            | **MISSING**                     | No framework/suite                                                                             |
 
 ## Known release blockers
 
@@ -287,7 +367,7 @@ Do not ask for these until their dependent block is approaching, unless early pr
 - [x] STAB-03 Dependency verification
 - [x] STAB-04 Formatting
 - [x] STAB-05 Lint
-- [ ] STAB-06 TypeScript typecheck
+- [x] STAB-06 TypeScript typecheck
 - [ ] STAB-07 Backend tests
 - [ ] STAB-08 ERP tests
 - [ ] STAB-09 Flutter analysis

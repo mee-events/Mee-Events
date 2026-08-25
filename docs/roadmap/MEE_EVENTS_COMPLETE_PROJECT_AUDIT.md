@@ -8,6 +8,7 @@
 - **STAB-03 dependency baseline:** 25 August 2026 IST. Canonical register `docs/05-security/dependency-security.md`. Final `pnpm audit`: 0 critical, 0 high, 0 moderate, 2 low.
 - **STAB-04 formatting baseline:** 25 August 2026 22:22 IST. Prettier 3.4.2 and Dart format 3.12.2 both PASS with 0 owned-source drift. See `docs/roadmap/MEE_EVENTS_PROGRESS.md` STAB-04.
 - **STAB-05 lint baseline:** 25 August 2026 22:50 IST. ESLint 9.17.0; root lint 0/0; backend scripts now covered. See `docs/roadmap/MEE_EVENTS_PROGRESS.md` STAB-05.
+- **STAB-06 TypeScript baseline:** 25 August 2026 23:38 IST. TypeScript 5.7.2 in all four workspaces; 229 maintained roots covered; individual/root typechecks 0 errors. See `docs/roadmap/MEE_EVENTS_PROGRESS.md` STAB-06.
 - **Audit type:** Read-only implementation, configuration, test, security, release, documentation, and artifact inspection
 - **Decision:** **NOT PRODUCTION-READY**
 
@@ -45,6 +46,7 @@ Verified locally:
 - ERP web: **2/2 tests PASS** across 2 files.
 - Flutter format check — **PASS**, 199 files unchanged at original audit. **STAB-04:** `dart format --output=none --set-exit-if-changed lib test` — **PASS**, 200 files, 0 changed. Root `pnpm format:check` — **PASS**.
 - Root `pnpm lint` — **PASS** at original audit. **STAB-05:** coverage extended to `apps/backend/scripts/**/*.ts`; ESLint 9.17.0; 0 errors / 0 warnings.
+- Root `pnpm typecheck` — **PASS** at original audit. **STAB-06:** independently verified TypeScript 5.7.2 across backend, ERP, shared-types and API-contracts; all individual and root commands returned 0 errors with 229 maintained roots covered.
 - Flutter analysis with fatal infos — **PASS**.
 - Flutter tests — **435/435 PASS**.
 - Flutter dev debug APK — **PASS**.
@@ -58,6 +60,12 @@ Not verified:
 - Real provider calls, staging, production, backups, restore, monitoring, signed store builds, or store accounts.
 - Browser/device E2E because no E2E framework exists.
 - Runtime penetration testing, DAST, load testing, accessibility certification, or legal/privacy review.
+
+### STAB-06 compile-time boundary update
+
+Backend development typechecking covers 129 source, 32 test and 2 operational-script roots; the Nest production build config correctly narrows emission to 129 application-source roots. ERP covers 62 maintained source/test roots plus `next.config.ts` and `next-env.d.ts`; 49 currently generated, ignored `.next/types` roots also pass, while a no-`.next` clean-checkout-equivalent passes using only the 64 maintained roots. Both one-file shared packages pass, with API contracts inheriting strict NodeNext/declaration settings from shared-types. All workspaces have `strict`, `noImplicitAny` and `strictNullChecks`; backend/packages also have `noUncheckedIndexedAccess` and `exactOptionalPropertyTypes`. `skipLibCheck` is enabled but only skips third-party declaration bodies, not owned roots.
+
+No explicit `any`, `as any`, TypeScript suppression, source double assertion or source non-null assertion was found. Existing medium boundary debt remains documented rather than hidden: ERP network/session JSON assertions, PostgreSQL generic row trust, and unchecked string-to-number conversions in some money calculations. ERP's two missing hardening flags and an unused legacy role guard are low-severity follow-ups. Owners and detailed counts are in the progress tracker. No compiler setting was weakened, no source was excluded, and no application/configuration/generated file changed in STAB-06. This establishes compile-time consistency; it is not runtime validation or completion of STAB-07/08.
 
 The repository-requested `lean-ctx` helper is not installed in the current environment, even though project AI-control documentation says it is. Native read/search/command tools were used as the documented fallback.
 
@@ -543,7 +551,7 @@ PHASE 11 Android release
 PHASE 12 iOS release
 ```
 
-No phase begins until the preceding gate is verified and recorded. The current phase is **Phase 0 — Stabilization**. **STAB-01** through **STAB-05** are complete. The next execution block is **STAB-06 — TypeScript typecheck**. Do not start STAB-06 in the STAB-05 session.
+No phase begins until the preceding gate is verified and recorded. The current phase is **Phase 0 — Stabilization**. **STAB-01** through **STAB-06** are complete. The next execution block is **STAB-07 — Backend tests**. Do not start STAB-07 in the STAB-06 session.
 
 ## 19. Definition of complete
 
