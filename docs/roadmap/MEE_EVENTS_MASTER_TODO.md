@@ -2,7 +2,7 @@
 
 - **Baseline:** Complete repository audit dated 25 August 2026
 - **Current phase:** Phase 0 — Stabilization
-- **Next block:** STAB-04 — Formatting
+- **Next block:** STAB-05 — Lint
 - **Rule:** One block → verify → document → commit → stop.
 
 This file is the definitive ordered work inventory. The phase order is mandatory even when a later task has a higher risk priority. Do not start Customer until the Phase 0 gate passes; do not start Vendor until Customer passes; continue one major module at a time.
@@ -44,7 +44,7 @@ Status marks in this file describe execution, not how much scaffold already exis
 - [x] **STAB-01 Repository snapshot** — Objective: freeze branch/commit/worktree/toolchain/module/test baseline; State: **DONE** 25 August 2026; Scope: Git, root manifests, CI, native metadata, `docs/roadmap`; Action: record reproducible snapshot only; Depends/Risk: none, risk of overwriting user work; Test/Security: read-only Git/status/version checks and secret-safe output; DoD: clean/dirty state, branch, commit, remotes, versions, module inventory, known failures and evidence recorded; Next: STAB-02.
 - [x] **STAB-02 Environment verification** — Objective: prove documented local configuration without exposing secrets; State: **DONE** 25 August 2026; Scope: `.env*.example`, ignored local env presence, backend Zod schema, Flutter/ERP env readers; Action: compare required keys and fail-closed rules; Depends/Risk: STAB-01, secret leakage; Test/Security: boot/config tests with placeholders, never print values; DoD: dev/test/staging/prod key matrix reconciled and missing conditional validation logged; Next: STAB-03.
 - [x] **STAB-03 Dependency verification** — Objective: establish supported and secure dependency baseline; State: **DONE** 25 August 2026; Scope: all manifests/lockfiles and Flutter constraints; Action: classify direct/transitive/runtime/dev advisories and create safe upgrade slices; Depends/Risk: STAB-02, breaking framework changes; Test/Security: SCA plus full verify/build after each slice; DoD: zero unaccepted critical/high advisories and documented exceptions/upgrade proof; Next: STAB-04. Evidence: `docs/05-security/dependency-security.md`. Final audit 0 critical / 0 high / 0 moderate / 2 low.
-- [ ] **STAB-04 Formatting** — Objective: prove owned source/docs are formatted without hiding defects; State: audit run **DONE**, execution unchecked; Scope: root formatter config and owned files, excluding proven raw/generated design evidence; Action: rerun check and inspect any diff; Depends/Risk: STAB-03, broad churn; Test/Security: `format:check`, no secret/generated ingestion; DoD: green check, narrow diff, exclusions justified; Next: STAB-05.
+- [x] **STAB-04 Formatting** — Objective: prove owned source/docs are formatted without hiding defects; State: **DONE** 25 August 2026; Scope: root formatter config and owned files, excluding proven raw/generated design evidence; Action: rerun check and inspect any diff; Depends/Risk: STAB-03, broad churn; Test/Security: `format:check`, no secret/generated ingestion; DoD: green check, narrow diff, exclusions justified; Next: STAB-05. Evidence: Prettier 3.4.2 and Dart format 3.12.2 both PASS with 0 owned-source drift; `.prettierignore` classified in `MEE_EVENTS_PROGRESS.md`.
 - [ ] **STAB-05 Lint** — Objective: zero lint errors/warnings in owned TypeScript workspaces; State: audit run **DONE**, execution unchecked; Scope: ESLint configs/backend/ERP/packages; Action: rerun and fix causes, never disable broadly; Depends/Risk: STAB-04; Test/Security: root lint and targeted security-rule review; DoD: all workspace lint commands green; Next: STAB-06.
 - [ ] **STAB-06 TypeScript typecheck** — Objective: prove backend/ERP/contracts compile-time consistency; State: audit run **DONE**, execution unchecked; Scope: TS configs and workspaces; Action: run root typecheck and resolve root causes; Depends/Risk: STAB-05; Test/Security: strict typecheck, no `any` escape to silence auth/data issues; DoD: all typechecks green; Next: STAB-07.
 - [ ] **STAB-07 Backend tests** — Objective: establish reliable backend unit/foundation baseline; State: 173 pass, but dependency/security changes may alter it; Scope: `apps/backend/test`, module services/guards; Action: rerun, classify weakness, do not skip; Depends/Risk: STAB-06; Test/Security: 173+ tests including auth/capabilities; DoD: suite green with counts/evidence and no hidden failures; Next: STAB-08.
@@ -286,16 +286,16 @@ Status marks in this file describe execution, not how much scaffold already exis
 - [ ] **POLISH-05 Support and runbooks** — Objective: founder/operator can diagnose and respond; State: **MISSING**; Scope: customer support, incidents, providers, data correction; Action: severity/ownership/escalation/runbooks; Depends/Risk: production topology; Test/Security: tabletop drills and redaction; DoD: named owners and successful drills; Next: POLISH-06.
 - [ ] **POLISH-06 Final launch checklist** — Objective: prove the complete definition of done; State: **MISSING**; Scope: all evidence; Action: verify, never infer; Depends/Risk: IOS-10 and all prior gates; Test/Security: repeat critical journeys/security/restore/rollback; DoD: every required item checked with artifact/owner/date; Next: maintain/operate.
 
-## Last closed execution block — STAB-03
+## Last closed execution block — STAB-04
 
 ### TASK ID
 
-`STAB-03`
+`STAB-04`
 
 ### RESULT
 
-Completed 25 August 2026. Secure dependency baseline is in `docs/05-security/dependency-security.md`. JavaScript critical/high advisories remediations verified; Flutter had no affecting critical/high advisories. Two low JavaScript findings remain with ownership. Phase 0 gate is still not passed.
+Completed 25 August 2026. Root Prettier 3.4.2 and Dart format 3.12.2 both passed with no owned-source drift. `.prettierignore` exclusions were classified. No application files were reformatted. Phase 0 gate is still not passed.
 
 ### NEXT TASK
 
-`STAB-04 Formatting`. Stop after committing STAB-03. Do not start STAB-04 in the same session.
+`STAB-05 Lint`. Stop after committing STAB-04. Do not start STAB-05 in the same session.

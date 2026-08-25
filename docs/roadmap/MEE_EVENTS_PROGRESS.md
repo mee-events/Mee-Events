@@ -1,15 +1,15 @@
 # Mee Events — Progress Tracker
 
-- **Updated:** 25 August 2026 ~20:30 IST (Asia/Kolkata, +0530); STAB-03
+- **Updated:** 25 August 2026 22:22 IST (Asia/Kolkata, +0530); STAB-04
 - **Repository:** `/Users/vinaychilagani/Desktop/Mee Event V1`
 - **Baseline application commit:** `master` / `9e2a442d91c137ec97a349d1a55697ae8d79d5df`
 - **STAB-01 snapshot HEAD:** `ca994985a898d42da2a8d717041b93a8f8f0dc4c`
 - **Current phase:** Phase 0 — Stabilization
 - **Phase gate:** **NOT PASSED**
-- **Last completed task:** STAB-03 — Dependency verification
-- **Current task:** None — STAB-03 closed as instructed
-- **Next task:** STAB-04 — Formatting
-- **Latest application commit:** STAB-03 establishes the secure dependency baseline; use Git history for the STAB-03 hash. Canonical evidence: `docs/05-security/dependency-security.md`.
+- **Last completed task:** STAB-04 — Formatting
+- **Current task:** None — STAB-04 closed as instructed
+- **Next task:** STAB-05 — Lint
+- **Latest application commit:** STAB-03 remains the last application/dependency change; STAB-04 is documentation of formatting verification. Use Git history for hashes.
 
 ## Status key
 
@@ -128,10 +128,58 @@ Canonical register: `docs/05-security/dependency-security.md`.
 
 Phase 0 gate remains **NOT PASSED**. STAB-11/12/13 are not closed by these compatibility builds.
 
+## STAB-04 — Formatting
+
+- [x] **STAB-04** Formatting — completed 25 August 2026 22:22 IST. Next: STAB-05. Do not start STAB-05 in this block.
+
+Independent re-verification after STAB-03. No application files were rewritten. No formatter versions were upgraded. No `.prettierrc` was invented; Prettier 3.4.2 defaults plus `.editorconfig` are the deliberate config.
+
+| Field              | Evidence                                                                                                                                                                                                                                                                                                     |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Root formatter     | Prettier `3.4.2` via `corepack pnpm exec prettier` / `pnpm format:check` (`prettier --check .`)                                                                                                                                                                                                              |
+| Prettier config    | No `.prettierrc*`. Prettier 3 reads `.editorconfig` (charset utf-8, lf, 2-space indent, final newline, trim trailing whitespace). Dart indent 2.                                                                                                                                                             |
+| Root scope         | Tracked files with a Prettier parser, minus `.prettierignore`. Counted 372 files: TypeScript 229, Markdown 111, JSON/json-stringify 15, YAML 10, babel 5, HTML 1, CSS 1. Includes backend/ERP/packages, GitHub workflow YAML, maintained docs, `pnpm-lock.yaml`, Flutter `web/index.html` + `manifest.json`. |
+| Dart formatter     | `dart format` from Dart SDK `3.12.2` (Flutter `3.44.8`)                                                                                                                                                                                                                                                      |
+| Dart scope         | `apps/mobile/lib` and `apps/mobile/test` — **200** tracked `.dart` files. No `integration_test/`, `tool/`, or other maintained Dart trees. CI uses the same `lib test` paths.                                                                                                                                |
+| Editor / CI        | No committed `.vscode/settings.json`. CI: `pnpm format:check` and `dart format --output=none --set-exit-if-changed lib test`.                                                                                                                                                                                |
+| Root check         | **PASS** — `corepack pnpm format:check`                                                                                                                                                                                                                                                                      |
+| Dart check         | **PASS** — `dart format --output=none --set-exit-if-changed lib test` (200 files, 0 changed)                                                                                                                                                                                                                 |
+| Files formatted    | **None** (no drift)                                                                                                                                                                                                                                                                                          |
+| `git diff --check` | **PASS**                                                                                                                                                                                                                                                                                                     |
+| Secrets            | Real `.env` / `.env.local` remain gitignored, untracked, unread. Tracked files are `*.example` only. No `prettier-ignore` directives in owned source.                                                                                                                                                        |
+
+### `.prettierignore` classifications
+
+| Pattern                    | Classification                      | Tracked files                        | Reason                                                                                                        | Result                                                           |
+| -------------------------- | ----------------------------------- | ------------------------------------ | ------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| `node_modules/**`          | GENERATED                           | 0 (gitignored)                       | Package install tree                                                                                          | Justified                                                        |
+| `**/dist/**`               | GENERATED                           | 0 (gitignored)                       | TypeScript build output                                                                                       | Justified                                                        |
+| `**/.next/**`              | GENERATED                           | 0 (gitignored)                       | Next.js build cache                                                                                           | Justified                                                        |
+| `**/.expo/**`              | GENERATED (preventive)              | 0; directory absent                  | Expo cache; no Expo app in workspace                                                                          | Justified preventive                                             |
+| `apps/mobile/android/**`   | ACTIVE native (not Prettier source) | 22                                   | Kotlin/Gradle/XML/PNG. Prettier is the wrong tool. No ktlint/Spotless in repo                                 | Exclusion justified; native formatter gap documented, not hidden |
+| `apps/mobile/ios/**`       | ACTIVE native (not Prettier source) | 40                                   | Swift/Xcode/plist/PNG. No SwiftFormat in repo                                                                 | Same as Android                                                  |
+| `apps/customer-web/**`     | OBSOLETE / preventive               | 0; path absent                       | Former separate prototype with its own lockfile; folder not in tree                                           | Keep ignore; do not ingest if restored as junk                   |
+| `output/**`                | GENERATED / scratch                 | 0                                    | Local regenerable output; present untracked locally                                                           | Justified                                                        |
+| `outputs/**`               | GENERATED (preventive)              | 0; directory absent                  | Scratch alias                                                                                                 | Justified preventive                                             |
+| `tmp/**`                   | GENERATED / scratch                 | 0                                    | Local temp (e.g. audit JSON); gitignored                                                                      | Justified                                                        |
+| `design/stitch-screens/**` | ACTIVE raw design evidence          | 283 (mostly HTML/JS chunks)          | Stitch exports; historically invalid as JS source. Colocated markdown already Prettier-clean on honesty check | Justified; do not format as product source                       |
+| `artifacts/**`             | ACTIVE media/evidence               | 25 (images + checksums + 2 markdown) | Catalog-media pilot provenance. Markdown already Prettier-clean on honesty check                              | Justified; not product source                                    |
+
+Honesty checks (read-only, no write, not committed into the ignore set): `artifacts/catalog-media-pilot/*.md` and `design/stitch-screens/*.md` are already Prettier-clean. Exclusions are not hiding dirty owned docs.
+
+### Known gaps (not STAB-04 failures)
+
+- Android/iOS/macOS native sources have no ktlint/SwiftFormat/Spotless. Own later with native/release work; do not redesign in STAB-04.
+- SQL migrations, `.env.example`, Dart, PNG, and other no-parser files are not Prettier-owned (359 tracked files with no inferred parser). Dart is covered by `dart format`. SQL has no dedicated formatter.
+- `apps/mobile/macos` and `web` are not in `.prettierignore`. Prettier already formats `web/index.html` and `manifest.json`. Swift is no-parser. Acceptable.
+
 ## Latest verification
 
 | Verification                  | Result                          | Evidence summary                                                                              |
 | ----------------------------- | ------------------------------- | --------------------------------------------------------------------------------------------- |
+| STAB-04 root Prettier         | **PASS**                        | Prettier 3.4.2; 372 parser-matched tracked files; 0 drift                                     |
+| STAB-04 Dart format           | **PASS**                        | Dart 3.12.2; 200 files in `lib`+`test`; 0 changed                                             |
+| STAB-04 exclusions            | **PASS**                        | All `.prettierignore` entries classified; no owned TS/Dart failure hidden                     |
 | STAB-03 JavaScript audit      | **PASS**                        | Final 0 critical / 0 high / 0 moderate / 2 low; see `docs/05-security/dependency-security.md` |
 | STAB-03 Flutter/Dart review   | **PASS**                        | OSV 0 findings; no discontinued direct packages; no pubspec changes                           |
 | STAB-03 unaccepted crit/high  | **PASS (none remain)**          | No founder acceptance used                                                                    |
@@ -146,19 +194,19 @@ Phase 0 gate remains **NOT PASSED**. STAB-11/12/13 are not closed by these compa
 | Root TypeScript verification  | **PASS**                        | format, lint, typecheck, tests, backend build, ERP build                                      |
 | Backend tests                 | **PASS**                        | 173/173 across 30 files                                                                       |
 | ERP tests                     | **PASS but weak**               | 2/2 across 2 files                                                                            |
-| Flutter format                | **PASS**                        | 199 files unchanged                                                                           |
+| Flutter format                | **PASS**                        | STAB-04: 200 Dart files, 0 changed (audit-era count was 199)                                  |
 | Flutter analysis              | **PASS**                        | no issues with fatal infos                                                                    |
 | Flutter tests                 | **PASS**                        | 435/435                                                                                       |
 | Android dev debug build       | **PASS**                        | APK compiled                                                                                  |
 | Android prod release compile  | **COMPILE PASS / RELEASE FAIL** | 69.1 MB APK; no INTERNET permission; Android Debug certificate                                |
 | iOS unsigned release build    | **FAIL**                        | `Application not configured for iOS`                                                          |
-| Dependency audit              | **FAIL**                        | 74 total: 4 critical, 29 high, 31 moderate, 10 low                                            |
+| Dependency audit              | **PASS (STAB-03)**              | 0 critical / 0 high remaining; 2 low owned. See `docs/05-security/dependency-security.md`     |
 | PostgreSQL integration        | **NOT VERIFIED / BLOCKED**      | Docker daemon unavailable; no in-repo integration suite                                       |
 | Browser/device E2E            | **MISSING**                     | No framework/suite                                                                            |
 
 ## Known release blockers
 
-1. Critical/high dependency advisories.
+1. ~~Critical/high dependency advisories.~~ Closed in STAB-03; two low findings remain.
 2. Employee branch/resource IDOR/BOLA gaps.
 3. OTP consume/session atomicity and unstable mobile device ID.
 4. Outbox crash recovery and application idempotency are incomplete.
@@ -187,7 +235,7 @@ Do not ask for these until their dependent block is approaching, unless early pr
 - [x] STAB-01 Repository snapshot
 - [x] STAB-02 Environment verification
 - [x] STAB-03 Dependency verification
-- [ ] STAB-04 Formatting
+- [x] STAB-04 Formatting
 - [ ] STAB-05 Lint
 - [ ] STAB-06 TypeScript typecheck
 - [ ] STAB-07 Backend tests
