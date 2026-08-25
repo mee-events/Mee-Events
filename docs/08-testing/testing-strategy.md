@@ -6,6 +6,8 @@ over product aspirations when deciding what to write or run.
 Related: [Backend Handbook](../02-architecture/backend.md),
 [CI](../07-deployment/ci-cd.md), [verification.md](./verification.md).
 
+Canonical backend evidence: [backend-test-baseline.md](./backend-test-baseline.md).
+
 ---
 
 ## Pyramid (as shipped)
@@ -27,14 +29,14 @@ Related: [Backend Handbook](../02-architecture/backend.md),
                     └─────────────────┘
 ```
 
-| Layer                           | Runner         | What exists                                                               |
-| ------------------------------- | -------------- | ------------------------------------------------------------------------- |
-| Pure domain + guards + services | Vitest         | Backend suite: 173 tests across 30 files at the current verified baseline |
-| Module foundation / workflow    | Vitest         | `*-foundation.spec.ts`, quotation/payment workflow and Pattern B probes   |
-| Employee CRM/ERP components     | Vitest         | 2 tests across API-client and catalog-review behavior                     |
-| Flutter unit and widget tests   | `flutter test` | 435 tests across models, providers, stores, navigation and customer UI    |
-| Postgres/Redis integration      | —              | **None** in CI or Vitest                                                  |
-| Browser / device E2E            | —              | **None** (no Playwright / Cypress / Detox)                                |
+| Layer                           | Runner         | What exists                                                             |
+| ------------------------------- | -------------- | ----------------------------------------------------------------------- |
+| Pure domain + guards + services | Vitest         | Backend suite: 188 tests across 30 files at the STAB-07 baseline        |
+| Module foundation / workflow    | Vitest         | `*-foundation.spec.ts`, quotation/payment workflow and Pattern B probes |
+| Employee CRM/ERP components     | Vitest         | 2 tests across API-client and catalog-review behavior                   |
+| Flutter unit and widget tests   | `flutter test` | 435 tests across models, providers, stores, navigation and customer UI  |
+| Postgres/Redis integration      | —              | **None** in CI or Vitest                                                |
+| Browser / device E2E            | —              | **None** (no Playwright / Cypress / Detox)                              |
 
 Details: [unit-tests.md](./unit-tests.md), [integration-tests.md](./integration-tests.md),
 [e2e-tests.md](./e2e-tests.md).
@@ -43,12 +45,12 @@ Details: [unit-tests.md](./unit-tests.md), [integration-tests.md](./integration-
 
 ## Surfaces
 
-| Surface                                    | Status                                                                     |
-| ------------------------------------------ | -------------------------------------------------------------------------- |
-| Backend (`@me-event/backend`)              | Primary suite — 173 tests across 30 files at the current verified baseline |
-| Mobile (`apps/mobile`)                     | 435 tests; CI also runs formatting, analysis and a development APK build   |
-| ERP (`@me-event/erp-web`)                  | 2 Vitest tests; broad route/workflow coverage remains incomplete           |
-| Packages (`api-contracts`, `shared-types`) | No `test` scripts                                                          |
+| Surface                                    | Status                                                                   |
+| ------------------------------------------ | ------------------------------------------------------------------------ |
+| Backend (`@me-event/backend`)              | Primary suite — 188 tests across 30 files at the STAB-07 baseline        |
+| Mobile (`apps/mobile`)                     | 435 tests; CI also runs formatting, analysis and a development APK build |
+| ERP (`@me-event/erp-web`)                  | 2 Vitest tests; broad route/workflow coverage remains incomplete         |
+| Packages (`api-contracts`, `shared-types`) | No `test` scripts                                                        |
 
 ---
 

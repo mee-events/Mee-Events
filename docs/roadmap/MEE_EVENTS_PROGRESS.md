@@ -1,15 +1,15 @@
 # Mee Events — Progress Tracker
 
-- **Updated:** 25 August 2026 23:38 IST (Asia/Kolkata, +0530); STAB-06
+- **Updated:** 26 August 2026 00:13 IST (Asia/Kolkata, +0530); STAB-07
 - **Repository:** `/Users/vinaychilagani/Desktop/Mee Event V1`
 - **Baseline application commit:** `master` / `9e2a442d91c137ec97a349d1a55697ae8d79d5df`
 - **STAB-01 snapshot HEAD:** `ca994985a898d42da2a8d717041b93a8f8f0dc4c`
 - **Current phase:** Phase 0 — Stabilization
 - **Phase gate:** **NOT PASSED**
-- **Last completed task:** STAB-06 — TypeScript typecheck
-- **Current task:** None — STAB-06 closed as instructed
-- **Next task:** STAB-07 — Backend tests
-- **Latest application commit:** STAB-05 closed backend script lint coverage; STAB-06 is documentation-only. Use Git history for hashes.
+- **Last completed task:** STAB-07 — Backend tests
+- **Current task:** None — STAB-07 closed as instructed
+- **Next task:** STAB-08 — ERP tests
+- **Latest application commit:** STAB-05 closed backend script lint coverage; STAB-06 and STAB-07 are documentation-only. Use Git history for hashes.
 
 ## Status key
 
@@ -296,6 +296,62 @@ Typechecking proves compile-time consistency, not runtime validation. These exis
 - Tests: not run because no runtime code changed; STAB-07 and STAB-08 were not started.
 - Phase 0 gate remains **NOT PASSED**. Next permitted block: **STAB-07 — Backend tests**.
 
+## STAB-07 — Backend tests
+
+- [x] **STAB-07** Backend tests — completed 26 August 2026 00:13 IST. Next: STAB-08. Do not start STAB-08 in this block.
+
+Canonical evidence: `docs/08-testing/backend-test-baseline.md`.
+
+Independent verification after STAB-06 began on clean `master` at
+`ff24b79a4d01132b7c0ffe8d362db5a0cd7dc27b`, tracking `origin/master`, ahead 7
+and behind 0. The backend resolves Vitest **3.2.7** and uses the package command
+`vitest run`. No Vitest/Vite workspace configuration or setup file exists, so
+Vitest defaults apply from `apps/backend`: Node environment, forks, per-file
+isolation, parallel files, 5-second test timeout, 10-second hook timeout, zero
+retries, and zero bail. `passWithNoTests` is not enabled.
+
+### Verified suite
+
+| Evidence              | Result                                                                                                                                                                                                                                 |
+| --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Discovery             | 30 `*.spec.ts` files; 188 registered tests. The two other maintained files under `test/` are the Pattern B fake helper and a non-Vitest scalability query-count model; both remain linted/typechecked but are not miscounted as tests. |
+| Canonical run         | `corepack pnpm --filter @me-event/backend test` — 30/30 files, 188/188 tests, 0 failures/skips/todos/warnings, exit 0, 2.83 s.                                                                                                         |
+| Isolation/order run   | Fresh process with `--sequence.shuffle --sequence.seed=6072026 --maxWorkers=1 --minWorkers=1 --no-file-parallelism` — 30/30 files, 188/188 tests, exit 0, 6.03 s.                                                                      |
+| Empty-discovery proof | Non-matching filter returned `No test files found` and exit 1.                                                                                                                                                                         |
+| Hidden-test review    | No `.skip`, `.todo`, `.only`, `skipIf`, `runIf`, `.concurrent`, retry, broad timeout override, or ignored unhandled-error option. Every registered test has an assertion directly or through the local denial helper.                  |
+| Coverage              | Not configured or measured; no coverage dependency, command, threshold, or CI report. Test count is not presented as line/branch coverage.                                                                                             |
+| Test levels           | Unit/domain/guard/service, fake repository, SQL-aware fake pool, mocked `PoolClient` transaction, and static migration/media probes only. No live PostgreSQL, HTTP E2E, Redis, provider, or load test.                                 |
+| Taxonomy              | Identity/authorization/environment/platform: 9 files / 70 tests; catalog/taxonomy/media/search: 9 / 73; business foundations: 10 / 39; common/migration probes: 2 / 6.                                                                 |
+| Generated output      | No coverage, snapshot, Vitest attachment, build, or generated artifact created or tracked.                                                                                                                                             |
+
+Security positives include active JWT/session/role binding, OTP cooldown/request
+limit, refresh rotation/reuse revocation/logout, mobile switch-role restrictions
+and cache invalidation, capability fail-closed behavior, catalog-review
+separation, production environment fail-closed rules and secret redaction,
+customer enquiry ownership denial, catalog/media visibility and URL policy,
+modeled rollback, and Pattern B side-effect expectations.
+
+Known gaps are documented rather than hidden: **High** branch/resource
+IDOR/BOLA coverage (Backend Security, SEC-02/STAB-20 plus STAB-15/17), **High**
+OTP consume/session atomicity and missing failure/concurrency cases (Identity,
+SEC-03/STAB-20 plus STAB-15), **High** provider-bound payment authenticity and
+replay/amount binding (Payments, INT-02 plus STAB-15/17), **Medium** live
+PostgreSQL constraints/transactions/row mappings (Data/QA, STAB-14/15),
+**Medium** fake-heavy business workflow negatives and authorization wiring
+(module owners, STAB-15/17), **Medium** incomplete access-token/endpoint role
+matrix (Security, STAB-20), **Medium** absent provider contract tests
+(INT-01–INT-06), and **Medium** absent coverage measurement (QA/CI, STAB-16).
+
+No application source, backend test, Vitest configuration, dependency, or
+generated output changed. Documentation-only commit wording:
+`docs(testing): record STAB-07 backend test baseline`.
+
+Checks after documentation: backend lint, backend typecheck, root formatting,
+`git diff --check`, diff-only secret scan, and final Git state. Root-wide tests
+were not rerun because STAB-07 changed documentation only; the backend suite was
+the requested execution boundary. Phase 0 gate remains **NOT PASSED**. Next
+permitted block: **STAB-08 — ERP tests**.
+
 ## Latest verification
 
 | Verification                  | Result                          | Evidence summary                                                                               |
@@ -322,7 +378,11 @@ Typechecking proves compile-time consistency, not runtime validation. These exis
 | Node / pnpm                   | **PASS**                        | Node `20.20.2`; pnpm `9.15.4`                                                                  |
 | Flutter / Dart                | **PASS**                        | Flutter `3.44.8`; Dart `3.12.2`                                                                |
 | Root TypeScript verification  | **PASS**                        | format, lint, typecheck, tests, backend build, ERP build                                       |
-| Backend tests                 | **PASS**                        | 173/173 across 30 files                                                                        |
+| STAB-07 backend canonical     | **PASS**                        | Vitest 3.2.7; 30/30 files; 188/188 tests; 0 skipped/todo/warnings; 2.83 s                      |
+| STAB-07 isolation/order       | **PASS**                        | Seed 6072026; shuffled files/tests; one worker; serialized files; 188/188; 6.03 s              |
+| STAB-07 discovery honesty     | **PASS**                        | No skip/todo/only/conditional tests; zero-match probe exits 1; no `passWithNoTests`            |
+| STAB-07 coverage status       | **GAP DOCUMENTED**              | No coverage provider, report, or threshold; STAB-16 owner                                      |
+| Backend tests                 | **PASS (STAB-07)**              | 188/188 across 30 files                                                                        |
 | ERP tests                     | **PASS but weak**               | 2/2 across 2 files                                                                             |
 | Flutter format                | **PASS**                        | STAB-04: 200 Dart files, 0 changed (audit-era count was 199)                                   |
 | Flutter analysis              | **PASS**                        | no issues with fatal infos                                                                     |
@@ -368,7 +428,7 @@ Do not ask for these until their dependent block is approaching, unless early pr
 - [x] STAB-04 Formatting
 - [x] STAB-05 Lint
 - [x] STAB-06 TypeScript typecheck
-- [ ] STAB-07 Backend tests
+- [x] STAB-07 Backend tests
 - [ ] STAB-08 ERP tests
 - [ ] STAB-09 Flutter analysis
 - [ ] STAB-10 Flutter tests

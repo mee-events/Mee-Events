@@ -2,7 +2,7 @@
 
 - **Baseline:** Complete repository audit dated 25 August 2026
 - **Current phase:** Phase 0 — Stabilization
-- **Next block:** STAB-07 — Backend tests
+- **Next block:** STAB-08 — ERP tests
 - **Rule:** One block → verify → document → commit → stop.
 
 This file is the definitive ordered work inventory. The phase order is mandatory even when a later task has a higher risk priority. Do not start Customer until the Phase 0 gate passes; do not start Vendor until Customer passes; continue one major module at a time.
@@ -47,7 +47,7 @@ Status marks in this file describe execution, not how much scaffold already exis
 - [x] **STAB-04 Formatting** — Objective: prove owned source/docs are formatted without hiding defects; State: **DONE** 25 August 2026; Scope: root formatter config and owned files, excluding proven raw/generated design evidence; Action: rerun check and inspect any diff; Depends/Risk: STAB-03, broad churn; Test/Security: `format:check`, no secret/generated ingestion; DoD: green check, narrow diff, exclusions justified; Next: STAB-05. Evidence: Prettier 3.4.2 and Dart format 3.12.2 both PASS with 0 owned-source drift; `.prettierignore` classified in `MEE_EVENTS_PROGRESS.md`.
 - [x] **STAB-05 Lint** — Objective: zero lint errors/warnings in owned TypeScript workspaces; State: **DONE** 25 August 2026; Scope: ESLint configs/backend/ERP/packages plus backend operational scripts; Action: rerun and fix causes, never disable broadly; Depends/Risk: STAB-04; Test/Security: root lint and targeted security-rule review; DoD: all workspace lint commands green; Next: STAB-06. Evidence: ESLint 9.17.0, 0 errors/0 warnings; scripts added to backend lint/tsconfig; no suppressions added.
 - [x] **STAB-06 TypeScript typecheck** — Objective: prove backend/ERP/contracts compile-time consistency; State: **DONE** 25 August 2026; Scope: TS configs and four workspaces; Action: independently inspect effective settings/root files and run every workspace plus root typecheck; Depends/Risk: STAB-05; Test/Security: strict typecheck, generated Next clean-checkout proof, type-escape/security-boundary inventory; DoD: all maintained roots covered and all typechecks green with zero errors; Next: STAB-07. Evidence: TypeScript 5.7.2; 229 maintained roots; backend 163 development/129 production roots; ERP passes with 49 generated roots present and with `.next` absent; no explicit `any` or suppressions; existing boundary debt recorded in `MEE_EVENTS_PROGRESS.md`.
-- [ ] **STAB-07 Backend tests** — Objective: establish reliable backend unit/foundation baseline; State: 173 pass, but dependency/security changes may alter it; Scope: `apps/backend/test`, module services/guards; Action: rerun, classify weakness, do not skip; Depends/Risk: STAB-06; Test/Security: 173+ tests including auth/capabilities; DoD: suite green with counts/evidence and no hidden failures; Next: STAB-08.
+- [x] **STAB-07 Backend tests** — Objective: establish reliable backend unit/foundation baseline; State: **DONE** 26 August 2026; Scope: `apps/backend/test`, corresponding module services/guards/adapters, test runner/discovery, and CI entry point; Action: inventoried every maintained backend test, reran canonical and shuffled serialized suites, classified weakness without skipping; Depends/Risk: STAB-06; Test/Security: Vitest 3.2.7, 30/30 files, 188/188 tests twice, no skip/todo/only, zero-match exits 1; DoD: suite green with counts/evidence and no hidden failures; Next: STAB-08. Evidence: `docs/08-testing/backend-test-baseline.md`; branch/BOLA, auth atomicity, provider payment, live DB, E2E, and coverage gaps retain named later owners.
 - [ ] **STAB-08 ERP tests** — Objective: preserve existing web behavior and expose coverage gap; State: 2 pass, coverage **PARTIAL**; Scope: ERP Vitest config/tests; Action: rerun and document route-risk map; Depends/Risk: STAB-07; Test/Security: login/session/API refresh and fixture leakage checks; DoD: current suite green and missing browser/component coverage scheduled; Next: STAB-09.
 - [ ] **STAB-09 Flutter analysis** — Objective: prove analyzer cleanliness; State: audit run **DONE**; Scope: `apps/mobile/lib`, tests, analysis config; Action: rerun fatal infos and inspect 29 constrained outdated packages; Depends/Risk: STAB-08; Test/Security: analyzer plus secure-storage/platform warnings; DoD: zero issues and dependency notes captured; Next: STAB-10.
 - [ ] **STAB-10 Flutter tests** — Objective: preserve 435 unit/widget behaviors; State: audit run **DONE**; Scope: mobile tests and touched code only; Action: rerun, never update expectations blindly; Depends/Risk: STAB-09; Test/Security: auth/session/navigation/ownership UI tests; DoD: all tests green with count/evidence; Next: STAB-11.
@@ -290,12 +290,12 @@ Status marks in this file describe execution, not how much scaffold already exis
 
 ### TASK ID
 
-`STAB-06`
+`STAB-07`
 
 ### RESULT
 
-Completed 25 August 2026. TypeScript 5.7.2 passes with zero errors in backend, ERP web, shared-types, API-contracts and the root recursive gate. All 229 maintained TypeScript/TSX/declaration roots are included; backend production emission excludes tests and scripts correctly; ERP passes both with current generated Next types and without `.next`. No unsafe escape or strictness weakening was introduced. Existing runtime-boundary debt is recorded with owners. Phase 0 gate is still not passed.
+Completed 26 August 2026. Backend Vitest 3.2.7 passes 30/30 files and 188/188 tests in both the canonical run and a shuffled, fixed-seed, single-worker serialized run. No skip, todo, focus, conditional skip, retry, silent zero-test success, or generated test output is present. Current coverage is unit/foundation, fake-adapter, mocked-transaction, and static-probe coverage; live PostgreSQL, HTTP E2E, branch/BOLA matrices, auth atomicity, provider payment, and measured coverage retain named later owners. Phase 0 gate is still not passed.
 
 ### NEXT TASK
 
-`STAB-07 Backend tests`. Stop after committing STAB-06. Do not start STAB-07 in the same session.
+`STAB-08 ERP tests`. Stop after committing STAB-07. Do not start STAB-08 in the same session.
