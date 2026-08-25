@@ -85,10 +85,10 @@ Logout audits `identity.session.revoked` with reason `logout`.
 
 ## OTP providers
 
-| Setting                 | Behavior                                                                                                                        |
-| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| `OTP_PROVIDER=local`    | `LocalOtpProvider` (development/tests). Production startup **rejects** local provider                                           |
-| `OTP_PROVIDER=external` | `ExternalOtpProvider` — requires `SMS_OTP_ENDPOINT` + `SMS_OTP_API_KEY`; fail-closed until the SMS vendor HTTP adapter is wired |
+| Setting                 | Behavior                                                                                                                                                   |
+| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `OTP_PROVIDER=local`    | `LocalOtpProvider` (development/tests). Staging and production startup **reject** the local provider                                                       |
+| `OTP_PROVIDER=external` | `ExternalOtpProvider` — boot validation requires `SMS_OTP_ENDPOINT` + `SMS_OTP_API_KEY`; send still fail-closed until the SMS vendor HTTP adapter is wired |
 
 In development with local provider, a debug code may be returned for testing
 (mobile auto-fills; ERP login surfaces it). Never log OTPs or tokens in

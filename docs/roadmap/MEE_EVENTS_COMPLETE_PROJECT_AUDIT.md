@@ -59,19 +59,19 @@ The repository-requested `lean-ctx` helper is not installed in the current envir
 
 ## 4. Repository and toolchain snapshot
 
-| Area                            | Evidence                                                                                   | Status      |
-| ------------------------------- | ------------------------------------------------------------------------------------------ | ----------- |
-| Working tree at audit start     | Clean; no application changes                                                              | **DONE**    |
-| Current branch                  | `master` → `origin/master`                                                                 | **DONE**    |
-| Remote/default-branch alignment | GitHub HEAD is `master`. Local `refs/remotes/origin/HEAD` still stale-points at `origin/main`; `origin/main` is a stale remote-tracking branch. | **PARTIAL** |
-| Git health                      | Commands work. `core.fsmonitor=true`. Sandbox `git status` can emit fsmonitor IPC errors; unsandboxed status in STAB-01 did not. | **PARTIAL** |
-| Node                            | `v20.20.2`; repository requires `>=20.11.0`                                                | **DONE**    |
-| pnpm                            | `9.15.4`; matches `packageManager`                                                         | **DONE**    |
-| Flutter/Dart                    | Flutter `3.44.8`, Dart `3.12.2`; matches CI Flutter pin                                    | **DONE**    |
-| Node version pin                | Engine and CI exist; no `.nvmrc`, `.node-version`, or `.tool-versions`                     | **PARTIAL** |
-| Package layout                  | pnpm workspace covers backend, ERP, and packages; Flutter is separate                      | **DONE**    |
-| Environment hygiene             | Local env files are ignored; templates use placeholders; signing/service files are ignored | **PARTIAL** |
-| Dependency health               | 74 known advisories, including vulnerable Next.js `15.1.3` and Vitest `2.1.8`              | **BROKEN**  |
+| Area                            | Evidence                                                                                                                                                         | Status      |
+| ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
+| Working tree at audit start     | Clean; no application changes                                                                                                                                    | **DONE**    |
+| Current branch                  | `master` → `origin/master`                                                                                                                                       | **DONE**    |
+| Remote/default-branch alignment | GitHub HEAD is `master`. Local `refs/remotes/origin/HEAD` still stale-points at `origin/main`; `origin/main` is a stale remote-tracking branch.                  | **PARTIAL** |
+| Git health                      | Commands work. `core.fsmonitor=true`. Sandbox `git status` can emit fsmonitor IPC errors; unsandboxed status in STAB-01 did not.                                 | **PARTIAL** |
+| Node                            | `v20.20.2`; repository requires `>=20.11.0`                                                                                                                      | **DONE**    |
+| pnpm                            | `9.15.4`; matches `packageManager`                                                                                                                               | **DONE**    |
+| Flutter/Dart                    | Flutter `3.44.8`, Dart `3.12.2`; matches CI Flutter pin                                                                                                          | **DONE**    |
+| Node version pin                | Engine and CI exist; no `.nvmrc`, `.node-version`, or `.tool-versions`                                                                                           | **PARTIAL** |
+| Package layout                  | pnpm workspace covers backend, ERP, and packages; Flutter is separate                                                                                            | **DONE**    |
+| Environment hygiene             | Local env files are ignored; templates use placeholders; signing/service files are ignored. STAB-02 reconciled the key matrix and fail-closed boot/client rules. | **PARTIAL** |
+| Dependency health               | 74 known advisories, including vulnerable Next.js `15.1.3` and Vitest `2.1.8`                                                                                    | **BROKEN**  |
 
 Repository shape:
 
@@ -89,6 +89,16 @@ artifacts/            catalog media pilot and runtime screenshots
 ### 4.1 STAB-01 snapshot (25 August 2026 19:08 IST)
 
 Reproduced on the founder workstation. Application files are identical to audited commit `9e2a442`. HEAD at snapshot was `ca99498` (unpushed documentation-only audit package). Working tree was clean. Toolchain: Node `v20.20.2`, pnpm `9.15.4`, Flutter `3.44.8`, Dart `3.12.2`. GitHub default branch is `master`; local `origin/HEAD` remains a stale pointer to `origin/main`. Environment-template key names, 20 PostgreSQL migrations, and `.github/workflows/ci.yml` match this audit. Env file **values were not inspected**. Full evidence is in `docs/roadmap/MEE_EVENTS_PROGRESS.md`.
+
+### 4.2 STAB-02 environment verification (25 August 2026)
+
+Configuration contracts were inventoried and reconciled. Canonical matrix:
+`docs/07-deployment/environment.md`. Backend Zod now fail-closes staging/production
+local OTP, placeholder secrets, wildcard/loopback production CORS, and missing
+external SMS keys. ERP and Flutter release paths reject localhost API fallbacks.
+SMS vendor, payments, storage, and other providers remain **FOUNDER DECISION
+REQUIRED** and are not invented as unused keys. Follow-up: SEC-06 (dormant
+mobile Supabase), STAB-16 (Node pin / CI), INT-01 (OTP vendor adapter).
 
 ## A. Current architecture
 
@@ -335,18 +345,18 @@ Critical and high findings are release blockers unless explicitly risk-accepted 
 
 ### MEDIUM
 
-| ID       | Finding                                                                                | Required action                                                                                         |
-| -------- | -------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| SEC-M-01 | No backend security-header middleware; web lacks CSP, HSTS and Permissions-Policy      | Add environment-appropriate Helmet/web headers; test headers in staging                                 |
-| SEC-M-02 | Swagger is enabled on every environment                                                | Disable or authenticate production docs; verify no internal schemas unnecessarily exposed               |
-| SEC-M-03 | OTP has per-phone limits but no IP/edge/global abuse controls                          | Add trusted-proxy-aware throttling and monitoring without blocking legitimate users                     |
-| SEC-M-04 | Log redaction omits refresh-token request fields and broader sensitive bodies          | Redact token/password/PII paths; add logging tests and production sampling review                       |
-| SEC-M-05 | ERP bearer tokens live in `sessionStorage` with no CSP                                 | Adopt strong CSP and XSS controls; evaluate backend-for-frontend/secure-cookie design before production |
-| SEC-M-06 | Mobile bootstrap parser defaults unknown surfaces/roles to Customer                    | Fail closed on malformed/unknown authorized bootstrap responses                                         |
-| SEC-M-07 | External OTP credentials exist in examples but are not validated in environment schema | Conditionally validate provider configuration and never start partially configured production adapters  |
-| SEC-M-08 | File upload/object-storage controls are not implemented                                | Define allowlist, size, scanning, ownership, private buckets, signed URLs and retention before uploads  |
-| SEC-M-09 | Migration apply and bookkeeping are not atomic                                         | Make application+recording recoverable/transactional or add checksums and applied-state reconciliation  |
-| SEC-M-10 | Direct Supabase client is initialized in mobile contrary to accepted boundary          | Prove no use, remove client DB path, and keep storage/DB credentials behind NestJS                      |
+| ID       | Finding                                                                                     | Required action                                                                                                                                                                                |
+| -------- | ------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| SEC-M-01 | No backend security-header middleware; web lacks CSP, HSTS and Permissions-Policy           | Add environment-appropriate Helmet/web headers; test headers in staging                                                                                                                        |
+| SEC-M-02 | Swagger is enabled on every environment                                                     | Disable or authenticate production docs; verify no internal schemas unnecessarily exposed                                                                                                      |
+| SEC-M-03 | OTP has per-phone limits but no IP/edge/global abuse controls                               | Add trusted-proxy-aware throttling and monitoring without blocking legitimate users                                                                                                            |
+| SEC-M-04 | Log redaction omits refresh-token request fields and broader sensitive bodies               | Redact token/password/PII paths; add logging tests and production sampling review                                                                                                              |
+| SEC-M-05 | ERP bearer tokens live in `sessionStorage` with no CSP                                      | Adopt strong CSP and XSS controls; evaluate backend-for-frontend/secure-cookie design before production                                                                                        |
+| SEC-M-06 | Mobile bootstrap parser defaults unknown surfaces/roles to Customer                         | Fail closed on malformed/unknown authorized bootstrap responses                                                                                                                                |
+| SEC-M-07 | External OTP credentials exist in examples but were not validated in the environment schema | **Closed in STAB-02:** `OTP_PROVIDER=external` requires SMS keys at boot; staging/production reject local OTP and placeholder secrets. Residual: vendor HTTP adapter still throws until INT-01 |
+| SEC-M-08 | File upload/object-storage controls are not implemented                                     | Define allowlist, size, scanning, ownership, private buckets, signed URLs and retention before uploads                                                                                         |
+| SEC-M-09 | Migration apply and bookkeeping are not atomic                                              | Make application+recording recoverable/transactional or add checksums and applied-state reconciliation                                                                                         |
+| SEC-M-10 | Direct Supabase client is initialized in mobile contrary to accepted boundary               | Prove no use, remove client DB path, and keep storage/DB credentials behind NestJS                                                                                                             |
 
 ### LOW / INFORMATIONAL
 
@@ -429,16 +439,16 @@ The immediate testing priority is not “more widget tests.” It is live Postgr
 
 ## 14. Documentation drift
 
-| Claim/document                                                 | Implementation evidence                                                                        | Resolution                                                                                       |
-| -------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
-| 18 Aug roadmaps: format/lint/20 Flutter tests failing          | All gates pass on 25 Aug                                                                       | Older PDFs are historical/stale; do not execute their first block                                |
-| Architecture example: enquiry + lead create in one transaction | Enquiry creates outbox; CRM processor later creates lead                                       | Correct docs during STAB-18; preserve asynchronous design or record ADR if changing              |
-| Overview/architecture: shared staff mobile includes Manager    | Bootstrap maps manager/employee roles to employee web; manager Flutter screens are unreachable | Update wording; Employee Mobile is future/separate                                               |
-| “Clients never write DB directly”                              | Mobile initializes Supabase and has a direct `event_services` service                          | Remove dormant client path or document/ADR an exception; accepted architecture says backend-only |
-| Authentication: resend hint not server-enforced                | `requestOtp` checks latest open challenge and returns 429                                      | Correct security doc                                                                             |
-| AI controls: lean-ctx installed/verified                       | Helper absent in current environment                                                           | Mark as workstation-specific and add verification/fallback                                       |
+| Claim/document                                                 | Implementation evidence                                                                        | Resolution                                                                                                              |
+| -------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| 18 Aug roadmaps: format/lint/20 Flutter tests failing          | All gates pass on 25 Aug                                                                       | Older PDFs are historical/stale; do not execute their first block                                                       |
+| Architecture example: enquiry + lead create in one transaction | Enquiry creates outbox; CRM processor later creates lead                                       | Correct docs during STAB-18; preserve asynchronous design or record ADR if changing                                     |
+| Overview/architecture: shared staff mobile includes Manager    | Bootstrap maps manager/employee roles to employee web; manager Flutter screens are unreachable | Update wording; Employee Mobile is future/separate                                                                      |
+| “Clients never write DB directly”                              | Mobile initializes Supabase and has a direct `event_services` service                          | Remove dormant client path or document/ADR an exception; accepted architecture says backend-only                        |
+| Authentication: resend hint not server-enforced                | `requestOtp` checks latest open challenge and returns 429                                      | Correct security doc                                                                                                    |
+| AI controls: lean-ctx installed/verified                       | Helper absent in current environment                                                           | Mark as workstation-specific and add verification/fallback                                                              |
 | Remote branch assumptions                                      | GitHub HEAD is `master`; local `origin/HEAD` still stale-points at `origin/main`               | Refresh/prune local `origin/HEAD` and stale `origin/main` in a later governance task; do not rename branches in STAB-01 |
-| Outbox reliability wording                                     | Only two processors exist; no lease recovery/general publisher                                 | Narrow current-state wording and document operational gaps                                       |
+| Outbox reliability wording                                     | Only two processors exist; no lease recovery/general publisher                                 | Narrow current-state wording and document operational gaps                                                              |
 
 ## 15. Design and cleanup classification
 
@@ -529,7 +539,7 @@ PHASE 11 Android release
 PHASE 12 iOS release
 ```
 
-No phase begins until the preceding gate is verified and recorded. The current phase is **Phase 0 — Stabilization**. **STAB-01 — Repository snapshot** is complete as of 25 August 2026 19:08 IST. The next execution block is **STAB-02 — Environment verification**.
+No phase begins until the preceding gate is verified and recorded. The current phase is **Phase 0 — Stabilization**. **STAB-01** and **STAB-02** are complete. The next execution block is **STAB-03 — Dependency verification**.
 
 ## 19. Definition of complete
 

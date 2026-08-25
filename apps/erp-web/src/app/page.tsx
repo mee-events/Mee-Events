@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { resolveEmployeeAppEnv } from "@/lib/environment";
 import { employeeBootstrapConnection } from "@/lib/platform-bootstrap";
 
 const navigation = [
@@ -170,7 +171,7 @@ const roles = [
 ];
 
 export default function Home() {
-  const environment = process.env.NEXT_PUBLIC_APP_ENV ?? "local";
+  const environment = resolveEmployeeAppEnv();
 
   return (
     <main className="app-shell">

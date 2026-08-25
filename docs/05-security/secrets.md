@@ -7,6 +7,7 @@ Also see [AI coding controls](./ai-coding-controls.md) for agent/MCP policy.
 - Store CI, staging, and production values in protected secret managers.
 - Use distinct keys and credentials per environment.
 - Never put backend secrets in Flutter or `NEXT_PUBLIC_*` variables.
+- Environment contract and key matrix: [environment.md](../07-deployment/environment.md).
 - Restrict production access, enable MFA, rotate credentials, and audit reads.
 - Redact authorization headers, OTP codes, refresh tokens, cookies, and personal
   information from logs.

@@ -1,14 +1,13 @@
 import Link from "next/link";
 import type { Route } from "next";
+import { resolveEmployeeApiBaseUrl } from "@/lib/environment";
 import { CatalogReviewPanel } from "./catalog-review-panel";
 
 /**
  * Catalog endpoints are public and live under NEXT_PUBLIC_API_BASE_URL
  * (same base as platform-bootstrap — not the bootstrap path itself).
  */
-const apiBaseUrl = (
-  process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:3002/api/v1"
-).replace(/\/+$/, "");
+const apiBaseUrl = resolveEmployeeApiBaseUrl();
 
 interface CatalogEventType {
   readonly code: string;

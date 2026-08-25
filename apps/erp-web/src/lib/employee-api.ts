@@ -154,10 +154,9 @@ import type {
   UpdateCatalogMediaRequest,
   UpsertCatalogMediaRequest,
 } from "@me-event/api-contracts";
+import { resolveEmployeeApiBaseUrl } from "./environment";
 
-const apiBaseUrl = (
-  process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:3002/api/v1"
-).replace(/\/+$/, "");
+const apiBaseUrl = resolveEmployeeApiBaseUrl();
 
 const SESSION_STORAGE_KEY = "mee-events.employee-session";
 let refreshInFlight: Promise<EmployeeSession | null> | null = null;

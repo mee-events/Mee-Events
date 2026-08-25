@@ -13,16 +13,16 @@ must be true **before** any cutover, based on ADRs and existing code.
 
 ## Hard requirements before traffic
 
-| Requirement                                        | Source / notes                                                        |
-| -------------------------------------------------- | --------------------------------------------------------------------- |
-| Separate env credentials & databases               | [ADR 0003](../adr/0003-environments-and-configuration.md)             |
-| Secrets in a manager — not git                     | [secrets.md](../05-security/secrets.md)                               |
-| Validated env at boot                              | Zod schema in `environment.ts`                                        |
-| `OTP_PROVIDER` ≠ `local` when `APP_ENV=production` | Enforced in validation                                                |
-| Migrations applied before serving traffic          | [migrations.md](../03-database/migrations.md)                         |
-| Health ready before load                           | `/api/v1/health/live` and `/ready` — [monitoring.md](./monitoring.md) |
-| No sample / seed data in prod                      | Dev seed is local-only (`db:seed:dev`)                                |
-| Distinct JWT / HMAC / refresh secrets per env      | Never reuse across staging/prod                                       |
+| Requirement                                         | Source / notes                                                        |
+| --------------------------------------------------- | --------------------------------------------------------------------- |
+| Separate env credentials & databases                | [ADR 0003](../adr/0003-environments-and-configuration.md)             |
+| Secrets in a manager — not git                      | [secrets.md](../05-security/secrets.md)                               |
+| Validated env at boot                               | Zod schema in `environment.ts`                                        |
+| `OTP_PROVIDER` ≠ `local` when staging or production | Enforced in validation                                                |
+| Migrations applied before serving traffic           | [migrations.md](../03-database/migrations.md)                         |
+| Health ready before load                            | `/api/v1/health/live` and `/ready` — [monitoring.md](./monitoring.md) |
+| No sample / seed data in prod                       | Dev seed is local-only (`db:seed:dev`)                                |
+| Distinct JWT / HMAC / refresh secrets per env       | Never reuse across staging/prod                                       |
 
 ---
 

@@ -7,6 +7,9 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 class Environment {
   Environment._();
 
+  static const String developmentApiBaseUrl = 'http://localhost:3002/api/v1';
+  static const String developmentBranchCode = 'HYD';
+
   static const String _apiBaseUrlDefine = String.fromEnvironment(
     'API_BASE_URL',
     defaultValue: '',
@@ -17,15 +20,17 @@ class Environment {
   );
 
   /// Base URL for the backend API.
-  static String get apiBaseUrl => _resolve(
-    'API_BASE_URL',
-    _apiBaseUrlDefine,
-    'http://localhost:3002/api/v1',
+  static String get apiBaseUrl => resolveApiBaseUrl(
+    dartDefine: _apiBaseUrlDefine,
+    dotenvValue: dotenv.isInitialized ? dotenv.env['API_BASE_URL'] : null,
+    isRelease: !isDevelopmentPreview,
   );
 
   /// Hyderabad branch code.
-  static String get branchCode =>
-      _resolve('BRANCH_CODE', _branchCodeDefine, 'HYD');
+  static String get branchCode => resolveBranchCode(
+    dartDefine: _branchCodeDefine,
+    dotenvValue: dotenv.isInitialized ? dotenv.env['BRANCH_CODE'] : null,
+  );
 
   /// City name for display.
   static String get cityName => 'Hyderabad';
@@ -36,17 +41,50 @@ class Environment {
     return !isRelease;
   }
 
-  static String _resolve(String key, String define, String fallback) {
-    if (define.isNotEmpty) {
-      return define;
+  static String resolveApiBaseUrl({
+    required String dartDefine,
+    String? dotenvValue,
+    required bool isRelease,
+  }) {
+    final resolved =
+        _firstNonEmpty(<String?>[dartDefine, dotenvValue]) ??
+        developmentApiBaseUrl;
+    if (isRelease && isForbiddenReleaseApiBaseUrl(resolved)) {
+      throw StateError(
+        'Release builds require a non-loopback API_BASE_URL via --dart-define or .env.',
+      );
     }
+    return resolved;
+  }
 
-    if (dotenv.isInitialized) {
-      final value = dotenv.env[key];
-      if (value != null && value.isNotEmpty) {
-        return value;
+  static String resolveBranchCode({
+    required String dartDefine,
+    String? dotenvValue,
+  }) {
+    return _firstNonEmpty(<String?>[dartDefine, dotenvValue]) ??
+        developmentBranchCode;
+  }
+
+  static bool isForbiddenReleaseApiBaseUrl(String value) {
+    final uri = Uri.tryParse(value);
+    if (uri == null || uri.host.isEmpty) {
+      return true;
+    }
+    final host = uri.host.toLowerCase();
+    return host == 'localhost' ||
+        host == '127.0.0.1' ||
+        host == '::1' ||
+        host == '0.0.0.0' ||
+        host == '10.0.2.2' ||
+        host == '10.0.3.2';
+  }
+
+  static String? _firstNonEmpty(List<String?> values) {
+    for (final value in values) {
+      if (value != null && value.trim().isNotEmpty) {
+        return value.trim();
       }
     }
-    return fallback;
+    return null;
   }
 }

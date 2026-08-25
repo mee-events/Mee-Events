@@ -1,16 +1,15 @@
 # Mee Events — Progress Tracker
 
-- **Updated:** 25 August 2026 19:08 IST (Asia/Kolkata, +0530)
+- **Updated:** 25 August 2026 19:08 IST (Asia/Kolkata, +0530); STAB-02 25 August 2026 ~19:50 IST
 - **Repository:** `/Users/vinaychilagani/Desktop/Mee Event V1`
 - **Baseline application commit:** `master` / `9e2a442d91c137ec97a349d1a55697ae8d79d5df`
 - **STAB-01 snapshot HEAD:** `ca994985a898d42da2a8d717041b93a8f8f0dc4c`
 - **Current phase:** Phase 0 — Stabilization
 - **Phase gate:** **NOT PASSED**
-- **Last completed task:** STAB-01 — Repository snapshot
-- **Current task:** None — STAB-01 closed as instructed
-- **Next task:** STAB-02 — Environment verification
-- **Latest application commit:** `9e2a442d91c137ec97a349d1a55697ae8d79d5df` (unchanged; no application files in STAB-01)
-- **STAB-01 documentation commit:** This tracker is part of the documentation-only STAB-01 commit; use Git history for its hash.
+- **Last completed task:** STAB-02 — Environment verification
+- **Current task:** None — STAB-02 closed as instructed
+- **Next task:** STAB-03 — Dependency verification
+- **Latest application commit:** STAB-02 includes scoped configuration readers/validators; use Git history for the STAB-02 hash.
 
 ## Status key
 
@@ -38,37 +37,37 @@ These audit tasks do not count as STAB-01. No Phase 0 implementation block was c
 
 ### Snapshot evidence
 
-| Field | Evidence |
-| ----- | -------- |
-| Date / timezone | 25 August 2026 19:08:30 IST (`Asia/Kolkata`, `+0530`) |
-| Repository path | `/Users/vinaychilagani/Desktop/Mee Event V1` |
-| Current branch | `master` |
-| Snapshot commit | `ca994985a898d42da2a8d717041b93a8f8f0dc4c` (`ca99498`) — `docs(roadmap): add complete project audit and founder guide` |
-| Upstream | `origin/master` at `9e2a442d91c137ec97a349d1a55697ae8d79d5df` |
-| Ahead / behind | Ahead **1**, behind **0** (audit documentation commit is local-only; not pushed) |
-| Remote | `origin` → `https://github.com/mee-events/Mee-Events.git` (fetch and push; no credentials in URL) |
-| Remote default branch | GitHub advertised HEAD is **`master`**. Local `refs/remotes/origin/HEAD` still stale-points at `origin/main`. `origin/main` is a stale remote-tracking branch at `d37a91e` (Initial commit). |
-| Working tree | **Clean.** No staged, modified, or untracked tracked-path files. Unrelated user changes: **none**. |
-| Ignored local state | Present and ignored: local env files (values not inspected), `node_modules/`, build/dist/`.next`/`.dart_tool`, editor/OS junk, Flutter generated native files. See ignored-file list below. |
-| Recent commits | `ca99498` docs audit package (2026-08-25); `9e2a442` docs(github) (2026-08-24); `c6d798c` track native projects; `fceee78` CI contracts/mobile env; `a117baa` workspace checkpoint; `f0bbf7f` remove dubbed customer surfaces; `713b563` agent context controls; `afd0a5a` backend foundation v1.0 |
-| Local branches | `master` only |
-| Remote-tracking branches | `origin/master` (active), `origin/main` (stale), `origin/HEAD` → `origin/main` (stale local symbolic-ref) |
-| Node | `v20.20.2` at `/opt/homebrew/bin/node`; engines require `>=20.11.0` |
-| pnpm | `9.15.4` via Corepack; `packageManager` is `pnpm@9.15.4`; engines `>=9.0.0` |
-| Flutter | `3.44.8` stable (`058e0af2c2`, 23 July 2026); matches CI pin `3.44.8`. CLI prints an available-upgrade banner; version was **not** upgraded. |
-| Dart | `3.12.2` (stable); Flutter SDK constraint `^3.12.2` |
-| Package manager config | Root `package.json` private workspace `me-event-platform@0.1.0`; `pnpm-workspace.yaml` covers `apps/backend`, `apps/erp-web`, `packages/*` (Flutter excluded); `.npmrc`: `engine-strict=true`, `frozen-lockfile=false`, `save-exact=true`. No `.nvmrc` / `.node-version` / `.tool-versions`. |
-| Backend manifest | `apps/backend/package.json` — `@me-event/backend@0.1.0`; Nest `11.0.1`; Vitest `2.1.8`; scripts `build`, `dev`, `start`, `lint`, `test`, `typecheck` |
-| ERP manifest | `apps/erp-web/package.json` — `@me-event/erp-web@0.1.0`; Next `15.1.3`; React `19.2.3`; Vitest `2.1.8`; scripts `dev`, `build`, `start`, `lint`, `typecheck`, `test` |
-| Flutter manifest | `apps/mobile/pubspec.yaml` — `mee_events` `1.0.0+1`; `publish_to: none`; SDK `^3.12.2` |
-| Shared packages | `@me-event/api-contracts@0.1.0`, `@me-event/shared-types@0.1.0`; lint/typecheck/build; **no test scripts** |
+| Field                             | Evidence                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| --------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Date / timezone                   | 25 August 2026 19:08:30 IST (`Asia/Kolkata`, `+0530`)                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| Repository path                   | `/Users/vinaychilagani/Desktop/Mee Event V1`                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| Current branch                    | `master`                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| Snapshot commit                   | `ca994985a898d42da2a8d717041b93a8f8f0dc4c` (`ca99498`) — `docs(roadmap): add complete project audit and founder guide`                                                                                                                                                                                                                                                                                                                                                  |
+| Upstream                          | `origin/master` at `9e2a442d91c137ec97a349d1a55697ae8d79d5df`                                                                                                                                                                                                                                                                                                                                                                                                           |
+| Ahead / behind                    | Ahead **1**, behind **0** (audit documentation commit is local-only; not pushed)                                                                                                                                                                                                                                                                                                                                                                                        |
+| Remote                            | `origin` → `https://github.com/mee-events/Mee-Events.git` (fetch and push; no credentials in URL)                                                                                                                                                                                                                                                                                                                                                                       |
+| Remote default branch             | GitHub advertised HEAD is **`master`**. Local `refs/remotes/origin/HEAD` still stale-points at `origin/main`. `origin/main` is a stale remote-tracking branch at `d37a91e` (Initial commit).                                                                                                                                                                                                                                                                            |
+| Working tree                      | **Clean.** No staged, modified, or untracked tracked-path files. Unrelated user changes: **none**.                                                                                                                                                                                                                                                                                                                                                                      |
+| Ignored local state               | Present and ignored: local env files (values not inspected), `node_modules/`, build/dist/`.next`/`.dart_tool`, editor/OS junk, Flutter generated native files. See ignored-file list below.                                                                                                                                                                                                                                                                             |
+| Recent commits                    | `ca99498` docs audit package (2026-08-25); `9e2a442` docs(github) (2026-08-24); `c6d798c` track native projects; `fceee78` CI contracts/mobile env; `a117baa` workspace checkpoint; `f0bbf7f` remove dubbed customer surfaces; `713b563` agent context controls; `afd0a5a` backend foundation v1.0                                                                                                                                                                      |
+| Local branches                    | `master` only                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| Remote-tracking branches          | `origin/master` (active), `origin/main` (stale), `origin/HEAD` → `origin/main` (stale local symbolic-ref)                                                                                                                                                                                                                                                                                                                                                               |
+| Node                              | `v20.20.2` at `/opt/homebrew/bin/node`; engines require `>=20.11.0`                                                                                                                                                                                                                                                                                                                                                                                                     |
+| pnpm                              | `9.15.4` via Corepack; `packageManager` is `pnpm@9.15.4`; engines `>=9.0.0`                                                                                                                                                                                                                                                                                                                                                                                             |
+| Flutter                           | `3.44.8` stable (`058e0af2c2`, 23 July 2026); matches CI pin `3.44.8`. CLI prints an available-upgrade banner; version was **not** upgraded.                                                                                                                                                                                                                                                                                                                            |
+| Dart                              | `3.12.2` (stable); Flutter SDK constraint `^3.12.2`                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| Package manager config            | Root `package.json` private workspace `me-event-platform@0.1.0`; `pnpm-workspace.yaml` covers `apps/backend`, `apps/erp-web`, `packages/*` (Flutter excluded); `.npmrc`: `engine-strict=true`, `frozen-lockfile=false`, `save-exact=true`. No `.nvmrc` / `.node-version` / `.tool-versions`.                                                                                                                                                                            |
+| Backend manifest                  | `apps/backend/package.json` — `@me-event/backend@0.1.0`; Nest `11.0.1`; Vitest `2.1.8`; scripts `build`, `dev`, `start`, `lint`, `test`, `typecheck`                                                                                                                                                                                                                                                                                                                    |
+| ERP manifest                      | `apps/erp-web/package.json` — `@me-event/erp-web@0.1.0`; Next `15.1.3`; React `19.2.3`; Vitest `2.1.8`; scripts `dev`, `build`, `start`, `lint`, `typecheck`, `test`                                                                                                                                                                                                                                                                                                    |
+| Flutter manifest                  | `apps/mobile/pubspec.yaml` — `mee_events` `1.0.0+1`; `publish_to: none`; SDK `^3.12.2`                                                                                                                                                                                                                                                                                                                                                                                  |
+| Shared packages                   | `@me-event/api-contracts@0.1.0`, `@me-event/shared-types@0.1.0`; lint/typecheck/build; **no test scripts**                                                                                                                                                                                                                                                                                                                                                              |
 | Environment templates (keys only) | Backend example: `APP_ENV`, `PORT`, `LOG_LEVEL`, `DATABASE_URL`, `OTP_PROVIDER`, `OTP_HMAC_SECRET`, `JWT_ACCESS_SECRET`, `REFRESH_TOKEN_HMAC_SECRET`, `ALLOWED_ORIGINS`, `SUPABASE_URL`, `SUPABASE_SERVICE_KEY`. Staging/production examples add `SMS_OTP_ENDPOINT`, `SMS_OTP_API_KEY` and omit the Supabase keys. ERP examples: `NEXT_PUBLIC_APP_ENV`, `NEXT_PUBLIC_API_BASE_URL`. Mobile example: `API_BASE_URL`, `BRANCH_CODE`, `SUPABASE_URL`, `SUPABASE_ANON_KEY`. |
-| Local env presence (no values) | Present ignored: `apps/backend/.env`, `apps/erp-web/.env.local`, `apps/mobile/.env`. Absent: root `.env`, backend/erp/mobile staging/production env files, `apps/erp-web/.env`. |
-| CI | `.github/workflows/ci.yml` only. Triggers: `pull_request` and `push` to `master`/`main`. Jobs: TypeScript verify (pnpm `9.15.4`, Node `20`), Flutter format/analyze/test/dev debug APK (Flutter `3.44.8`), Dependency Review on PRs only. Also: issue/PR templates. |
-| PostgreSQL migrations | 20 ordered files `0001`–`0020` under `infrastructure/postgres/migrations/`. Seeds: `dev-employee.sql`, `dev-inventory.sql`, `dev-manager.sql`, `dev-vendor.sql`, `dev-worker.sql`, plus `catalog-taxonomy-v3.meta.json`. Compose: PostgreSQL `17.2-alpine`, Redis `7.4.1-alpine`. |
-| Test/build commands | Root: `format`, `format:check`, `lint`, `typecheck`, `test`, `build`, `verify`, `db:up`, `db:migrate`, `db:status`, `db:seed:dev`, `dev:backend`, `dev:erp`, `dev:mobile*`. Flutter (CI/local): `flutter pub get`, `dart format`, `flutter analyze --fatal-infos`, `flutter test`, `flutter build apk --debug --flavor dev`. |
-| Current roadmap files | `docs/roadmap/MEE_EVENTS_COMPLETE_PROJECT_AUDIT.md`, `MEE_EVENTS_MASTER_TODO.md`, `MEE_EVENTS_PROGRESS.md`, `MEE_EVENTS_MASTER_BUILD_ROADMAP.md`, `MEE_EVENTS_STEP_BY_STEP_MASTER_GUIDE.pdf` |
-| lean-ctx | Not on `PATH` in this environment. Native read/search/command tools used. |
+| Local env presence (no values)    | Present ignored: `apps/backend/.env`, `apps/erp-web/.env.local`, `apps/mobile/.env`. Absent: root `.env`, backend/erp/mobile staging/production env files, `apps/erp-web/.env`.                                                                                                                                                                                                                                                                                         |
+| CI                                | `.github/workflows/ci.yml` only. Triggers: `pull_request` and `push` to `master`/`main`. Jobs: TypeScript verify (pnpm `9.15.4`, Node `20`), Flutter format/analyze/test/dev debug APK (Flutter `3.44.8`), Dependency Review on PRs only. Also: issue/PR templates.                                                                                                                                                                                                     |
+| PostgreSQL migrations             | 20 ordered files `0001`–`0020` under `infrastructure/postgres/migrations/`. Seeds: `dev-employee.sql`, `dev-inventory.sql`, `dev-manager.sql`, `dev-vendor.sql`, `dev-worker.sql`, plus `catalog-taxonomy-v3.meta.json`. Compose: PostgreSQL `17.2-alpine`, Redis `7.4.1-alpine`.                                                                                                                                                                                       |
+| Test/build commands               | Root: `format`, `format:check`, `lint`, `typecheck`, `test`, `build`, `verify`, `db:up`, `db:migrate`, `db:status`, `db:seed:dev`, `dev:backend`, `dev:erp`, `dev:mobile*`. Flutter (CI/local): `flutter pub get`, `dart format`, `flutter analyze --fatal-infos`, `flutter test`, `flutter build apk --debug --flavor dev`.                                                                                                                                            |
+| Current roadmap files             | `docs/roadmap/MEE_EVENTS_COMPLETE_PROJECT_AUDIT.md`, `MEE_EVENTS_MASTER_TODO.md`, `MEE_EVENTS_PROGRESS.md`, `MEE_EVENTS_MASTER_BUILD_ROADMAP.md`, `MEE_EVENTS_STEP_BY_STEP_MASTER_GUIDE.pdf`                                                                                                                                                                                                                                                                            |
+| lean-ctx                          | Not on `PATH` in this environment. Native read/search/command tools used.                                                                                                                                                                                                                                                                                                                                                                                               |
 
 ### Ignored-file inventory (paths only)
 
@@ -92,29 +91,49 @@ These audit tasks do not count as STAB-01. No Phase 0 implementation block was c
 
 No new release blockers. Existing blockers in this tracker remain in force.
 
+## STAB-02 — Environment verification
+
+- [x] **STAB-02** Environment verification — completed 25 August 2026 (IST). Next: STAB-03.
+
+Canonical matrix: `docs/07-deployment/environment.md`.
+
+| Surface | Contract result                                                                                                                                                                              |
+| ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Backend | Zod boot validation covers required secrets, forbids local OTP in staging/production, requires SMS keys when `OTP_PROVIDER=external`, rejects placeholder secrets and unsafe production CORS |
+| ERP     | Canonical public reader; staging/production require https non-loopback `NEXT_PUBLIC_API_BASE_URL`                                                                                            |
+| Mobile  | Release builds reject loopback/emulator API fallbacks; `.env` remains a public asset; `APP_ENV` dart-define is unused                                                                        |
+| CI      | No backend secrets injected; Flutter copies `.env.example` and dart-defines emulator API URL for debug APK only                                                                              |
+
+Local env files remain ignored and untracked. Values were not read. No provider keys were invented.
+
+### STAB-02 tests
+
+Targeted backend, ERP, and Flutter environment tests with synthetic placeholders only.
+Backend suite 188/188 (was 173; environment spec now 17 cases). ERP 8/8 (was 2; plus 6 environment cases). Flutter `environment_test.dart` 6/6.
+
 ## Latest verification
 
-| Verification                 | Result                          | Evidence summary                                                               |
-| ---------------------------- | ------------------------------- | ------------------------------------------------------------------------------ |
-| STAB-01 Git snapshot         | **PASS**                        | Clean `master` at `ca99498`; upstream `origin/master` at `9e2a442`; ahead 1    |
-| STAB-01 remote default       | **PASS with local drift**       | GitHub HEAD is `master`; local `origin/HEAD` still stale-points at `main`      |
-| STAB-01 secrets              | **PASS**                        | Env values not read; only template key names and ignored-file presence         |
-| STAB-01 application tree     | **PASS**                        | No application file changes versus `9e2a442`                                   |
-| Git start state (audit)      | **PASS**                        | Clean `master` worktree at audited baseline; local `origin/HEAD` still stale   |
-| Node / pnpm                  | **PASS**                        | Node `20.20.2`; pnpm `9.15.4`                                                  |
-| Flutter / Dart               | **PASS**                        | Flutter `3.44.8`; Dart `3.12.2`                                                |
-| Root TypeScript verification | **PASS**                        | format, lint, typecheck, tests, backend build, ERP build                       |
-| Backend tests                | **PASS**                        | 173/173 across 30 files                                                        |
-| ERP tests                    | **PASS but weak**               | 2/2 across 2 files                                                             |
-| Flutter format               | **PASS**                        | 199 files unchanged                                                            |
-| Flutter analysis             | **PASS**                        | no issues with fatal infos                                                     |
-| Flutter tests                | **PASS**                        | 435/435                                                                        |
-| Android dev debug build      | **PASS**                        | APK compiled                                                                   |
-| Android prod release compile | **COMPILE PASS / RELEASE FAIL** | 69.1 MB APK; no INTERNET permission; Android Debug certificate                 |
-| iOS unsigned release build   | **FAIL**                        | `Application not configured for iOS`                                           |
-| Dependency audit             | **FAIL**                        | 74 total: 4 critical, 29 high, 31 moderate, 10 low                             |
-| PostgreSQL integration       | **NOT VERIFIED / BLOCKED**      | Docker daemon unavailable; no in-repo integration suite                        |
-| Browser/device E2E           | **MISSING**                     | No framework/suite                                                             |
+| Verification                  | Result                          | Evidence summary                                                                       |
+| ----------------------------- | ------------------------------- | -------------------------------------------------------------------------------------- |
+| STAB-02 environment contracts | **PASS**                        | Matrix in `docs/07-deployment/environment.md`; fail-closed tests with synthetic values |
+| STAB-01 remote default        | **PASS with local drift**       | GitHub HEAD is `master`; local `origin/HEAD` still stale-points at `main`              |
+| STAB-01 secrets               | **PASS**                        | Env values not read; only template key names and ignored-file presence                 |
+| STAB-01 application tree      | **PASS**                        | No application file changes versus `9e2a442`                                           |
+| Git start state (audit)       | **PASS**                        | Clean `master` worktree at audited baseline; local `origin/HEAD` still stale           |
+| Node / pnpm                   | **PASS**                        | Node `20.20.2`; pnpm `9.15.4`                                                          |
+| Flutter / Dart                | **PASS**                        | Flutter `3.44.8`; Dart `3.12.2`                                                        |
+| Root TypeScript verification  | **PASS**                        | format, lint, typecheck, tests, backend build, ERP build                               |
+| Backend tests                 | **PASS**                        | 173/173 across 30 files                                                                |
+| ERP tests                     | **PASS but weak**               | 2/2 across 2 files                                                                     |
+| Flutter format                | **PASS**                        | 199 files unchanged                                                                    |
+| Flutter analysis              | **PASS**                        | no issues with fatal infos                                                             |
+| Flutter tests                 | **PASS**                        | 435/435                                                                                |
+| Android dev debug build       | **PASS**                        | APK compiled                                                                           |
+| Android prod release compile  | **COMPILE PASS / RELEASE FAIL** | 69.1 MB APK; no INTERNET permission; Android Debug certificate                         |
+| iOS unsigned release build    | **FAIL**                        | `Application not configured for iOS`                                                   |
+| Dependency audit              | **FAIL**                        | 74 total: 4 critical, 29 high, 31 moderate, 10 low                                     |
+| PostgreSQL integration        | **NOT VERIFIED / BLOCKED**      | Docker daemon unavailable; no in-repo integration suite                                |
+| Browser/device E2E            | **MISSING**                     | No framework/suite                                                                     |
 
 ## Known release blockers
 
@@ -145,7 +164,7 @@ Do not ask for these until their dependent block is approaching, unless early pr
 ## Phase 0 — Stabilization
 
 - [x] STAB-01 Repository snapshot
-- [ ] STAB-02 Environment verification
+- [x] STAB-02 Environment verification
 - [ ] STAB-03 Dependency verification
 - [ ] STAB-04 Formatting
 - [ ] STAB-05 Lint
