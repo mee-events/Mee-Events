@@ -1,9 +1,10 @@
 # Mee Events — Complete Project Audit
 
 - **Audit date:** 25 August 2026
-- **Repository:** `Mee Event V1`
+- **Repository:** `Mee Event V1` (`/Users/vinaychilagani/Desktop/Mee Event V1`)
 - **Branch audited:** `master` tracking `origin/master`
 - **Audited commit:** `9e2a442d91c137ec97a349d1a55697ae8d79d5df`
+- **STAB-01 snapshot:** 25 August 2026 19:08 IST (Asia/Kolkata) at `ca994985a898d42da2a8d717041b93a8f8f0dc4c` (audit documentation commit on top of the audited application tree; no application-file delta)
 - **Audit type:** Read-only implementation, configuration, test, security, release, documentation, and artifact inspection
 - **Decision:** **NOT PRODUCTION-READY**
 
@@ -62,8 +63,8 @@ The repository-requested `lean-ctx` helper is not installed in the current envir
 | ------------------------------- | ------------------------------------------------------------------------------------------ | ----------- |
 | Working tree at audit start     | Clean; no application changes                                                              | **DONE**    |
 | Current branch                  | `master` → `origin/master`                                                                 | **DONE**    |
-| Remote/default-branch alignment | `origin/HEAD` points to old `origin/main`; active/new work is on `master`                  | **BROKEN**  |
-| Git health                      | Commands work, but fsmonitor emits IPC errors                                              | **PARTIAL** |
+| Remote/default-branch alignment | GitHub HEAD is `master`. Local `refs/remotes/origin/HEAD` still stale-points at `origin/main`; `origin/main` is a stale remote-tracking branch. | **PARTIAL** |
+| Git health                      | Commands work. `core.fsmonitor=true`. Sandbox `git status` can emit fsmonitor IPC errors; unsandboxed status in STAB-01 did not. | **PARTIAL** |
 | Node                            | `v20.20.2`; repository requires `>=20.11.0`                                                | **DONE**    |
 | pnpm                            | `9.15.4`; matches `packageManager`                                                         | **DONE**    |
 | Flutter/Dart                    | Flutter `3.44.8`, Dart `3.12.2`; matches CI Flutter pin                                    | **DONE**    |
@@ -84,6 +85,10 @@ docs/                 architecture, security, product, testing, deployment, ADRs
 design/               raw Stitch exports and selected customer-home evidence
 artifacts/            catalog media pilot and runtime screenshots
 ```
+
+### 4.1 STAB-01 snapshot (25 August 2026 19:08 IST)
+
+Reproduced on the founder workstation. Application files are identical to audited commit `9e2a442`. HEAD at snapshot was `ca99498` (unpushed documentation-only audit package). Working tree was clean. Toolchain: Node `v20.20.2`, pnpm `9.15.4`, Flutter `3.44.8`, Dart `3.12.2`. GitHub default branch is `master`; local `origin/HEAD` remains a stale pointer to `origin/main`. Environment-template key names, 20 PostgreSQL migrations, and `.github/workflows/ci.yml` match this audit. Env file **values were not inspected**. Full evidence is in `docs/roadmap/MEE_EVENTS_PROGRESS.md`.
 
 ## A. Current architecture
 
@@ -158,7 +163,7 @@ artifacts/            catalog media pilot and runtime screenshots
 - GitHub Actions verifies pnpm install, shared builds, format, lint, typecheck, tests, backend/ERP builds, Flutter format/analyze/tests, and a dev debug APK.
 - Dependency Review runs only on pull requests.
 - CI does not run package audit/SCA on all branches, secret scanning, SAST, live PostgreSQL integration, browser/device E2E, production-flavor builds, signed artifacts, deploys, rollback, or release promotion.
-- Workflow/badge conventions use `master`, while remote HEAD still points at obsolete `main`.
+- Workflow/badge conventions use `master`. GitHub default is `master`. Local `origin/HEAD` still stale-points at obsolete `main`.
 
 ## 5. Intended lifecycle versus implementation
 
@@ -210,7 +215,7 @@ The complete Customer → CRM → Quotation → Payment → Booking → Event �
 - Production Android APK lacks `android.permission.INTERNET`.
 - Production Android APK is signed by `CN=Android Debug`.
 - iOS release verification fails: Flutter reports `Application not configured for iOS`.
-- Remote default branch still points to obsolete `main` while active CI/docs use `master`.
+- Local clone still has a stale `origin/HEAD` → `origin/main` symbolic-ref and a stale `origin/main` tracking branch, even though GitHub default is now `master`.
 - Older roadmap PDFs say format/lint and 20 Flutter tests fail; current gates pass, so those starting instructions are stale.
 - Authentication documentation says OTP resend is not server-enforced; implementation enforces it.
 
@@ -348,7 +353,7 @@ Critical and high findings are release blockers unless explicitly risk-accepted 
 - **LOW:** CORS uses credentials although bearer APIs do not need cross-origin cookies; simplify after client review.
 - **LOW:** Public readiness returns HTTP success with `degraded`; load balancer configuration must treat body/state correctly or change status code.
 - **LOW:** No explicit PostgreSQL TLS enforcement in pool configuration; production URL/provider policy must require encryption and certificate validation.
-- **LOW:** Git fsmonitor IPC errors and default-branch drift can reduce developer confidence and automation clarity.
+- **LOW:** Git fsmonitor is enabled and can emit IPC errors in sandboxed tooling; local `origin/HEAD` still stale-points at deleted `main` even though GitHub default is `master`.
 - **INFORMATIONAL:** CSRF risk is currently lower because auth uses bearer headers rather than ambient cookies; reassess if web auth changes.
 - **INFORMATIONAL:** Local OTP debug code is correctly limited to local development by configuration; retain tests around this condition.
 - **INFORMATIONAL:** Secret filename hygiene is good; a manual tracked-file scan found only placeholder candidates. Automated secret scanning is still missing.
@@ -432,7 +437,7 @@ The immediate testing priority is not “more widget tests.” It is live Postgr
 | “Clients never write DB directly”                              | Mobile initializes Supabase and has a direct `event_services` service                          | Remove dormant client path or document/ADR an exception; accepted architecture says backend-only |
 | Authentication: resend hint not server-enforced                | `requestOtp` checks latest open challenge and returns 429                                      | Correct security doc                                                                             |
 | AI controls: lean-ctx installed/verified                       | Helper absent in current environment                                                           | Mark as workstation-specific and add verification/fallback                                       |
-| Remote branch assumptions                                      | `origin/HEAD` → old `main`; current branch/CI use `master`                                     | Fix repository default branch/governance                                                         |
+| Remote branch assumptions                                      | GitHub HEAD is `master`; local `origin/HEAD` still stale-points at `origin/main`               | Refresh/prune local `origin/HEAD` and stale `origin/main` in a later governance task; do not rename branches in STAB-01 |
 | Outbox reliability wording                                     | Only two processors exist; no lease recovery/general publisher                                 | Narrow current-state wording and document operational gaps                                       |
 
 ## 15. Design and cleanup classification
@@ -524,7 +529,7 @@ PHASE 11 Android release
 PHASE 12 iOS release
 ```
 
-No phase begins until the preceding gate is verified and recorded. The current phase is **Phase 0 — Stabilization**. This audit session does **not** execute STAB-01. The next execution block is **STAB-01 — Repository snapshot** as defined in the Master TODO and Progress tracker.
+No phase begins until the preceding gate is verified and recorded. The current phase is **Phase 0 — Stabilization**. **STAB-01 — Repository snapshot** is complete as of 25 August 2026 19:08 IST. The next execution block is **STAB-02 — Environment verification**.
 
 ## 19. Definition of complete
 
