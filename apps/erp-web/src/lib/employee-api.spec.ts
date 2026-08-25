@@ -71,6 +71,19 @@ describe("employee API session refresh", () => {
 
     expect(result.leads).toEqual([]);
     expect(fetchMock).toHaveBeenCalledTimes(3);
+    expect(String(fetchMock.mock.calls[0]?.[0])).toMatch(/\/crm\/leads$/);
+    expect(fetchMock.mock.calls[0]?.[1]?.headers).toMatchObject({
+      Authorization: "Bearer expired-access-token",
+    });
+    expect(String(fetchMock.mock.calls[1]?.[0])).toMatch(/\/auth\/refresh$/);
+    expect(fetchMock.mock.calls[1]?.[1]).toMatchObject({
+      method: "POST",
+      body: JSON.stringify({ refreshToken: "current-refresh-token" }),
+    });
+    expect(String(fetchMock.mock.calls[2]?.[0])).toMatch(/\/crm\/leads$/);
+    expect(fetchMock.mock.calls[2]?.[1]?.headers).toMatchObject({
+      Authorization: "Bearer rotated-access-token",
+    });
     expect(readStoredSession()).toMatchObject({
       accessToken: "rotated-access-token",
       refreshToken: "rotated-refresh-token",

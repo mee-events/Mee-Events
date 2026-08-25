@@ -10,6 +10,7 @@
 - **STAB-05 lint baseline:** 25 August 2026 22:50 IST. ESLint 9.17.0; root lint 0/0; backend scripts now covered. See `docs/roadmap/MEE_EVENTS_PROGRESS.md` STAB-05.
 - **STAB-06 TypeScript baseline:** 25 August 2026 23:38 IST. TypeScript 5.7.2 in all four workspaces; 229 maintained roots covered; individual/root typechecks 0 errors. See `docs/roadmap/MEE_EVENTS_PROGRESS.md` STAB-06.
 - **STAB-07 backend test baseline:** 26 August 2026 00:13 IST. Vitest 3.2.7; canonical and shuffled serialized runs both pass 30/30 files and 188/188 tests; no hidden skips/focus/todos. See `docs/08-testing/backend-test-baseline.md`.
+- **STAB-08 ERP test baseline:** 26 August 2026 00:40 IST. Vitest 3.2.7; canonical and shuffled serialized runs both pass 3/3 files and 8/8 tests; zero-test discovery now fails closed. See `docs/08-testing/erp-test-baseline.md`.
 - **Audit type:** Read-only implementation, configuration, test, security, release, documentation, and artifact inspection
 - **Decision:** **NOT PRODUCTION-READY**
 
@@ -44,7 +45,7 @@ Verified locally:
 
 - `corepack pnpm verify` — **PASS**.
 - Backend: **188/188 tests PASS** across 30 files in STAB-07; canonical and shuffled serialized runs both pass.
-- ERP web: **2/2 tests PASS** across 2 files.
+- ERP web: **8/8 tests PASS** across 3 files in STAB-08; canonical and shuffled serialized runs both pass.
 - Flutter format check — **PASS**, 199 files unchanged at original audit. **STAB-04:** `dart format --output=none --set-exit-if-changed lib test` — **PASS**, 200 files, 0 changed. Root `pnpm format:check` — **PASS**.
 - Root `pnpm lint` — **PASS** at original audit. **STAB-05:** coverage extended to `apps/backend/scripts/**/*.ts`; ESLint 9.17.0; 0 errors / 0 warnings.
 - Root `pnpm typecheck` — **PASS** at original audit. **STAB-06:** independently verified TypeScript 5.7.2 across backend, ERP, shared-types and API-contracts; all individual and root commands returned 0 errors with 229 maintained roots covered.
@@ -98,6 +99,40 @@ behavior, fake-heavy workflow negatives, a complete token/endpoint authorization
 matrix, provider contracts, and coverage reporting are medium gaps assigned to
 STAB-14/15/16/17/20 and INT-01–INT-06. No application source, test,
 configuration, dependency, or generated output changed in STAB-07.
+
+### STAB-08 ERP test boundary update
+
+The ERP package uses Vitest 3.2.7 with no repository Vitest/Vite workspace
+configuration or setup file. Its original `vitest run --passWithNoTests`
+script allowed a deliberate zero-match run to exit 0. STAB-08 removed only the
+fail-open option; the same probe now exits 1. The corrected canonical run passed
+3/3 files and 8/8 tests with zero failures, skips, todos, or warnings in 330 ms.
+A fresh-process shuffled and serialized run with seed `6082026` passed the same
+8/8 in 429 ms.
+
+The suite contains six environment-reader tests, one employee API/session
+refresh test, and one catalogue form-reset helper test. The localhost
+environment case previously failed at the HTTP rule and did not exercise the
+named loopback check; it now uses HTTPS localhost and asserts the loopback
+failure. The refresh test now proves endpoint order, refresh request body, old
+bearer token, stored-token rotation, new bearer token, and retry response.
+Mocks and storage are isolated/restored, and tests use no real environment
+value, credential, token, or external call.
+
+The complete ERP inspection found 44 active `page.tsx` routes across dashboard,
+login, leads, quotes/bookings/events, catalogue, manager, vendors, workers,
+inventory/warehouse, operations, and finance. No route has a rendered component
+test or browser E2E test. The main leads board uses eight production-visible,
+unlabeled realistic `DUMMY_LEADS`; the root dashboard is clearly labeled as
+illustrative sample data; quotation, finance, and event pages contain additional
+fixed-value or placeholder actions. High security gaps remain in employee
+bootstrap/capability routing, browser-readable session tokens and XSS posture,
+refresh/logout failures, direct-route denial, and branch/IDOR/BOLA evidence.
+These are owned by STAB-17/STAB-20, CRM-24/26, ERP-20/22, and their relevant
+module tasks. The canonical route, fixture, and security map is
+`docs/08-testing/erp-test-baseline.md`. This baseline does not prove CRM/ERP
+feature completion, backend integration, browser behavior, or production
+readiness.
 
 The repository-requested `lean-ctx` helper is not installed in the current environment, even though project AI-control documentation says it is. Native read/search/command tools were used as the documented fallback.
 
@@ -159,7 +194,7 @@ mobile Supabase), STAB-16 (Node pin / CI), INT-01 (OTP vendor adapter).
 
 **Employee CRM/ERP web (`apps/erp-web`)**
 
-- Next.js App Router portal with 45 `page.tsx` route files covering leads, quotations, bookings/events, manager operations, vendor/worker administration, inventory/warehouse, and finance foundations.
+- Next.js App Router portal with 44 `page.tsx` route files covering leads, quotations, bookings/events, manager operations, vendor/worker administration, inventory/warehouse, and finance foundations.
 - Most operational pages call the real NestJS API through `employee-api.ts`.
 - The home dashboard is openly rendered sample data and explicitly shows `SYNC OFF` / local foundation.
 - The lead inbox uses `DUMMY_LEADS`; it does not call `listLeads`.
@@ -418,7 +453,7 @@ Critical and high findings are release blockers unless explicitly risk-accepted 
 | Test layer               | Actual status                                  | Gap / required proof                                                                            |
 | ------------------------ | ---------------------------------------------- | ----------------------------------------------------------------------------------------------- |
 | Backend unit/foundation  | 188 tests PASS across 30 files (STAB-07)       | Many use fake repositories; add live DB/HTTP/authorization concurrency tests                    |
-| ERP unit/component       | 2 tests PASS                                   | Nearly all routes and workflows untested                                                        |
+| ERP narrow units         | 8 tests PASS across 3 files (STAB-08)          | Environment/API-refresh/helper only; no rendered component or route test                        |
 | Flutter unit/widget      | 435 tests PASS                                 | No device E2E, provider sandbox, native permission, or release-network proof                    |
 | Shared packages          | No test scripts                                | Add contract compatibility/serialization tests                                                  |
 | PostgreSQL integration   | None                                           | Replay migrations on empty DB and upgrade fixture; exercise real adapters/transactions/triggers |
@@ -583,7 +618,7 @@ PHASE 11 Android release
 PHASE 12 iOS release
 ```
 
-No phase begins until the preceding gate is verified and recorded. The current phase is **Phase 0 — Stabilization**. **STAB-01** through **STAB-07** are complete. The next execution block is **STAB-08 — ERP tests**. Do not start STAB-08 in the STAB-07 session.
+No phase begins until the preceding gate is verified and recorded. The current phase is **Phase 0 — Stabilization**. **STAB-01** through **STAB-08** are complete. The next execution block is **STAB-09 — Flutter analysis**. Do not start STAB-09 in the STAB-08 session.
 
 ## 19. Definition of complete
 

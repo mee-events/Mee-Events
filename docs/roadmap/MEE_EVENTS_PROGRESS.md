@@ -1,15 +1,15 @@
 # Mee Events — Progress Tracker
 
-- **Updated:** 26 August 2026 00:13 IST (Asia/Kolkata, +0530); STAB-07
+- **Updated:** 26 August 2026 00:40 IST (Asia/Kolkata, +0530); STAB-08
 - **Repository:** `/Users/vinaychilagani/Desktop/Mee Event V1`
 - **Baseline application commit:** `master` / `9e2a442d91c137ec97a349d1a55697ae8d79d5df`
 - **STAB-01 snapshot HEAD:** `ca994985a898d42da2a8d717041b93a8f8f0dc4c`
 - **Current phase:** Phase 0 — Stabilization
 - **Phase gate:** **NOT PASSED**
-- **Last completed task:** STAB-07 — Backend tests
-- **Current task:** None — STAB-07 closed as instructed
-- **Next task:** STAB-08 — ERP tests
-- **Latest application commit:** STAB-05 closed backend script lint coverage; STAB-06 and STAB-07 are documentation-only. Use Git history for hashes.
+- **Last completed task:** STAB-08 — ERP tests
+- **Current task:** None — STAB-08 closed as instructed
+- **Next task:** STAB-09 — Flutter analysis
+- **Latest application commit:** STAB-05 closed backend script lint coverage; STAB-06/07 are documentation-only and STAB-08 changes tests/test configuration plus documentation, not ERP application source. Use Git history for hashes.
 
 ## Status key
 
@@ -352,6 +352,46 @@ were not rerun because STAB-07 changed documentation only; the backend suite was
 the requested execution boundary. Phase 0 gate remains **NOT PASSED**. Next
 permitted block: **STAB-08 — ERP tests**.
 
+## STAB-08 — ERP tests
+
+- [x] **STAB-08** ERP tests — completed 26 August 2026 00:40 IST. Next: STAB-09. Do not start STAB-09 in this block.
+
+Canonical evidence: `docs/08-testing/erp-test-baseline.md`.
+
+Independent verification began on clean `master` at
+`77f71a697fc6140f22e1d724b3e551a4a970e2b9`, tracking `origin/master`, ahead 8
+and behind 0. ERP resolves Vitest **3.2.7** and has no Vitest/Vite workspace
+configuration or setup file. Vitest defaults therefore apply from
+`apps/erp-web`: Node environment, forks, per-file isolation, parallel files,
+5-second tests, 10-second hooks/teardown, zero retry, and zero bail. There is no
+direct browser/DOM or coverage dependency/configuration.
+
+The original package script was `vitest run --passWithNoTests`. A deliberate
+non-matching filter reported `No test files found` but exited 0. Removing only
+that option makes the same probe exit 1; no alternate bypass was added. The
+canonical run then passed 3/3 files and 8/8 tests in 330 ms with zero
+failures/skips/todos/warnings. A fresh-process, shuffled, single-worker,
+serialized run with seed `6082026` passed the same 3/3 and 8/8 in 429 ms.
+
+### Test and product-surface evidence
+
+| Evidence                | Result                                                                                                                                                                                                                                                                                                                |
+| ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Environment             | 6 tests cover development defaults/override plus production/staging HTTPS, required URL, and loopback failure. The localhost case was corrected to reach the loopback check rather than fail earlier on HTTP.                                                                                                         |
+| Employee API/session    | 1 happy-path test proves protected 401 → refresh request → stored-token rotation → original request retry. Request endpoint order, refresh body, and old/new bearer headers are now asserted. Failure, logout, concurrent refresh, malformed JSON, capability, and role paths remain absent.                          |
+| Catalogue helper        | 1 test covers every field returned by the production blank-form helper. It is not a rendered component, API, upload, provenance, authorization, or browser test.                                                                                                                                                      |
+| Hidden/false confidence | No focus, skip, todo, conditional test, empty assertion, arbitrary wait, retry, snapshot, unawaited promise, or leaked global was found. The one misleading loopback assertion was corrected.                                                                                                                         |
+| Maintained surface      | 62 TypeScript roots inspected: 44 route pages, root layout, 10 supporting route/component modules, 4 production libraries, and 3 specs. All rendered routes/components lack component/browser tests.                                                                                                                  |
+| Fixtures/scaffolds      | `/leads` directly uses eight unlabeled realistic `DUMMY_LEADS`; `/` is clearly labeled illustrative sample data. Quote/finance/event screens also contain fixed-value or placeholder actions documented in the canonical baseline.                                                                                    |
+| Security                | No real token/credential/API call, unsafe HTML insertion, token URL/log, cookie, or credentialed fetch was found. High gaps remain in employee bootstrap gating, browser-readable session tokens/XSS posture, refresh failures, direct-route capability/role denial, branch/IDOR/BOLA, and browser security evidence. |
+
+The current suite is an honest narrow unit baseline, not proof of CRM/ERP
+completion. It exercises no React render, Next route, browser, backend, live
+database, branch isolation, or full employee journey. Follow-up ownership is
+assigned to STAB-17/STAB-20, CRM-01–03/06/10–26, ERP-01–22, and INT-02/07 as
+applicable. Phase 0 remains **NOT PASSED**. Next permitted block:
+**STAB-09 — Flutter analysis**.
+
 ## Latest verification
 
 | Verification                  | Result                          | Evidence summary                                                                               |
@@ -383,7 +423,11 @@ permitted block: **STAB-08 — ERP tests**.
 | STAB-07 discovery honesty     | **PASS**                        | No skip/todo/only/conditional tests; zero-match probe exits 1; no `passWithNoTests`            |
 | STAB-07 coverage status       | **GAP DOCUMENTED**              | No coverage provider, report, or threshold; STAB-16 owner                                      |
 | Backend tests                 | **PASS (STAB-07)**              | 188/188 across 30 files                                                                        |
-| ERP tests                     | **PASS but weak**               | 2/2 across 2 files                                                                             |
+| STAB-08 ERP canonical         | **PASS**                        | Vitest 3.2.7; 3/3 files; 8/8 tests; zero failure/skip/todo/warning; 330 ms                     |
+| STAB-08 ERP isolation/order   | **PASS**                        | Seed 6082026; shuffled files/tests; one worker; serialized files; 8/8; 429 ms                  |
+| STAB-08 discovery honesty     | **PASS after correction**       | Removed `--passWithNoTests`; deliberate zero-match probe changed from exit 0 to exit 1         |
+| STAB-08 browser/route status  | **GAP DOCUMENTED**              | 44 route pages; no component render or browser E2E tests; STAB-17, CRM-26, and ERP-22 owners   |
+| ERP tests                     | **PASS but narrow (STAB-08)**   | 8/8 across 3 files; environment/API-refresh/helper units only                                  |
 | Flutter format                | **PASS**                        | STAB-04: 200 Dart files, 0 changed (audit-era count was 199)                                   |
 | Flutter analysis              | **PASS**                        | no issues with fatal infos                                                                     |
 | Flutter tests                 | **PASS**                        | 435/435                                                                                        |
@@ -429,7 +473,7 @@ Do not ask for these until their dependent block is approaching, unless early pr
 - [x] STAB-05 Lint
 - [x] STAB-06 TypeScript typecheck
 - [x] STAB-07 Backend tests
-- [ ] STAB-08 ERP tests
+- [x] STAB-08 ERP tests
 - [ ] STAB-09 Flutter analysis
 - [ ] STAB-10 Flutter tests
 - [ ] STAB-11 Backend build
