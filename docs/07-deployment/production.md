@@ -20,6 +20,18 @@ is no production package, Dockerfile, image, deploy workflow, or valid-config
 database-backed startup proof. See
 [backend-build-baseline.md](./backend-build-baseline.md).
 
+## ERP artifact posture
+
+STAB-12 proved that all 44 maintained Next.js routes compile twice under an
+explicit synthetic production public environment and that the normal `.next`
+output starts safely on loopback. The output is not standalone: it requires a
+compatible Node/Next runtime, production `node_modules`, and the repository
+package layout. No hosting target, immutable package, image, artifact upload,
+deploy, or rollback exists. The `/leads` route still bundles unlabeled synthetic
+PII-shaped fixtures, and fixed financial/quotation scaffolds remain; they are
+documented product/security findings, not live-data or production-readiness
+proof. See [erp-build-baseline.md](./erp-build-baseline.md).
+
 ---
 
 ## Hard requirements before traffic
@@ -67,4 +79,5 @@ from this doc — none are wired in-repo.
 - [ci-cd.md](./ci-cd.md)
 - [monitoring.md](./monitoring.md)
 - [backend-build-baseline.md](./backend-build-baseline.md)
+- [erp-build-baseline.md](./erp-build-baseline.md)
 - [ADR 0010](../adr/0010-connected-platform-rebuild.md) / [ADR 0011](../adr/0011-prd-suite-and-flutter-confirmation.md)

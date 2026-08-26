@@ -54,6 +54,18 @@ Codex cannot silently accept that risk.
 
 804 dependencies in the full final audit; 238 in production-only. Frozen lockfile install: `corepack pnpm install --frozen-lockfile` succeeded.
 
+### STAB-12 current re-verification
+
+On 26 August 2026, STAB-12 reran registry-backed `pnpm audit --json` and
+`pnpm audit --prod --json` after another successful frozen install. Counts are
+unchanged: full workspace **0 critical / 0 high / 0 moderate / 2 low** across
+804 dependency rows; production workspace **0 / 0 / 0 / 1** across 238 rows.
+The full lows remain `@eslint/plugin-kit@0.2.8` through ESLint and
+`@supabase/auth-js@2.64.4` through the backend's Supabase dependency; only the
+Supabase row appears in production scope. No dependency or lockfile changed.
+See [erp-build-baseline.md](../07-deployment/erp-build-baseline.md) for commands,
+scope, and build evidence.
+
 ### Flutter/Dart
 
 | Check                                                    | Result                                                                                                                                                                                                      |

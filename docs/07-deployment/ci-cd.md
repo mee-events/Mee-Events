@@ -46,6 +46,15 @@ CI compiles it through the recursive root build but does not retain, smoke,
 package, hash, attest, or deploy it. See
 [backend-build-baseline.md](./backend-build-baseline.md).
 
+STAB-12 independently proved two clean ERP builds and a loopback-only
+production start using an explicit synthetic production API URL. CI reaches the
+same `next build` script after the same shared-package build order, but it does
+not set `NEXT_PUBLIC_APP_ENV=production` or `NEXT_PUBLIC_API_BASE_URL`.
+Consequently, CI currently compiles against the documented development fallback
+instead of verifying the production public-environment boundary. It also does
+not retain, hash, attest, start, or deploy the ERP artifact. See
+[erp-build-baseline.md](./erp-build-baseline.md).
+
 ### 2. `flutter`
 
 - Runner: `ubuntu-latest`, timeout 25 minutes
@@ -72,6 +81,8 @@ package, hash, attest, or deploy it. See
 - No staging/production deploy
 - No container image publish
 - No backend artifact upload, compiled startup smoke, or reproducibility check
+- No ERP production-environment injection, artifact upload/attestation,
+  production-start smoke, or reproducibility comparison
 - No Terraform / infrastructure apply
 - No managed-database provisioning
 
@@ -83,3 +94,4 @@ package, hash, attest, or deploy it. See
 - [production.md](./production.md)
 - [environment.md](./environment.md)
 - [backend-build-baseline.md](./backend-build-baseline.md)
+- [erp-build-baseline.md](./erp-build-baseline.md)

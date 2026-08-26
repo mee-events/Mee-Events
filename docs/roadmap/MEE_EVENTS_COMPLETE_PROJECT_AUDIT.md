@@ -14,6 +14,7 @@
 - **STAB-09 Flutter analysis baseline:** 26 August 2026 10:27 IST. Flutter 3.44.8/Dart 3.12.2; all 200 maintained Dart files analyzed with 0 errors, warnings, or infos. See `docs/08-testing/flutter-analysis-baseline.md`.
 - **STAB-10 Flutter test baseline:** 26 August 2026 11:09 IST. Flutter 3.44.8/Dart 3.12.2; canonical and seed-6102026 serialized runs both pass 27/27 files and 441/441 tests with no skip or hidden failure. See `docs/08-testing/flutter-test-baseline.md`.
 - **STAB-11 backend build baseline:** 26 August 2026 12:00 IST. Node v20.20.2/pnpm 9.15.4/Nest 11.2.3/TypeScript 5.7.2; two sanitized builds produced the same 388-file artifact and manifest hash. See `docs/07-deployment/backend-build-baseline.md`.
+- **STAB-12 ERP build baseline:** 26 August 2026 13:32 IST. Next 15.5.23/React 19.2.3; two clean synthetic-production builds compiled all 44 maintained routes, a stable 262-file code subset matched, and loopback runtime/header smoke passed with fixture and hardening findings. See `docs/07-deployment/erp-build-baseline.md`.
 - **Audit type:** Read-only implementation, configuration, test, security, release, documentation, and artifact inspection
 - **Decision:** **NOT PRODUCTION-READY**
 
@@ -55,6 +56,7 @@ Verified locally:
 - Flutter analysis with fatal infos — **PASS**.
 - Flutter tests — **441/441 PASS** across 27 files in both canonical and shuffled serialized STAB-10 runs.
 - Backend production build — **PASS (STAB-11)**. Two sanitized builds emitted the same 388-file, 2,114,896-byte artifact with all 129 application roots and no test/spec/script/env output; compiled configuration and module-path smokes passed without external access.
+- ERP production build — **PASS WITH FINDINGS (STAB-12)**. Two clean synthetic-production builds compiled all 44 maintained pages and produced 398-file normal Next artifacts; stable code hashes and semantic route manifests matched, and a loopback `next start` smoke passed. The output is not standalone, and the fixture-backed lead board remains an explicit product/privacy finding.
 - Flutter dev debug APK — **PASS**.
 - Flutter production release APK compile — **PASS**, but the binary is unusable for production because it lacks network permission and is signed by the Android debug certificate.
 - iOS unsigned release build — **FAIL**, `Application not configured for iOS`.
@@ -220,6 +222,61 @@ STAB-14/15/16/20 and PROD-01–06. This is reproducible build evidence, not a
 production-readiness claim. No backend source, test, configuration, dependency,
 or generated artifact was committed in STAB-11.
 
+### STAB-12 ERP build boundary update
+
+The ERP builds with Node v20.20.2, pnpm 9.15.4, Next 15.5.23, React/React DOM
+19.2.3, TypeScript 5.7.2, and ESLint 9.17.0. Frozen installation passed without
+manifest/lockfile drift. Fresh audits remain at 0 critical, 0 high, 0 moderate,
+and 2 low for the full workspace; production scope contains one low. Shared
+types and API contracts built in CI order before the ERP.
+
+The ignored local `.env.local` was isolated without reading it. Missing and
+malformed production API configuration each made `next build` exit 1 during
+`/catalog` page-data configuration. Two clean builds with the public synthetic
+`https://mee-events-stab12.invalid/api/v1` value exited 0 without warning in
+15.86 and 16.30 seconds. Source and generated manifests agree on all 44
+maintained routes: 33 static, 11 dynamic, and 10 parameterized, plus Next's
+internal `/_not-found`.
+
+Both artifacts contain 398 files, but Next randomizes the build ID and three
+preview-mode values and varies manifest insertion order, prerender references,
+cache, and trace output. Full artifact digests therefore differ honestly. A
+262-file stable application/server/client subset is identical at SHA-256
+`5a1a8715e135dcd4f9c0b3b8d1cbb09e5deafd9dca94617da57b4e9fcbcd29b4`,
+canonicalized route/build manifests are semantically equal, and no application
+chunk or route mapping differs. Output is a normal non-standalone Next runtime
+requiring compatible `node_modules` and repository package layout.
+
+Loopback `next start` returned 200 for `/` and `/login` and 404 for a missing
+route. All responses carry the configured nosniff, referrer, and frame-deny
+headers, while `X-Powered-By` is absent. CSP, Permissions-Policy, HSTS, COOP,
+and CORP remain unconfigured and assigned to STAB-20/SEC-05 after deployment
+origins and TLS termination are known. No external API route was requested and
+no process remained.
+
+No secret, private environment value, credential, environment file, private
+key, JWT-shaped literal, or credential-bearing database URL was found. The
+synthetic public URL and hard-coded development fallback are intentionally
+public. Absolute developer paths occur in server-only generated metadata/types,
+not browser chunks, and remain a packaging consideration.
+
+The fixture-free production criterion is not passed: `/leads` bundles eight
+unlabeled synthetic `DUMMY_LEADS` records with realistic names and Indian phone
+numbers into a client chunk. Labeled dashboard/login samples and fixed
+quotation/finance scaffold values are also present. They are not evidence of
+real PII or secrets, but they remain assigned to CRM-04/06/12/24/26,
+ERP-13–16/20/22, STAB-18, and STAB-20. STAB-12 did not invent live CRM behavior
+to remove them.
+
+Next's generated route reference in `next-env.d.ts` was recorded and the exact
+tracked pre-build content restored. ERP lint, generated-state typecheck, 3/3
+files and 8/8 tests, clean-checkout typecheck without `.next`, and root
+formatting passed. CI reaches the same build script but uses development
+fallback configuration and has no artifact upload, attestation, runtime smoke,
+or deploy. Detailed evidence and limitations are in
+`docs/07-deployment/erp-build-baseline.md`. No ERP source, test, configuration,
+dependency, generated artifact, or real environment file changed in STAB-12.
+
 The repository-requested `lean-ctx` helper is not installed in the current environment, even though project AI-control documentation says it is. Native read/search/command tools were used as the documented fallback.
 
 ## 4. Repository and toolchain snapshot
@@ -236,7 +293,7 @@ The repository-requested `lean-ctx` helper is not installed in the current envir
 | Node version pin                | Engine and CI exist; no `.nvmrc`, `.node-version`, or `.tool-versions`                                                                                           | **PARTIAL** |
 | Package layout                  | pnpm workspace covers backend, ERP, and packages; Flutter is separate                                                                                            | **DONE**    |
 | Environment hygiene             | Local env files are ignored; templates use placeholders; signing/service files are ignored. STAB-02 reconciled the key matrix and fail-closed boot/client rules. | **PARTIAL** |
-| Dependency health               | 74 known advisories, including vulnerable Next.js `15.1.3` and Vitest `2.1.8`                                                                                    | **BROKEN**  |
+| Dependency health               | STAB-12 current audit: 0 critical/high/moderate; 2 low full and 1 low production; Next `15.5.23`, Vitest `3.2.7`                                                 | **PARTIAL** |
 
 Repository shape:
 
@@ -704,7 +761,7 @@ PHASE 11 Android release
 PHASE 12 iOS release
 ```
 
-No phase begins until the preceding gate is verified and recorded. The current phase is **Phase 0 — Stabilization**. **STAB-01** through **STAB-11** are complete. The next execution block is **STAB-12 — ERP build**. Do not start STAB-12 in the STAB-11 session.
+No phase begins until the preceding gate is verified and recorded. The current phase is **Phase 0 — Stabilization**. **STAB-01** through **STAB-12** are complete. The next execution block is **STAB-13 — Flutter build**. Do not start STAB-13 in the STAB-12 session.
 
 ## 19. Definition of complete
 
