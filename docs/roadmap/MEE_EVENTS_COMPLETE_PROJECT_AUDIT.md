@@ -12,6 +12,7 @@
 - **STAB-07 backend test baseline:** 26 August 2026 00:13 IST. Vitest 3.2.7; canonical and shuffled serialized runs both pass 30/30 files and 188/188 tests; no hidden skips/focus/todos. See `docs/08-testing/backend-test-baseline.md`.
 - **STAB-08 ERP test baseline:** 26 August 2026 00:40 IST. Vitest 3.2.7; canonical and shuffled serialized runs both pass 3/3 files and 8/8 tests; zero-test discovery now fails closed. See `docs/08-testing/erp-test-baseline.md`.
 - **STAB-09 Flutter analysis baseline:** 26 August 2026 10:27 IST. Flutter 3.44.8/Dart 3.12.2; all 200 maintained Dart files analyzed with 0 errors, warnings, or infos. See `docs/08-testing/flutter-analysis-baseline.md`.
+- **STAB-10 Flutter test baseline:** 26 August 2026 11:09 IST. Flutter 3.44.8/Dart 3.12.2; canonical and seed-6102026 serialized runs both pass 27/27 files and 441/441 tests with no skip or hidden failure. See `docs/08-testing/flutter-test-baseline.md`.
 - **Audit type:** Read-only implementation, configuration, test, security, release, documentation, and artifact inspection
 - **Decision:** **NOT PRODUCTION-READY**
 
@@ -51,7 +52,7 @@ Verified locally:
 - Root `pnpm lint` — **PASS** at original audit. **STAB-05:** coverage extended to `apps/backend/scripts/**/*.ts`; ESLint 9.17.0; 0 errors / 0 warnings.
 - Root `pnpm typecheck` — **PASS** at original audit. **STAB-06:** independently verified TypeScript 5.7.2 across backend, ERP, shared-types and API-contracts; all individual and root commands returned 0 errors with 229 maintained roots covered.
 - Flutter analysis with fatal infos — **PASS**.
-- Flutter tests — **435/435 PASS**.
+- Flutter tests — **441/441 PASS** across 27 files in both canonical and shuffled serialized STAB-10 runs.
 - Flutter dev debug APK — **PASS**.
 - Flutter production release APK compile — **PASS**, but the binary is unusable for production because it lacks network permission and is signed by the Android debug certificate.
 - iOS unsigned release build — **FAIL**, `Application not configured for iOS`.
@@ -134,6 +135,45 @@ module tasks. The canonical route, fixture, and security map is
 `docs/08-testing/erp-test-baseline.md`. This baseline does not prove CRM/ERP
 feature completion, backend integration, browser behavior, or production
 readiness.
+
+### STAB-10 Flutter test boundary update
+
+The mobile package uses the Flutter SDK test framework on the host VM tester.
+Flutter recursively discovers `test/**/*_test.dart`; there is no repository
+test configuration, tag filter, retry, golden/snapshot setup, coverage policy,
+`integration_test`, device suite, or emulator job. The canonical command and a
+fresh-process, shuffled, concurrency-1 run with seed `6102026` both passed
+27/27 files and 441/441 cases with zero failures, skips, or expected failures.
+The previous 435-test count was stale. A missing-path probe exited 1.
+
+The exact taxonomy is 111 behavioral unit/provider/store cases, 329 widget
+cases, and one static asset-consistency case, plus one support helper. No skip,
+focus/solo, conditional registration, timeout override, arbitrary delay, or
+empty test was found. The serialized run found no leaked provider, preference,
+memory-session, HTTP fake, semantics/view state, timer, animation, or restored
+global. Tests use `MockClient`, fake/overridden APIs, Riverpod overrides,
+in-memory/throwing session stores, and mock preferences; no real external,
+production, staging, Supabase, OTP, payment, notification, storage, or location
+call was made.
+
+Customer Home/Explore/Search/Favorites/Plan/shell/detail behavior has broad
+widget regression evidence, including loading/error/empty states, semantics,
+44-pixel controls, text scaling, narrow widths, reduced motion, and back
+navigation. Enquiries and Account remain partial. Vendor and Worker evidence
+is only gateway/dashboard role-routing smoke. The suite does not prove native
+secure storage, TalkBack/VoiceOver, device fonts/permissions, offline behavior,
+live API/PostgreSQL/provider integration, or release behavior.
+
+The STAB-09 security findings remain explicit and unhidden: unstable device
+identity, unknown bootstrap surface/role defaulting, unsupported branch
+handling, non-HTTPS remote release URLs, direct/always-on Supabase boundary,
+runtime JSON casts, splash-timer cancellation, and wider error/log exposure.
+They remain assigned to STAB-20 (`SEC-03`, `SEC-05`, `SEC-06`), STAB-13/17,
+and relevant module tasks. CI does not collect Flutter coverage, so no
+percentage or quality threshold is claimed. Detailed per-file counts, coverage
+maps, boundaries, and owners are in
+`docs/08-testing/flutter-test-baseline.md`. No Dart/test/configuration change
+was required in STAB-10.
 
 The repository-requested `lean-ctx` helper is not installed in the current environment, even though project AI-control documentation says it is. Native read/search/command tools were used as the documented fallback.
 
@@ -284,7 +324,7 @@ The complete Customer → CRM → Quotation → Payment → Booking → Event �
 
 - Monorepo/workspace structure and accepted modular-monolith/PostgreSQL direction.
 - Local TypeScript formatting, linting, typecheck, unit/foundation tests, and backend/ERP production compilation.
-- Flutter formatting, analysis, 435 unit/widget tests, dev debug build, and production APK compilation as compile-only evidence.
+- Flutter formatting, analysis, 441 unit/widget/static-consistency tests, dev debug build, and production APK compilation as compile-only evidence.
 - Global access-token authentication guard, server-owned capability map, DTO validation base, CORS allowlist, request IDs, basic log redaction, and health endpoints.
 - Local-development Compose/migration catalog documentation.
 - Versioned migrations and broad schema/audit/timeline/outbox foundations as source code.
@@ -455,7 +495,7 @@ Critical and high findings are release blockers unless explicitly risk-accepted 
 | ------------------------ | ---------------------------------------------- | ----------------------------------------------------------------------------------------------- |
 | Backend unit/foundation  | 188 tests PASS across 30 files (STAB-07)       | Many use fake repositories; add live DB/HTTP/authorization concurrency tests                    |
 | ERP narrow units         | 8 tests PASS across 3 files (STAB-08)          | Environment/API-refresh/helper only; no rendered component or route test                        |
-| Flutter unit/widget      | 435 tests PASS                                 | No device E2E, provider sandbox, native permission, or release-network proof                    |
+| Flutter unit/widget      | 441 tests PASS across 27 files (STAB-10)       | No device E2E, provider sandbox, native permission, or release-network proof                    |
 | Shared packages          | No test scripts                                | Add contract compatibility/serialization tests                                                  |
 | PostgreSQL integration   | None                                           | Replay migrations on empty DB and upgrade fixture; exercise real adapters/transactions/triggers |
 | Backend HTTP integration | None                                           | Use a real Nest instance and DB; test validation/authz/errors/idempotency                       |
@@ -619,7 +659,7 @@ PHASE 11 Android release
 PHASE 12 iOS release
 ```
 
-No phase begins until the preceding gate is verified and recorded. The current phase is **Phase 0 — Stabilization**. **STAB-01** through **STAB-09** are complete. The next execution block is **STAB-10 — Flutter tests**. Do not start STAB-10 in the STAB-09 session.
+No phase begins until the preceding gate is verified and recorded. The current phase is **Phase 0 — Stabilization**. **STAB-01** through **STAB-10** are complete. The next execution block is **STAB-11 — Backend build**. Do not start STAB-11 in the STAB-10 session.
 
 ## 19. Definition of complete
 

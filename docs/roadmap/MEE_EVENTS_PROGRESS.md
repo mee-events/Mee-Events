@@ -1,15 +1,15 @@
 # Mee Events — Progress Tracker
 
-- **Updated:** 26 August 2026 10:27 IST (Asia/Kolkata, +0530); STAB-09
+- **Updated:** 26 August 2026 11:09 IST (Asia/Kolkata, +0530); STAB-10
 - **Repository:** `/Users/vinaychilagani/Desktop/Mee Event V1`
 - **Baseline application commit:** `master` / `9e2a442d91c137ec97a349d1a55697ae8d79d5df`
 - **STAB-01 snapshot HEAD:** `ca994985a898d42da2a8d717041b93a8f8f0dc4c`
 - **Current phase:** Phase 0 — Stabilization
 - **Phase gate:** **NOT PASSED**
-- **Last completed task:** STAB-09 — Flutter analysis
-- **Current task:** None — STAB-09 closed as instructed
-- **Next task:** STAB-10 — Flutter tests
-- **Latest application commit:** STAB-05 closed backend script lint coverage; STAB-06/07/09 are documentation-only and STAB-08 changes tests/test configuration plus documentation, not ERP application source. Use Git history for hashes.
+- **Last completed task:** STAB-10 — Flutter tests
+- **Current task:** None — STAB-10 closed as instructed
+- **Next task:** STAB-11 — Backend build
+- **Latest application commit:** STAB-05 closed backend script lint coverage; STAB-06/07/09/10 are documentation-only and STAB-08 changes tests/test configuration plus documentation, not ERP application source. Use Git history for hashes.
 
 ## Status key
 
@@ -441,10 +441,73 @@ storage/network policy, runtime input validation, privacy, device behavior, or
 release artifacts. Phase 0 remains **NOT PASSED**. Next permitted block:
 **STAB-10 — Flutter tests**.
 
+## STAB-10 — Flutter tests
+
+- [x] **STAB-10** Flutter tests — completed 26 August 2026 11:09 IST. Next: STAB-11. Do not start STAB-11 in this block.
+
+Canonical evidence: `docs/08-testing/flutter-test-baseline.md`.
+
+Independent verification began on clean `master` at
+`c6c00f35100c87062a42585990db6dc3a269b740`, tracking `origin/master`, ahead
+10 and behind 0. Flutter **3.44.8** stable and Dart **3.12.2** match CI. Flutter
+recursively discovers `test/**/*_test.dart` in its VM-based host tester. The
+repository has no `dart_test.yaml`, `flutter_test_config.dart`, test tags,
+golden/snapshot configuration, coverage configuration, `integration_test`, or
+device/emulator suite.
+
+The CI-equivalent `flutter test` run discovered **27 test files** and passed
+**441/441 tests** with 0 failures, 0 skips, 0 expected failures, and no warning,
+Flutter exception, overflow, semantics warning, pending timer, or unhandled
+async error. The compact runner reported 20 seconds (25.1 seconds command wall
+time). The previous 435-test count was stale. The machine inventory confirms
+111 behavioral unit/provider/store cases, 329 widget cases, one static
+asset-consistency case, and one support helper. Ten loop registrations produce
+48 parameterized cases, adding 38 cases beyond 403 static registration call
+sites.
+
+A fresh-process run using seed `6102026` and `--concurrency=1` passed the same
+27 files and 441 tests; its JSON runner duration was 45.058 seconds. No
+provider, preference, memory-session, client, semantics, view, timer,
+animation, or restored global leaked across the shuffled order. An explicit
+nonexistent-path probe exited 1. Static review found no skip, focus/solo/only,
+conditional registration, tag exclusion, retry, expected failure, timeout
+override, arbitrary delay, or empty test. The one `pumpAndSettle` is a bounded
+role-switch-sheet setup; one asset audit contains two acknowledged
+non-discriminating `>= 0` assertions and is classified as static consistency,
+not runtime image proof.
+
+Tests use `MockClient`, overridden/fake `MobileApi`, Riverpod overrides,
+in-memory/throwing session stores, and mock/in-memory `SharedPreferences`.
+They made no production, staging, Supabase, OTP, payment, notification,
+storage, or location call. Real Flutter secure-storage method channels and
+native behavior are not exercised. Customer Home/Explore/Search/Favorites/
+Plan/shell/detail error/loading/empty/responsive/semantics behavior has broad
+widget regression evidence. Enquiries and Account are partial. Vendor and
+Worker evidence is only gateway/dashboard role-routing smoke; it is not a
+complete or authorized journey.
+
+Security gaps remain explicit: unstable device identity (SEC-03), unknown
+surface/role and branch bootstrap fail-closed behavior plus direct Supabase
+(SEC-06), non-HTTPS remote release URLs and error/log/runtime JSON boundaries
+(SEC-05/06), uncancelled splash timer, OTP/session attack cases, payments, and
+privacy/native proof (STAB-13/17/20 and relevant module tasks). Widget semantics
+and 320/390-width/text-scale assertions do not prove TalkBack, VoiceOver,
+native fonts, platform services, or permission dialogs. CI does not collect
+Flutter coverage; no percentage or threshold is invented.
+
+No Dart source, test, configuration, dependency, generated output, coverage,
+or environment file changed. STAB-10 is a documentation-only verified baseline.
+Phase 0 remains **NOT PASSED**. Next permitted block: **STAB-11 — Backend
+build**; it was not started.
+
 ## Latest verification
 
 | Verification                   | Result                          | Evidence summary                                                                                |
 | ------------------------------ | ------------------------------- | ----------------------------------------------------------------------------------------------- |
+| STAB-10 Flutter canonical      | **PASS**                        | Flutter 3.44.8/Dart 3.12.2; 27/27 files; 441/441 pass; 0 failed/skipped/expected failures       |
+| STAB-10 Flutter determinism    | **PASS**                        | Seed 6102026; one process; shuffled order; same 27 files/441 tests; no isolation leak           |
+| STAB-10 discovery honesty      | **PASS**                        | No skip/focus/conditional/tag/timeout override; nonexistent path exits 1                        |
+| STAB-10 boundary review        | **PASS with documented debt**   | Customer-heavy fake-boundary suite; Vendor/Worker routing only; no device/native/provider E2E   |
 | STAB-09 Flutter analyze        | **PASS**                        | Flutter 3.44.8/Dart 3.12.2; 200 maintained files; 0 errors/warnings/infos                       |
 | STAB-09 analyzer scope/policy  | **PASS**                        | 172 lib + 28 test; no exclusion/nested config/disabled rule/tracked generated Dart              |
 | STAB-09 static security review | **PASS with documented debt**   | No hidden security finding; runtime validation, auth/bootstrap/transport/native owners retained |
@@ -482,7 +545,7 @@ release artifacts. Phase 0 remains **NOT PASSED**. Next permitted block:
 | ERP tests                      | **PASS but narrow (STAB-08)**   | 8/8 across 3 files; environment/API-refresh/helper units only                                   |
 | Flutter format                 | **PASS**                        | STAB-04: 200 Dart files, 0 changed (audit-era count was 199)                                    |
 | Flutter analysis               | **PASS**                        | no issues with fatal infos                                                                      |
-| Flutter tests                  | **PASS**                        | 435/435                                                                                         |
+| Flutter tests                  | **PASS (STAB-10)**              | 441/441 across 27 files; canonical and seeded serialized runs                                   |
 | Android dev debug build        | **PASS**                        | APK compiled                                                                                    |
 | Android prod release compile   | **COMPILE PASS / RELEASE FAIL** | 69.1 MB APK; no INTERNET permission; Android Debug certificate                                  |
 | iOS unsigned release build     | **FAIL**                        | `Application not configured for iOS`                                                            |
@@ -527,7 +590,7 @@ Do not ask for these until their dependent block is approaching, unless early pr
 - [x] STAB-07 Backend tests
 - [x] STAB-08 ERP tests
 - [x] STAB-09 Flutter analysis
-- [ ] STAB-10 Flutter tests
+- [x] STAB-10 Flutter tests
 - [ ] STAB-11 Backend build
 - [ ] STAB-12 ERP build
 - [ ] STAB-13 Flutter build

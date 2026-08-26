@@ -11,6 +11,7 @@ Canonical evidence:
 - [Backend test baseline](./backend-test-baseline.md)
 - [ERP test baseline](./erp-test-baseline.md)
 - [Flutter analysis baseline](./flutter-analysis-baseline.md)
+- [Flutter test baseline](./flutter-test-baseline.md)
 
 ---
 
@@ -38,7 +39,7 @@ Canonical evidence:
 | Pure domain + guards + services | Vitest         | Backend suite: 188 tests across 30 files at the STAB-07 baseline         |
 | Module foundation / workflow    | Vitest         | `*-foundation.spec.ts`, quotation/payment workflow and Pattern B probes  |
 | Employee CRM/ERP narrow units   | Vitest         | 8 tests across environment, API refresh, and catalog form-reset behavior |
-| Flutter unit and widget tests   | `flutter test` | 435 tests across models, providers, stores, navigation and customer UI   |
+| Flutter unit and widget tests   | `flutter test` | 441 tests across models, providers, stores, navigation and customer UI   |
 | Postgres/Redis integration      | —              | **None** in CI or Vitest                                                 |
 | Browser / device E2E            | —              | **None** (no Playwright / Cypress / Detox)                               |
 
@@ -52,15 +53,26 @@ Details: [unit-tests.md](./unit-tests.md), [integration-tests.md](./integration-
 | Surface                                    | Status                                                                   |
 | ------------------------------------------ | ------------------------------------------------------------------------ |
 | Backend (`@me-event/backend`)              | Primary suite — 188 tests across 30 files at the STAB-07 baseline        |
-| Mobile (`apps/mobile`)                     | 435 tests; CI also runs formatting, analysis and a development APK build |
+| Mobile (`apps/mobile`)                     | 441 tests; CI also runs formatting, analysis and a development APK build |
 | ERP (`@me-event/erp-web`)                  | 8 tests across 3 files; no rendered component or browser route coverage  |
 | Packages (`api-contracts`, `shared-types`) | No `test` scripts                                                        |
 
 Flutter's STAB-09 static gate covers all 200 maintained Dart files (172
 `lib`, 28 `test`) with `flutter_lints` 6.0.0 and
 `flutter analyze --fatal-infos`. It reports zero errors, warnings, and infos.
-That result does not substitute for the 435-test Flutter suite, native builds,
+That result does not substitute for the 441-test Flutter suite, native builds,
 device/E2E behavior, runtime input validation, or release-security review.
+
+STAB-10 independently verifies 27 discovered Flutter test files and one
+support helper. The canonical and seed-`6102026` serialized runs both pass
+441/441 cases: 111 behavioral unit/provider/store cases, 329 widget cases, and
+one static asset-consistency case. There are no skipped/focused tests or test
+configuration overrides, and a missing-path probe exits nonzero. The suite is
+Customer-heavy; Vendor and Worker evidence is limited to routing/dashboard
+smokes. It uses fake API/provider/storage boundaries and does not prove native
+secure storage, real network/provider behavior, integration/device E2E,
+offline behavior, or release security. Exact per-file counts and owned gaps are
+in [flutter-test-baseline.md](./flutter-test-baseline.md).
 
 ---
 
