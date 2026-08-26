@@ -32,6 +32,19 @@ PII-shaped fixtures, and fixed financial/quotation scaffolds remain; they are
 documented product/security findings, not live-data or production-readiness
 proof. See [erp-build-baseline.md](./erp-build-baseline.md).
 
+## Flutter artifact posture
+
+STAB-13 proved the CI-aligned Android dev debug APK and two clean builds each
+of the production-flavor APK and AAB under synthetic public configuration. The
+AAB is byte-identical; APK content/metadata is stable with differences confined
+to its v2 signing block. Neither production package is usable or releasable:
+the merged manifest has no `android.permission.INTERNET`, and both use the
+self-signed Android Debug certificate. Flutter rejects both flavored and
+non-flavored unsigned iOS builds as `Application not configured for iOS`; no
+iOS artifact or signing proof exists. No device, real endpoint, provider,
+Play Console, TestFlight, store, or remote-CI behavior was exercised. See
+[flutter-build-baseline.md](./flutter-build-baseline.md).
+
 ---
 
 ## Hard requirements before traffic
@@ -80,4 +93,5 @@ from this doc — none are wired in-repo.
 - [monitoring.md](./monitoring.md)
 - [backend-build-baseline.md](./backend-build-baseline.md)
 - [erp-build-baseline.md](./erp-build-baseline.md)
+- [flutter-build-baseline.md](./flutter-build-baseline.md)
 - [ADR 0010](../adr/0010-connected-platform-rebuild.md) / [ADR 0011](../adr/0011-prd-suite-and-flutter-confirmation.md)

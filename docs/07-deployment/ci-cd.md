@@ -74,6 +74,16 @@ not retain, hash, attest, start, or deploy the ERP artifact. See
 - **PR only** (`if: github.event_name == 'pull_request'`)
 - `actions/dependency-review-action@v4`
 
+STAB-13 reproduced the Flutter job's dev debug command locally with the same
+Flutter version and additionally verified synthetic production APK/AAB and iOS
+probes. CI supplies no `BRANCH_CODE` (the application defaults to `HYD`) and
+passes `APP_ENV=dev`, which application code does not read. CI does not build
+or inspect a production APK/AAB, invoke iOS, verify merged permissions or
+signing identity, scan bundled public configuration, compare artifacts, or
+retain/attest/upload them. The current Android production artifact omits
+`INTERNET` and uses debug signing; Flutter rejects the iOS project as not
+configured. See [flutter-build-baseline.md](./flutter-build-baseline.md).
+
 ---
 
 ## What CI does not do
@@ -83,6 +93,8 @@ not retain, hash, attest, start, or deploy the ERP artifact. See
 - No backend artifact upload, compiled startup smoke, or reproducibility check
 - No ERP production-environment injection, artifact upload/attestation,
   production-start smoke, or reproducibility comparison
+- No Flutter production APK/AAB or iOS build, native permission/signing scan,
+  device smoke, artifact retention/attestation, or store upload
 - No Terraform / infrastructure apply
 - No managed-database provisioning
 
@@ -95,3 +107,4 @@ not retain, hash, attest, start, or deploy the ERP artifact. See
 - [environment.md](./environment.md)
 - [backend-build-baseline.md](./backend-build-baseline.md)
 - [erp-build-baseline.md](./erp-build-baseline.md)
+- [flutter-build-baseline.md](./flutter-build-baseline.md)

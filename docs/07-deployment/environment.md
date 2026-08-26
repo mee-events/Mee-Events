@@ -102,6 +102,16 @@ file; ADR 0003 supplies API URLs with `--dart-define` per flavour.
 Template: `apps/mobile/.env.example` only. Follow-up for dormant Supabase:
 SEC-06.
 
+STAB-13 verified the packaging boundary with a trap-isolated synthetic `.env`.
+The exact synthetic public asset is present in the Android production APK/AAB;
+the ignored local file was restored unchanged and did not enter either
+artifact. The production dart-define wins over the bundled asset, while the
+localhost/emulator fallback strings remain compiled but are rejected when
+selected in release. The resolver still accepts a non-loopback `http://` URL,
+`APP_ENV` remains unused, and Supabase is still initialized unconditionally.
+See [flutter-build-baseline.md](./flutter-build-baseline.md). These are public
+configuration and boundary findings, not secret values or device-runtime proof.
+
 ---
 
 ## CI

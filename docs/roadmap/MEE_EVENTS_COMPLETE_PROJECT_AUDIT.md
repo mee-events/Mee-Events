@@ -15,6 +15,7 @@
 - **STAB-10 Flutter test baseline:** 26 August 2026 11:09 IST. Flutter 3.44.8/Dart 3.12.2; canonical and seed-6102026 serialized runs both pass 27/27 files and 441/441 tests with no skip or hidden failure. See `docs/08-testing/flutter-test-baseline.md`.
 - **STAB-11 backend build baseline:** 26 August 2026 12:00 IST. Node v20.20.2/pnpm 9.15.4/Nest 11.2.3/TypeScript 5.7.2; two sanitized builds produced the same 388-file artifact and manifest hash. See `docs/07-deployment/backend-build-baseline.md`.
 - **STAB-12 ERP build baseline:** 26 August 2026 13:32 IST. Next 15.5.23/React 19.2.3; two clean synthetic-production builds compiled all 44 maintained routes, a stable 262-file code subset matched, and loopback runtime/header smoke passed with fixture and hardening findings. See `docs/07-deployment/erp-build-baseline.md`.
+- **STAB-13 Flutter build baseline:** 26 August 2026 14:45 IST. Flutter 3.44.8/Dart 3.12.2; dev debug APK and production APK/AAB compile, but production packages lack `INTERNET` and use the Android Debug certificate; both iOS unsigned probes fail at Flutter's project gate. See `docs/07-deployment/flutter-build-baseline.md`.
 - **Audit type:** Read-only implementation, configuration, test, security, release, documentation, and artifact inspection
 - **Decision:** **NOT PRODUCTION-READY**
 
@@ -26,7 +27,7 @@ Mee Events is a substantial **connected-platform foundation**, not a finished ev
 
 The end-to-end business lifecycle is **not yet proven**. The employee lead inbox is fixture-backed, external OTP is a fail-closed stub, payments are manual records rather than provider-verified transactions, PDFs and file storage are placeholders, notification outbox intents have no delivery publisher, there is no live PostgreSQL integration suite, and there is no browser/device E2E suite. Employee Mobile does not exist as a separate product.
 
-Release is blocked by multiple concrete issues: remaining application security work (employee branch/resource scoping), a production Android manifest without `INTERNET`, debug signing of the production APK, an iOS target Flutter reports as not configured, missing production infrastructure, and missing real providers. JavaScript critical/high dependency advisories recorded in the 25 August audit were remediated in STAB-03 (`docs/05-security/dependency-security.md`); two low findings remain.
+Release is blocked by multiple concrete issues: remaining application security work (employee branch/resource scoping), production Android APK/AAB manifests without `INTERNET`, debug signing of both production packages, an iOS target Flutter reports as not configured, missing production infrastructure, and missing real providers. JavaScript critical/high dependency advisories recorded in the 25 August audit were remediated in STAB-03 (`docs/05-security/dependency-security.md`); two low findings remain.
 
 **No single overall percentage is reported.** A single number would hide the large difference between foundation code and verified production operation.
 
@@ -57,9 +58,9 @@ Verified locally:
 - Flutter tests — **441/441 PASS** across 27 files in both canonical and shuffled serialized STAB-10 runs.
 - Backend production build — **PASS (STAB-11)**. Two sanitized builds emitted the same 388-file, 2,114,896-byte artifact with all 129 application roots and no test/spec/script/env output; compiled configuration and module-path smokes passed without external access.
 - ERP production build — **PASS WITH FINDINGS (STAB-12)**. Two clean synthetic-production builds compiled all 44 maintained pages and produced 398-file normal Next artifacts; stable code hashes and semantic route manifests matched, and a loopback `next start` smoke passed. The output is not standalone, and the fixture-backed lead board remains an explicit product/privacy finding.
-- Flutter dev debug APK — **PASS**.
-- Flutter production release APK compile — **PASS**, but the binary is unusable for production because it lacks network permission and is signed by the Android debug certificate.
-- iOS unsigned release build — **FAIL**, `Application not configured for iOS`.
+- Flutter dev debug APK — **PASS (STAB-13)**; correct dev ID/label/version, `INTERNET`, debuggable state, and Android Debug signature verified.
+- Flutter production release APK/AAB compile — **PASS / RELEASE FAIL (STAB-13)**; both omit network permission and use the Android Debug certificate. Two AABs are byte-identical; two APKs have identical content/metadata with signing-block variance.
+- iOS flavored and non-flavored unsigned release builds — **FAIL (state verified in STAB-13)**, `Application not configured for iOS`; no `.app` exists.
 - Package security audit — **FAIL at original audit**, 74 findings: 4 critical, 29 high, 31 moderate, 10 low. **STAB-03 re-audit 25 August 2026 (IST):** remediations applied; final `pnpm audit` 0 critical, 0 high, 0 moderate, 2 low. See `docs/05-security/dependency-security.md`.
 
 Not verified:
@@ -277,6 +278,58 @@ or deploy. Detailed evidence and limitations are in
 `docs/07-deployment/erp-build-baseline.md`. No ERP source, test, configuration,
 dependency, generated artifact, or real environment file changed in STAB-12.
 
+### STAB-13 Flutter build boundary update
+
+STAB-13 ran from clean `master` at
+`f04a9d665246e1ca584fab481c2f5e02bdbd38c9`, ahead 13 and behind 0. Local
+Flutter 3.44.8 stable matches CI; Dart 3.12.2, DevTools 2.57.0, Gradle 9.1.0,
+AGP 9.0.1, Kotlin plugin 2.3.20, and Android SDK/build-tools 36 were recorded.
+The app compiles at min/target SDK 24/36. Full Xcode is absent; CocoaPods 1.17
+is installed, while the repository uses Flutter's generated SPM integration.
+
+The founder's ignored mobile `.env` was moved behind a cleanup trap without
+reading or printing its values. Every build used only public synthetic
+`.invalid` API/Supabase values. The inspected Android `.env` asset matches the
+synthetic hash exactly, and the original was restored with the same hash, mode,
+size, ownership IDs, and xattr-name state. `flutter pub get` caused no lockfile
+drift. Format covered 200 files unchanged, fatal-infos analysis emitted zero
+diagnostics, and all 441 tests across 27 files passed without failure or skip.
+
+The CI-aligned dev debug APK compiled as `com.meevent.app.dev`, is debuggable,
+contains `INTERNET`, and uses the Android Debug certificate. Two production APK
+builds and two production AAB builds compiled as `com.meevent.app` version
+`1.0.0` code 1 for three ABIs. Both AABs are byte-identical at 67,394,445 bytes
+and SHA-256
+`35ba3b7bcf5cc80f10efa84fec3c4e1856edd08fa1fd7dd35ad987f310988f73`.
+The APKs are both 69,139,990 bytes with identical extracted content and
+metadata; only their v2 signing blocks differ.
+
+Compilation does not make either production package usable: APK and AAB both
+omit `android.permission.INTERNET`. They also use the self-signed Android Debug
+certificate and are not store-releasable. No keystore/signing secret exists in
+the tracked or local mobile filename inventory. R8 shrinking, optimization,
+and obfuscation are active, but explicit network-security/pinning, backup
+exclusion for secure storage, Dart obfuscation/split debug info, device proof,
+artifact attestation, and store workflow are absent or unproven.
+
+Both exact iOS commands—production-flavored and ordinary non-flavored unsigned
+release—exit 1 before Xcode compilation with `Application not configured for
+iOS`; no artifact was produced. `.metadata` registers root/web only, there is
+one Runner scheme with Debug/Profile/Release configurations, and no production
+scheme, team, profile, or entitlement proof. Android/iOS identifiers differ,
+and the iOS plist orientation set conflicts with the portrait-only Dart runtime
+request. IOS-01–08 remain open.
+
+Release configuration still accepts non-loopback HTTP, always initializes the
+bundled public Supabase client, and retains dormant direct `event_services`
+table access contrary to the backend-only boundary. These high findings remain
+SEC-05/06 and STAB-20 work. CI builds only dev debug and does not verify
+production Android, iOS, permissions, signing, environment assets, or artifact
+provenance. No device, provider, external endpoint, store, or remote CI ran.
+Tracked native trees and Flutter manifests/lockfile remained unchanged;
+generated output was cleaned. Detailed evidence is in
+`docs/07-deployment/flutter-build-baseline.md`.
+
 The repository-requested `lean-ctx` helper is not installed in the current environment, even though project AI-control documentation says it is. Native read/search/command tools were used as the documented fallback.
 
 ## 4. Repository and toolchain snapshot
@@ -394,7 +447,7 @@ mobile Supabase), STAB-16 (Node pin / CI), INT-01 (OTP vendor adapter).
 
 - GitHub Actions verifies pnpm install, shared builds, format, lint, typecheck, tests, backend/ERP builds, Flutter format/analyze/tests, and a dev debug APK.
 - Dependency Review runs only on pull requests.
-- CI does not run package audit/SCA on all branches, secret scanning, SAST, live PostgreSQL integration, browser/device E2E, production-flavor builds, signed artifacts, deploys, rollback, or release promotion.
+- CI does not run package audit/SCA on all branches, secret scanning, SAST, live PostgreSQL integration, browser/device E2E, production-flavor mobile builds, iOS builds, native permission/signing inspection, artifact attestation, deploys, rollback, or release promotion.
 - Workflow/badge conventions use `master`. GitHub default is `master`. Local `origin/HEAD` still stale-points at obsolete `main`.
 
 ## 5. Intended lifecycle versus implementation
@@ -444,9 +497,9 @@ The complete Customer → CRM → Quotation → Payment → Booking → Event �
 ### BROKEN
 
 - ERP Lead Inbox uses fixture leads instead of real CRM list data.
-- Production Android APK lacks `android.permission.INTERNET`.
-- Production Android APK is signed by `CN=Android Debug`.
-- iOS release verification fails: Flutter reports `Application not configured for iOS`.
+- Production Android APK and AAB lack `android.permission.INTERNET`.
+- Production Android APK and AAB are signed by `CN=Android Debug`.
+- Both flavored and non-flavored iOS release probes fail: Flutter reports `Application not configured for iOS`.
 - Local clone still has a stale `origin/HEAD` → `origin/main` symbolic-ref and a stale `origin/main` tracking branch, even though GitHub default is now `master`.
 - Older roadmap PDFs say format/lint and 20 Flutter tests fail; current gates pass, so those starting instructions are stale.
 - Authentication documentation says OTP resend is not server-enforced; implementation enforces it.
@@ -559,7 +612,7 @@ Critical and high findings are release blockers unless explicitly risk-accepted 
 | ID       | Finding                                                      | Evidence / impact                                                                                                  | Required action                                                                                                          |
 | -------- | ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------ |
 | SEC-H-01 | Inconsistent employee branch/resource isolation (IDOR/BOLA)  | Multiple record-by-ID reads/mutations omit principal branch predicates; UUID knowledge may cross branch boundaries | Add branch to every employee repository predicate/mutation, return 404 cross-scope, add denial tests across every domain |
-| SEC-H-02 | Production Android artifact is debug-signed                  | Verified certificate `CN=Android Debug`                                                                            | Create organization-controlled upload/app-signing process; keep keys outside Git; CI signing from secret manager         |
+| SEC-H-02 | Production Android artifacts are debug-signed                | STAB-13 verified APK and AAB certificate `CN=Android Debug`                                                        | Create organization-controlled upload/app-signing process; keep keys outside Git; CI signing from secret manager         |
 | SEC-H-03 | Mobile device ID changes every login                         | `_deviceId()` generates a random suffix each login; prior refresh sessions can remain valid for 30 days            | Persist installation ID securely, provide session inventory/revoke-all, test reinstall/login/logout/reuse                |
 | SEC-H-04 | OTP consume/session creation is not atomic and is race-prone | Challenge is read then unconditionally updated; user/session/audit writes are separate                             | Transactional conditional consume, row lock/CAS, rollback and concurrency tests                                          |
 | SEC-H-05 | Payment trust boundary is manual                             | Employee confirmation creates financial/booking outcomes without provider-signed webhook/reconciliation            | Implement provider order binding, signed webhook, idempotency, independent reconciliation and fraud tests                |
@@ -637,9 +690,9 @@ The immediate testing priority is not “more widget tests.” It is live Postgr
 | -------------------------------------- | ------------------ | ---------------------------------------------------------------------------------- |
 | ANDROID-01 App ID / ANDROID-02 package | **PARTIAL**        | `com.meevent.app` prod, dev/staging suffixes; founder/legal ownership not verified |
 | ANDROID-03 Branding                    | **PARTIAL**        | Name/icon base exists; listing/asset/legal review missing                          |
-| ANDROID-04/05 Signing/keystore         | **BROKEN/BLOCKED** | Production APK is debug-signed; no organization key process                        |
-| ANDROID-06/07 Production env/API       | **BROKEN/BLOCKED** | APK compiles but lacks INTERNET; no production API                                 |
-| ANDROID-08 Release build               | **BROKEN**         | Compile succeeds; artifact is not releasable                                       |
+| ANDROID-04/05 Signing/keystore         | **BROKEN/BLOCKED** | Production APK/AAB are debug-signed; no organization key process                   |
+| ANDROID-06/07 Production env/API       | **BROKEN/BLOCKED** | APK/AAB compile but lack INTERNET; no production API                               |
+| ANDROID-08 Release build               | **BROKEN**         | APK/AAB compile; artifacts are not releasable                                      |
 | ANDROID-09/10 Internal/closed testing  | **MISSING**        | No Play Console evidence                                                           |
 | ANDROID-11/12 Privacy/listing          | **BLOCKED**        | Legal/business content required                                                    |
 | ANDROID-13 Permissions                 | **BROKEN**         | Production manifest has no INTERNET; location not implemented                      |
@@ -648,16 +701,16 @@ The immediate testing priority is not “more widget tests.” It is live Postgr
 
 ## 13. iOS release audit
 
-| ID/control                             | Status      | Current evidence                                                                               |
-| -------------------------------------- | ----------- | ---------------------------------------------------------------------------------------------- |
-| IOS-01 Bundle ID                       | **PARTIAL** | `com.meeevents.meeEvents`; ownership/final naming not verified                                 |
-| IOS-02–04 Developer/certs/provisioning | **BLOCKED** | No team/certificate/profile evidence                                                           |
-| IOS-05 Production environment          | **MISSING** | No distinct iOS production scheme/config proof                                                 |
-| IOS-06 Release build                   | **BROKEN**  | Flutter reports application not configured for iOS; `.metadata` lists only root/web migrations |
-| IOS-07 TestFlight                      | **MISSING** | No evidence                                                                                    |
-| IOS-08 Privacy                         | **BLOCKED** | No permission descriptions/providers/policy declarations yet                                   |
-| IOS-09 Listing                         | **BLOCKED** | Founder/legal/marketing content required                                                       |
-| IOS-10 Release                         | **MISSING** | No signed archive/App Store Connect proof                                                      |
+| ID/control                             | Status      | Current evidence                                                                                                    |
+| -------------------------------------- | ----------- | ------------------------------------------------------------------------------------------------------------------- |
+| IOS-01 Bundle ID                       | **PARTIAL** | `com.meeevents.meeEvents`; ownership/final naming not verified                                                      |
+| IOS-02–04 Developer/certs/provisioning | **BLOCKED** | No team/certificate/profile evidence                                                                                |
+| IOS-05 Production environment          | **MISSING** | No distinct iOS production scheme/config proof                                                                      |
+| IOS-06 Release build                   | **BROKEN**  | Both unsigned probes fail before Xcode: Flutter reports application not configured; `.metadata` lists root/web only |
+| IOS-07 TestFlight                      | **MISSING** | No evidence                                                                                                         |
+| IOS-08 Privacy                         | **BLOCKED** | No permission descriptions/providers/policy declarations yet                                                        |
+| IOS-09 Listing                         | **BLOCKED** | Founder/legal/marketing content required                                                                            |
+| IOS-10 Release                         | **MISSING** | No signed archive/App Store Connect proof                                                                           |
 
 ## 14. Documentation drift
 
@@ -761,7 +814,7 @@ PHASE 11 Android release
 PHASE 12 iOS release
 ```
 
-No phase begins until the preceding gate is verified and recorded. The current phase is **Phase 0 — Stabilization**. **STAB-01** through **STAB-12** are complete. The next execution block is **STAB-13 — Flutter build**. Do not start STAB-13 in the STAB-12 session.
+No phase begins until the preceding gate is verified and recorded. The current phase is **Phase 0 — Stabilization**. **STAB-01** through **STAB-13** are complete. The next execution block is **STAB-14 — PostgreSQL migration verification**. Do not start STAB-14 in the STAB-13 session.
 
 ## 19. Definition of complete
 

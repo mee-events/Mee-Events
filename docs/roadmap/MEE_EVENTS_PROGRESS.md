@@ -1,15 +1,15 @@
 # Mee Events — Progress Tracker
 
-- **Updated:** 26 August 2026 13:32 IST (Asia/Kolkata, +0530); STAB-12
+- **Updated:** 26 August 2026 14:45 IST (Asia/Kolkata, +0530); STAB-13
 - **Repository:** `/Users/vinaychilagani/Desktop/Mee Event V1`
 - **Baseline application commit:** `master` / `9e2a442d91c137ec97a349d1a55697ae8d79d5df`
 - **STAB-01 snapshot HEAD:** `ca994985a898d42da2a8d717041b93a8f8f0dc4c`
 - **Current phase:** Phase 0 — Stabilization
 - **Phase gate:** **NOT PASSED**
-- **Last completed task:** STAB-12 — ERP production build verification
-- **Current task:** None — STAB-12 closed as instructed
-- **Next task:** STAB-13 — Flutter build
-- **Latest application commit:** STAB-05 closed backend script lint coverage; STAB-06/07/09/10/11/12 are documentation-only and STAB-08 changes tests/test configuration plus documentation, not ERP application source. Use Git history for hashes.
+- **Last completed task:** STAB-13 — Flutter build and native artifact verification
+- **Current task:** None — STAB-13 closed as instructed
+- **Next task:** STAB-14 — PostgreSQL migration verification
+- **Latest application commit:** STAB-05 closed backend script lint coverage; STAB-06/07/09/10/11/12/13 are documentation-only and STAB-08 changes tests/test configuration plus documentation, not ERP application source. Use Git history for hashes.
 
 ## Status key
 
@@ -624,10 +624,79 @@ fallback configuration and does not upload, attest, start, or deploy the
 artifact. Phase 0 remains **NOT PASSED**. Next permitted block: **STAB-13 —
 Flutter build**; it was not started.
 
+## STAB-13 — Flutter build and native artifact verification
+
+- [x] **STAB-13** Flutter build and native artifact verification — completed
+      with findings 26 August 2026 14:45 IST. Next: STAB-14. Do not start
+      STAB-14 in this block.
+
+Canonical evidence: `docs/07-deployment/flutter-build-baseline.md`.
+
+Verification began on clean `master` at
+`f04a9d665246e1ca584fab481c2f5e02bdbd38c9`, tracking `origin/master`, ahead
+13 and behind 0. Flutter **3.44.8** stable (matching CI), Dart **3.12.2**,
+DevTools **2.57.0**, Gradle **9.1.0**, AGP **9.0.1**, Kotlin plugin **2.3.20**,
+Android SDK/build-tools **36**, and app min/target SDK **24/36** were recorded.
+The host has CocoaPods 1.17.0 but no full Xcode; Flutter rejects the repository
+at its own project-configuration gate before Xcode is invoked.
+
+The ignored founder mobile `.env` was protected by a trap for every relevant
+command. Its contents were never read or printed. Builds used only public
+synthetic `.invalid` API/Supabase values; the inspected APK/AAB asset hash
+matches the synthetic file exactly. The original was restored with identical
+hash, mode, size, ownership IDs, and xattr-name state. `flutter pub get` left
+the lockfile unchanged. Formatting covered 200 files with zero drift,
+fatal-infos analysis reported zero diagnostics, and 27/27 files with 441/441
+tests passed with no failure or skip.
+
+The exact CI-aligned dev debug APK compiled in 51 seconds as
+`com.meevent.app.dev` / `1.0.0-dev`, contains `INTERNET`, is debuggable, and is
+signed by the Android Debug identity. Two production APK builds compiled in 91
+and 78 seconds as `com.meevent.app` / `1.0.0`; both are 69,139,990 bytes. Their
+files, manifest, permissions, environment, ABIs, size, version, and certificate
+match, while v2 signing-block bytes make whole-file hashes differ. Two
+production AAB builds compiled in 122 and 102 seconds and are byte-identical at
+67,394,445 bytes / SHA-256
+`35ba3b7bcf5cc80f10efa84fec3c4e1856edd08fa1fd7dd35ad987f310988f73`.
+
+Both production package formats omit `android.permission.INTERNET`, so they are
+**BROKEN / UNUSABLE FOR NETWORKED PRODUCTION**. Both use the self-signed
+`C=US, O=Android, CN=Android Debug` certificate, so they are **NOT
+STORE-RELEASABLE**. No keystore, key properties, signing secret, private key,
+server secret, real backend/provider environment, or founder `.env` entered
+the repository or artifacts. R8 shrinking/optimization/obfuscation is present;
+resource shrinking, Dart obfuscation/split-debug-info, explicit network
+security, certificate pinning, secure-storage backup exclusion, device proof,
+and store pipeline are absent or unproven.
+
+Both flavored and non-flavored unsigned iOS commands exit 1 immediately with
+`Application not configured for iOS`; no `.app` exists. `.metadata` registers
+only root/web, there is one shared Runner scheme with ordinary
+Debug/Profile/Release configurations, and there is no development
+team/profile/entitlement proof. Android/iOS identifiers differ, and the iOS
+plist advertises landscape while Dart locks portrait. These remain
+IOS-01–08/release work, not STAB-13 corrections.
+
+Runtime review reconfirmed dart-define precedence and release loopback/emulator
+denial, but non-loopback HTTP remains accepted. `.env` remains public and
+bundled; Supabase remains always initialized and dormant direct table-access
+code remains contrary to the backend-only boundary. Owners remain SEC-05/06,
+STAB-17/20, ANDROID-04/05/07/08/13/14, and IOS-01–08. CI builds only dev debug
+and does not inspect or retain native artifacts. No device, provider, external
+API, store, or remote CI ran. Tracked Android/iOS files and Flutter manifests
+match their starting hashes; generated output was cleaned. Phase 0 remains
+**NOT PASSED**. Next permitted block: **STAB-14 — PostgreSQL migration
+verification**; it was not started.
+
 ## Latest verification
 
 | Verification                   | Result                          | Evidence summary                                                                                    |
 | ------------------------------ | ------------------------------- | --------------------------------------------------------------------------------------------------- |
+| STAB-13 Flutter quality        | **PASS**                        | 200 formatted/analyzed files; 0 drift/diagnostics; 27 files and 441/441 tests                       |
+| STAB-13 Android dev build      | **PASS (debug only)**           | Dev APK compiles; INTERNET present; debuggable; Android Debug certificate                           |
+| STAB-13 Android prod packages  | **COMPILE PASS / RELEASE FAIL** | APK/AAB compile; no INTERNET; debug-signed; AAB byte-identical; APK content stable                  |
+| STAB-13 iOS probes             | **FAIL / state verified**       | Both unsigned probes: `Application not configured for iOS`; no artifact                             |
+| STAB-13 environment/security   | **PASS with high findings**     | Founder env protected; synthetic public asset only; HTTP/Supabase/backup/native gaps assigned       |
 | STAB-12 ERP production build   | **PASS with findings**          | Two clean synthetic-production builds; 44/44 maintained routes; no warning                          |
 | STAB-12 reproducibility        | **PASS, not byte-identical**    | Stable 262-file digest matched; Next build ID/preview/order/cache/trace variance classified         |
 | STAB-12 runtime/headers        | **PASS with hardening debt**    | Loopback 200/200/404; configured headers present; no X-Powered-By; five headers remain unconfigured |
@@ -725,7 +794,7 @@ Do not ask for these until their dependent block is approaching, unless early pr
 - [x] STAB-10 Flutter tests
 - [x] STAB-11 Backend build
 - [x] STAB-12 ERP build
-- [ ] STAB-13 Flutter build
+- [x] STAB-13 Flutter build
 - [ ] STAB-14 PostgreSQL migration verification
 - [ ] STAB-15 Database integration tests
 - [ ] STAB-16 CI verification
