@@ -22,6 +22,7 @@
     "format:check": "prettier --check .",
     "lint": "corepack pnpm -r --if-present lint",
     "test": "corepack pnpm -r --if-present test",
+    "test:integration:backend": "corepack pnpm --filter @me-event/backend test:integration",
     "typecheck": "corepack pnpm -r --if-present typecheck",
     "verify": "corepack pnpm format:check && corepack pnpm lint && corepack pnpm typecheck && corepack pnpm test && corepack pnpm build"
   },

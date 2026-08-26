@@ -9,6 +9,7 @@ Related: [Backend Handbook](../02-architecture/backend.md),
 Canonical evidence:
 
 - [Backend test baseline](./backend-test-baseline.md)
+- [Database integration baseline](./database-integration-baseline.md)
 - [ERP test baseline](./erp-test-baseline.md)
 - [Flutter analysis baseline](./flutter-analysis-baseline.md)
 - [Flutter test baseline](./flutter-test-baseline.md)
@@ -21,7 +22,7 @@ Canonical evidence:
                     ┌─────────────────┐
                     │  UI E2E         │  ← not implemented
                     ├─────────────────┤
-                    │  DB integration │  ← not implemented
+                    │  DB integration │  ← selected Postgres adapters/workflows
                     ├─────────────────┤
                     │  Foundation /   │  ← Vitest + Fake repos
                     │  workflow       │
@@ -34,35 +35,37 @@ Canonical evidence:
                     └─────────────────┘
 ```
 
-| Layer                           | Runner         | What exists                                                              |
-| ------------------------------- | -------------- | ------------------------------------------------------------------------ |
-| Pure domain + guards + services | Vitest         | Backend suite: 188 tests across 30 files at the STAB-07 baseline         |
-| Module foundation / workflow    | Vitest         | `*-foundation.spec.ts`, quotation/payment workflow and Pattern B probes  |
-| Employee CRM/ERP narrow units   | Vitest         | 8 tests across environment, API refresh, and catalog form-reset behavior |
-| Flutter unit and widget tests   | `flutter test` | 441 tests across models, providers, stores, navigation and customer UI   |
-| Postgres/Redis integration      | —              | **None** in CI or Vitest                                                 |
-| Browser / device E2E            | —              | **None** (no Playwright / Cypress / Detox)                               |
+| Layer                           | Runner           | What exists                                                                 |
+| ------------------------------- | ---------------- | --------------------------------------------------------------------------- |
+| Pure domain + guards + services | Vitest           | Backend suite: 188 tests across 30 files at the STAB-07 baseline            |
+| Module foundation / workflow    | Vitest           | `*-foundation.spec.ts`, quotation/payment workflow and Pattern B probes     |
+| Employee CRM/ERP narrow units   | Vitest           | 8 tests across environment, API refresh, and catalog form-reset behavior    |
+| Flutter unit and widget tests   | `flutter test`   | 441 tests across models, providers, stores, navigation and customer UI      |
+| PostgreSQL integration          | Vitest + Compose | 20 tests / 3 files; selected adapters and workflows; explicit local command |
+| Redis integration               | —                | **None**                                                                    |
+| Browser / device E2E            | —                | **None** (no Playwright / Cypress / Detox)                                  |
 
 Details: [unit-tests.md](./unit-tests.md), [integration-tests.md](./integration-tests.md),
 [e2e-tests.md](./e2e-tests.md).
 
-STAB-14 adds local PostgreSQL 17.2 migration evidence: all 20 files converge
-across empty, tracked-upgrade, and legacy replay, and selected live integrity
-and rollback probes pass. It does **not** add a maintained test harness or alter
-the table above: backend adapter, HTTP, concurrency, Redis, and CI database
-integration remain STAB-15. Evidence is in
-[migration-verification-baseline.md](../03-database/migration-verification-baseline.md).
+STAB-14 adds PostgreSQL 17.2 migration-path evidence. STAB-15 adds a separate
+maintained, fail-closed harness that applies all 20 migrations to each fresh
+database and passes 20 selected repository/service integration cases across
+identity, enquiry/CRM, quotation/payment/booking/Event Record, rollback,
+concurrency, ownership, branch lists, and Pattern B. It does not prove HTTP,
+Redis, providers, complete branch/BOLA, backup/restore, or production behavior.
+Evidence: [database-integration-baseline.md](./database-integration-baseline.md).
 
 ---
 
 ## Surfaces
 
-| Surface                                    | Status                                                                   |
-| ------------------------------------------ | ------------------------------------------------------------------------ |
-| Backend (`@me-event/backend`)              | Primary suite — 188 tests across 30 files at the STAB-07 baseline        |
-| Mobile (`apps/mobile`)                     | 441 tests; CI also runs formatting, analysis and a development APK build |
-| ERP (`@me-event/erp-web`)                  | 8 tests across 3 files; no rendered component or browser route coverage  |
-| Packages (`api-contracts`, `shared-types`) | No `test` scripts                                                        |
+| Surface                                    | Status                                                                                        |
+| ------------------------------------------ | --------------------------------------------------------------------------------------------- |
+| Backend (`@me-event/backend`)              | 188 unit/foundation tests across 30 files plus 20 PostgreSQL integration tests across 3 files |
+| Mobile (`apps/mobile`)                     | 441 tests; CI also runs formatting, analysis and a development APK build                      |
+| ERP (`@me-event/erp-web`)                  | 8 tests across 3 files; no rendered component or browser route coverage                       |
+| Packages (`api-contracts`, `shared-types`) | No `test` scripts                                                                             |
 
 Flutter's STAB-09 static gate covers all 200 maintained Dart files (172
 `lib`, 28 `test`) with `flutter_lints` 6.0.0 and
@@ -105,13 +108,13 @@ where relevant). See the checklist in
 
 ---
 
-## Non-goals (not in-repo)
+## Non-goals and absent layers
 
 - No APM or test-reporting SaaS wiring
 - No k6 / Artillery load suites (`test/perf/scalability-estimate.ts` is an
   algorithmic cost model, not live RPS)
 - No browser or device E2E frameworks
-- No Postgres service container in the TypeScript CI job
+- No Postgres service container or integration invocation in current CI; STAB-16 owns wiring
 
 ---
 

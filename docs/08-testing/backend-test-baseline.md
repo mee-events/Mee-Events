@@ -9,27 +9,27 @@
 
 ## Runner and discovery contract
 
-| Field                     | Verified value                                                                                                                                                  |
-| ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Workspace                 | `@me-event/backend` in `apps/backend`                                                                                                                           |
-| Runner                    | Vitest `3.2.7` on Node `v20.20.2` (`darwin-arm64`)                                                                                                              |
-| Package script            | `test: vitest run`                                                                                                                                              |
-| Canonical command         | `corepack pnpm --filter @me-event/backend test`                                                                                                                 |
-| Configuration source      | No `vitest.config.*`, `vite.config.*`, workspace file, or setup file exists; Vitest 3.2.7 defaults apply from the backend working directory                     |
-| Discovery include         | `**/*.{test,spec}.?(c\|m)[jt]s?(x)`                                                                                                                             |
-| Discovery exclusions      | Vitest defaults: dependency/build/cache/config folders including `node_modules`, `dist`, `cypress`, hidden cache/output/temp directories, and tool config files |
-| Environment / pool        | Node environment; forks pool                                                                                                                                    |
-| Isolation / parallelism   | Per-file isolation enabled; file parallelism enabled in the canonical run                                                                                       |
-| Timeouts                  | Test 5,000 ms; hook 10,000 ms; teardown 10,000 ms                                                                                                               |
-| Retry / bail              | Retry 0; bail 0                                                                                                                                                 |
-| Empty discovery           | `passWithNoTests` is not enabled. A non-matching filter exited 1 with `No test files found`                                                                     |
-| Focused tests             | No `.only`; CI would reject focused tests because Vitest disables `allowOnly` when `CI` is set                                                                  |
-| Skipped/conditional tests | No `.skip`, `.todo`, `skipIf`, or `runIf`                                                                                                                       |
-| Concurrent tests          | No `.concurrent`; default intra-file sequence is used                                                                                                           |
-| Setup / teardown          | No global setup. Mutable fakes are recreated in `beforeEach`; the process-local auth principal cache is explicitly cleared in the affected suites               |
-| Snapshots                 | None                                                                                                                                                            |
-| Coverage                  | Not configured or measured. No `@vitest/coverage-*` dependency, coverage script, thresholds, or CI report exists                                                |
-| CI entry point            | Root `corepack pnpm test` recursively invokes the backend script; the TypeScript CI job has no PostgreSQL/Redis service                                         |
+| Field                     | Verified value                                                                                                                                    |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Workspace                 | `@me-event/backend` in `apps/backend`                                                                                                             |
+| Runner                    | Vitest `3.2.7` on Node `v20.20.2` (`darwin-arm64`)                                                                                                |
+| Package script            | `test: vitest run --config test/vitest.unit.config.ts` (STAB-15 preserves this 30-file unit boundary)                                             |
+| Canonical command         | `corepack pnpm --filter @me-event/backend test`                                                                                                   |
+| Configuration source      | STAB-15 added `test/vitest.unit.config.ts`; Vitest defaults still apply except for explicit include/exclude                                       |
+| Discovery include         | `test/**/*.spec.ts`                                                                                                                               |
+| Discovery exclusions      | `test/integration/**` plus Vitest defaults                                                                                                        |
+| Environment / pool        | Node environment; forks pool                                                                                                                      |
+| Isolation / parallelism   | Per-file isolation enabled; file parallelism enabled in the canonical run                                                                         |
+| Timeouts                  | Test 5,000 ms; hook 10,000 ms; teardown 10,000 ms                                                                                                 |
+| Retry / bail              | Retry 0; bail 0                                                                                                                                   |
+| Empty discovery           | `passWithNoTests` is not enabled. A non-matching filter exited 1 with `No test files found`                                                       |
+| Focused tests             | No `.only`; CI would reject focused tests because Vitest disables `allowOnly` when `CI` is set                                                    |
+| Skipped/conditional tests | No `.skip`, `.todo`, `skipIf`, or `runIf`                                                                                                         |
+| Concurrent tests          | No `.concurrent`; default intra-file sequence is used                                                                                             |
+| Setup / teardown          | No global setup. Mutable fakes are recreated in `beforeEach`; the process-local auth principal cache is explicitly cleared in the affected suites |
+| Snapshots                 | None                                                                                                                                              |
+| Coverage                  | Not configured or measured. No `@vitest/coverage-*` dependency, coverage script, thresholds, or CI report exists                                  |
+| CI entry point            | Root `corepack pnpm test` recursively invokes only the backend unit script; the TypeScript CI job has no PostgreSQL/Redis service                 |
 
 `test/helpers/pattern-b-side-effects.ts` is shared fake-test infrastructure and
 `test/perf/scalability-estimate.ts` is an executable query-count model. Both are
@@ -176,3 +176,15 @@ configuration correction was required in STAB-07.
 
 Phase 0 remains **NOT PASSED**. The next permitted task is **STAB-08 — ERP
 tests**; STAB-08 was not started here.
+
+## STAB-15 addendum — maintained PostgreSQL suite
+
+STAB-15 preserved the 30-file/188-test unit count and made its database-free
+discovery boundary explicit. A separate `test:integration` command now runs 20
+cases across 3 files against a disposable migrated PostgreSQL 17.2 database.
+That suite proves selected real adapter/service mapping, constraints,
+transactions, rollback, concurrency, customer ownership, branch-list, outbox,
+and Pattern B behavior. See
+[database-integration-baseline.md](./database-integration-baseline.md) for exact
+scope and residual gaps; this historical STAB-07 baseline remains the canonical
+per-file inventory for the ordinary unit/foundation suite.

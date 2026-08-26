@@ -23,8 +23,9 @@ reviewed reconciliation/checksum design is required before production use.
 The catalog/schema/data signature descriptions were corrected from clean
 `master` at `495adbcf987f36b9e6f7bfc8911ac83fb2e4d910` after independent review
 found their byte recipes incomplete or inaccurate. The corrected recipes were
-re-run on three new isolated PostgreSQL 17.2 databases. STAB-14 remains pending
-independent re-review; STAB-15 database integration tests were not started.
+re-run on three new isolated PostgreSQL 17.2 databases. Independent re-review
+accepted the correction before STAB-15 began. STAB-14 is complete with its
+`SEC-M-09` finding unchanged.
 
 ## Safety and isolated environment
 
@@ -469,9 +470,9 @@ remained healthy with their original IDs. No image or build cache was removed.
 
 ## Final verdict and next permitted task
 
-**MIGRATION EVIDENCE PASSES WITH FINDINGS; DOCUMENTATION CORRECTION PENDING
-INDEPENDENT RE-REVIEW.** The replay, parity, integrity, failure, and safety
-evidence remains unchanged. The catalog, raw/normalized schema, and stable-data
-byte recipes now reproduce their recorded values. Phase 0 remains **NOT
-PASSED**, `SEC-M-09` remains open, and STAB-15 remains not started. STAB-15 is
-permitted only after this correction passes independent review.
+**MIGRATION EVIDENCE PASSES WITH FINDINGS; CORRECTION ACCEPTED.** The replay,
+parity, integrity, failure, and safety evidence remains unchanged. The catalog,
+raw/normalized schema, and stable-data byte recipes reproduce their recorded
+values and passed independent re-review. Phase 0 remains **NOT PASSED** and
+`SEC-M-09` remains open. STAB-15 subsequently added the separately documented
+maintained application integration suite.

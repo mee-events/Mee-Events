@@ -16,6 +16,8 @@
 - **STAB-11 backend build baseline:** 26 August 2026 12:00 IST. Node v20.20.2/pnpm 9.15.4/Nest 11.2.3/TypeScript 5.7.2; two sanitized builds produced the same 388-file artifact and manifest hash. See `docs/07-deployment/backend-build-baseline.md`.
 - **STAB-12 ERP build baseline:** 26 August 2026 13:32 IST. Next 15.5.23/React 19.2.3; two clean synthetic-production builds compiled all 44 maintained routes, a stable 262-file code subset matched, and loopback runtime/header smoke passed with fixture and hardening findings. See `docs/07-deployment/erp-build-baseline.md`.
 - **STAB-13 Flutter build baseline:** 26 August 2026 14:45 IST; iOS cause corrected after independent review at 16:10 IST. Flutter 3.44.8/Dart 3.12.2; dev debug APK and production APK/AAB compile, but production packages lack `INTERNET` and use the Android Debug certificate. Both iOS unsigned probes fail after the Xcode-version probe finds no usable full Xcode and before project enumeration or compilation. See `docs/07-deployment/flutter-build-baseline.md`.
+- **STAB-14 migration baseline:** Accepted 26 August 2026 after independent re-review of the corrected signature recipes. All three PostgreSQL 17.2 paths converge; `SEC-M-09` remains open. See `docs/03-database/migration-verification-baseline.md`.
+- **STAB-15 database integration baseline:** 26 August 2026 18:26 IST. Three fresh PostgreSQL 17.2 runs each pass 3/3 files and 20/20 DBINT-01–14 cases through selected production adapters/services; the broader security and CI gaps remain open. See `docs/08-testing/database-integration-baseline.md`.
 - **Audit type:** Read-only implementation, configuration, test, security, release, documentation, and artifact inspection
 - **Decision:** **NOT PRODUCTION-READY**
 
@@ -25,7 +27,7 @@ This is the current source-of-truth audit. It supersedes status claims in the 18
 
 Mee Events is a substantial **connected-platform foundation**, not a finished event operating system. The repository contains a coherent NestJS modular monolith, 20 ordered PostgreSQL migrations, one multi-role Flutter application, a Next.js employee portal, shared TypeScript contracts, extensive backend/mobile foundation tests, local Compose infrastructure, and a truthful documentation suite. The local static, unit, widget, and compile gates pass.
 
-The end-to-end business lifecycle is **not yet proven**. The employee lead inbox is fixture-backed, external OTP is a fail-closed stub, payments are manual records rather than provider-verified transactions, PDFs and file storage are placeholders, notification outbox intents have no delivery publisher, there is no live PostgreSQL integration suite, and there is no browser/device E2E suite. Employee Mobile does not exist as a separate product.
+The end-to-end business lifecycle is **not yet proven**. The employee lead inbox is fixture-backed, external OTP is a fail-closed stub, payments are manual records rather than provider-verified transactions, PDFs and file storage are placeholders, notification outbox intents have no delivery publisher, the maintained PostgreSQL suite covers only selected repository/service paths, and there is no browser/device E2E suite. Employee Mobile does not exist as a separate product.
 
 Release is blocked by multiple concrete issues: remaining application security work (employee branch/resource scoping), production Android APK/AAB manifests without `INTERNET`, debug signing of both production packages, an iOS target Flutter reports as not configured, missing production infrastructure, and missing real providers. JavaScript critical/high dependency advisories recorded in the 25 August audit were remediated in STAB-03 (`docs/05-security/dependency-security.md`); two low findings remain.
 
@@ -61,12 +63,13 @@ Verified locally:
 - Flutter dev debug APK — **PASS (STAB-13)**; correct dev ID/label/version, `INTERNET`, debuggable state, and Android Debug signature verified.
 - Flutter production release APK/AAB compile — **PASS / RELEASE FAIL (STAB-13)**; both omit network permission and use the Android Debug certificate. Two AABs are byte-identical; two APKs have identical content/metadata with signing-block variance.
 - iOS flavored and non-flavored unsigned release builds — **FAIL (state verified in STAB-13)**; the host lacks usable full Xcode, bundle-ID resolution fails, and no `.app` exists.
-- PostgreSQL migration replay — **BEHAVIOR PASSES WITH FINDINGS; DOCUMENTATION CORRECTION PENDING INDEPENDENT RE-REVIEW (STAB-14)**. PostgreSQL 17.2 applied all 20 files on empty, tracked-upgrade, and legacy pre-ledger paths; raw/normalized schema and corrected stable seed payload signatures match, repeat runs are no-ops, and selected integrity/rollback probes pass. The applied-but-unrecorded runner crash window is reproduced and remains `SEC-M-09`.
+- PostgreSQL migration replay — **PASS WITH FINDINGS / ACCEPTED (STAB-14)**. PostgreSQL 17.2 applied all 20 files on empty, tracked-upgrade, and legacy pre-ledger paths; raw/normalized schema and corrected stable seed payload signatures match, repeat runs are no-ops, and selected integrity/rollback probes pass. Independent re-review accepted the corrected recipes. The applied-but-unrecorded runner crash window is reproduced and remains `SEC-M-09`.
+- PostgreSQL application integration — **PASS WITH FINDINGS (STAB-15)**. Canonical, repeat, and seed-`6152026` shuffled runs each pass 3/3 files and 20/20 tests on separate disposable databases, covering selected real adapters/services, rollback, concurrency, ownership, branch lists, and Pattern B. Current CI does not invoke the suite.
 - Package security audit — **FAIL at original audit**, 74 findings: 4 critical, 29 high, 31 moderate, 10 low. **STAB-03 re-audit 25 August 2026 (IST):** remediations applied; final `pnpm audit` 0 critical, 0 high, 0 moderate, 2 low. See `docs/05-security/dependency-security.md`.
 
 Not verified:
 
-- At the original audit, live PostgreSQL replay/integration was unavailable. STAB-14 now proves local migration replay and selected database invariants; backend adapter/concurrency integration remains unverified pending STAB-15.
+- STAB-15 proves a focused identity and connected-workflow PostgreSQL boundary. The remaining adapters, full employee branch/BOLA matrix, multi-instance session behavior, HTTP, Redis, provider, backup/restore, remote database, and production behavior are not verified.
 - Real provider calls, staging, production, backups, restore, monitoring, signed store builds, or store accounts.
 - Browser/device E2E because no E2E framework exists.
 - Runtime penetration testing, DAST, load testing, accessibility certification, or legal/privacy review.
@@ -89,24 +92,23 @@ not silently accepted. Static review found no `.skip`, `.todo`, `.only`,
 conditional skip, concurrent test, retry, broad timeout override, or ignored
 unhandled-error setting.
 
-The baseline is meaningful but deliberately bounded: unit/domain/guard/service
+The STAB-07 baseline is meaningful but deliberately bounded: unit/domain/guard/service
 tests, fake repositories, SQL-aware fake pools, mocked `PoolClient`
 transactions, and static migration/media probes. It includes explicit security
 regressions for JWT/session/role binding, OTP request controls, refresh reuse,
 mobile role switching, capabilities, production environment rules, secret
 redaction, customer ownership, catalog/media visibility, rollback modeling,
-and Pattern B expectations. It does not include live PostgreSQL, HTTP E2E,
-Redis, provider, load, or measured line/branch coverage.
+and Pattern B expectations. STAB-15 separately adds selected live PostgreSQL
+adapter/service coverage; HTTP E2E, Redis, providers, load, and measured
+line/branch coverage remain absent.
 
 Owned follow-ups are recorded in
-`docs/08-testing/backend-test-baseline.md`: high-priority branch/BOLA coverage
-(SEC-02/STAB-20 with STAB-15/17), auth consume/session atomicity and missing OTP
-failure/concurrency cases (SEC-03/STAB-20 with STAB-15), and provider-bound
-payment authenticity/replay/amount binding (INT-02 with STAB-15/17). Live DB
-behavior, fake-heavy workflow negatives, a complete token/endpoint authorization
-matrix, provider contracts, and coverage reporting are medium gaps assigned to
-STAB-14/15/16/17/20 and INT-01–INT-06. No application source, test,
-configuration, dependency, or generated output changed in STAB-07.
+`docs/08-testing/backend-test-baseline.md` and the STAB-15 baseline:
+high-priority branch/BOLA coverage (`SEC-02`/STAB-20 with STAB-17), wider
+multi-instance session/authorization behavior (`SEC-03`/STAB-20), and
+provider-bound payment authenticity/replay/amount binding (`INT-02`). Untested
+adapters, a complete token/endpoint authorization matrix, provider contracts,
+and coverage reporting remain assigned to STAB-16/17/20 and INT-01–INT-06.
 
 ### STAB-08 ERP test boundary update
 
@@ -420,14 +422,17 @@ mobile Supabase), STAB-16 (Node pin / CI), INT-01 (OTP vendor adapter).
 - Pattern B helpers and append-only audit triggers are strong foundations.
 - STAB-14 replayed all 20 files on PostgreSQL 17.2 across empty, tracked-upgrade, and legacy paths. All paths converged to the same normalized schema and stable seed payload; repeat runs were no-ops. Live inventory found 115 public tables including the ledger, 502 indexes, 760 constraints, 310 foreign keys, and 68 non-internal triggers; selected integrity and rollback probes passed.
 - The migration runner commits each SQL file and records it in `schema_migrations` in a separate command; STAB-14 reproduced an applied-but-unrecorded `0019` that fails on retry and does not advance to `0020`. The ledger has no checksum and no automatic reconciliation (`SEC-M-09`).
+- STAB-15 adds a maintained loopback-only PostgreSQL 17.2 suite: 20 DBINT-01–14 cases exercise selected audit, booking, CRM, enquiry, Event Record, identity, payment and quotation production adapters/services. Three independent fresh-database runs pass; rollback, selected concurrency, ownership/branch lists, and live Pattern B companions are covered.
 - `idempotency_records` exists but has no application usage.
-- No backend adapter/concurrency integration suite, backup, restore, managed-host, or production database proof exists.
+- Catalog, finance, inventory, manager operations, operations, search, vendor and worker adapters are not covered by the STAB-15 suite. No HTTP/Redis integration, backup, restore, managed-host, or production database proof exists.
 - Canonical STAB-14 evidence: `docs/03-database/migration-verification-baseline.md`.
+- Canonical STAB-15 evidence: `docs/08-testing/database-integration-baseline.md`.
 
 ### Authentication
 
 - E.164 mobile OTP flow, HMAC OTP digests, five attempts, five challenges/hour/mobile, and a 60-second server-enforced resend cooldown exist.
 - Access JWT TTL is 15 minutes. Opaque refresh tokens are HMAC-digested and rotated with reuse detection; device sessions expire after 30 days and support logout/revocation.
+- STAB-15 changed OTP failure/consume and refresh rotation to conditional PostgreSQL updates and proves one-winner behavior for the tested single-process races. User/session/audit creation is still not one transaction, and the refresh in-flight guard is process-local; broader `SEC-03` remains open.
 - Production forbids the local OTP provider.
 - External SMS delivery is deliberately unimplemented and always fails closed.
 - OTP consumption and subsequent user/session/audit writes are not one atomic transaction. Concurrent correct verification can race.
@@ -549,11 +554,19 @@ The complete Customer → CRM → Quotation → Payment → Booking → Event �
 
 Each area is scored against ten area-specific controls worth 10 points each. Evidence earns: 0 = missing/failed, 2.5 = scaffold, 5 = connected implementation without boundary proof, 7.5 = connected plus meaningful automated tests, 10 = production-boundary or release proof. Scores below are sums of the disclosed controls, not elapsed-time estimates. A local compile does not earn provider, database-integration, E2E, or production-operation points.
 
+STAB-15 was explicitly instructed not to adjust completion percentages
+automatically. The numeric control arithmetic below therefore remains the
+25 August audit snapshot, even where its `DB integration 0` component predates
+the new focused suite. Current qualitative evidence is recorded in the STAB-15
+baseline and testing audit above. STAB-18 owns a consistent scored
+reconciliation; a partial selected-adapter suite must not receive full live
+integration credit.
+
 | Area                 |   Score | Earned evidence (10-point controls, in order)                                                                                                                                                        | Why it is not higher                                                                                            |
 | -------------------- | ------: | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
 | Architecture         | **61%** | repo topology 10; ADR direction 8; API boundary 6; shared contracts 7; DB authority 7; auth/capabilities 7; Pattern B 6; client alignment 5; production topology 0; doc concordance 5                | Dormant direct Supabase client, unreachable staff-mobile remnants, async-flow doc drift, no production topology |
-| Backend              | **48%** | module/API breadth 9; auth 7; authorization 5; lifecycle workflows 6; validation/errors 7; audit/transactions 6; async delivery 3; real providers 0; integration proof 2; production proof 3         | Broad foundation but branch scoping, atomicity, providers, DB tests, E2E, and production proof are absent       |
-| Database             | **44%** | schema 9; constraints/indexes 8; domain breadth 8; runner 5; transactions 6; audit 7; idempotency 1; live integration 0; backups 0; production ops 0                                                 | Local replay passes; adapter integration/restore/production absent; crash window remains                        |
+| Backend              | **48%** | module/API breadth 9; auth 7; authorization 5; lifecycle workflows 6; validation/errors 7; audit/transactions 6; async delivery 3; real providers 0; integration proof 2; production proof 3         | Selected DB paths are now tested; broad branch, atomicity, provider, HTTP/E2E and production proof remain       |
+| Database             | **44%** | schema 9; constraints/indexes 8; domain breadth 8; runner 5; transactions 6; audit 7; idempotency 1; live integration 0; backups 0; production ops 0                                                 | Score frozen; selected adapter integration now passes, while restore/production and crash recovery remain       |
 | Customer             | **40%** | auth/session 6; Home/Explore 7; Plan/favorites 4; enquiry 6; quotation 5; payment/booking 4; event workspace 4; profile/docs/notif/feedback 1; resilience 3; E2E/release 0                           | Real-provider and complete real-data journey missing                                                            |
 | Vendor               | **24%** | auth 5; onboarding 1; catalog/pricing 1; assignments 6; progress 5; docs/notifs 0; settlement 0; authz 4; tests 2; E2E/release 0                                                                     | Assignment slice only; business product and E2E missing                                                         |
 | Worker               | **24%** | auth 5; profile 1; availability 0; assignments 6; attendance/progress 5; location/privacy 1; docs/notifs 0; payout 0; authz 4; tests/E2E 2                                                           | Field execution is placeholder-based and unproved on device                                                     |
@@ -562,7 +575,7 @@ Each area is scored against ten area-specific controls worth 10 points each. Evi
 | Employee Mobile      |  **0%** | all ten controls 0                                                                                                                                                                                   | Separate product and ADR do not exist                                                                           |
 | Integrations         |  **3%** | OTP 0; payment 1; storage 1; PDF 0; push 0; email 0; maps 0; analytics 0; monitoring 1; crash 0                                                                                                      | Only manual/placeholder foundations exist                                                                       |
 | Security             | **44%** | authentication 7; session 5; capability RBAC 6; ownership/scope 4; validation 7; abuse controls 3; client security 4; secret hygiene 6; headers/logs/deps 2; security tests 0                        | Critical dependencies, branch IDOR risk, missing headers/throttle/tests, unstable device ID                     |
-| Testing              | **23%** | backend unit 8; mobile unit/widget 8; ERP unit 1; shared packages 0; DB integration 0; HTTP integration 0; cross-module 0; UI E2E 0; security 1; CI 5                                                | High test count is concentrated below real boundaries                                                           |
+| Testing              | **23%** | backend unit 8; mobile unit/widget 8; ERP unit 1; shared packages 0; DB integration 0; HTTP integration 0; cross-module 0; UI E2E 0; security 1; CI 5                                                | Score frozen; focused DB suite exists, but HTTP/E2E, broad module and CI coverage remain absent                 |
 | Infrastructure       | **24%** | local env 7; local Compose 6; migrations 5; CI 5; staging/prod 0; secrets 0; backups 0; monitoring 1; release pipeline 0; rollback 0                                                                 | Local-only infrastructure                                                                                       |
 | Production readiness |  **8%** | env validation 5; health/logging 3; all other production controls 0                                                                                                                                  | Providers, DB, deployment, security, observability, recovery, and E2E are unproved                              |
 | Android release      |  **9%** | IDs/flavors 2; branding 1; signing 0; prod env 1; prod API 0; compile 5; testing 0; policy/listing 0; permissions 0; rollout 0                                                                       | Compiles but lacks network permission and is debug-signed                                                       |
@@ -622,14 +635,14 @@ Critical and high findings are release blockers unless explicitly risk-accepted 
 
 ### HIGH
 
-| ID       | Finding                                                      | Evidence / impact                                                                                                  | Required action                                                                                                          |
-| -------- | ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------ |
-| SEC-H-01 | Inconsistent employee branch/resource isolation (IDOR/BOLA)  | Multiple record-by-ID reads/mutations omit principal branch predicates; UUID knowledge may cross branch boundaries | Add branch to every employee repository predicate/mutation, return 404 cross-scope, add denial tests across every domain |
-| SEC-H-02 | Production Android artifacts are debug-signed                | STAB-13 verified APK and AAB certificate `CN=Android Debug`                                                        | Create organization-controlled upload/app-signing process; keep keys outside Git; CI signing from secret manager         |
-| SEC-H-03 | Mobile device ID changes every login                         | `_deviceId()` generates a random suffix each login; prior refresh sessions can remain valid for 30 days            | Persist installation ID securely, provide session inventory/revoke-all, test reinstall/login/logout/reuse                |
-| SEC-H-04 | OTP consume/session creation is not atomic and is race-prone | Challenge is read then unconditionally updated; user/session/audit writes are separate                             | Transactional conditional consume, row lock/CAS, rollback and concurrency tests                                          |
-| SEC-H-05 | Payment trust boundary is manual                             | Employee confirmation creates financial/booking outcomes without provider-signed webhook/reconciliation            | Implement provider order binding, signed webhook, idempotency, independent reconciliation and fraud tests                |
-| SEC-H-06 | Outbox messages can remain `processing` forever              | Processors claim pending rows; no lease/locked-at recovery for crashed workers                                     | Add leases/recovery/dead-letter/metrics and crash/restart tests                                                          |
+| ID       | Finding                                                     | Evidence / impact                                                                                                                                                                 | Required action                                                                                                          |
+| -------- | ----------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| SEC-H-01 | Inconsistent employee branch/resource isolation (IDOR/BOLA) | Multiple record-by-ID reads/mutations omit principal branch predicates; UUID knowledge may cross branch boundaries                                                                | Add branch to every employee repository predicate/mutation, return 404 cross-scope, add denial tests across every domain |
+| SEC-H-02 | Production Android artifacts are debug-signed               | STAB-13 verified APK and AAB certificate `CN=Android Debug`                                                                                                                       | Create organization-controlled upload/app-signing process; keep keys outside Git; CI signing from secret manager         |
+| SEC-H-03 | Mobile device ID changes every login                        | `_deviceId()` generates a random suffix each login; prior refresh sessions can remain valid for 30 days                                                                           | Persist installation ID securely, provide session inventory/revoke-all, test reinstall/login/logout/reuse                |
+| SEC-H-04 | Identity/session atomicity remains incomplete               | STAB-15 added conditional OTP consume and refresh CAS with selected one-winner tests; user/session/audit writes remain separate and refresh in-flight protection is process-local | Complete multi-instance OTP/session transaction, replay/revocation and concurrency design/tests under `SEC-03`/STAB-20   |
+| SEC-H-05 | Payment trust boundary is manual                            | Employee confirmation creates financial/booking outcomes without provider-signed webhook/reconciliation                                                                           | Implement provider order binding, signed webhook, idempotency, independent reconciliation and fraud tests                |
+| SEC-H-06 | Outbox messages can remain `processing` forever             | Processors claim pending rows; no lease/locked-at recovery for crashed workers                                                                                                    | Add leases/recovery/dead-letter/metrics and crash/restart tests                                                          |
 
 ### MEDIUM
 
@@ -661,11 +674,11 @@ Critical and high findings are release blockers unless explicitly risk-accepted 
 
 | Test layer               | Actual status                                  | Gap / required proof                                                                            |
 | ------------------------ | ---------------------------------------------- | ----------------------------------------------------------------------------------------------- |
-| Backend unit/foundation  | 188 tests PASS across 30 files (STAB-07)       | Many use fake repositories; add live DB/HTTP/authorization concurrency tests                    |
+| Backend unit/foundation  | 188 tests PASS across 30 files (STAB-07)       | Many use fake repositories; HTTP and broader authorization coverage remain                      |
 | ERP narrow units         | 8 tests PASS across 3 files (STAB-08)          | Environment/API-refresh/helper only; no rendered component or route test                        |
 | Flutter unit/widget      | 441 tests PASS across 27 files (STAB-10)       | No device E2E, provider sandbox, native permission, or release-network proof                    |
 | Shared packages          | No test scripts                                | Add contract compatibility/serialization tests                                                  |
-| PostgreSQL integration   | None                                           | Replay migrations on empty DB and upgrade fixture; exercise real adapters/transactions/triggers |
+| PostgreSQL integration   | 20 tests PASS across 3 files (STAB-15)         | Selected adapters/services only; current CI, Redis, remaining adapters and production DB absent |
 | Backend HTTP integration | None                                           | Use a real Nest instance and DB; test validation/authz/errors/idempotency                       |
 | Cross-module workflow    | Demo shell scripts only; not run in this audit | Automate Customer → CRM → Quote → Payment → Booking → Event and failures                        |
 | Browser E2E              | None                                           | Add Playwright or approved equivalent for employee flows                                        |
@@ -828,7 +841,7 @@ PHASE 11 Android release
 PHASE 12 iOS release
 ```
 
-No phase begins until the preceding gate is verified and recorded. The current phase is **Phase 0 — Stabilization** and its gate remains **NOT PASSED**. **STAB-01** through **STAB-13** are complete; STAB-14 migration behavior passes with findings, but its signature-recipe correction remains pending independent re-review. **STAB-15 — Database integration tests** is permitted only after that review passes and has not started.
+No phase begins until the preceding gate is verified and recorded. The current phase is **Phase 0 — Stabilization** and its gate remains **NOT PASSED**. **STAB-01** through **STAB-15** are complete; STAB-14 is accepted with `SEC-M-09` open, and STAB-15 passes with explicitly retained security/integration findings. **STAB-16 — CI verification** is next and has not started.
 
 ## 19. Definition of complete
 

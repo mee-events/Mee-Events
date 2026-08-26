@@ -43,7 +43,10 @@ export interface IdentityRepository {
     mobileNumber: string,
   ): Promise<OtpChallengeRecord | undefined>;
   countChallengesSince(mobileNumber: string, since: Date): Promise<number>;
-  updateChallenge(challenge: OtpChallengeRecord): Promise<void>;
+  recordFailedChallengeAttempt(
+    challengeId: string,
+  ): Promise<OtpChallengeRecord | undefined>;
+  consumeChallenge(challengeId: string, consumedAt: Date): Promise<boolean>;
   findUserByMobile(mobileNumber: string): Promise<UserRecord | undefined>;
   findUserById(id: string): Promise<UserRecord | undefined>;
   createUser(
@@ -64,7 +67,7 @@ export interface IdentityRepository {
     previousRefreshTokenDigest: string,
     lastSeenAt: Date,
     expiresAt: Date,
-  ): Promise<void>;
+  ): Promise<boolean>;
   revokeSession(sessionId: string, revokedAt: Date): Promise<void>;
   persistRoleSwitch(
     input: RoleSwitchPersistence,

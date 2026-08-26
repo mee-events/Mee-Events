@@ -55,6 +55,14 @@ record) is implemented inside a single adapter transaction when required.
 See [Backend Handbook](../02-architecture/backend.md) and
 [System Architecture](../02-architecture/architecture.md).
 
+STAB-15 executes selected identity, enquiry/CRM, quotation, payment, booking,
+and Event Record transactions against PostgreSQL 17.2. It proves successful
+companion commits, late-failure rollback, conditional OTP/session updates,
+outbox `FOR UPDATE SKIP LOCKED`, and selected concurrent outcomes. This is a
+focused maintained integration baseline, not a claim that every adapter or
+authorization path has live transaction coverage. See
+[database-integration-baseline.md](../08-testing/database-integration-baseline.md).
+
 ---
 
 ## Append-only enforcement

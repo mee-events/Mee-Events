@@ -2,7 +2,7 @@
 
 - **Baseline:** Complete repository audit dated 25 August 2026
 - **Current phase:** Phase 0 — Stabilization
-- **Next block:** STAB-15 — only after STAB-14 signature correction passes independent re-review
+- **Next block:** STAB-16 — CI verification; STAB-15 completed with findings
 - **Rule:** One block → verify → document → commit → stop.
 
 This file is the definitive ordered work inventory. The phase order is mandatory even when a later task has a higher risk priority. Do not start Customer until the Phase 0 gate passes; do not start Vendor until Customer passes; continue one major module at a time.
@@ -54,8 +54,8 @@ Status marks in this file describe execution, not how much scaffold already exis
 - [x] **STAB-11 Backend build** — Objective: verify deterministic, runnable-boundary Nest compilation without claiming deployment readiness; State: **DONE** 26 August 2026; Scope: backend build config/output, workspace runtime dependencies, compiled configuration and safe startup boundary; Action: frozen install, two sanitized clean builds, artifact/hash/security inventory, fail-closed validation and module-load smoke; Depends/Risk: STAB-10, accidental external access/artifact leakage; Test/Security: 388 identical files, all 129 source roots, zero test/spec/script/env output, no embedded secret, missing config rejects and valid synthetic config loads; DoD: reproducible artifact and documented non-standalone/runtime/deployment limits; Next: STAB-12. Evidence: `docs/07-deployment/backend-build-baseline.md`.
 - [x] **STAB-12 ERP build** — Objective: verify Next production compilation after secure dependency baseline; State: **DONE WITH FINDINGS** 26 August 2026; Scope: ERP/Next configuration, 44 routes, generated artifact, public environment, runtime/header, dependency, fixture and CI boundaries; Action: frozen install/current audits, shared builds, fail-closed probes, two clean synthetic-production builds, stable-hash comparison and loopback smoke; Depends/Risk: STAB-11 and dependency remediation; Test/Security: 0 critical/high/moderate, 44/44 routes compile, configured headers pass, no secret/private environment leakage; the fixture-free subcriterion is explicitly **NOT SATISFIED** because `/leads` still client-bundles unlabeled PII-shaped synthetic records; DoD: production build/runtime baseline green with reproducibility, normal non-standalone runtime, fixture/hardening, and CI limits honestly recorded; this task does not close CRM-06/24/26 or STAB-18/20; Next: STAB-13. Evidence: `docs/07-deployment/erp-build-baseline.md`.
 - [x] **STAB-13 Flutter build** — Objective: verify dev and production mobile builds honestly; State: **DONE WITH FINDINGS** 26 August 2026, while Android/iOS release status remains **BROKEN**; Scope: Flutter toolchain/quality, native projects, public env asset, Android APK/AAB manifests/signing/reproducibility, iOS configuration/probes and CI; Action: trap-isolated founder `.env`, resolved locked dependencies, passed format/analyze/441 tests, built dev debug plus two production APKs/AABs, inspected permissions/certificates/assets, and ran both unsigned iOS probes; Depends/Risk: STAB-12; Test/Security: synthetic `.invalid` values only, no founder value/provider/device/store access, no native/manifest/lock drift; DoD: evidence complete and every defect scheduled without calling artifacts releasable—production Android omits INTERNET and is debug-signed; on iOS, this host lacks usable full Xcode so bundle-ID resolution fails before project enumeration/compile/sign, while the missing `prod` scheme and signing setup remain later blockers; Next: STAB-14. Evidence: `docs/07-deployment/flutter-build-baseline.md`.
-- [~] **STAB-14 PostgreSQL migration verification** — Objective: replay all 20 migrations on empty and upgrade databases; State: **MIGRATION EVIDENCE PASSES WITH FINDINGS; SIGNATURE DOCUMENTATION CORRECTED AND PENDING INDEPENDENT RE-REVIEW** 26 August 2026; Scope: isolated PostgreSQL 17.2 Compose projects, migration runner, SQL catalog, legacy baseline and failure behavior; Action: verified 20 sequential file hashes, empty/tracked/legacy convergence, 20-file no-op reruns, live constraints/indexes/triggers/branch FKs, append-only/rollback behavior and scoped cleanup; corrected the catalog, raw/normalized schema, and stable-data byte recipes after failed documentation review; Depends/Risk: STAB-13, data loss if wrong target; Test/Security: loopback-only projects, no founder/production DB access, no secrets, all synthetic writes rolled back; DoD: behavior and signatures reproduce across three paths, correction must pass independent re-review, and `SEC-M-09` remains open because applied SQL plus ledger recording are non-atomic, checksum-free and not automatically recoverable; Next: STAB-15 only after review passes. Evidence: `docs/03-database/migration-verification-baseline.md`.
-- [ ] **STAB-15 Database integration tests** — Objective: prove real adapters, transactions, rollback, concurrency, branch scope and Pattern B; State: **MISSING**; Scope: backend integration harness/PostgreSQL; Action: create minimum live-DB suite; Depends/Risk: STAB-14; Test/Security: OTP consume, refresh, enquiry/outbox/lead, quote/payment/booking/event, IDOR denial; DoD: deterministic isolated DB suite green locally and CI-ready; Next: STAB-16.
+- [x] **STAB-14 PostgreSQL migration verification** — Objective: replay all 20 migrations on empty and upgrade databases; State: **DONE WITH FINDINGS** 26 August 2026 after the signature correction passed independent review; Scope: isolated PostgreSQL 17.2 Compose projects, migration runner, SQL catalog, legacy baseline and failure behavior; Action: verified 20 sequential file hashes, empty/tracked/legacy convergence, 20-file no-op reruns, live constraints/indexes/triggers/branch FKs, append-only/rollback behavior and scoped cleanup; corrected and independently accepted the catalog, raw/normalized schema, and stable-data byte recipes; Depends/Risk: STAB-13, data loss if wrong target; Test/Security: loopback-only projects, no founder/production DB access, no secrets, all synthetic writes rolled back; DoD: behavior and signatures reproduce across three paths; `SEC-M-09` remains open because applied SQL plus ledger recording are non-atomic, checksum-free and not automatically recoverable; Next: STAB-15. Evidence: `docs/03-database/migration-verification-baseline.md`.
+- [x] **STAB-15 Database integration tests** — Objective: prove selected real adapters, transactions, rollback, concurrency, branch scope and Pattern B; State: **DONE WITH FINDINGS** 26 August 2026; Scope: isolated backend PostgreSQL 17.2 harness and critical identity/enquiry/CRM/quotation/payment/booking/Event Record paths; Action: added disjoint unit/integration Vitest discovery, fail-closed loopback/project/database guards, per-run migration/ledger checks, 20 DBINT-01–14 cases, and scoped cleanup; corrected OTP conditional consume/failure updates and refresh digest compare-and-set with controlled race handling; Depends/Risk: STAB-14; Test/Security: canonical, repeat and seed-6152026 shuffled fresh-database runs each pass 3/3 files and 20/20 tests; ordinary unit suite remains 30/188; customer cross-owner denial, branch-list isolation, rollback, Pattern B and selected concurrency pass; DoD: maintained local suite is green and CI-ready, while `SEC-02`, broader `SEC-03`, `SEC-04`, `SEC-M-09`, `INT-02`, HTTP/Redis/provider/E2E and untested adapters remain open; Next: STAB-16. Evidence: `docs/08-testing/database-integration-baseline.md`.
 - [ ] **STAB-16 CI verification** — Objective: make automation match supported tools/security/boundaries; State: **PARTIAL**; Scope: `.github/workflows`, branch policy; Action: add patched SCA/secret/static and DB gates without duplicating noise; Depends/Risk: STAB-15; Test/Security: run on PR/push, least-privilege permissions, pinned actions; DoD: green CI on canonical branch with artifacts/evidence and required checks documented; Next: STAB-17.
 - [ ] **STAB-17 E2E test foundation** — Objective: select and scaffold browser/device/API E2E without implementing modules; State: **MISSING**; Scope: testing tools/config/fixtures only; Action: create one authenticated smoke per surface and cleanup strategy; Depends/Risk: STAB-16, brittle tests/PII; Test/Security: isolated accounts, no production endpoints/secrets; DoD: one stable browser and mobile/API smoke in CI-compatible harness; Next: STAB-18.
 - [ ] **STAB-18 Documentation reconciliation** — Objective: align docs with audited implementation; State: **BROKEN/PARTIAL**; Scope: overview/architecture/auth/testing/deployment/old roadmap references; Action: correct async enquiry→lead, staff-mobile, resend enforcement, Supabase boundary, branch names and stale test claims; Depends/Risk: STAB-17; Test/Security: link/command validation, no aspirational live claims; DoD: canonical docs agree with code/tests/config and historical PDFs labeled; Next: STAB-19.
@@ -286,31 +286,28 @@ Status marks in this file describe execution, not how much scaffold already exis
 - [ ] **POLISH-05 Support and runbooks** — Objective: founder/operator can diagnose and respond; State: **MISSING**; Scope: customer support, incidents, providers, data correction; Action: severity/ownership/escalation/runbooks; Depends/Risk: production topology; Test/Security: tabletop drills and redaction; DoD: named owners and successful drills; Next: POLISH-06.
 - [ ] **POLISH-06 Final launch checklist** — Objective: prove the complete definition of done; State: **MISSING**; Scope: all evidence; Action: verify, never infer; Depends/Risk: IOS-10 and all prior gates; Test/Security: repeat critical journeys/security/restore/rollback; DoD: every required item checked with artifact/owner/date; Next: maintain/operate.
 
-## Current acceptance block — STAB-14 documentation correction
+## Current acceptance block — STAB-15 database integration tests
 
 ### TASK ID
 
-`STAB-14`
+`STAB-15`
 
 ### RESULT
 
-Migration behavior passed with findings 26 August 2026. Four unique loopback-only PostgreSQL
-17.2 Compose projects proved the 20-file catalog, empty replay, tracked upgrade,
-legacy pre-ledger baseline, repeat-run no-op behavior, three-path normalized
-schema/stable seed parity, live constraints/indexes/triggers/branch foreign
-keys, append-only audit enforcement, and pre-COMMIT rollback. All temporary
-containers, volumes, networks, and evidence were removed without affecting the
-founder environment. The known `SEC-M-09` crash window is reproduced rather
-than closed: migration SQL can commit before its separate ledger insert, the
-ledger has no checksum, and an applied-but-unrecorded `0019` fails on retry
-without advancing to `0020`. STAB-20/PROD-03 retain reconciliation and
-checksum-aware bookkeeping; STAB-15 retains backend adapter/concurrency tests.
-Phase 0 gate is still not passed. The signature-recipe correction reproduces
-the documented digests locally and remains pending independent re-review;
-STAB-14 is not accepted until that review passes.
+Completed with findings 26 August 2026. A dedicated command now provisions an
+exact disposable `mee-dbint-*` PostgreSQL 17.2 project, applies all 20
+migrations, validates identity/ledger, runs 20 DBINT-01–14 cases serially, and
+removes only its own resources. Canonical, repeat, and seed-`6152026` shuffled
+runs each passed 3/3 files and 20/20 tests. The ordinary 30-file/188-test backend
+suite remains database-independent. Real production adapters/services prove
+selected identity, enquiry/CRM, quotation/payment/booking/Event Record,
+rollback, concurrency, customer ownership, branch-list, and Pattern B behavior.
+Narrow atomic OTP and refresh compare-and-set corrections were required and are
+covered. STAB-14 is accepted after independent review; `SEC-M-09` remains open.
+STAB-15 does not close `SEC-02`, broader `SEC-03`, `SEC-04`, `INT-02`, HTTP,
+Redis, provider, E2E, CI, backup/restore, or production gaps. Phase 0 remains
+not passed.
 
 ### NEXT TASK
 
-`STAB-15 Database integration tests`, permitted only after the STAB-14
-documentation correction passes independent review. Do not start STAB-15 in
-this correction session.
+`STAB-16 CI verification`. Do not start STAB-16 in this block.

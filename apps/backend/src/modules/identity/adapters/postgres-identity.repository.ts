@@ -139,13 +139,37 @@ export class PostgresIdentityRepository implements IdentityRepository {
     };
   }
 
-  public async updateChallenge(challenge: OtpChallengeRecord): Promise<void> {
-    await this.pool.query(
+  public async recordFailedChallengeAttempt(
+    challengeId: string,
+  ): Promise<OtpChallengeRecord | undefined> {
+    const result = await this.pool.query<ChallengeRow>(
       `UPDATE otp_challenges
-       SET attempts_remaining = $2, consumed_at = $3
-       WHERE id = $1`,
-      [challenge.id, challenge.attemptsRemaining, challenge.consumedAt ?? null],
+       SET attempts_remaining = attempts_remaining - 1
+       WHERE id = $1
+         AND consumed_at IS NULL
+         AND attempts_remaining > 0
+       RETURNING *`,
+      [challengeId],
     );
+    const row = result.rows[0];
+    return row === undefined ? undefined : this.mapChallenge(row);
+  }
+
+  public async consumeChallenge(
+    challengeId: string,
+    consumedAt: Date,
+  ): Promise<boolean> {
+    const result = await this.pool.query<{ id: string }>(
+      `UPDATE otp_challenges
+       SET consumed_at = $2
+       WHERE id = $1
+         AND consumed_at IS NULL
+         AND attempts_remaining > 0
+         AND expires_at > $2
+       RETURNING id`,
+      [challengeId, consumedAt],
+    );
+    return result.rows[0] !== undefined;
   }
 
   public async findUserByMobile(
@@ -275,15 +299,18 @@ export class PostgresIdentityRepository implements IdentityRepository {
     previousRefreshTokenDigest: string,
     lastSeenAt: Date,
     expiresAt: Date,
-  ): Promise<void> {
-    await this.pool.query(
+  ): Promise<boolean> {
+    const result = await this.pool.query<{ id: string }>(
       `UPDATE device_sessions
        SET refresh_token_digest = $2,
            previous_refresh_token_digest = $3,
            last_seen_at = $4,
            expires_at = $5,
            version = version + 1
-       WHERE id = $1 AND revoked_at IS NULL`,
+       WHERE id = $1
+         AND revoked_at IS NULL
+         AND refresh_token_digest = $3
+       RETURNING id`,
       [
         sessionId,
         nextRefreshTokenDigest,
@@ -292,6 +319,7 @@ export class PostgresIdentityRepository implements IdentityRepository {
         expiresAt,
       ],
     );
+    return result.rows[0] !== undefined;
   }
 
   public async revokeSession(

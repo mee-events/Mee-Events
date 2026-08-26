@@ -53,15 +53,21 @@ Root scripts only wrap `flutter run` (`dev:mobile*`), not analyze/test.
 
 ## Merge expectation
 
-| Check                                                            | Required                                                     |
-| ---------------------------------------------------------------- | ------------------------------------------------------------ |
-| `corepack pnpm verify` green (or equivalent CI typescript job)   | Yes                                                          |
-| Flutter CI job green (`format` + `analyze` + `test` + debug APK) | Yes for mobile-touching or always-on CI policy on the branch |
-| DB-backed integration suite                                      | N/A — does not exist                                         |
-| Automated UI E2E                                                 | N/A — does not exist                                         |
+| Check                                                                     | Required                                                                          |
+| ------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| `corepack pnpm verify` green (or equivalent CI typescript job)            | Yes                                                                               |
+| Flutter CI job green (`format` + `analyze` + `test` + debug APK)          | Yes for mobile-touching or always-on CI policy on the branch                      |
+| Backend PostgreSQL integration (`corepack pnpm test:integration:backend`) | Required for backend persistence/identity/workflow changes; not yet wired into CI |
+| Automated UI E2E                                                          | N/A — does not exist                                                              |
 
 Backend handbook reminder: run verify before merging backend changes
 ([backend.md](../02-architecture/backend.md)).
+
+The PostgreSQL command creates and removes its own loopback-only `mee-dbint-*`
+Compose project and must not use the developer `me-event-local` database. Its
+20-case STAB-15 boundary is documented in
+[database-integration-baseline.md](./database-integration-baseline.md). CI
+service wiring remains STAB-16; a local pass is not remote CI proof.
 
 ---
 

@@ -76,8 +76,40 @@ export class InMemoryIdentityRepository implements IdentityRepository {
     return count;
   }
 
-  public async updateChallenge(challenge: OtpChallengeRecord): Promise<void> {
-    this.challenges.set(challenge.id, challenge);
+  public async recordFailedChallengeAttempt(
+    challengeId: string,
+  ): Promise<OtpChallengeRecord | undefined> {
+    const challenge = this.challenges.get(challengeId);
+    if (
+      challenge === undefined ||
+      challenge.consumedAt !== undefined ||
+      challenge.attemptsRemaining <= 0
+    ) {
+      return undefined;
+    }
+    const updated = {
+      ...challenge,
+      attemptsRemaining: challenge.attemptsRemaining - 1,
+    };
+    this.challenges.set(challengeId, updated);
+    return updated;
+  }
+
+  public async consumeChallenge(
+    challengeId: string,
+    consumedAt: Date,
+  ): Promise<boolean> {
+    const challenge = this.challenges.get(challengeId);
+    if (
+      challenge === undefined ||
+      challenge.consumedAt !== undefined ||
+      challenge.attemptsRemaining <= 0 ||
+      challenge.expiresAt.getTime() <= consumedAt.getTime()
+    ) {
+      return false;
+    }
+    this.challenges.set(challengeId, { ...challenge, consumedAt });
+    return true;
   }
 
   public async findUserByMobile(
@@ -149,10 +181,14 @@ export class InMemoryIdentityRepository implements IdentityRepository {
     previousRefreshTokenDigest: string,
     lastSeenAt: Date,
     expiresAt: Date,
-  ): Promise<void> {
+  ): Promise<boolean> {
     const stored = this.sessions.get(sessionId);
-    if (stored === undefined) {
-      return;
+    if (
+      stored === undefined ||
+      stored.session.revokedAt !== undefined ||
+      stored.digest !== previousRefreshTokenDigest
+    ) {
+      return false;
     }
     this.sessions.set(sessionId, {
       session: {
@@ -163,6 +199,7 @@ export class InMemoryIdentityRepository implements IdentityRepository {
       digest: nextRefreshTokenDigest,
       previousDigest: previousRefreshTokenDigest,
     });
+    return true;
   }
 
   public async revokeSession(

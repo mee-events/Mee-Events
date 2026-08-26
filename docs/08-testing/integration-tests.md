@@ -1,18 +1,22 @@
 # Integration Tests
 
-**Honest status:** there is **no** PostgreSQL- or Redis-backed application
-integration test job in this repository. The TypeScript CI job does not start
-Compose or a database service ([ci-cd.md](../07-deployment/ci-cd.md)).
+**Honest status:** STAB-15 adds a maintained PostgreSQL 17.2 repository/service
+integration suite. It is explicitly invoked and remains outside the ordinary
+database-independent unit command and current CI. There is still no Redis,
+Nest HTTP, browser, device, or provider integration suite.
 
-STAB-14 separately performed a one-time, isolated PostgreSQL 17.2 replay of all
-20 migrations across empty, tracked-upgrade, and legacy paths, plus selected
-constraint/trigger/rollback probes. That is live migration evidence, not a
-maintained backend adapter, HTTP, concurrency, or CI integration suite. See
+STAB-14 separately performed isolated PostgreSQL 17.2 replay of all 20
+migrations across empty, tracked-upgrade, and legacy paths, plus selected
+constraint/trigger/rollback probes. STAB-15 now replays the same maintained
+migration catalog per fresh test database and exercises selected production
+adapters, services, concurrency, rollback, ownership, and Pattern B behavior.
+See
 [migration-verification-baseline.md](../03-database/migration-verification-baseline.md).
-STAB-15 remains not started.
+Exact STAB-15 scope and results are in
+[database-integration-baseline.md](./database-integration-baseline.md).
 
-What exists instead is an in-process **module foundation** layer: Vitest specs
-that exercise application services with Fake repositories and assert Pattern B
+The in-process **module foundation** layer still exists separately: its Vitest
+specs exercise application services with fake repositories and assert Pattern B
 side effects in memory.
 
 ---
@@ -62,25 +66,45 @@ Canonical rules: [pattern-b.md](../02-architecture/pattern-b.md).
 
 `corepack pnpm db:up` starts Postgres + Redis for **manual** development
 ([local-development.md](../07-deployment/local-development.md)). That stack is
-**not** wired into Vitest or the CI typescript job.
+**not** used by integration tests. The dedicated runner creates an exact
+`mee-dbint-*` Compose project, loopback port, database, volume, and network, and
+removes only those labeled resources on exit.
 
 Do not assume `pnpm test` requires or mutates a running database.
 
 ---
 
-## Gap
+## Maintained PostgreSQL suite
 
-A future DB-backed integration suite (migrate → seed → hit repositories or HTTP
-against real Postgres) would be a **new** engineering decision. It is not
-present today. Until STAB-15, treat foundation/workflow specs as in-process
-evidence and the STAB-14 baseline as local migration/invariant evidence.
-Neither proves live application adapter workflows.
+Run from the repository root:
+
+```sh
+corepack pnpm test:integration:backend
+```
+
+or directly:
+
+```sh
+corepack pnpm --filter @me-event/backend test:integration
+```
+
+The three integration files contain 20 cases covering DBINT-01–14. The runner
+uses actual `pg.Pool` connections and production adapters/services for identity,
+audit, enquiries, CRM, quotations, payments, bookings, and Event Records.
+Ordinary unit discovery remains 30 files / 188 tests and explicitly excludes
+the integration tree.
+
+The suite does not prove HTTP routing/guards, complete employee branch/BOLA
+enforcement, multi-instance session behavior, outbox crash leases, real payment
+providers, Redis, backup/restore, remote environments, or production readiness.
+Current CI does not run it; STAB-16 owns CI wiring.
 
 ---
 
 ## Related
 
 - [unit-tests.md](./unit-tests.md)
+- [database-integration-baseline.md](./database-integration-baseline.md)
 - [testing-strategy.md](./testing-strategy.md)
 - [e2e-tests.md](./e2e-tests.md)
 - [migrations.md](../03-database/migrations.md)

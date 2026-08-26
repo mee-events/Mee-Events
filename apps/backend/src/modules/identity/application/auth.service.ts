@@ -41,6 +41,8 @@ const SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 
 @Injectable()
 export class AuthService {
+  private readonly refreshDigestsInFlight = new Set<string>();
+
   public constructor(
     @Inject(IDENTITY_REPOSITORY)
     private readonly repository: IdentityRepository,
@@ -143,17 +145,21 @@ export class AuthService {
       expected.length !== actual.length ||
       !timingSafeEqual(expected, actual)
     ) {
-      await this.repository.updateChallenge({
-        ...challenge,
-        attemptsRemaining: challenge.attemptsRemaining - 1,
-      });
+      await this.repository.recordFailedChallengeAttempt(challenge.id);
       throw new DomainError("OTP_INCORRECT", "OTP is incorrect", 401);
     }
 
-    await this.repository.updateChallenge({
-      ...challenge,
-      consumedAt: new Date(),
-    });
+    const consumed = await this.repository.consumeChallenge(
+      challenge.id,
+      new Date(),
+    );
+    if (!consumed) {
+      throw new DomainError(
+        "OTP_CHALLENGE_INVALID",
+        "OTP challenge is invalid",
+        401,
+      );
+    }
     const existingUser = await this.repository.findUserByMobile(
       challenge.mobileNumber,
     );
@@ -222,77 +228,104 @@ export class AuthService {
       request.refreshToken,
       "REFRESH_TOKEN_HMAC_SECRET",
     );
-    const found =
-      await this.repository.findSessionByRefreshDigest(presentedDigest);
-    if (found === undefined) {
+    if (this.refreshDigestsInFlight.has(presentedDigest)) {
       throw new DomainError(
-        "SESSION_REFRESH_INVALID",
-        "Refresh token is invalid",
-        401,
+        "SESSION_REFRESH_CONFLICT",
+        "Refresh token is already being rotated",
+        409,
       );
     }
+    this.refreshDigestsInFlight.add(presentedDigest);
+    try {
+      const found =
+        await this.repository.findSessionByRefreshDigest(presentedDigest);
+      if (found === undefined) {
+        throw new DomainError(
+          "SESSION_REFRESH_INVALID",
+          "Refresh token is invalid",
+          401,
+        );
+      }
 
-    const session = found.record.session;
-    if (found.match === "previous") {
-      // A rotated token was presented again: assume theft and kill the session.
-      await this.repository.revokeSession(session.id, new Date());
-      authPrincipalCache.invalidateSession(session.id);
+      const session = found.record.session;
+      if (found.match === "previous") {
+        // A rotated token was presented again: assume theft and kill the session.
+        await this.repository.revokeSession(session.id, new Date());
+        authPrincipalCache.invalidateSession(session.id);
+        await this.audit.append({
+          requestId,
+          actorUserId: session.userId,
+          entityType: "device_session",
+          entityId: session.id,
+          action: "identity.session.revoked",
+          reason: "refresh-token-reuse",
+        });
+        throw new DomainError(
+          "SESSION_REFRESH_REUSED",
+          "Refresh token reuse detected; session revoked",
+          401,
+        );
+      }
+
+      if (
+        session.revokedAt !== undefined ||
+        Date.parse(session.expiresAt) <= Date.now()
+      ) {
+        throw new DomainError(
+          "SESSION_NOT_ACTIVE",
+          "Session is not active",
+          401,
+        );
+      }
+
+      const user = await this.repository.findUserById(session.userId);
+      if (user === undefined) {
+        throw new DomainError(
+          "SESSION_NOT_ACTIVE",
+          "Session is not active",
+          401,
+        );
+      }
+
+      const nextRefreshToken = randomBytes(48).toString("base64url");
+      const now = new Date();
+      const rotated = await this.repository.rotateSessionRefreshToken(
+        session.id,
+        this.digest(nextRefreshToken, "REFRESH_TOKEN_HMAC_SECRET"),
+        presentedDigest,
+        now,
+        new Date(now.getTime() + SESSION_TTL_MS),
+      );
+      if (!rotated) {
+        throw new DomainError(
+          "SESSION_REFRESH_CONFLICT",
+          "Refresh token was rotated concurrently; retry authentication",
+          409,
+        );
+      }
       await this.audit.append({
         requestId,
-        actorUserId: session.userId,
+        actorUserId: user.id,
+        actorRole: user.lastActiveRole,
         entityType: "device_session",
         entityId: session.id,
-        action: "identity.session.revoked",
-        reason: "refresh-token-reuse",
+        action: "identity.session.rotated",
       });
-      throw new DomainError(
-        "SESSION_REFRESH_REUSED",
-        "Refresh token reuse detected; session revoked",
-        401,
+
+      const accessToken = await this.signAccessToken(
+        user.id,
+        session.id,
+        user.lastActiveRole,
       );
+      return {
+        accessToken,
+        refreshToken: nextRefreshToken,
+        accessTokenExpiresInSeconds: ACCESS_TOKEN_TTL_SECONDS,
+        activeRole: user.lastActiveRole,
+      };
+    } finally {
+      this.refreshDigestsInFlight.delete(presentedDigest);
     }
-
-    if (
-      session.revokedAt !== undefined ||
-      Date.parse(session.expiresAt) <= Date.now()
-    ) {
-      throw new DomainError("SESSION_NOT_ACTIVE", "Session is not active", 401);
-    }
-
-    const user = await this.repository.findUserById(session.userId);
-    if (user === undefined) {
-      throw new DomainError("SESSION_NOT_ACTIVE", "Session is not active", 401);
-    }
-
-    const nextRefreshToken = randomBytes(48).toString("base64url");
-    const now = new Date();
-    await this.repository.rotateSessionRefreshToken(
-      session.id,
-      this.digest(nextRefreshToken, "REFRESH_TOKEN_HMAC_SECRET"),
-      presentedDigest,
-      now,
-      new Date(now.getTime() + SESSION_TTL_MS),
-    );
-    await this.audit.append({
-      requestId,
-      actorUserId: user.id,
-      actorRole: user.lastActiveRole,
-      entityType: "device_session",
-      entityId: session.id,
-      action: "identity.session.rotated",
-    });
-
-    const accessToken = await this.signAccessToken(
-      user.id,
-      session.id,
-      user.lastActiveRole,
-    );
-    return {
-      accessToken,
-      refreshToken: nextRefreshToken,
-      accessTokenExpiresInSeconds: ACCESS_TOKEN_TTL_SECONDS,
-      activeRole: user.lastActiveRole,
-    };
   }
 
   public async switchRole(
