@@ -29,13 +29,22 @@ action needs on PRs.
 - Runner: `ubuntu-latest`, timeout 20 minutes
 - Node 20, pnpm `9.15.4`, `pnpm install --frozen-lockfile`
 - Steps in order:
-  1. `pnpm format:check`
-  2. `pnpm lint`
-  3. `pnpm typecheck`
-  4. `pnpm test`
-  5. `pnpm build`
+  1. Build `@me-event/shared-types`, then `@me-event/api-contracts`
+  2. `pnpm format:check`
+  3. `pnpm lint`
+  4. `pnpm typecheck`
+  5. `pnpm test`
+  6. `pnpm build`
 
-Local parity: `corepack pnpm verify` (same sequence via root scripts).
+Local quality-gate parity: `corepack pnpm verify`. CI additionally prebuilds
+the shared packages before the formatted/linted/typechecked/tested recursive
+workspace sequence.
+
+STAB-11 independently proved that the backend's `nest build` artifact is
+byte-for-byte reproducible and secret-safe under the recorded local toolchain.
+CI compiles it through the recursive root build but does not retain, smoke,
+package, hash, attest, or deploy it. See
+[backend-build-baseline.md](./backend-build-baseline.md).
 
 ### 2. `flutter`
 
@@ -62,6 +71,7 @@ Local parity: `corepack pnpm verify` (same sequence via root scripts).
 
 - No staging/production deploy
 - No container image publish
+- No backend artifact upload, compiled startup smoke, or reproducibility check
 - No Terraform / infrastructure apply
 - No managed-database provisioning
 
@@ -72,3 +82,4 @@ Local parity: `corepack pnpm verify` (same sequence via root scripts).
 - [local-development.md](./local-development.md)
 - [production.md](./production.md)
 - [environment.md](./environment.md)
+- [backend-build-baseline.md](./backend-build-baseline.md)

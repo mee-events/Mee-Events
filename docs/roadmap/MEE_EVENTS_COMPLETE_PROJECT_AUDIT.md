@@ -13,6 +13,7 @@
 - **STAB-08 ERP test baseline:** 26 August 2026 00:40 IST. Vitest 3.2.7; canonical and shuffled serialized runs both pass 3/3 files and 8/8 tests; zero-test discovery now fails closed. See `docs/08-testing/erp-test-baseline.md`.
 - **STAB-09 Flutter analysis baseline:** 26 August 2026 10:27 IST. Flutter 3.44.8/Dart 3.12.2; all 200 maintained Dart files analyzed with 0 errors, warnings, or infos. See `docs/08-testing/flutter-analysis-baseline.md`.
 - **STAB-10 Flutter test baseline:** 26 August 2026 11:09 IST. Flutter 3.44.8/Dart 3.12.2; canonical and seed-6102026 serialized runs both pass 27/27 files and 441/441 tests with no skip or hidden failure. See `docs/08-testing/flutter-test-baseline.md`.
+- **STAB-11 backend build baseline:** 26 August 2026 12:00 IST. Node v20.20.2/pnpm 9.15.4/Nest 11.2.3/TypeScript 5.7.2; two sanitized builds produced the same 388-file artifact and manifest hash. See `docs/07-deployment/backend-build-baseline.md`.
 - **Audit type:** Read-only implementation, configuration, test, security, release, documentation, and artifact inspection
 - **Decision:** **NOT PRODUCTION-READY**
 
@@ -53,6 +54,7 @@ Verified locally:
 - Root `pnpm typecheck` — **PASS** at original audit. **STAB-06:** independently verified TypeScript 5.7.2 across backend, ERP, shared-types and API-contracts; all individual and root commands returned 0 errors with 229 maintained roots covered.
 - Flutter analysis with fatal infos — **PASS**.
 - Flutter tests — **441/441 PASS** across 27 files in both canonical and shuffled serialized STAB-10 runs.
+- Backend production build — **PASS (STAB-11)**. Two sanitized builds emitted the same 388-file, 2,114,896-byte artifact with all 129 application roots and no test/spec/script/env output; compiled configuration and module-path smokes passed without external access.
 - Flutter dev debug APK — **PASS**.
 - Flutter production release APK compile — **PASS**, but the binary is unusable for production because it lacks network permission and is signed by the Android debug certificate.
 - iOS unsigned release build — **FAIL**, `Application not configured for iOS`.
@@ -174,6 +176,49 @@ percentage or quality threshold is claimed. Detailed per-file counts, coverage
 maps, boundaries, and owners are in
 `docs/08-testing/flutter-test-baseline.md`. No Dart/test/configuration change
 was required in STAB-10.
+
+### STAB-11 backend build boundary update
+
+The backend builds with Node v20.20.2, pnpm 9.15.4, Nest framework/CLI
+11.2.3/11.0.24, and TypeScript 5.7.2. Frozen installation passed without
+manifest or lockfile drift. CI and the local baseline build shared-types and
+API-contracts before the canonical filtered backend `nest build`.
+
+`nest-cli.json` uses `sourceRoot: src`, `tsconfig.build.json`, and
+`deleteOutDir: true`. The production project covers all 129 application roots
+and excludes tests, operational scripts, specs, prior output, and
+`node_modules`. Two sanitized builds exited 0 in 4.41 and 3.57 seconds. A
+sentinel inside ignored `dist` was removed on rebuild, and both sorted
+path/content-hash manifests had the same aggregate SHA-256
+`6653039693b1ebb9eb08369a1c45ee52688fa2d91f9b1352eb16dd757164ece2`.
+
+The artifact is 388 files and 2,114,896 content bytes: 129 JavaScript, 129
+declarations, 129 source maps, and one build-info file. `dist/main.js` and all
+19 application module directories are present; no test, spec, script,
+environment file, static asset, media, or other unexpected copy is present.
+Maps use relative source names, contain no source content, and contain no
+absolute developer path. Secret scanning found no real secret, private key,
+token-shaped literal, credential-bearing URL, or environment file. Known
+placeholder strings occur only in the compiled fail-closed validator.
+
+Compiled production validation rejected missing configuration, placeholder and
+weak secrets, local OTP, incomplete external SMS settings, wildcard/HTTP/
+loopback CORS, and template database credentials without echoing rejected
+values; valid synthetic configuration passed. `dist/main.js` failed closed on
+missing configuration from an empty working directory, and the complete
+compiled `AppModule` loaded with valid synthetic configuration. A full listen
+was intentionally omitted because two `OnModuleInit` outbox pollers immediately
+attempt PostgreSQL; the task-permitted module/config method avoided any
+external connection and left no server.
+
+The artifact is not standalone: Node, production dependencies, and built
+workspace packages are required. No Dockerfile, production package/image,
+artifact upload, deploy/rollback, or database-backed startup proof exists.
+Database TLS enforcement, unconditional Swagger, wider log/stack redaction,
+source-map packaging, and CI artifact smoke/attestation remain owned by
+STAB-14/15/16/20 and PROD-01–06. This is reproducible build evidence, not a
+production-readiness claim. No backend source, test, configuration, dependency,
+or generated artifact was committed in STAB-11.
 
 The repository-requested `lean-ctx` helper is not installed in the current environment, even though project AI-control documentation says it is. Native read/search/command tools were used as the documented fallback.
 
@@ -659,7 +704,7 @@ PHASE 11 Android release
 PHASE 12 iOS release
 ```
 
-No phase begins until the preceding gate is verified and recorded. The current phase is **Phase 0 — Stabilization**. **STAB-01** through **STAB-10** are complete. The next execution block is **STAB-11 — Backend build**. Do not start STAB-11 in the STAB-10 session.
+No phase begins until the preceding gate is verified and recorded. The current phase is **Phase 0 — Stabilization**. **STAB-01** through **STAB-11** are complete. The next execution block is **STAB-12 — ERP build**. Do not start STAB-12 in the STAB-11 session.
 
 ## 19. Definition of complete
 

@@ -9,6 +9,17 @@ Product aspirations (environments, release gates, observability) are described
 in [PRD 10](../product/prd/10-deployment-devops-prd-v1.md). This page lists what
 must be true **before** any cutover, based on ADRs and existing code.
 
+## Backend artifact posture
+
+STAB-11 proved that the NestJS source compiles reproducibly to an ignored
+`apps/backend/dist` artifact with no embedded secret, test, spec, script, or
+environment file. The artifact is compiled JavaScript, not a standalone
+deployment: it requires production `node_modules` and built
+`@me-event/shared-types` / `@me-event/api-contracts` workspace packages. There
+is no production package, Dockerfile, image, deploy workflow, or valid-config
+database-backed startup proof. See
+[backend-build-baseline.md](./backend-build-baseline.md).
+
 ---
 
 ## Hard requirements before traffic
@@ -55,4 +66,5 @@ from this doc — none are wired in-repo.
 - [environment.md](./environment.md)
 - [ci-cd.md](./ci-cd.md)
 - [monitoring.md](./monitoring.md)
+- [backend-build-baseline.md](./backend-build-baseline.md)
 - [ADR 0010](../adr/0010-connected-platform-rebuild.md) / [ADR 0011](../adr/0011-prd-suite-and-flutter-confirmation.md)
