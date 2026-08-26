@@ -37,11 +37,11 @@ Canonical evidence:
 
 | Layer                           | Runner           | What exists                                                                 |
 | ------------------------------- | ---------------- | --------------------------------------------------------------------------- |
-| Pure domain + guards + services | Vitest           | Backend suite: 188 tests across 30 files at the STAB-07 baseline            |
+| Pure domain + guards + services | Vitest           | Backend suite: 190 tests across 30 files after the STAB-15 correction       |
 | Module foundation / workflow    | Vitest           | `*-foundation.spec.ts`, quotation/payment workflow and Pattern B probes     |
 | Employee CRM/ERP narrow units   | Vitest           | 8 tests across environment, API refresh, and catalog form-reset behavior    |
 | Flutter unit and widget tests   | `flutter test`   | 441 tests across models, providers, stores, navigation and customer UI      |
-| PostgreSQL integration          | Vitest + Compose | 20 tests / 3 files; selected adapters and workflows; explicit local command |
+| PostgreSQL integration          | Vitest + Compose | 21 tests / 3 files; selected adapters and workflows; explicit local command |
 | Redis integration               | —                | **None**                                                                    |
 | Browser / device E2E            | —                | **None** (no Playwright / Cypress / Detox)                                  |
 
@@ -50,7 +50,7 @@ Details: [unit-tests.md](./unit-tests.md), [integration-tests.md](./integration-
 
 STAB-14 adds PostgreSQL 17.2 migration-path evidence. STAB-15 adds a separate
 maintained, fail-closed harness that applies all 20 migrations to each fresh
-database and passes 20 selected repository/service integration cases across
+database and passes 21 selected repository/service integration cases across
 identity, enquiry/CRM, quotation/payment/booking/Event Record, rollback,
 concurrency, ownership, branch lists, and Pattern B. It does not prove HTTP,
 Redis, providers, complete branch/BOLA, backup/restore, or production behavior.
@@ -62,7 +62,7 @@ Evidence: [database-integration-baseline.md](./database-integration-baseline.md)
 
 | Surface                                    | Status                                                                                        |
 | ------------------------------------------ | --------------------------------------------------------------------------------------------- |
-| Backend (`@me-event/backend`)              | 188 unit/foundation tests across 30 files plus 20 PostgreSQL integration tests across 3 files |
+| Backend (`@me-event/backend`)              | 190 unit/foundation tests across 30 files plus 21 PostgreSQL integration tests across 3 files |
 | Mobile (`apps/mobile`)                     | 441 tests; CI also runs formatting, analysis and a development APK build                      |
 | ERP (`@me-event/erp-web`)                  | 8 tests across 3 files; no rendered component or browser route coverage                       |
 | Packages (`api-contracts`, `shared-types`) | No `test` scripts                                                                             |

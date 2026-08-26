@@ -8,6 +8,7 @@ import type { Pool, PoolClient } from "pg";
 import { PG_POOL } from "../../../database/database.module";
 import type { UserRecord } from "../domain/user";
 import type {
+  CoordinatedRefreshResult,
   IdentityRepository,
   OtpChallengeRecord,
   RefreshDigestMatch,
@@ -293,6 +294,98 @@ export class PostgresIdentityRepository implements IdentityRepository {
     };
   }
 
+  public async coordinateSessionRefresh(
+    presentedRefreshTokenDigest: string,
+    nextRefreshTokenDigest: string,
+    lastSeenAt: Date,
+    expiresAt: Date,
+  ): Promise<CoordinatedRefreshResult> {
+    const client = await this.pool.connect();
+    let transactionOpen = false;
+    try {
+      await client.query("BEGIN ISOLATION LEVEL REPEATABLE READ");
+      transactionOpen = true;
+      // Establish the transaction snapshot before contending for the row lock.
+      await client.query("SELECT txid_current_snapshot()");
+      const result = await client.query<SessionRow>(
+        `SELECT * FROM device_sessions
+         WHERE refresh_token_digest = $1
+            OR previous_refresh_token_digest = $1
+         LIMIT 1
+         FOR UPDATE`,
+        [presentedRefreshTokenDigest],
+      );
+      const row = result.rows[0];
+      if (row === undefined) {
+        await client.query("COMMIT");
+        transactionOpen = false;
+        return { outcome: "invalid" };
+      }
+
+      const session = this.toDeviceSession(row);
+      if (row.refresh_token_digest !== presentedRefreshTokenDigest) {
+        await client.query(
+          `UPDATE device_sessions
+           SET revoked_at = $2, version = version + 1
+           WHERE id = $1 AND revoked_at IS NULL`,
+          [session.id, lastSeenAt],
+        );
+        await client.query("COMMIT");
+        transactionOpen = false;
+        return { outcome: "reused", session };
+      }
+      if (
+        session.revokedAt !== undefined ||
+        Date.parse(session.expiresAt) <= lastSeenAt.getTime()
+      ) {
+        await client.query("COMMIT");
+        transactionOpen = false;
+        return { outcome: "inactive" };
+      }
+
+      const userResult = await client.query<UserRow>(
+        `SELECT * FROM app_users WHERE id = $1`,
+        [session.userId],
+      );
+      const userRow = userResult.rows[0];
+      if (userRow === undefined) {
+        await client.query("COMMIT");
+        transactionOpen = false;
+        return { outcome: "inactive" };
+      }
+      const user = this.toUserRecord(
+        userRow,
+        await this.loadRoleAssignments(userRow.id, client),
+      );
+      const rotated = await this.rotateSessionRefreshTokenWithExecutor(
+        client,
+        session.id,
+        nextRefreshTokenDigest,
+        presentedRefreshTokenDigest,
+        lastSeenAt,
+        expiresAt,
+      );
+      if (!rotated) {
+        await client.query("ROLLBACK");
+        transactionOpen = false;
+        return { outcome: "conflict" };
+      }
+      await client.query("COMMIT");
+      transactionOpen = false;
+      return { outcome: "rotated", session, user };
+    } catch (error) {
+      if (transactionOpen) {
+        await client.query("ROLLBACK");
+      }
+      if (isPostgresError(error, "40001")) {
+        return { outcome: "conflict" };
+      }
+      throw error;
+    } finally {
+      client.release();
+    }
+  }
+
   public async rotateSessionRefreshToken(
     sessionId: string,
     nextRefreshTokenDigest: string,
@@ -300,7 +393,25 @@ export class PostgresIdentityRepository implements IdentityRepository {
     lastSeenAt: Date,
     expiresAt: Date,
   ): Promise<boolean> {
-    const result = await this.pool.query<{ id: string }>(
+    return this.rotateSessionRefreshTokenWithExecutor(
+      this.pool,
+      sessionId,
+      nextRefreshTokenDigest,
+      previousRefreshTokenDigest,
+      lastSeenAt,
+      expiresAt,
+    );
+  }
+
+  private async rotateSessionRefreshTokenWithExecutor(
+    executor: Pool | PoolClient,
+    sessionId: string,
+    nextRefreshTokenDigest: string,
+    previousRefreshTokenDigest: string,
+    lastSeenAt: Date,
+    expiresAt: Date,
+  ): Promise<boolean> {
+    const result = await executor.query<{ id: string }>(
       `UPDATE device_sessions
        SET refresh_token_digest = $2,
            previous_refresh_token_digest = $3,
@@ -448,4 +559,13 @@ export class PostgresIdentityRepository implements IdentityRepository {
       client.release();
     }
   }
+}
+
+function isPostgresError(error: unknown, code: string): boolean {
+  return (
+    error !== null &&
+    typeof error === "object" &&
+    "code" in error &&
+    error.code === code
+  );
 }

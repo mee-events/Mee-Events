@@ -65,7 +65,7 @@ Backend handbook reminder: run verify before merging backend changes
 
 The PostgreSQL command creates and removes its own loopback-only `mee-dbint-*`
 Compose project and must not use the developer `me-event-local` database. Its
-20-case STAB-15 boundary is documented in
+21-case STAB-15 boundary is documented in
 [database-integration-baseline.md](./database-integration-baseline.md). CI
 service wiring remains STAB-16; a local pass is not remote CI proof.
 

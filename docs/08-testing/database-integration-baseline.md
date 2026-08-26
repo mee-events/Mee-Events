@@ -1,10 +1,10 @@
 # PostgreSQL Database Integration Baseline — STAB-15
 
-- **Verified:** 26 August 2026 18:26 IST (Asia/Kolkata, +0530)
+- **Corrected:** 26 August 2026; pending independent re-review
 - **Repository:** `/Users/vinaychilagani/Desktop/Mee Event V1`
-- **Branch / starting commit:** `master` / `348aff1d03b7b7d932485dee005ae3b9e2676f87`
+- **Branch / correction starting commit:** `master` / `4e2b252f1732262bb9fe17a659a76e2a006b8ae3`
 - **Task:** STAB-15 — PostgreSQL database integration test foundation
-- **Result:** **PASS WITH FINDINGS** — three fresh PostgreSQL 17.2 runs passed 20/20 cases across 3/3 files; no skip, todo, expected-failure, or focused case exists
+- **Result:** **CORRECTED, PENDING INDEPENDENT RE-REVIEW** — four required fresh PostgreSQL 17.2 runs passed 21/21 cases across 3/3 files; no skip, todo, expected-failure, focused case, retry, or conditional pass exists
 - **Boundary:** repository/service integration through real `pg.Pool` connections and all 20 migrations. This is not HTTP, Redis, browser, provider, backup/restore, remote database, or production-readiness proof.
 
 ## Toolchain and commands
@@ -21,6 +21,7 @@
 | Integration command      | `corepack pnpm --filter @me-event/backend test:integration`                                               |
 | Root convenience command | `corepack pnpm test:integration:backend`                                                                  |
 | Shuffled command         | `corepack pnpm --filter @me-event/backend test:integration -- --sequence.shuffle --sequence.seed=6152026` |
+| Second shuffled command  | `corepack pnpm --filter @me-event/backend test:integration -- --sequence.shuffle --sequence.seed=8262026` |
 
 The unit command uses `test/vitest.unit.config.ts`: it includes
 `test/**/*.spec.ts` and explicitly excludes `test/integration/**`. The dedicated
@@ -64,8 +65,8 @@ and 10-second statement timeouts. All suites call `pool.end()`. Outbox processor
 | Unsafe URL/identity               | Tests reject non-loopback, malformed, wrong database, wrong user, and wrong project/application identity before creating a pool | PASS   |
 | Zero discovery                    | Nonexistent integration filter exited `1` with `No test files found`                                                            | PASS   |
 | Database unavailable              | A synthetically configured unavailable loopback endpoint exited nonzero during global setup                                     | PASS   |
-| Unit separation                   | Ordinary unit discovery remained exactly 30 files / 188 tests and did not include `.integration.spec.ts`                        | PASS   |
-| Fresh state                       | Canonical, repeat, and shuffled runs each created and removed a different database project                                      | PASS   |
+| Unit separation                   | Ordinary unit discovery is exactly 30 files / 190 tests and does not include `.integration.spec.ts`                             | PASS   |
+| Fresh state                       | Canonical, repeat, and both shuffled runs each created and removed a different database project                                 | PASS   |
 | Developer state                   | The pre-existing `me-event-local` Postgres/Redis container IDs and state were unchanged                                         | PASS   |
 
 The committed password is local test orchestration data scoped to this disposable
@@ -73,14 +74,14 @@ container. No founder environment file or remote URL was read.
 
 ## Test inventory
 
-| File                                     |  Cases | Required groups    | Production boundary exercised                                                                           |
-| ---------------------------------------- | -----: | ------------------ | ------------------------------------------------------------------------------------------------------- |
-| `harness-safety.integration.spec.ts`     |      4 | DBINT-01, DBINT-14 | Configuration guard, PostgreSQL identity/ledger, bounded pool cleanup                                   |
-| `identity.integration.spec.ts`           |      7 | DBINT-02–04        | `AuthService`, `PostgresIdentityRepository`, `PostgresAuditSink`, JWT signing, real constraints and CAS |
-| `connected-workflow.integration.spec.ts` |      9 | DBINT-05–13        | Enquiry, CRM lead/outbox processors, quotation, payment, booking and Event Record services/adapters     |
-| **Total**                                | **20** | **DBINT-01–14**    | **Real PostgreSQL and production adapters/services**                                                    |
+| File                                     |  Cases | Required groups    | Production boundary exercised                                                                                                      |
+| ---------------------------------------- | -----: | ------------------ | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `harness-safety.integration.spec.ts`     |      4 | DBINT-01, DBINT-14 | Configuration guard, PostgreSQL identity/ledger, bounded pool cleanup                                                              |
+| `identity.integration.spec.ts`           |      8 | DBINT-02–04        | `AuthService`, two `PostgresIdentityRepository`/pool instances, `PostgresAuditSink`, JWT signing, constraints, row locking and CAS |
+| `connected-workflow.integration.spec.ts` |      9 | DBINT-05–13        | Enquiry, CRM lead/outbox processors, quotation, payment, booking and Event Record services/adapters                                |
+| **Total**                                | **21** | **DBINT-01–14**    | **Real PostgreSQL and production adapters/services**                                                                               |
 
-Parameterized assertions remain registered inside these 20 test cases; there is
+Parameterized assertions remain registered inside these 21 test cases; there is
 no dynamic conditional registration. Support files provide only deterministic
 fixtures, database guards, and workflow setup. No integration case is skipped,
 todo, focused, conditionally returned, retried, or marked as expected to fail.
@@ -89,14 +90,40 @@ todo, focused, conditionally returned, retried, or marked as expected to fail.
 
 | Run                                 | Fresh database | Files | Tests | Failed / skipped / todo | Vitest duration | Exit |
 | ----------------------------------- | -------------- | ----: | ----: | ----------------------- | --------------: | ---: |
-| Canonical                           | yes            |   3/3 | 20/20 | 0 / 0 / 0               |          1.82 s |    0 |
-| Canonical repeat                    | yes            |   3/3 | 20/20 | 0 / 0 / 0               |          2.33 s |    0 |
-| Shuffled serialized, seed `6152026` | yes            |   3/3 | 20/20 | 0 / 0 / 0               |          1.62 s |    0 |
+| Canonical                           | yes            |   3/3 | 21/21 | 0 / 0 / 0               |          1.89 s |    0 |
+| Canonical repeat                    | yes            |   3/3 | 21/21 | 0 / 0 / 0               |          1.91 s |    0 |
+| Shuffled serialized, seed `6152026` | yes            |   3/3 | 21/21 | 0 / 0 / 0               |          1.89 s |    0 |
+| Shuffled serialized, seed `8262026` | yes            |   3/3 | 21/21 | 0 / 0 / 0               |          1.96 s |    0 |
 
 Expected output was limited to idempotent migration `NOTICE` messages and two
 Nest warnings deliberately produced by malformed outbox fixtures. Those rows
 were asserted failed at attempt 8 without a business mutation. No unhandled
 exception, pending timer, open pool, or leaked Compose resource remained.
+
+## Correction attempt record
+
+- Before production edits, the ordinary backend suite passed 30/30 files and
+  188/188 tests.
+- The pre-correction form of the maintained two-service/two-pool case was run
+  alone on a fresh database. It reproduced one successful rotation, one
+  `SESSION_REFRESH_REUSED`, a revoked winner, one rotation audit, and one
+  reuse-revocation audit. The `-t` selection reported the seven non-selected
+  cases as filtered/skipped; no maintained test used `.skip`, `.only`, retry,
+  conditional execution, or expected-failure behavior. Every final full-suite
+  run reports 0 skipped.
+- The first post-edit typecheck failed with two `TS2339` errors because three
+  non-success outcomes shared one union member and did not narrow to the
+  rotated result. Splitting those outcomes into distinct discriminated-union
+  members fixed the type error; no assertion or compiler setting was weakened.
+- The first targeted Prettier check reported style drift in
+  `identity.integration.spec.ts`; the pinned formatter corrected it. This was
+  the only formatting attempt that did not pass.
+- The first secret-scan invocation had a shell quoting error. The corrected
+  added-line scan completed with no private-key, provider-token,
+  credential-bearing database URL, or assigned-secret pattern match.
+- The corrected focused identity run passed 8/8. Canonical, repeat, and both
+  shuffled full-suite runs then passed 21/21 without a failed or flaky race.
+  The final backend unit run passed 30/30 files and 190/190 tests.
 
 ## Adapter and transaction inventory
 
@@ -129,23 +156,42 @@ claimed by this baseline.
   audit events; the loser receives a controlled challenge-invalid error.
 - Sequential refresh rotates once; presenting the previous token revokes the
   session, records reuse, and the revoked session cannot refresh.
-- Concurrent presentation of the same current refresh token produces one
-  winner and one controlled conflict. The winner remains current and unrevoked,
-  and exactly one rotation audit row is written.
+- One-service concurrency is covered separately by the 30-file unit suite: the
+  process-local in-flight guard produces one winner and one controlled conflict,
+  releases its state after controlled errors, and does not revoke the winner.
+- Repository-only concurrent CAS through two repositories returns exactly one
+  `true` and one `false`; one next digest becomes current.
+- The maintained two-service test uses two `AuthService` instances, two
+  `PostgresIdentityRepository` instances, and two warmed `pg.Pool` objects
+  connected to one database. It repeats 20 fresh synthetic user/session races
+  per suite run. Every race produces one success and one
+  `SESSION_REFRESH_CONFLICT`; the winner stays current and unrevoked with one
+  rotation audit and zero revocation audits.
 
 ### Production corrections
 
 STAB-15 replaced unconditional challenge writes with conditional PostgreSQL
 updates for failed-attempt decrement and one-time consume. Refresh-token
-rotation now compare-and-sets the presented digest and reports whether it won.
-The in-memory adapter preserves interface parity. `AuthService` maps lost
-challenge/rotation races to controlled domain errors and prevents two rotations
-of the same digest concurrently inside one service process.
+rotation retains the presented-digest CAS as its authority. The corrected
+repository composes lookup, classification, active/user checks, row locking,
+CAS rotation, and genuine-reuse revocation inside a PostgreSQL
+`REPEATABLE READ` transaction. It establishes the transaction snapshot before
+locking the existing device-session row; a concurrent transaction that observed
+the same current token receives PostgreSQL serialization failure and maps to
+controlled `SESSION_REFRESH_CONFLICT`. A later transaction that observes the
+digest as `previous` still revokes the session as `SESSION_REFRESH_REUSED`.
 
-These corrections close the tested single-process/PostgreSQL races only.
-The refresh in-flight guard is process-local; a complete multi-instance session
-reuse/concurrency design and the broader session-control matrix remain
-`SEC-03`/STAB-20.
+The process-local in-flight set remains a fast one-service guard, while
+PostgreSQL transaction isolation and the session-row lock coordinate separate
+API processes. No raw token or digest is used as a PostgreSQL coordination key,
+and no table, migration, grace window, retry, sleep, or test-only coordinator
+was added. The in-memory adapter preserves interface parity.
+
+This correction does not complete `SEC-03`: OTP consumption still precedes
+user/session/audit completion; refresh state mutation can still precede audit
+completion; full session/audit transactional atomicity, stable installation
+identity, session inventory/revoke-all, and broader access-token/session
+revocation design remain open under `SEC-03`/STAB-20.
 
 ## Enquiry, outbox, and CRM results
 
@@ -213,7 +259,7 @@ companions.
 | Gap                                                                                                                       | Severity / owner                                    |
 | ------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------- |
 | Direct employee ID/branch authorization matrix is incomplete                                                              | High — `SEC-02`, STAB-20; HTTP proof in STAB-17     |
-| Refresh concurrency guard is process-local; wider session and access-token controls remain                                | High — `SEC-03`, STAB-20                            |
+| Full OTP/session/audit atomicity and wider session/access-token controls remain                                           | High — `SEC-03`, STAB-20                            |
 | Outbox has no processing lease/crash recovery proof                                                                       | High — `SEC-04`, STAB-20                            |
 | Payment is internal/manual; no signed provider request/webhook/reconciliation                                             | High — `INT-02` and later provider work             |
 | Migration SQL commit and ledger insert remain non-atomic/checksum-free                                                    | Medium — `SEC-M-09`, STAB-20/PROD-03                |
@@ -234,10 +280,12 @@ artifact is tracked.
 
 ## Final verdict
 
-**PASS WITH FINDINGS.** The maintained suite proves its selected real adapter,
+**CORRECTED, PENDING INDEPENDENT RE-REVIEW.** The maintained suite proves its selected real adapter,
 transaction, rollback, concurrency, ownership, branch-list, Pattern B, and
-connected-workflow boundaries on PostgreSQL 17.2. Required cases pass on three
+connected-workflow boundaries on PostgreSQL 17.2. Required cases pass on four
 independent disposable databases, unit discovery remains database-free, and
 cleanup is fail-checked. Broader authorization, multi-instance session,
 outbox-recovery, provider, HTTP/E2E, and production concerns remain explicitly
-open. Phase 0 remains **NOT PASSED**; STAB-16 is next and was not started.
+open, except for the specifically verified two-instance refresh race above.
+Phase 0 remains **NOT PASSED**; STAB-16 is **NOT STARTED**. Do not begin STAB-16
+until this correction receives independent re-review.

@@ -71,13 +71,26 @@ token digest.
 
 On refresh:
 
-1. Lookup by current refresh digest, or by **previous** digest (rotation window).
-2. If the previous digest is presented again → treat as **reuse**: revoke
-   session, invalidate principal cache, audit
-   `identity.session.revoked` with reason `refresh-token-reuse`.
-3. Otherwise rotate to a new refresh digest, keep previous for one-time overlap
-   detection, extend session expiry by 30 days, audit
+1. A process-local in-flight guard rejects duplicate work already active in the
+   same `AuthService` instance.
+2. PostgreSQL establishes a `REPEATABLE READ` snapshot, finds the current or
+   previous digest, and locks the existing device-session row.
+3. A current digest rotates through the conditional digest CAS. If another API
+   instance observed that same current row, PostgreSQL serialization maps the
+   loser to controlled `SESSION_REFRESH_CONFLICT`; it is not classified as
+   theft and receives no credentials.
+4. A later request that observes the digest as **previous** is genuine reuse:
+   revoke the session, invalidate principal cache, audit
+   `identity.session.revoked` with reason `refresh-token-reuse`, and reject the
+   rotated token afterward.
+5. A successful rotation extends expiry by 30 days and audits
    `identity.session.rotated`.
+
+The row lock uses the existing session row; no token/digest advisory-lock key,
+new table, grace window, retry, or sleep is involved. Rotation/revocation state
+can still commit before its separate audit append, and OTP consumption still
+precedes user/session/audit completion. Those wider atomicity and session-control
+limits remain under `SEC-03`.
 
 Logout audits `identity.session.revoked` with reason `logout`.
 

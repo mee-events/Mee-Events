@@ -23,6 +23,17 @@ export interface RefreshDigestMatch {
   readonly match: "current" | "previous";
 }
 
+export type CoordinatedRefreshResult =
+  | { readonly outcome: "invalid" }
+  | { readonly outcome: "inactive" }
+  | { readonly outcome: "conflict" }
+  | { readonly outcome: "reused"; readonly session: DeviceSession }
+  | {
+      readonly outcome: "rotated";
+      readonly session: DeviceSession;
+      readonly user: UserRecord;
+    };
+
 export const IDENTITY_REPOSITORY = Symbol("IDENTITY_REPOSITORY");
 
 export interface RoleSwitchPersistence {
@@ -61,6 +72,12 @@ export interface IdentityRepository {
   findSessionByRefreshDigest(
     digest: string,
   ): Promise<RefreshDigestMatch | undefined>;
+  coordinateSessionRefresh(
+    presentedRefreshTokenDigest: string,
+    nextRefreshTokenDigest: string,
+    lastSeenAt: Date,
+    expiresAt: Date,
+  ): Promise<CoordinatedRefreshResult>;
   rotateSessionRefreshToken(
     sessionId: string,
     nextRefreshTokenDigest: string,

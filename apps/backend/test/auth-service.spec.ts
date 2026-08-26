@@ -156,13 +156,55 @@ describe("AuthService sessions", () => {
     expect(rotatedAgain.refreshToken).not.toBe(rotated.refreshToken);
   });
 
+  it("uses process-local in-flight protection without revoking the winner", async () => {
+    const login1 = await login();
+    const results = await Promise.allSettled([
+      service.refreshSession({ refreshToken: login1.refreshToken }),
+      service.refreshSession({ refreshToken: login1.refreshToken }),
+    ]);
+    const fulfilled = results.filter(
+      (
+        result,
+      ): result is PromiseFulfilledResult<
+        Awaited<ReturnType<AuthService["refreshSession"]>>
+      > => result.status === "fulfilled",
+    );
+    expect(fulfilled).toHaveLength(1);
+    expect(
+      results
+        .filter((result) => result.status === "rejected")
+        .map((result) => errorCode(result.reason)),
+    ).toEqual(["SESSION_REFRESH_CONFLICT"]);
+
+    const winner = await repository.findSessionByRefreshDigest(
+      digestOf(fulfilled[0]?.value.refreshToken ?? ""),
+    );
+    expect(winner?.match).toBe("current");
+    expect(winner?.record.session.revokedAt).toBeUndefined();
+    expect(
+      audit.events.filter(
+        (event) => event.action === "identity.session.rotated",
+      ),
+    ).toHaveLength(1);
+    expect(
+      audit.events.filter(
+        (event) => event.action === "identity.session.revoked",
+      ),
+    ).toHaveLength(0);
+  });
+
   it("revokes the session when a rotated refresh token is reused", async () => {
     const login1 = await login();
-    await service.refreshSession({ refreshToken: login1.refreshToken });
+    const rotated = await service.refreshSession({
+      refreshToken: login1.refreshToken,
+    });
 
     await expect(
       service.refreshSession({ refreshToken: login1.refreshToken }),
-    ).rejects.toThrow("reuse detected");
+    ).rejects.toMatchObject({ code: "SESSION_REFRESH_REUSED", status: 401 });
+    await expect(
+      service.refreshSession({ refreshToken: rotated.refreshToken }),
+    ).rejects.toMatchObject({ code: "SESSION_NOT_ACTIVE", status: 401 });
 
     const revocation = audit.events.find(
       (event) =>
@@ -177,9 +219,36 @@ describe("AuthService sessions", () => {
   });
 
   it("rejects unknown refresh tokens", async () => {
+    const request = { refreshToken: "x".repeat(64) };
+    await expect(service.refreshSession(request)).rejects.toMatchObject({
+      code: "SESSION_REFRESH_INVALID",
+      status: 401,
+    });
+    await expect(service.refreshSession(request)).rejects.toMatchObject({
+      code: "SESSION_REFRESH_INVALID",
+      status: 401,
+    });
+  });
+
+  it("rejects an expired session", async () => {
+    const user = await repository.createUser("+919876543211", "customer");
+    const refreshToken = "expired-refresh-token";
+    const now = new Date();
+    await repository.saveSession(
+      {
+        id: randomUUID(),
+        userId: user.id,
+        deviceId: "expired-device",
+        createdAt: new Date(now.getTime() - 2_000).toISOString(),
+        lastSeenAt: new Date(now.getTime() - 2_000).toISOString(),
+        expiresAt: new Date(now.getTime() - 1_000).toISOString(),
+      },
+      digestOf(refreshToken),
+    );
+
     await expect(
-      service.refreshSession({ refreshToken: "x".repeat(64) }),
-    ).rejects.toThrow("invalid");
+      service.refreshSession({ refreshToken }),
+    ).rejects.toMatchObject({ code: "SESSION_NOT_ACTIVE", status: 401 });
   });
 
   it("revokes the device session on logout", async () => {
@@ -205,4 +274,11 @@ function digestOf(refreshToken: string): string {
   return createHmac("sha256", REFRESH_TOKEN_HMAC_SECRET)
     .update(refreshToken)
     .digest("hex");
+}
+
+function errorCode(error: unknown): string | undefined {
+  if (error === null || typeof error !== "object" || !("code" in error)) {
+    return undefined;
+  }
+  return typeof error.code === "string" ? error.code : undefined;
 }

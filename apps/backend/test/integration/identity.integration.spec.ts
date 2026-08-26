@@ -377,37 +377,111 @@ describe("DBINT-04 refresh rotation concurrency and reuse", () => {
     ]);
   });
 
-  it("uses compare-and-set so one concurrent rotation wins without revoking it", async () => {
-    const { repository, service } = createAuthHarness(pool);
-    const login = await loginWithOtp(service, "refresh-concurrency");
-    const results = await Promise.allSettled([
-      service.refreshSession({ refreshToken: login.refreshToken }),
-      service.refreshSession({ refreshToken: login.refreshToken }),
-    ]);
-    const fulfilled = results.filter(
-      (
-        result,
-      ): result is PromiseFulfilledResult<
-        Awaited<ReturnType<AuthService["refreshSession"]>>
-      > => result.status === "fulfilled",
-    );
-    expect(fulfilled).toHaveLength(1);
-    expect(
-      results
-        .filter((result) => result.status === "rejected")
-        .map((result) => errorCode(result.reason)),
-    ).toEqual(["SESSION_REFRESH_CONFLICT"]);
+  it("keeps PostgreSQL CAS authoritative with one true and one false", async () => {
+    const secondPool = createIntegrationPool();
+    try {
+      const first = new PostgresIdentityRepository(pool);
+      const second = new PostgresIdentityRepository(secondPool);
+      const user = await first.createUser(
+        syntheticMobile("refresh-repository-cas"),
+        "customer",
+      );
+      const sessionId = stableUuid("session:refresh-repository-cas");
+      await first.saveSession(
+        {
+          id: sessionId,
+          userId: user.id,
+          deviceId: "synthetic-device-refresh-repository-cas",
+          createdAt: "2026-08-26T12:00:00.000Z",
+          lastSeenAt: "2026-08-26T12:00:00.000Z",
+          expiresAt: "2099-09-25T12:00:00.000Z",
+        },
+        "repository-cas-current",
+      );
+      const results = await Promise.all([
+        first.rotateSessionRefreshToken(
+          sessionId,
+          "repository-cas-next-a",
+          "repository-cas-current",
+          new Date("2026-08-26T12:01:00.000Z"),
+          new Date("2099-09-25T12:01:00.000Z"),
+        ),
+        second.rotateSessionRefreshToken(
+          sessionId,
+          "repository-cas-next-b",
+          "repository-cas-current",
+          new Date("2026-08-26T12:01:00.000Z"),
+          new Date("2099-09-25T12:01:00.000Z"),
+        ),
+      ]);
+      expect(results.filter(Boolean)).toHaveLength(1);
+      expect(results.filter((result) => !result)).toHaveLength(1);
+      const currentMatches = await Promise.all(
+        ["repository-cas-next-a", "repository-cas-next-b"].map((digest) =>
+          first.findSessionByRefreshDigest(digest),
+        ),
+      );
+      expect(
+        currentMatches.filter((match) => match?.match === "current"),
+      ).toHaveLength(1);
+    } finally {
+      await secondPool.end();
+    }
+  });
 
-    const winnerDigest = digestRefresh(fulfilled[0]?.value.refreshToken ?? "");
-    const winner = await repository.findSessionByRefreshDigest(winnerDigest);
-    expect(winner?.match).toBe("current");
-    expect(winner?.record.session.revokedAt).toBeUndefined();
-    const rotatedAudits = await pool.query<{ count: number }>(
-      `SELECT count(*)::int AS count FROM audit_events
-       WHERE actor_user_id = $1 AND action = 'identity.session.rotated'`,
-      [login.user.id],
-    );
-    expect(rotatedAudits.rows[0]?.count).toBe(1);
+  it("coordinates two services and pools without revoking the winner", async () => {
+    const secondPool = createIntegrationPool();
+    try {
+      await secondPool.query("SELECT 1");
+      const first = createAuthHarness(pool);
+      const second = createAuthHarness(secondPool);
+      for (let iteration = 0; iteration < 20; iteration += 1) {
+        const login = await loginWithOtp(
+          first.service,
+          `refresh-two-service-${String(iteration)}`,
+        );
+        const results = await Promise.allSettled([
+          first.service.refreshSession({ refreshToken: login.refreshToken }),
+          second.service.refreshSession({ refreshToken: login.refreshToken }),
+        ]);
+        const fulfilled = results.filter(
+          (
+            result,
+          ): result is PromiseFulfilledResult<
+            Awaited<ReturnType<AuthService["refreshSession"]>>
+          > => result.status === "fulfilled",
+        );
+        expect(fulfilled).toHaveLength(1);
+        expect(
+          results
+            .filter((result) => result.status === "rejected")
+            .map((result) => errorCode(result.reason)),
+        ).toEqual(["SESSION_REFRESH_CONFLICT"]);
+
+        const winnerDigest = digestRefresh(
+          fulfilled[0]?.value.refreshToken ?? "",
+        );
+        const winner =
+          await first.repository.findSessionByRefreshDigest(winnerDigest);
+        expect(winner?.match).toBe("current");
+        expect(winner?.record.session.revokedAt).toBeUndefined();
+        const audits = await pool.query<{
+          rotations: number;
+          revocations: number;
+        }>(
+          `SELECT
+             count(*) FILTER (WHERE action = 'identity.session.rotated')::int AS rotations,
+             count(*) FILTER (WHERE action = 'identity.session.revoked')::int AS revocations
+           FROM audit_events
+           WHERE actor_user_id = $1
+             AND action IN ('identity.session.rotated', 'identity.session.revoked')`,
+          [login.user.id],
+        );
+        expect(audits.rows[0]).toEqual({ rotations: 1, revocations: 0 });
+      }
+    } finally {
+      await secondPool.end();
+    }
   });
 });
 

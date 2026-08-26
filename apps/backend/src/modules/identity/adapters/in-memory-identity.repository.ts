@@ -3,6 +3,7 @@ import type { DeviceSession, PlatformRole } from "@me-event/shared-types";
 import { randomUUID } from "node:crypto";
 import type { AuditEvent } from "../../audit/audit-event";
 import type {
+  CoordinatedRefreshResult,
   DeviceSessionRecord,
   IdentityRepository,
   OtpChallengeRecord,
@@ -173,6 +174,45 @@ export class InMemoryIdentityRepository implements IdentityRepository {
       }
     }
     return undefined;
+  }
+
+  public async coordinateSessionRefresh(
+    presentedRefreshTokenDigest: string,
+    nextRefreshTokenDigest: string,
+    lastSeenAt: Date,
+    expiresAt: Date,
+  ): Promise<CoordinatedRefreshResult> {
+    const found = await this.findSessionByRefreshDigest(
+      presentedRefreshTokenDigest,
+    );
+    if (found === undefined) {
+      return { outcome: "invalid" };
+    }
+    const { session } = found.record;
+    if (found.match === "previous") {
+      await this.revokeSession(session.id, lastSeenAt);
+      return { outcome: "reused", session };
+    }
+    if (
+      session.revokedAt !== undefined ||
+      Date.parse(session.expiresAt) <= lastSeenAt.getTime()
+    ) {
+      return { outcome: "inactive" };
+    }
+    const user = await this.findUserById(session.userId);
+    if (user === undefined) {
+      return { outcome: "inactive" };
+    }
+    const rotated = await this.rotateSessionRefreshToken(
+      session.id,
+      nextRefreshTokenDigest,
+      presentedRefreshTokenDigest,
+      lastSeenAt,
+      expiresAt,
+    );
+    return rotated
+      ? { outcome: "rotated", session, user }
+      : { outcome: "conflict" };
   }
 
   public async rotateSessionRefreshToken(

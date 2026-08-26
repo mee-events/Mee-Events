@@ -179,9 +179,11 @@ tests**; STAB-08 was not started here.
 
 ## STAB-15 addendum — maintained PostgreSQL suite
 
-STAB-15 preserved the 30-file/188-test unit count and made its database-free
-discovery boundary explicit. A separate `test:integration` command now runs 20
-cases across 3 files against a disposable migrated PostgreSQL 17.2 database.
+STAB-15 originally preserved the 30-file/188-test unit count and made its
+database-free discovery boundary explicit. The refresh correction adds two
+maintained identity cases, so the current unit suite is 30 files / 190 tests. A
+separate `test:integration` command now runs 21 cases across 3 files against a
+disposable migrated PostgreSQL 17.2 database.
 That suite proves selected real adapter/service mapping, constraints,
 transactions, rollback, concurrency, customer ownership, branch-list, outbox,
 and Pattern B behavior. See

@@ -237,9 +237,15 @@ export class AuthService {
     }
     this.refreshDigestsInFlight.add(presentedDigest);
     try {
-      const found =
-        await this.repository.findSessionByRefreshDigest(presentedDigest);
-      if (found === undefined) {
+      const nextRefreshToken = randomBytes(48).toString("base64url");
+      const now = new Date();
+      const result = await this.repository.coordinateSessionRefresh(
+        presentedDigest,
+        this.digest(nextRefreshToken, "REFRESH_TOKEN_HMAC_SECRET"),
+        now,
+        new Date(now.getTime() + SESSION_TTL_MS),
+      );
+      if (result.outcome === "invalid") {
         throw new DomainError(
           "SESSION_REFRESH_INVALID",
           "Refresh token is invalid",
@@ -247,10 +253,8 @@ export class AuthService {
         );
       }
 
-      const session = found.record.session;
-      if (found.match === "previous") {
-        // A rotated token was presented again: assume theft and kill the session.
-        await this.repository.revokeSession(session.id, new Date());
+      if (result.outcome === "reused") {
+        const session = result.session;
         authPrincipalCache.invalidateSession(session.id);
         await this.audit.append({
           requestId,
@@ -266,43 +270,21 @@ export class AuthService {
           401,
         );
       }
-
-      if (
-        session.revokedAt !== undefined ||
-        Date.parse(session.expiresAt) <= Date.now()
-      ) {
+      if (result.outcome === "inactive") {
         throw new DomainError(
           "SESSION_NOT_ACTIVE",
           "Session is not active",
           401,
         );
       }
-
-      const user = await this.repository.findUserById(session.userId);
-      if (user === undefined) {
-        throw new DomainError(
-          "SESSION_NOT_ACTIVE",
-          "Session is not active",
-          401,
-        );
-      }
-
-      const nextRefreshToken = randomBytes(48).toString("base64url");
-      const now = new Date();
-      const rotated = await this.repository.rotateSessionRefreshToken(
-        session.id,
-        this.digest(nextRefreshToken, "REFRESH_TOKEN_HMAC_SECRET"),
-        presentedDigest,
-        now,
-        new Date(now.getTime() + SESSION_TTL_MS),
-      );
-      if (!rotated) {
+      if (result.outcome === "conflict") {
         throw new DomainError(
           "SESSION_REFRESH_CONFLICT",
           "Refresh token was rotated concurrently; retry authentication",
           409,
         );
       }
+      const { session, user } = result;
       await this.audit.append({
         requestId,
         actorUserId: user.id,
