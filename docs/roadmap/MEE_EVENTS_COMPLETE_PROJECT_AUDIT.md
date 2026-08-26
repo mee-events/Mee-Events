@@ -61,7 +61,7 @@ Verified locally:
 - Flutter dev debug APK — **PASS (STAB-13)**; correct dev ID/label/version, `INTERNET`, debuggable state, and Android Debug signature verified.
 - Flutter production release APK/AAB compile — **PASS / RELEASE FAIL (STAB-13)**; both omit network permission and use the Android Debug certificate. Two AABs are byte-identical; two APKs have identical content/metadata with signing-block variance.
 - iOS flavored and non-flavored unsigned release builds — **FAIL (state verified in STAB-13)**; the host lacks usable full Xcode, bundle-ID resolution fails, and no `.app` exists.
-- PostgreSQL migration replay — **PASS WITH FINDINGS (STAB-14)**. PostgreSQL 17.2 applied all 20 files on empty, tracked-upgrade, and legacy pre-ledger paths; normalized schema/stable seed payloads match, repeat runs are no-ops, and selected integrity/rollback probes pass. The applied-but-unrecorded runner crash window is reproduced and remains `SEC-M-09`.
+- PostgreSQL migration replay — **BEHAVIOR PASSES WITH FINDINGS; DOCUMENTATION CORRECTION PENDING INDEPENDENT RE-REVIEW (STAB-14)**. PostgreSQL 17.2 applied all 20 files on empty, tracked-upgrade, and legacy pre-ledger paths; raw/normalized schema and corrected stable seed payload signatures match, repeat runs are no-ops, and selected integrity/rollback probes pass. The applied-but-unrecorded runner crash window is reproduced and remains `SEC-M-09`.
 - Package security audit — **FAIL at original audit**, 74 findings: 4 critical, 29 high, 31 moderate, 10 low. **STAB-03 re-audit 25 August 2026 (IST):** remediations applied; final `pnpm audit` 0 critical, 0 high, 0 moderate, 2 low. See `docs/05-security/dependency-security.md`.
 
 Not verified:
@@ -828,7 +828,7 @@ PHASE 11 Android release
 PHASE 12 iOS release
 ```
 
-No phase begins until the preceding gate is verified and recorded. The current phase is **Phase 0 — Stabilization** and its gate remains **NOT PASSED**. **STAB-01** through **STAB-14** are complete. The next permitted execution block is **STAB-15 — Database integration tests**. STAB-15 was not started during STAB-14.
+No phase begins until the preceding gate is verified and recorded. The current phase is **Phase 0 — Stabilization** and its gate remains **NOT PASSED**. **STAB-01** through **STAB-13** are complete; STAB-14 migration behavior passes with findings, but its signature-recipe correction remains pending independent re-review. **STAB-15 — Database integration tests** is permitted only after that review passes and has not started.
 
 ## 19. Definition of complete
 

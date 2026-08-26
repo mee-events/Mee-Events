@@ -1,14 +1,14 @@
 # Mee Events — Progress Tracker
 
-- **Updated:** 26 August 2026 16:49 IST (Asia/Kolkata, +0530); STAB-14 PostgreSQL migration verification
+- **Updated:** 26 August 2026 17:28 IST (Asia/Kolkata, +0530); STAB-14 signature-recipe correction pending independent re-review
 - **Repository:** `/Users/vinaychilagani/Desktop/Mee Event V1`
 - **Baseline application commit:** `master` / `9e2a442d91c137ec97a349d1a55697ae8d79d5df`
 - **STAB-01 snapshot HEAD:** `ca994985a898d42da2a8d717041b93a8f8f0dc4c`
 - **Current phase:** Phase 0 — Stabilization
 - **Phase gate:** **NOT PASSED**
-- **Last completed task:** STAB-14 — PostgreSQL migration verification
-- **Current task:** None — STAB-14 closed as instructed
-- **Next task:** STAB-15 — Database integration tests
+- **Last completed task:** STAB-13 — STAB-14 migration behavior passes, but its documentation correction awaits independent re-review
+- **Current task:** STAB-14 — signature-recipe correction committed; independent re-review pending
+- **Next task:** STAB-15 — permitted only after the STAB-14 correction passes independent review
 - **Latest application commit:** STAB-05 closed backend script lint coverage; STAB-06/07/09/10/11/12/13/14 are documentation-only and STAB-08 changes tests/test configuration plus documentation, not ERP application source. Use Git history for hashes.
 
 ## Status key
@@ -698,9 +698,9 @@ verification**; it was not started.
 
 ## STAB-14 — PostgreSQL migration verification
 
-- [x] **STAB-14** PostgreSQL migration verification — completed with findings
-      26 August 2026 16:49 IST. Next: STAB-15. Do not start STAB-15 in this
-      block.
+- [~] **STAB-14** PostgreSQL migration verification — migration behavior passes
+  with findings; signature-recipe documentation corrected 26 August 2026
+  and pending independent re-review. STAB-15 remains not started.
 
 Canonical evidence: `docs/03-database/migration-verification-baseline.md`.
 
@@ -716,15 +716,24 @@ Filesystem and Git both contained exactly 20 sequential migrations
 `0001`–`0020`; every file has one `BEGIN`/`COMMIT`. The combined catalog
 SHA-256 is
 `790d78670e79500b2c32dae17bcc1ed75749a637e4240253a098fa082aa7e653`.
+It hashes 20 LF-terminated `<sha256><two spaces><basename>` lines kept in
+migration filename order under `LC_ALL=C`; complete lines are not re-sorted by
+hash prefix. The exact runnable recipe is in the canonical baseline.
 The empty replay applied all 20 in 7.54 seconds. A tracked database at `0014`
 received `0015`–`0020`, and a legacy `0001` database without a ledger was
 correctly baselined before receiving `0002`–`0020`. Final ledgers were 20/20
 distinct; repeat runs skipped all 20 files.
 
-All three paths produced identical normalized schema SHA-256
-`90a977d40e12d998ed8bd0723640eaae34f26f560c229d4035235758941a2c36`
-and stable seed-payload SHA-256
-`b8bd2cc4852008bfaa494b876752e849e02a4c070a68ce0cb28759d8ca82aa9d`.
+All three paths produced identical raw schema SHA-256
+`b47b505edcead504d76f5bca1d2bab0279c3268940719bbebc69959eaf61fc9a`.
+Deleting only the two complete PostgreSQL dump-version comment lines produced
+normalized schema SHA-256
+`90a977d40e12d998ed8bd0723640eaae34f26f560c229d4035235758941a2c36`.
+The corrected fully specified 16-table stable seed-payload recipe produced
+SHA-256
+`a06b154f7164ecdc26ac71d6473fed38ab977c8ffe9f50d53ce331641f4aa3ec`
+on empty, tracked-upgrade, and legacy paths. The unreproducibly described
+`b8bd2cc4…` value is retired.
 The live schema had 115 public tables including the ledger, 502 indexes, 760
 constraints, 310 foreign keys, 282 CHECKs, 53 UNIQUE constraints, and 68
 non-internal triggers. All 33 `branch_id` columns had branch foreign keys; no
@@ -741,8 +750,9 @@ did not reach `0020`; no automatic recovery occurred. `SEC-M-09` remains owned
 by STAB-20 and PROD-03 for checksum-aware, crash-recoverable bookkeeping and an
 approved reconciliation runbook. This local evidence is not a maintained
 backend adapter/concurrency suite, backup/restore proof, or production database
-validation. Phase 0 remains **NOT PASSED**. Next permitted block: **STAB-15 —
-Database integration tests**; it was not started.
+validation. Phase 0 remains **NOT PASSED**. STAB-14 awaits independent re-review
+of this documentation correction. **STAB-15 — Database integration tests** is
+permitted only after that review passes; it was not started.
 
 ## Latest verification
 
@@ -751,6 +761,7 @@ Database integration tests**; it was not started.
 | STAB-14 migration paths        | **PASS with finding**           | Empty, tracked-upgrade and legacy paths converge; 20/20 ledger; repeat runs are no-ops              |
 | STAB-14 live integrity         | **PASS**                        | 115 tables; 760 constraints; all 33 branch columns FK-scoped; append-only and rollback probes pass  |
 | STAB-14 crash recovery         | **FAIL / risk reproduced**      | Applied-but-unrecorded `0019` fails on retry; no checksum or automatic reconciliation               |
+| STAB-14 signature correction   | **PENDING INDEPENDENT REVIEW**  | `790d…`, raw `b47b…`, normalized `90a…`, and stable-data `a06b…` recipes reproduced locally         |
 | STAB-13 Flutter quality        | **PASS**                        | 200 formatted/analyzed files; 0 drift/diagnostics; 27 files and 441/441 tests                       |
 | STAB-13 Android dev build      | **PASS (debug only)**           | Dev APK compiles; INTERNET present; debuggable; Android Debug certificate                           |
 | STAB-13 Android prod packages  | **COMPILE PASS / RELEASE FAIL** | APK/AAB compile; no INTERNET; debug-signed; AAB byte-identical; APK content stable                  |
@@ -855,7 +866,7 @@ Do not ask for these until their dependent block is approaching, unless early pr
 - [x] STAB-11 Backend build
 - [x] STAB-12 ERP build
 - [x] STAB-13 Flutter build
-- [x] STAB-14 PostgreSQL migration verification
+- [~] STAB-14 PostgreSQL migration verification — documentation correction pending independent re-review
 - [ ] STAB-15 Database integration tests
 - [ ] STAB-16 CI verification
 - [ ] STAB-17 E2E test foundation

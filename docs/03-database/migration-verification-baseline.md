@@ -2,7 +2,7 @@
 
 ## Result
 
-STAB-14 completed with findings on 26 August 2026 at 16:49 IST
+STAB-14 migration behavior completed with findings on 26 August 2026 at 16:49 IST
 (`Asia/Kolkata`, `+0530`). Verification began from clean `master` at
 `325f2e47ab4b0db7abad2daacdb445ffb074b551`, tracking `origin/master`, ahead
 15 and behind 0.
@@ -20,7 +20,11 @@ already changed schema. The ledger also stores no migration checksum. These
 known integrity risks remain `SEC-M-09`, owned by STAB-20 and PROD-03; a
 reviewed reconciliation/checksum design is required before production use.
 
-STAB-15 database integration tests were not started.
+The catalog/schema/data signature descriptions were corrected from clean
+`master` at `495adbcf987f36b9e6f7bfc8911ac83fb2e4d910` after independent review
+found their byte recipes incomplete or inaccurate. The corrected recipes were
+re-run on three new isolated PostgreSQL 17.2 databases. STAB-14 remains pending
+independent re-review; STAB-15 database integration tests were not started.
 
 ## Safety and isolated environment
 
@@ -49,6 +53,15 @@ were explicitly excluded. After verification, all four temporary containers,
 volumes, and networks were removed. The founder Postgres and Redis container
 IDs remained `709110c83f1a` and `19839084275c`, both healthy before and after
 cleanup.
+
+The signature correction used three new disposable projects:
+`mee-event-stab14-signature-empty` on `127.0.0.1:55441`,
+`mee-event-stab14-signature-upgrade` on `127.0.0.1:55442`, and
+`mee-event-stab14-signature-legacy` on `127.0.0.1:55443`. Their effective
+Compose names and loopback bindings were checked before startup. After the
+recipes reproduced the documented values, exact project-scoped `down -v`
+commands removed all three containers, volumes, and networks. The same founder
+container IDs remained healthy before and after correction cleanup.
 
 ## Migration catalog
 
@@ -81,8 +94,32 @@ top-level `BEGIN;` and one `COMMIT;`. Seeds remain outside the runner glob.
 
 The combined catalog signature is
 `790d78670e79500b2c32dae17bcc1ed75749a637e4240253a098fa082aa7e653`,
-computed as SHA-256 over sorted lines of
-`<file-sha256><two spaces><basename>\n`.
+computed by this byte recipe:
+
+1. Set `LC_ALL=C` and enumerate migration files in ascending filename order,
+   `0001` through `0020`.
+2. Hash each file's exact bytes with SHA-256.
+3. Emit one UTF-8 line per file as
+   `<lowercase-sha256><two ASCII spaces><basename><LF>`.
+4. Concatenate the 20 lines in migration filename order and hash those bytes.
+5. Do **not** sort the completed lines by their hash prefixes. Doing that is a
+   different operation and produces
+   `0636939bb23023537b19c725243b3313ed7f04af7c8fcce43048dc66762afad8`.
+
+Directly runnable from the repository root:
+
+```sh
+LC_ALL=C /bin/sh -c '
+  shasum -a 256 infrastructure/postgres/migrations/*.sql |
+    sed "s#  infrastructure/postgres/migrations/#  #"
+' | tee /tmp/mee-event-stab14-catalog.manifest | shasum -a 256
+```
+
+The shell glob is expanded inside the `LC_ALL=C` process. `shasum` emits
+lowercase hex followed by two ASCII spaces and the path; `sed` removes only the
+directory prefix. The manifest has exactly 20 LF-terminated lines, including a
+final LF. Re-running this command reproduced `790d7867…`; all 20 individual
+hashes remained identical to the table above.
 
 `schema_migrations` enforces filename uniqueness only. It does not store or
 compare file content hashes, so the hashes above are verification evidence,
@@ -115,17 +152,220 @@ The final ledger was 20/20 distinct. A repeat invocation skipped all 20 files.
 
 ### Parity
 
-Normalized `pg_dump --schema-only --no-owner --no-privileges` output was
-identical across all three paths:
+The three paths had identical raw schema dumps and corrected stable seed-data
+signatures. The exact recipes follow.
 
-- schema SHA-256:
-  `90a977d40e12d998ed8bd0723640eaae34f26f560c229d4035235758941a2c36`;
-- stable seed-payload SHA-256:
-  `b8bd2cc4852008bfaa494b876752e849e02a4c070a68ce0cb28759d8ca82aa9d`.
+#### Schema signature
 
-The data signature removes generated identity and timestamp fields before
-sorting JSON payloads. It proves parity of stable seeded payloads, not physical
-row identity or a general-purpose backup comparison.
+PostgreSQL 17.2 generated each raw dump with:
+
+```sh
+CONTAINER=mee-event-stab14-signature-empty-postgres-1
+docker exec "$CONTAINER" \
+  pg_dump -U me_event -d me_event_dev \
+    --schema-only --no-owner --no-privileges \
+  > /tmp/mee-event-stab14-schema-raw.sql
+```
+
+The captured stdout is UTF-8 with LF line endings and a final LF. Its raw
+SHA-256 is
+`b47b505edcead504d76f5bca1d2bab0279c3268940719bbebc69959eaf61fc9a`.
+The empty, tracked-upgrade, and legacy raw dump files were byte-for-byte
+identical.
+
+The normalized signature deletes only the two complete comment lines beginning
+with these exact prefixes:
+
+- `-- Dumped from database version `
+- `-- Dumped by pg_dump version `
+
+Every other line, comment, blank line, byte, and the final LF is preserved:
+
+```sh
+LC_ALL=C sed \
+  -e '/^-- Dumped from database version /d' \
+  -e '/^-- Dumped by pg_dump version /d' \
+  /tmp/mee-event-stab14-schema-raw.sql \
+  > /tmp/mee-event-stab14-schema-normalized.sql
+
+shasum -a 256 \
+  /tmp/mee-event-stab14-schema-raw.sql \
+  /tmp/mee-event-stab14-schema-normalized.sql
+```
+
+Exactly two lines were removed from each dump. All three normalized files have
+SHA-256
+`90a977d40e12d998ed8bd0723640eaae34f26f560c229d4035235758941a2c36`.
+This is the normalized cross-path signature, not the raw `pg_dump` hash.
+
+#### Stable seed-data signature
+
+The corrected recipe ran on PostgreSQL 17.2 and Python 3.14.4. It includes every
+non-empty ordinary or partitioned table in schema `public`, except
+`schema_migrations`. For this catalog, the resolved 16-table set is:
+
+```text
+branch_settings
+branches
+catalog_aliases
+catalog_content_revisions
+catalog_products
+catalog_services
+catalog_subcategories
+event_service_selections
+event_types
+expense_categories
+finance_accounts
+occasion_stages
+payment_methods
+search_trending_terms
+service_categories
+service_occasion_affinity
+```
+
+Before serialization, each row excludes:
+
+- the exact column `id`;
+- every column whose name ends in `_at`;
+- the exact columns `created_by`, `updated_by`, `created_by_user_id`, and
+  `updated_by_user_id`.
+
+No additional columns are excluded. `schema_migrations` is excluded as a table,
+so its filenames and apply timestamps are not data-signature input.
+
+Save this exact SQL as `/tmp/mee-event-stab14-stable-data.sql`:
+
+```sql
+\set ON_ERROR_STOP on
+\pset tuples_only on
+\pset format unaligned
+WITH public_tables AS (
+  SELECT
+    n.nspname AS schema_name,
+    c.relname AS table_name,
+    c.oid AS table_oid
+  FROM pg_catalog.pg_class AS c
+  JOIN pg_catalog.pg_namespace AS n ON n.oid = c.relnamespace
+  WHERE n.nspname = 'public'
+    AND c.relkind IN ('r', 'p')
+    AND c.relname <> 'schema_migrations'
+),
+excluded_columns AS (
+  SELECT
+    t.table_oid,
+    COALESCE(
+      array_agg(a.attname ORDER BY a.attname COLLATE "C") FILTER (
+        WHERE a.attname = 'id'
+           OR a.attname LIKE '%\_at' ESCAPE '\'
+           OR a.attname IN (
+             'created_by',
+             'updated_by',
+             'created_by_user_id',
+             'updated_by_user_id'
+           )
+      ),
+      ARRAY[]::text[]
+    ) AS names
+  FROM public_tables AS t
+  LEFT JOIN pg_catalog.pg_attribute AS a
+    ON a.attrelid = t.table_oid
+   AND a.attnum > 0
+   AND NOT a.attisdropped
+  GROUP BY t.table_oid
+)
+SELECT format(
+  'SELECT %L || chr(9) || payload::text FROM (SELECT to_jsonb(t) - %L::text[] AS payload FROM %I.%I AS t) AS rows ORDER BY payload::text COLLATE "C";',
+  t.table_name,
+  e.names::text,
+  t.schema_name,
+  t.table_name
+)
+FROM public_tables AS t
+JOIN excluded_columns AS e ON e.table_oid = t.table_oid
+ORDER BY t.table_name COLLATE "C"
+\gexec
+```
+
+This produces one UTF-8/LF input record per row as
+`<ASCII table name><TAB><PostgreSQL jsonb::text><LF>`. Empty tables emit no
+records. PostgreSQL `to_jsonb` converts UUIDs to JSON strings, numeric/decimal
+values to JSON numbers, Booleans to `true`/`false`, SQL null to JSON `null`, SQL
+arrays to JSON arrays preserving element order, and JSON/JSONB to nested JSON.
+PostgreSQL 17.2 `jsonb::text` supplies the intermediate JSON escaping and object
+representation.
+
+Save this exact Python program as
+`/tmp/mee-event-stab14-canonicalize-seed.py`:
+
+```python
+import hashlib
+import json
+import sys
+
+
+def compact_json(value: object) -> str:
+    return json.dumps(
+        value,
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    )
+
+
+tables: dict[str, list[object]] = {}
+
+for line_number, raw_line in enumerate(sys.stdin.buffer, start=1):
+    if not raw_line.endswith(b"\n"):
+        raise SystemExit(f"input line {line_number} has no LF terminator")
+    table_bytes, separator, payload_bytes = raw_line[:-1].partition(b"\t")
+    if separator != b"\t":
+        raise SystemExit(f"input line {line_number} has no TAB separator")
+    table = table_bytes.decode("ascii")
+    payload = json.loads(payload_bytes.decode("utf-8"))
+    tables.setdefault(table, []).append(payload)
+
+for rows in tables.values():
+    rows.sort(key=compact_json)
+
+canonical_bytes = compact_json(tables).encode("utf-8")
+sys.stdout.write(hashlib.sha256(canonical_bytes).hexdigest() + "\n")
+```
+
+Run it against each isolated path by changing only `CONTAINER`:
+
+```sh
+CONTAINER=mee-event-stab14-signature-empty-postgres-1
+docker exec -i "$CONTAINER" \
+  psql -X -q -v ON_ERROR_STOP=1 -U me_event -d me_event_dev \
+  < /tmp/mee-event-stab14-stable-data.sql |
+  python3 /tmp/mee-event-stab14-canonicalize-seed.py
+```
+
+Python's standard JSON decoder maps JSON strings (including UUID and non-ASCII
+text) to `str`, integers to arbitrary-precision `int`, fractional/exponent
+numbers to binary64 `float`, Booleans to `bool`, null to `None`, arrays to lists
+without reordering, and objects to dictionaries. The encoder recursively sorts
+all object keys, writes non-ASCII characters directly (`ensure_ascii=False`),
+and uses exactly comma and colon separators with no added spaces. Each table's
+rows are ordered by that same compact JSON row string. The final table order is
+the recursively sorted top-level object-key order; all current table names are
+ASCII. Tables frame row arrays as JSON object values, rows are comma-separated
+array elements, and fields are comma-separated object members.
+
+The exact bytes passed to SHA-256 are the UTF-8 encoding, without BOM or final
+newline, of the single compact top-level JSON object produced by
+`compact_json(tables)`. The newline printed after the hexadecimal digest is not
+part of the hashed bytes.
+
+The empty, tracked-upgrade, and legacy paths each produced:
+
+`a06b154f7164ecdc26ac71d6473fed38ab977c8ffe9f50d53ce331641f4aa3ec`
+
+The earlier `b8bd2cc4…` value is retired because its documentation did not
+define reproducible excluded-column, table, JSON, ordering, or framing bytes.
+The corrected `a06b154f…` value covers only the deterministic
+migration-seeded payloads selected above. It does not prove row-identity,
+physical database, backup, or general data equivalence.
 
 ## Live artifact and integrity inventory
 
@@ -229,7 +469,9 @@ remained healthy with their original IDs. No image or build cache was removed.
 
 ## Final verdict and next permitted task
 
-**DONE WITH FINDINGS.** The STAB-14 replay, parity, integrity, failure, safety,
-and documentation requirements are satisfied. Phase 0 remains **NOT PASSED**.
-STAB-14 is complete, the current task is none, and the next permitted task is
-STAB-15 database integration tests. STAB-15 was not started in this block.
+**MIGRATION EVIDENCE PASSES WITH FINDINGS; DOCUMENTATION CORRECTION PENDING
+INDEPENDENT RE-REVIEW.** The replay, parity, integrity, failure, and safety
+evidence remains unchanged. The catalog, raw/normalized schema, and stable-data
+byte recipes now reproduce their recorded values. Phase 0 remains **NOT
+PASSED**, `SEC-M-09` remains open, and STAB-15 remains not started. STAB-15 is
+permitted only after this correction passes independent review.
