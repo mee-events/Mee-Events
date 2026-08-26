@@ -40,9 +40,13 @@ AAB is byte-identical; APK content/metadata is stable with differences confined
 to its v2 signing block. Neither production package is usable or releasable:
 the merged manifest has no `android.permission.INTERNET`, and both use the
 self-signed Android Debug certificate. Flutter rejects both flavored and
-non-flavored unsigned iOS builds as `Application not configured for iOS`; no
-iOS artifact or signing proof exists. No device, real endpoint, provider,
-Play Console, TestFlight, store, or remote-CI behavior was exercised. See
+non-flavored unsigned iOS builds as `Application not configured for iOS` on
+this host because Flutter's invoked Xcode-version probe cannot find
+`xcodebuild`; project enumeration, compilation, and signing never begin. The
+missing `prod` scheme and team/profile/entitlement setup are independent later
+blockers. `.metadata` is migration state and did not cause this error. No iOS
+artifact or signing proof exists. No device, real endpoint, provider, Play
+Console, TestFlight, store, or remote-CI behavior was exercised. See
 [flutter-build-baseline.md](./flutter-build-baseline.md).
 
 ---

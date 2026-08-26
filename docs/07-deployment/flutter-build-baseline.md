@@ -6,12 +6,18 @@ Verified 26 August 2026, 14:11–14:45 IST (`Asia/Kolkata`, `+0530`) on clean
 evidence. It is not device, provider, store, signing-custody, TestFlight, Play
 Console, production-network, or release-readiness proof.
 
+Corrected after independent review on 26 August 2026: the observed iOS error
+is caused first by this host lacking a usable full-Xcode interpreter, not by
+the project's Flutter migration metadata. The missing production scheme and
+signing configuration remain separate later blockers.
+
 ## Result
 
 **COMPLETED WITH FINDINGS.** Flutter formatting, analysis, and 441/441 tests
 pass. The CI-aligned dev debug APK, production-flavor release APK, and
 production-flavor release AAB compile. Both exact iOS unsigned probes exit 1
-with `Application not configured for iOS` before Xcode compilation.
+with `Application not configured for iOS` after Flutter's Xcode-version probe
+fails and before project enumeration, compilation, or signing.
 
 The Android production packages are **BROKEN / UNUSABLE FOR NETWORKED
 PRODUCTION** because their merged manifest omits `android.permission.INTERNET`.
@@ -229,10 +235,15 @@ false, and AndroidX profile installer receiver exported true behind
 | Backup                                               | No `allowBackup`, data-extraction, or backup rules; platform default therefore applies. Secure-storage plugin documentation warns backup/exclusion must be designed | Medium privacy/session hardening; CUST-03/STAB-20/ANDROID-13/14    |
 | Secure storage                                       | Default `FlutterSecureStorage`, backed by Android KeyStore algorithms; no biometric mode or backup exclusion configured                                             | Native behavior not device-tested                                  |
 | R8                                                   | Enabled with shrinking, optimization, access modification, and obfuscation; mapping and metadata are present in AAB                                                 | Verified Android bytecode hardening                                |
-| Resource shrinking                                   | Not explicitly enabled                                                                                                                                              | Later size/release optimization                                    |
+| Resource shrinking                                   | Enabled by Flutter's plugin default for release apps                                                                                                                | Verified; exact removed-resource delta not measured                |
 | Dart obfuscation / split debug info                  | Neither `--obfuscate` nor `--split-debug-info` used                                                                                                                 | Not enabled; no symbol-server/crash upload proof                   |
 | Native symbols                                       | APK libraries stripped; AAB includes native `.sym` metadata for selected libraries/ABIs                                                                             | Local evidence only; no upload pipeline                            |
 | Screenshot/clipboard, root/jailbreak, Play Integrity | No implementation found                                                                                                                                             | Later threat/privacy design; STAB-20/release phases                |
+
+Flutter 3.44.8's Gradle plugin defaults `shouldShrinkResources` to true and
+sets `isShrinkResources` for release app builds; this project does not override
+that behavior. R8 metadata reports optimized shrinking, and release logs show
+icon tree-shaking. The exact removed-resource delta was not measured.
 
 No location, camera, notification, storage, microphone, contacts, biometric, or
 other sensitive permission is requested by the production manifest. That is
@@ -288,7 +299,7 @@ fail-closed cleanup remain SEC-06/STAB-20.
 
 | Field                         | Verified state                                                                                                                                |
 | ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| Flutter platform registration | `.metadata` lists only `root` and `web`; iOS and Android are absent; the iOS project file is marked unmanaged                                 |
+| Flutter migration metadata    | Migration-only root/web entries and default pbxproj ignore                                                                                    |
 | Schemes                       | One shared `Runner` scheme                                                                                                                    |
 | Configurations                | `Debug`, `Profile`, `Release`; no dev/staging/prod schemes/configurations                                                                     |
 | App / test bundle IDs         | `com.meeevents.meeEvents`; `com.meeevents.meeEvents.RunnerTests`                                                                              |
@@ -318,7 +329,10 @@ flutter build ios --release --no-codesign --flavor prod \
 ```
 
 Result: exit 1 in about 1 second, after the expected no-codesign warning and
-before Xcode compilation: `Application not configured for iOS`.
+after Flutter invoked `/usr/bin/arch -arm64e xcrun xcodebuild -version`. That
+probe exited 72 because `xcodebuild` was unavailable, then Flutter reported
+`Application not configured for iOS`. Project enumeration, compilation, and
+signing were not reached.
 
 Non-flavored command:
 
@@ -329,14 +343,43 @@ flutter build ios --release --no-codesign \
   --dart-define=BRANCH_CODE=HYD
 ```
 
-Result: exit 1 before Xcode compilation with the same message; no `.app` was
-generated. This shows the defect is broader than the absent `prod` scheme:
-Flutter considers the repository's iOS platform unconfigured. Consequently,
-there is no iOS artifact, signing, architecture, framework, entitlement,
-environment-asset, ATS, absolute-path, or reproducibility evidence. Full Xcode
-is also absent on this host, but both commands fail at Flutter's project gate
-before that toolchain could be invoked. IOS-05/06 own repair and repeat proof;
-STAB-13 does not regenerate or edit native projects.
+Result: exit 1 through the same path; no `.app` was generated.
+
+The ordered cause and later blockers are:
+
+1. This host selects `/Library/Developer/CommandLineTools`; full Xcode is
+   absent, so Flutter's `xcodebuild -version` probe fails and the Xcode project
+   interpreter is not installed.
+2. `projectInfo()` therefore returns null and produces no scheme/configuration
+   build context. The tracked Info.plist uses
+   `$(PRODUCT_BUNDLE_IDENTIFIER)`; without that context Flutter cannot
+   substitute the tracked pbxproj value `com.meeevents.meeEvents`.
+   `BuildableIOSApp.fromProject` returns null, and `build_ios.dart` reports
+   `Application not configured for iOS`.
+3. After a usable Xcode interpreter exists, the flavored command has a separate
+   later blocker: only the shared `Runner` scheme and ordinary
+   Debug/Profile/Release configurations exist, so `prod` flavor resolution is
+   expected to fail through the flavor-not-found path. That path was skipped
+   here and cannot explain the non-flavored probe.
+4. Team, provisioning profile, entitlements, and signing remain later release
+   blockers even after project/flavor discovery succeeds.
+
+This ordering was rechecked in the installed Flutter 3.44.8 source at
+`build_ios.dart` (the exit at line 945), `ios/application_package.dart`
+(`BuildableIOSApp.fromProject`), `xcode_project.dart` (`projectInfo`,
+`productBundleIdentifier`, and `_parseProductBundleIdentifier`), and
+`ios/xcodeproj.dart` (`_updateVersion`). Flutter's metadata source labels the
+platform/unmanaged-file section as migrate-command configuration.
+
+The existing verbose logs contain the Xcode version probe and its exit 72; they
+contain no `xcodebuild -list`, compilation, or signing invocation. `.metadata`
+did **not** cause the observed error: its platform list and default unmanaged
+pbxproj entry are inputs to Flutter migration, not this build path. The tracked
+Runner project/workspace, shared scheme, plist, and Swift entry points exist.
+Consequently, there is no iOS artifact, signing, architecture, framework,
+entitlement, environment-asset, ATS, absolute-path, or reproducibility
+evidence. IOS-02–06 own the toolchain, production scheme, team/profile, and
+repeat proof; STAB-13 does not regenerate or edit native projects.
 
 ## Reproducibility conclusion
 
@@ -347,7 +390,7 @@ STAB-13 does not regenerate or edit native projects.
 | iOS `.app`     | Not produced; repeat comparison impossible                                                                                                      |
 
 There is no unexplained application-content difference. Reproducibility does
-not cure the permission, signing, platform-registration, or security defects.
+not cure the permission, signing, iOS toolchain/scheme, or security defects.
 
 ## CI alignment
 
@@ -367,7 +410,7 @@ was observed. STAB-16 owns CI correction.
 | Critical      | None found in repository/artifact evidence                                                          | —                                             |
 | High          | Production Android packages omit `INTERNET` and cannot support the networked product                | ANDROID-08/13, STAB-20                        |
 | High          | Production Android packages use the Android Debug certificate                                       | ANDROID-04/05/08; founder signing-key custody |
-| High          | Flutter rejects both iOS builds as unconfigured; no prod scheme/team/profile/signing proof          | IOS-02–06                                     |
+| High          | No usable full Xcode on host; later iOS release setup remains absent                                | IOS-02–06                                     |
 | High          | Mobile release resolver accepts non-loopback HTTP                                                   | SEC-05, STAB-20                               |
 | High          | Always-on Supabase initialization and dormant direct table access violate the backend-only boundary | SEC-06, STAB-20                               |
 | Medium        | Android backup policy is implicit and secure-storage backup exclusion is absent                     | CUST-03, ANDROID-13/14, STAB-20               |
@@ -421,8 +464,8 @@ checks were limited to `flutter pub get` and `flutter doctor`.
 | Production APK/AAB compile and artifact boundary verified | PASS                                                                  |
 | Android production usability                              | **BROKEN** — no INTERNET                                              |
 | Android store readiness                                   | **BROKEN** — debug signing and no store process                       |
-| iOS production-flavor result verified                     | PASS as failure evidence; no prod scheme/platform registration        |
-| iOS non-flavored unsigned result verified                 | PASS as failure evidence; no artifact                                 |
+| iOS production-flavor result verified                     | PASS as failure evidence; Xcode unavailable, then prod scheme remains |
+| iOS non-flavored unsigned result verified                 | PASS as failure evidence; Xcode unavailable; no artifact              |
 | iOS signing/store readiness                               | **BROKEN / NOT PROVEN**                                               |
 | Artifact public environment and secret scan               | PASS; known public fallbacks/Supabase/sample-media strings classified |
 | CI limitations                                            | PASS, documented                                                      |

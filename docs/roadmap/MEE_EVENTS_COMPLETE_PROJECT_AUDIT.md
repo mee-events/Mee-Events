@@ -15,7 +15,7 @@
 - **STAB-10 Flutter test baseline:** 26 August 2026 11:09 IST. Flutter 3.44.8/Dart 3.12.2; canonical and seed-6102026 serialized runs both pass 27/27 files and 441/441 tests with no skip or hidden failure. See `docs/08-testing/flutter-test-baseline.md`.
 - **STAB-11 backend build baseline:** 26 August 2026 12:00 IST. Node v20.20.2/pnpm 9.15.4/Nest 11.2.3/TypeScript 5.7.2; two sanitized builds produced the same 388-file artifact and manifest hash. See `docs/07-deployment/backend-build-baseline.md`.
 - **STAB-12 ERP build baseline:** 26 August 2026 13:32 IST. Next 15.5.23/React 19.2.3; two clean synthetic-production builds compiled all 44 maintained routes, a stable 262-file code subset matched, and loopback runtime/header smoke passed with fixture and hardening findings. See `docs/07-deployment/erp-build-baseline.md`.
-- **STAB-13 Flutter build baseline:** 26 August 2026 14:45 IST. Flutter 3.44.8/Dart 3.12.2; dev debug APK and production APK/AAB compile, but production packages lack `INTERNET` and use the Android Debug certificate; both iOS unsigned probes fail at Flutter's project gate. See `docs/07-deployment/flutter-build-baseline.md`.
+- **STAB-13 Flutter build baseline:** 26 August 2026 14:45 IST; iOS cause corrected after independent review at 16:10 IST. Flutter 3.44.8/Dart 3.12.2; dev debug APK and production APK/AAB compile, but production packages lack `INTERNET` and use the Android Debug certificate. Both iOS unsigned probes fail after the Xcode-version probe finds no usable full Xcode and before project enumeration or compilation. See `docs/07-deployment/flutter-build-baseline.md`.
 - **Audit type:** Read-only implementation, configuration, test, security, release, documentation, and artifact inspection
 - **Decision:** **NOT PRODUCTION-READY**
 
@@ -60,7 +60,7 @@ Verified locally:
 - ERP production build — **PASS WITH FINDINGS (STAB-12)**. Two clean synthetic-production builds compiled all 44 maintained pages and produced 398-file normal Next artifacts; stable code hashes and semantic route manifests matched, and a loopback `next start` smoke passed. The output is not standalone, and the fixture-backed lead board remains an explicit product/privacy finding.
 - Flutter dev debug APK — **PASS (STAB-13)**; correct dev ID/label/version, `INTERNET`, debuggable state, and Android Debug signature verified.
 - Flutter production release APK/AAB compile — **PASS / RELEASE FAIL (STAB-13)**; both omit network permission and use the Android Debug certificate. Two AABs are byte-identical; two APKs have identical content/metadata with signing-block variance.
-- iOS flavored and non-flavored unsigned release builds — **FAIL (state verified in STAB-13)**, `Application not configured for iOS`; no `.app` exists.
+- iOS flavored and non-flavored unsigned release builds — **FAIL (state verified in STAB-13)**; the host lacks usable full Xcode, bundle-ID resolution fails, and no `.app` exists.
 - Package security audit — **FAIL at original audit**, 74 findings: 4 critical, 29 high, 31 moderate, 10 low. **STAB-03 re-audit 25 August 2026 (IST):** remediations applied; final `pnpm audit` 0 critical, 0 high, 0 moderate, 2 low. See `docs/05-security/dependency-security.md`.
 
 Not verified:
@@ -313,11 +313,18 @@ exclusion for secure storage, Dart obfuscation/split debug info, device proof,
 artifact attestation, and store workflow are absent or unproven.
 
 Both exact iOS commands—production-flavored and ordinary non-flavored unsigned
-release—exit 1 before Xcode compilation with `Application not configured for
-iOS`; no artifact was produced. `.metadata` registers root/web only, there is
-one Runner scheme with Debug/Profile/Release configurations, and no production
-scheme, team, profile, or entitlement proof. Android/iOS identifiers differ,
-and the iOS plist orientation set conflicts with the portrait-only Dart runtime
+release—exit 1 with `Application not configured for iOS`; no artifact was
+produced. Existing verbose evidence shows Flutter first invoked
+`/usr/bin/arch -arm64e xcrun xcodebuild -version`, which exited 72 because this
+Command-Line-Tools-only host has no usable `xcodebuild`. Flutter therefore had
+no project/build context with which to substitute Info.plist's
+`$(PRODUCT_BUNDLE_IDENTIFIER)`, and project enumeration, compilation, and
+signing were never reached. The one Runner scheme has only
+Debug/Profile/Release configurations, so no `prod` scheme is an independent
+later blocker; team, profile, and entitlement proof are also later blockers.
+`.metadata` root/web entries and its default unmanaged-pbxproj migrate-ignore
+did not cause the observed build error. Android/iOS identifiers differ, and the
+iOS plist orientation set conflicts with the portrait-only Dart runtime
 request. IOS-01–08 remain open.
 
 Release configuration still accepts non-loopback HTTP, always initializes the
@@ -499,7 +506,9 @@ The complete Customer → CRM → Quotation → Payment → Booking → Event �
 - ERP Lead Inbox uses fixture leads instead of real CRM list data.
 - Production Android APK and AAB lack `android.permission.INTERNET`.
 - Production Android APK and AAB are signed by `CN=Android Debug`.
-- Both flavored and non-flavored iOS release probes fail: Flutter reports `Application not configured for iOS`.
+- Both flavored and non-flavored iOS release probes fail after Flutter's
+  Xcode-version invocation finds no usable full Xcode; bundle-ID resolution
+  then returns null and Flutter reports `Application not configured for iOS`.
 - Local clone still has a stale `origin/HEAD` → `origin/main` symbolic-ref and a stale `origin/main` tracking branch, even though GitHub default is now `master`.
 - Older roadmap PDFs say format/lint and 20 Flutter tests fail; current gates pass, so those starting instructions are stale.
 - Authentication documentation says OTP resend is not server-enforced; implementation enforces it.
@@ -521,7 +530,8 @@ The complete Customer → CRM → Quotation → Payment → Booking → Event �
 - Production hosting/database topology, SMS provider, payment provider, storage/CDN, push, email, maps/location, monitoring/crash provider, analytics policy, and store-account ownership require founder/provider decisions.
 - Live local database verification is blocked in this audit environment because Docker was not running.
 - Android release signing requires an organization-controlled keystore and secret-management decision.
-- iOS release requires Apple Developer team/account, certificates/profiles, and corrected Flutter platform configuration.
+- iOS release requires a usable full-Xcode build host, an explicit production
+  scheme/configuration, and Apple Developer team/certificate/profile setup.
 - Legal privacy policy, terms, refund/cancellation rules, data retention, location consent, payment policy, and store declarations require business/legal decisions.
 
 ### NOT VERIFIED
@@ -553,7 +563,7 @@ Each area is scored against ten area-specific controls worth 10 points each. Evi
 | Infrastructure       | **24%** | local env 7; local Compose 6; migrations 5; CI 5; staging/prod 0; secrets 0; backups 0; monitoring 1; release pipeline 0; rollback 0                                                                 | Local-only infrastructure                                                                                       |
 | Production readiness |  **8%** | env validation 5; health/logging 3; all other production controls 0                                                                                                                                  | Providers, DB, deployment, security, observability, recovery, and E2E are unproved                              |
 | Android release      |  **9%** | IDs/flavors 2; branding 1; signing 0; prod env 1; prod API 0; compile 5; testing 0; policy/listing 0; permissions 0; rollout 0                                                                       | Compiles but lacks network permission and is debug-signed                                                       |
-| iOS release          |  **2%** | identifier/project artifacts 2; remaining controls 0                                                                                                                                                 | Flutter refuses release build; no team/signing/TestFlight/privacy/store proof                                   |
+| iOS release          |  **2%** | identifier/project artifacts 2; remaining controls 0                                                                                                                                                 | No usable full Xcode/prod scheme; no team/signing/TestFlight/privacy/store proof                                |
 
 ## 7. Module audits
 
@@ -701,16 +711,16 @@ The immediate testing priority is not “more widget tests.” It is live Postgr
 
 ## 13. iOS release audit
 
-| ID/control                             | Status      | Current evidence                                                                                                    |
-| -------------------------------------- | ----------- | ------------------------------------------------------------------------------------------------------------------- |
-| IOS-01 Bundle ID                       | **PARTIAL** | `com.meeevents.meeEvents`; ownership/final naming not verified                                                      |
-| IOS-02–04 Developer/certs/provisioning | **BLOCKED** | No team/certificate/profile evidence                                                                                |
-| IOS-05 Production environment          | **MISSING** | No distinct iOS production scheme/config proof                                                                      |
-| IOS-06 Release build                   | **BROKEN**  | Both unsigned probes fail before Xcode: Flutter reports application not configured; `.metadata` lists root/web only |
-| IOS-07 TestFlight                      | **MISSING** | No evidence                                                                                                         |
-| IOS-08 Privacy                         | **BLOCKED** | No permission descriptions/providers/policy declarations yet                                                        |
-| IOS-09 Listing                         | **BLOCKED** | Founder/legal/marketing content required                                                                            |
-| IOS-10 Release                         | **MISSING** | No signed archive/App Store Connect proof                                                                           |
+| ID/control                             | Status      | Current evidence                                                                              |
+| -------------------------------------- | ----------- | --------------------------------------------------------------------------------------------- |
+| IOS-01 Bundle ID                       | **PARTIAL** | `com.meeevents.meeEvents`; ownership/final naming not verified                                |
+| IOS-02–04 Developer/certs/provisioning | **BLOCKED** | No team/certificate/profile evidence                                                          |
+| IOS-05 Production environment          | **MISSING** | No distinct iOS production scheme/config proof                                                |
+| IOS-06 Release build                   | **BROKEN**  | No full Xcode on host; no compile/artifact. `prod` scheme is later; `.metadata` is not causal |
+| IOS-07 TestFlight                      | **MISSING** | No evidence                                                                                   |
+| IOS-08 Privacy                         | **BLOCKED** | No permission descriptions/providers/policy declarations yet                                  |
+| IOS-09 Listing                         | **BLOCKED** | Founder/legal/marketing content required                                                      |
+| IOS-10 Release                         | **MISSING** | No signed archive/App Store Connect proof                                                     |
 
 ## 14. Documentation drift
 
@@ -750,7 +760,8 @@ No files were deleted.
 7. Add HTTP, cross-module, browser, device, and security E2E gates.
 8. Provision staging/production infrastructure, secrets, TLS, backups, restore, monitoring, alerts, deployment, rollback, and incident ownership.
 9. Fix Android production permission/signing and complete Play requirements.
-10. Repair iOS platform configuration, sign, TestFlight, privacy, and App Store requirements.
+10. Establish a full-Xcode build host, add/verify the independent iOS production
+    scheme, then complete signing, TestFlight, privacy, and App Store requirements.
 
 ## 17. Founder decisions required
 

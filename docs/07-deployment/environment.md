@@ -111,6 +111,11 @@ selected in release. The resolver still accepts a non-loopback `http://` URL,
 `APP_ENV` remains unused, and Supabase is still initialized unconditionally.
 See [flutter-build-baseline.md](./flutter-build-baseline.md). These are public
 configuration and boundary findings, not secret values or device-runtime proof.
+No iOS artifact was produced, so the Android asset inspection is not iOS
+environment-packaging proof. The iOS probes stopped after Flutter's
+`xcodebuild -version` invocation found no usable full Xcode, before project
+enumeration, compilation, signing, or asset inspection; `.metadata` migration
+state was not the cause, and the missing `prod` scheme remains a later blocker.
 
 ---
 

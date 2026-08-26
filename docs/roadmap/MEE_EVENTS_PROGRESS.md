@@ -1,6 +1,6 @@
 # Mee Events — Progress Tracker
 
-- **Updated:** 26 August 2026 14:45 IST (Asia/Kolkata, +0530); STAB-13
+- **Updated:** 26 August 2026 16:10 IST (Asia/Kolkata, +0530); STAB-13 iOS evidence correction
 - **Repository:** `/Users/vinaychilagani/Desktop/Mee Event V1`
 - **Baseline application commit:** `master` / `9e2a442d91c137ec97a349d1a55697ae8d79d5df`
 - **STAB-01 snapshot HEAD:** `ca994985a898d42da2a8d717041b93a8f8f0dc4c`
@@ -637,8 +637,10 @@ Verification began on clean `master` at
 13 and behind 0. Flutter **3.44.8** stable (matching CI), Dart **3.12.2**,
 DevTools **2.57.0**, Gradle **9.1.0**, AGP **9.0.1**, Kotlin plugin **2.3.20**,
 Android SDK/build-tools **36**, and app min/target SDK **24/36** were recorded.
-The host has CocoaPods 1.17.0 but no full Xcode; Flutter rejects the repository
-at its own project-configuration gate before Xcode is invoked.
+The host has CocoaPods 1.17.0 but no full Xcode. Flutter did invoke
+`/usr/bin/arch -arm64e xcrun xcodebuild -version`; it exited 72 because the
+utility is unavailable under the selected Command Line Tools developer
+directory. Project enumeration, compilation, and signing were not reached.
 
 The ignored founder mobile `.env` was protected by a trap for every relevant
 command. Its contents were never read or printed. Builds used only public
@@ -665,15 +667,21 @@ Both production package formats omit `android.permission.INTERNET`, so they are
 STORE-RELEASABLE**. No keystore, key properties, signing secret, private key,
 server secret, real backend/provider environment, or founder `.env` entered
 the repository or artifacts. R8 shrinking/optimization/obfuscation is present;
-resource shrinking, Dart obfuscation/split-debug-info, explicit network
-security, certificate pinning, secure-storage backup exclusion, device proof,
-and store pipeline are absent or unproven.
+Flutter's Gradle plugin also enables resource shrinking for release app builds,
+and this project does not override it; the exact removed-resource delta was not
+measured. Dart obfuscation/split-debug-info, explicit network security,
+certificate pinning, secure-storage backup exclusion, device proof, and store
+pipeline are absent or unproven.
 
 Both flavored and non-flavored unsigned iOS commands exit 1 immediately with
-`Application not configured for iOS`; no `.app` exists. `.metadata` registers
-only root/web, there is one shared Runner scheme with ordinary
-Debug/Profile/Release configurations, and there is no development
-team/profile/entitlement proof. Android/iOS identifiers differ, and the iOS
+`Application not configured for iOS`; no `.app` exists. The observed error is
+ordered: missing full Xcode makes the version probe fail, so Flutter gets no
+project/build context and cannot substitute Info.plist's templated bundle ID.
+The single shared Runner scheme has only ordinary Debug/Profile/Release
+configurations, so missing `prod` flavor support is an independent later
+blocker, as are team/profile/entitlement/signing gaps. `.metadata` lists
+root/web for migration and carries Flutter's default unmanaged-pbxproj ignore;
+it did not cause this build error. Android/iOS identifiers differ, and the iOS
 plist advertises landscape while Dart locks portrait. These remain
 IOS-01–08/release work, not STAB-13 corrections.
 
@@ -695,7 +703,7 @@ verification**; it was not started.
 | STAB-13 Flutter quality        | **PASS**                        | 200 formatted/analyzed files; 0 drift/diagnostics; 27 files and 441/441 tests                       |
 | STAB-13 Android dev build      | **PASS (debug only)**           | Dev APK compiles; INTERNET present; debuggable; Android Debug certificate                           |
 | STAB-13 Android prod packages  | **COMPILE PASS / RELEASE FAIL** | APK/AAB compile; no INTERNET; debug-signed; AAB byte-identical; APK content stable                  |
-| STAB-13 iOS probes             | **FAIL / state verified**       | Both unsigned probes: `Application not configured for iOS`; no artifact                             |
+| STAB-13 iOS probes             | **FAIL / state verified**       | No Xcode interpreter; no enumeration/compile/sign/artifact                                          |
 | STAB-13 environment/security   | **PASS with high findings**     | Founder env protected; synthetic public asset only; HTTP/Supabase/backup/native gaps assigned       |
 | STAB-12 ERP production build   | **PASS with findings**          | Two clean synthetic-production builds; 44/44 maintained routes; no warning                          |
 | STAB-12 reproducibility        | **PASS, not byte-identical**    | Stable 262-file digest matched; Next build ID/preview/order/cache/trace variance classified         |
@@ -749,7 +757,7 @@ verification**; it was not started.
 | Flutter tests                  | **PASS (STAB-10)**              | 441/441 across 27 files; canonical and seeded serialized runs                                       |
 | Android dev debug build        | **PASS**                        | APK compiled                                                                                        |
 | Android prod release compile   | **COMPILE PASS / RELEASE FAIL** | 69.1 MB APK; no INTERNET permission; Android Debug certificate                                      |
-| iOS unsigned release build     | **FAIL**                        | `Application not configured for iOS`                                                                |
+| iOS unsigned release build     | **FAIL**                        | No Xcode interpreter; templated bundle ID unresolved; no artifact                                   |
 | Dependency audit               | **PASS (STAB-03)**              | 0 critical / 0 high remaining; 2 low owned. See `docs/05-security/dependency-security.md`           |
 | PostgreSQL integration         | **NOT VERIFIED / BLOCKED**      | Docker daemon unavailable; no in-repo integration suite                                             |
 | Browser/device E2E             | **MISSING**                     | No framework/suite                                                                                  |
@@ -765,7 +773,8 @@ verification**; it was not started.
 7. Live database, HTTP integration, cross-module, browser/device E2E and security suites are missing.
 8. Staging/production infrastructure, secrets, backups/restore, observability, CD and rollback are absent.
 9. Android production artifact lacks network permission and uses debug signing.
-10. iOS is not configured for a Flutter release build and has no signing/TestFlight setup.
+10. The verified host lacks usable full Xcode; the later iOS `prod` scheme,
+    signing, entitlement, and TestFlight setup also remain absent.
 
 ## Founder decisions
 

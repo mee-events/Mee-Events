@@ -81,8 +81,12 @@ passes `APP_ENV=dev`, which application code does not read. CI does not build
 or inspect a production APK/AAB, invoke iOS, verify merged permissions or
 signing identity, scan bundled public configuration, compare artifacts, or
 retain/attest/upload them. The current Android production artifact omits
-`INTERNET` and uses debug signing; Flutter rejects the iOS project as not
-configured. See [flutter-build-baseline.md](./flutter-build-baseline.md).
+`INTERNET` and uses debug signing. In the local iOS probes Flutter did invoke
+`xcodebuild -version`, but this Command-Line-Tools-only host could not provide
+the utility; project enumeration, compilation, and signing were not reached.
+The absent `prod` scheme and signing setup are independent later blockers;
+`.metadata` migration state did not cause the observed error. See
+[flutter-build-baseline.md](./flutter-build-baseline.md).
 
 ---
 
