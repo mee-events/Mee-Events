@@ -11,6 +11,7 @@
 - **STAB-06 TypeScript baseline:** 25 August 2026 23:38 IST. TypeScript 5.7.2 in all four workspaces; 229 maintained roots covered; individual/root typechecks 0 errors. See `docs/roadmap/MEE_EVENTS_PROGRESS.md` STAB-06.
 - **STAB-07 backend test baseline:** 26 August 2026 00:13 IST. Vitest 3.2.7; canonical and shuffled serialized runs both pass 30/30 files and 188/188 tests; no hidden skips/focus/todos. See `docs/08-testing/backend-test-baseline.md`.
 - **STAB-08 ERP test baseline:** 26 August 2026 00:40 IST. Vitest 3.2.7; canonical and shuffled serialized runs both pass 3/3 files and 8/8 tests; zero-test discovery now fails closed. See `docs/08-testing/erp-test-baseline.md`.
+- **STAB-09 Flutter analysis baseline:** 26 August 2026 10:27 IST. Flutter 3.44.8/Dart 3.12.2; all 200 maintained Dart files analyzed with 0 errors, warnings, or infos. See `docs/08-testing/flutter-analysis-baseline.md`.
 - **Audit type:** Read-only implementation, configuration, test, security, release, documentation, and artifact inspection
 - **Decision:** **NOT PRODUCTION-READY**
 
@@ -618,7 +619,7 @@ PHASE 11 Android release
 PHASE 12 iOS release
 ```
 
-No phase begins until the preceding gate is verified and recorded. The current phase is **Phase 0 — Stabilization**. **STAB-01** through **STAB-08** are complete. The next execution block is **STAB-09 — Flutter analysis**. Do not start STAB-09 in the STAB-08 session.
+No phase begins until the preceding gate is verified and recorded. The current phase is **Phase 0 — Stabilization**. **STAB-01** through **STAB-09** are complete. The next execution block is **STAB-10 — Flutter tests**. Do not start STAB-10 in the STAB-09 session.
 
 ## 19. Definition of complete
 

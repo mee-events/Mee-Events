@@ -10,6 +10,7 @@ Canonical evidence:
 
 - [Backend test baseline](./backend-test-baseline.md)
 - [ERP test baseline](./erp-test-baseline.md)
+- [Flutter analysis baseline](./flutter-analysis-baseline.md)
 
 ---
 
@@ -54,6 +55,12 @@ Details: [unit-tests.md](./unit-tests.md), [integration-tests.md](./integration-
 | Mobile (`apps/mobile`)                     | 435 tests; CI also runs formatting, analysis and a development APK build |
 | ERP (`@me-event/erp-web`)                  | 8 tests across 3 files; no rendered component or browser route coverage  |
 | Packages (`api-contracts`, `shared-types`) | No `test` scripts                                                        |
+
+Flutter's STAB-09 static gate covers all 200 maintained Dart files (172
+`lib`, 28 `test`) with `flutter_lints` 6.0.0 and
+`flutter analyze --fatal-infos`. It reports zero errors, warnings, and infos.
+That result does not substitute for the 435-test Flutter suite, native builds,
+device/E2E behavior, runtime input validation, or release-security review.
 
 ---
 

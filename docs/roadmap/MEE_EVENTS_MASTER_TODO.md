@@ -2,7 +2,7 @@
 
 - **Baseline:** Complete repository audit dated 25 August 2026
 - **Current phase:** Phase 0 — Stabilization
-- **Next block:** STAB-09 — Flutter analysis
+- **Next block:** STAB-10 — Flutter tests
 - **Rule:** One block → verify → document → commit → stop.
 
 This file is the definitive ordered work inventory. The phase order is mandatory even when a later task has a higher risk priority. Do not start Customer until the Phase 0 gate passes; do not start Vendor until Customer passes; continue one major module at a time.
@@ -49,7 +49,7 @@ Status marks in this file describe execution, not how much scaffold already exis
 - [x] **STAB-06 TypeScript typecheck** — Objective: prove backend/ERP/contracts compile-time consistency; State: **DONE** 25 August 2026; Scope: TS configs and four workspaces; Action: independently inspect effective settings/root files and run every workspace plus root typecheck; Depends/Risk: STAB-05; Test/Security: strict typecheck, generated Next clean-checkout proof, type-escape/security-boundary inventory; DoD: all maintained roots covered and all typechecks green with zero errors; Next: STAB-07. Evidence: TypeScript 5.7.2; 229 maintained roots; backend 163 development/129 production roots; ERP passes with 49 generated roots present and with `.next` absent; no explicit `any` or suppressions; existing boundary debt recorded in `MEE_EVENTS_PROGRESS.md`.
 - [x] **STAB-07 Backend tests** — Objective: establish reliable backend unit/foundation baseline; State: **DONE** 26 August 2026; Scope: `apps/backend/test`, corresponding module services/guards/adapters, test runner/discovery, and CI entry point; Action: inventoried every maintained backend test, reran canonical and shuffled serialized suites, classified weakness without skipping; Depends/Risk: STAB-06; Test/Security: Vitest 3.2.7, 30/30 files, 188/188 tests twice, no skip/todo/only, zero-match exits 1; DoD: suite green with counts/evidence and no hidden failures; Next: STAB-08. Evidence: `docs/08-testing/backend-test-baseline.md`; branch/BOLA, auth atomicity, provider payment, live DB, E2E, and coverage gaps retain named later owners.
 - [x] **STAB-08 ERP tests** — Objective: preserve existing web behavior and expose coverage gap; State: **DONE** 26 August 2026; Scope: ERP Vitest runner, all maintained tests, routes/components, fixture data, and security-sensitive browser boundaries; Action: removed fail-open zero-test behavior, corrected a false-positive loopback case, strengthened API refresh assertions, and recorded the route-risk map; Depends/Risk: STAB-07; Test/Security: Vitest 3.2.7, 3/3 files and 8/8 tests in canonical and seeded serialized runs, no skip/todo/only, zero-match exits 1; DoD: narrow suite green with missing component/browser and security coverage assigned; Next: STAB-09. Evidence: `docs/08-testing/erp-test-baseline.md`.
-- [ ] **STAB-09 Flutter analysis** — Objective: prove analyzer cleanliness; State: audit run **DONE**; Scope: `apps/mobile/lib`, tests, analysis config; Action: rerun fatal infos and inspect 29 constrained outdated packages; Depends/Risk: STAB-08; Test/Security: analyzer plus secure-storage/platform warnings; DoD: zero issues and dependency notes captured; Next: STAB-10.
+- [x] **STAB-09 Flutter analysis** — Objective: prove analyzer cleanliness; State: **DONE** 26 August 2026; Scope: `apps/mobile/lib`, tests, analysis config, dependency currency, and static security/native boundaries; Action: inventoried every maintained Dart file and suppression, ran fatal infos, and reconciled dependency counts without upgrading; Depends/Risk: STAB-08; Test/Security: Flutter 3.44.8/Dart 3.12.2, all 200 maintained files, 0 errors/warnings/infos, no hidden source or weakened rule; DoD: reproducible zero-diagnostic baseline with runtime/native gaps assigned; Next: STAB-10. Evidence: `docs/08-testing/flutter-analysis-baseline.md`.
 - [ ] **STAB-10 Flutter tests** — Objective: preserve 435 unit/widget behaviors; State: audit run **DONE**; Scope: mobile tests and touched code only; Action: rerun, never update expectations blindly; Depends/Risk: STAB-09; Test/Security: auth/session/navigation/ownership UI tests; DoD: all tests green with count/evidence; Next: STAB-11.
 - [ ] **STAB-11 Backend build** — Objective: verify deployable Nest compilation; State: audit run **DONE**; Scope: backend build config/output; Action: clean build; Depends/Risk: STAB-10; Test/Security: production-mode config validation with placeholders; DoD: deterministic build artifact and no secret embedding; Next: STAB-12.
 - [ ] **STAB-12 ERP build** — Objective: verify Next production compilation after secure dependency baseline; State: current build passes on vulnerable Next; Scope: ERP/Next config; Action: clean production build; Depends/Risk: STAB-11 and dependency remediation; Test/Security: route build, headers, no fixture/private env leakage; DoD: patched dependencies and production build green; Next: STAB-13.
@@ -286,16 +286,16 @@ Status marks in this file describe execution, not how much scaffold already exis
 - [ ] **POLISH-05 Support and runbooks** — Objective: founder/operator can diagnose and respond; State: **MISSING**; Scope: customer support, incidents, providers, data correction; Action: severity/ownership/escalation/runbooks; Depends/Risk: production topology; Test/Security: tabletop drills and redaction; DoD: named owners and successful drills; Next: POLISH-06.
 - [ ] **POLISH-06 Final launch checklist** — Objective: prove the complete definition of done; State: **MISSING**; Scope: all evidence; Action: verify, never infer; Depends/Risk: IOS-10 and all prior gates; Test/Security: repeat critical journeys/security/restore/rollback; DoD: every required item checked with artifact/owner/date; Next: maintain/operate.
 
-## Last closed execution block — STAB-08
+## Last closed execution block — STAB-09
 
 ### TASK ID
 
-`STAB-08`
+`STAB-09`
 
 ### RESULT
 
-Completed 26 August 2026. ERP Vitest 3.2.7 passes 3/3 files and 8/8 tests in both the canonical run and a shuffled, fixed-seed, single-worker serialized run. The package test command now fails when discovery finds zero files. One misleading localhost environment case was corrected to exercise the intended loopback rule, and the employee API refresh test now verifies endpoints, request body, bearer-token rotation, and retry behavior. No focus, skip, todo, conditional skip, retry, external call, secret, or generated test output is present. Coverage remains narrow: 44 route pages have no rendered component or browser E2E coverage, and the fixture/session/authorization risks retain named later owners. Phase 0 gate is still not passed.
+Completed 26 August 2026. Flutter 3.44.8 and Dart 3.12.2 analyzed all 200 maintained Dart files with `--fatal-infos` and reported 0 errors, 0 warnings, and 0 infos. No Dart/configuration correction, exclusion, disabled rule, or new suppression was needed. Two existing test-only dependency ignores are justified and do not hide security findings. The old “29 constrained” dependency statement is corrected: 29 installed packages are behind Latest, while three direct constraints currently restrict a newer resolvable selection. Runtime JSON validation, bootstrap fail-closed behavior, session/device identity, direct Supabase access, transport/logging, and native release proof remain assigned work. Phase 0 gate is still not passed.
 
 ### NEXT TASK
 
-`STAB-09 Flutter analysis`. Stop after committing STAB-08. Do not start STAB-09 in the same session.
+`STAB-10 Flutter tests`. Stop after committing STAB-09. Do not start STAB-10 in the same session.

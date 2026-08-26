@@ -1,15 +1,15 @@
 # Mee Events — Progress Tracker
 
-- **Updated:** 26 August 2026 00:40 IST (Asia/Kolkata, +0530); STAB-08
+- **Updated:** 26 August 2026 10:27 IST (Asia/Kolkata, +0530); STAB-09
 - **Repository:** `/Users/vinaychilagani/Desktop/Mee Event V1`
 - **Baseline application commit:** `master` / `9e2a442d91c137ec97a349d1a55697ae8d79d5df`
 - **STAB-01 snapshot HEAD:** `ca994985a898d42da2a8d717041b93a8f8f0dc4c`
 - **Current phase:** Phase 0 — Stabilization
 - **Phase gate:** **NOT PASSED**
-- **Last completed task:** STAB-08 — ERP tests
-- **Current task:** None — STAB-08 closed as instructed
-- **Next task:** STAB-09 — Flutter analysis
-- **Latest application commit:** STAB-05 closed backend script lint coverage; STAB-06/07 are documentation-only and STAB-08 changes tests/test configuration plus documentation, not ERP application source. Use Git history for hashes.
+- **Last completed task:** STAB-09 — Flutter analysis
+- **Current task:** None — STAB-09 closed as instructed
+- **Next task:** STAB-10 — Flutter tests
+- **Latest application commit:** STAB-05 closed backend script lint coverage; STAB-06/07/09 are documentation-only and STAB-08 changes tests/test configuration plus documentation, not ERP application source. Use Git history for hashes.
 
 ## Status key
 
@@ -392,51 +392,103 @@ assigned to STAB-17/STAB-20, CRM-01–03/06/10–26, ERP-01–22, and INT-02/07 
 applicable. Phase 0 remains **NOT PASSED**. Next permitted block:
 **STAB-09 — Flutter analysis**.
 
+## STAB-09 — Flutter analysis
+
+- [x] **STAB-09** Flutter analysis — completed 26 August 2026 10:27 IST. Next: STAB-10. Do not start STAB-10 in this block.
+
+Canonical evidence: `docs/08-testing/flutter-analysis-baseline.md`.
+
+Independent verification began on clean `master` at
+`1b5168de9a82742757a10e3f922606f4e12165e1`, tracking `origin/master`, ahead 9
+and behind 0. Local Flutter **3.44.8** stable matches CI; Dart is **3.12.2** and
+`flutter_lints` resolves to **6.0.0**. The sole analysis configuration includes
+the default Flutter lint set and has no custom enabled rules, disabled rules,
+exclusions, language overrides, or nested configuration.
+
+`flutter analyze --fatal-infos` passed all **200 maintained Dart files** — 172
+under `lib` and 28 under `test` — in 3.3 seconds with **0 errors, 0 warnings,
+and 0 infos**. There are no maintained Dart files elsewhere, no
+`integration_test`/`tool` tree, and no tracked generated Dart. No analyzer rule
+was weakened and no Dart/configuration source changed.
+
+Two line-level `depend_on_referenced_packages` ignores exist in tests for
+transitive test helpers; neither hides a code or security diagnostic. No
+file-level/analyzer/deprecation/format suppression exists. Manual review
+classified 264 `dynamic` occurrences across 29 files as predominantly
+JSON-boundary shapes, 35 `Object?` occurrences as error/narrowing state, 105
+guarded forced-null uses, and 20 lifecycle `late` fields. Controllers and owned
+timers are disposed/cancelled; mounted/context guards are present on
+representative async navigation paths. This does not remove runtime validation
+or lifecycle follow-up.
+
+Security review preserved existing owners: unstable per-login device identity
+(SEC-03), fail-open unknown bootstrap surface/role strings and direct Supabase
+boundary (SEC-06), release transport/error/logging/JSON-validation gaps
+(SEC-05/06 and STAB-20), and native permission/signing/network proof
+(STAB-13/release phases). Tokens use secure storage; customer cache/preferences
+are user-scoped; logout attempts server revocation and then clears local state.
+No server secret or new unsafe suppression was found.
+
+Current `flutter pub outdated` output reconciles the old “29 constrained”
+wording: 29 installed packages are behind Latest (5 direct + 24 transitive),
+but only three direct constraints prevent a newer resolvable selection. Direct
+dev dependencies are current; no package is reported discontinued, retracted,
+or advisory-affected by this currency command. No dependency was upgraded.
+
+The analyzer reported no deprecated API. It does not prove Kotlin/Gradle,
+Swift/Xcode, manifests/plists/entitlements, permissions, signing, native secure
+storage/network policy, runtime input validation, privacy, device behavior, or
+release artifacts. Phase 0 remains **NOT PASSED**. Next permitted block:
+**STAB-10 — Flutter tests**.
+
 ## Latest verification
 
-| Verification                  | Result                          | Evidence summary                                                                               |
-| ----------------------------- | ------------------------------- | ---------------------------------------------------------------------------------------------- |
-| STAB-06 root typecheck        | **PASS**                        | TypeScript 5.7.2; four workspaces; 0 errors                                                    |
-| STAB-06 maintained coverage   | **PASS**                        | 229 roots; backend source/tests/scripts, ERP source/tests/config, both packages all covered    |
-| STAB-06 backend build scope   | **PASS**                        | 129 production roots; tests/scripts/specs excluded from emission only                          |
-| STAB-06 ERP generated types   | **PASS**                        | 49 present generated roots pass; no-`.next` 64-root clean equivalent also passes               |
-| STAB-06 type/security review  | **PASS with documented debt**   | No explicit `any`/suppressions/source double/non-null assertions; five owned follow-ups logged |
-| STAB-05 root lint             | **PASS**                        | ESLint 9.17.0; 0 errors / 0 warnings; scripts now covered                                      |
-| STAB-05 backend scripts       | **PASS**                        | `migrate_images.ts` and `upload_assets_to_supabase.ts` linted; type-aware; no secret logs      |
-| STAB-04 root Prettier         | **PASS**                        | Prettier 3.4.2; 372 parser-matched tracked files; 0 drift                                      |
-| STAB-04 Dart format           | **PASS**                        | Dart 3.12.2; 200 files in `lib`+`test`; 0 changed                                              |
-| STAB-04 exclusions            | **PASS**                        | All `.prettierignore` entries classified; no owned TS/Dart failure hidden                      |
-| STAB-03 JavaScript audit      | **PASS**                        | Final 0 critical / 0 high / 0 moderate / 2 low; see `docs/05-security/dependency-security.md`  |
-| STAB-03 Flutter/Dart review   | **PASS**                        | OSV 0 findings; no discontinued direct packages; no pubspec changes                            |
-| STAB-03 unaccepted crit/high  | **PASS (none remain)**          | No founder acceptance used                                                                     |
-| STAB-03 compatibility verify  | **PASS**                        | Frozen install, format, lint, typecheck, 188 backend tests, 8 ERP tests, Nest/Next builds      |
-| STAB-02 environment contracts | **PASS**                        | Matrix in `docs/07-deployment/environment.md`; fail-closed tests with synthetic values         |
-| STAB-01 remote default        | **PASS with local drift**       | GitHub HEAD is `master`; local `origin/HEAD` still stale-points at `main`                      |
-| STAB-01 secrets               | **PASS**                        | Env values not read; only template key names and ignored-file presence                         |
-| STAB-01 application tree      | **PASS**                        | No application file changes versus `9e2a442`                                                   |
-| Git start state (audit)       | **PASS**                        | Clean `master` worktree at audited baseline; local `origin/HEAD` still stale                   |
-| Node / pnpm                   | **PASS**                        | Node `20.20.2`; pnpm `9.15.4`                                                                  |
-| Flutter / Dart                | **PASS**                        | Flutter `3.44.8`; Dart `3.12.2`                                                                |
-| Root TypeScript verification  | **PASS**                        | format, lint, typecheck, tests, backend build, ERP build                                       |
-| STAB-07 backend canonical     | **PASS**                        | Vitest 3.2.7; 30/30 files; 188/188 tests; 0 skipped/todo/warnings; 2.83 s                      |
-| STAB-07 isolation/order       | **PASS**                        | Seed 6072026; shuffled files/tests; one worker; serialized files; 188/188; 6.03 s              |
-| STAB-07 discovery honesty     | **PASS**                        | No skip/todo/only/conditional tests; zero-match probe exits 1; no `passWithNoTests`            |
-| STAB-07 coverage status       | **GAP DOCUMENTED**              | No coverage provider, report, or threshold; STAB-16 owner                                      |
-| Backend tests                 | **PASS (STAB-07)**              | 188/188 across 30 files                                                                        |
-| STAB-08 ERP canonical         | **PASS**                        | Vitest 3.2.7; 3/3 files; 8/8 tests; zero failure/skip/todo/warning; 330 ms                     |
-| STAB-08 ERP isolation/order   | **PASS**                        | Seed 6082026; shuffled files/tests; one worker; serialized files; 8/8; 429 ms                  |
-| STAB-08 discovery honesty     | **PASS after correction**       | Removed `--passWithNoTests`; deliberate zero-match probe changed from exit 0 to exit 1         |
-| STAB-08 browser/route status  | **GAP DOCUMENTED**              | 44 route pages; no component render or browser E2E tests; STAB-17, CRM-26, and ERP-22 owners   |
-| ERP tests                     | **PASS but narrow (STAB-08)**   | 8/8 across 3 files; environment/API-refresh/helper units only                                  |
-| Flutter format                | **PASS**                        | STAB-04: 200 Dart files, 0 changed (audit-era count was 199)                                   |
-| Flutter analysis              | **PASS**                        | no issues with fatal infos                                                                     |
-| Flutter tests                 | **PASS**                        | 435/435                                                                                        |
-| Android dev debug build       | **PASS**                        | APK compiled                                                                                   |
-| Android prod release compile  | **COMPILE PASS / RELEASE FAIL** | 69.1 MB APK; no INTERNET permission; Android Debug certificate                                 |
-| iOS unsigned release build    | **FAIL**                        | `Application not configured for iOS`                                                           |
-| Dependency audit              | **PASS (STAB-03)**              | 0 critical / 0 high remaining; 2 low owned. See `docs/05-security/dependency-security.md`      |
-| PostgreSQL integration        | **NOT VERIFIED / BLOCKED**      | Docker daemon unavailable; no in-repo integration suite                                        |
-| Browser/device E2E            | **MISSING**                     | No framework/suite                                                                             |
+| Verification                   | Result                          | Evidence summary                                                                                |
+| ------------------------------ | ------------------------------- | ----------------------------------------------------------------------------------------------- |
+| STAB-09 Flutter analyze        | **PASS**                        | Flutter 3.44.8/Dart 3.12.2; 200 maintained files; 0 errors/warnings/infos                       |
+| STAB-09 analyzer scope/policy  | **PASS**                        | 172 lib + 28 test; no exclusion/nested config/disabled rule/tracked generated Dart              |
+| STAB-09 static security review | **PASS with documented debt**   | No hidden security finding; runtime validation, auth/bootstrap/transport/native owners retained |
+| STAB-06 root typecheck         | **PASS**                        | TypeScript 5.7.2; four workspaces; 0 errors                                                     |
+| STAB-06 maintained coverage    | **PASS**                        | 229 roots; backend source/tests/scripts, ERP source/tests/config, both packages all covered     |
+| STAB-06 backend build scope    | **PASS**                        | 129 production roots; tests/scripts/specs excluded from emission only                           |
+| STAB-06 ERP generated types    | **PASS**                        | 49 present generated roots pass; no-`.next` 64-root clean equivalent also passes                |
+| STAB-06 type/security review   | **PASS with documented debt**   | No explicit `any`/suppressions/source double/non-null assertions; five owned follow-ups logged  |
+| STAB-05 root lint              | **PASS**                        | ESLint 9.17.0; 0 errors / 0 warnings; scripts now covered                                       |
+| STAB-05 backend scripts        | **PASS**                        | `migrate_images.ts` and `upload_assets_to_supabase.ts` linted; type-aware; no secret logs       |
+| STAB-04 root Prettier          | **PASS**                        | Prettier 3.4.2; 372 parser-matched tracked files; 0 drift                                       |
+| STAB-04 Dart format            | **PASS**                        | Dart 3.12.2; 200 files in `lib`+`test`; 0 changed                                               |
+| STAB-04 exclusions             | **PASS**                        | All `.prettierignore` entries classified; no owned TS/Dart failure hidden                       |
+| STAB-03 JavaScript audit       | **PASS**                        | Final 0 critical / 0 high / 0 moderate / 2 low; see `docs/05-security/dependency-security.md`   |
+| STAB-03 Flutter/Dart review    | **PASS**                        | OSV 0 findings; no discontinued direct packages; no pubspec changes                             |
+| STAB-03 unaccepted crit/high   | **PASS (none remain)**          | No founder acceptance used                                                                      |
+| STAB-03 compatibility verify   | **PASS**                        | Frozen install, format, lint, typecheck, 188 backend tests, 8 ERP tests, Nest/Next builds       |
+| STAB-02 environment contracts  | **PASS**                        | Matrix in `docs/07-deployment/environment.md`; fail-closed tests with synthetic values          |
+| STAB-01 remote default         | **PASS with local drift**       | GitHub HEAD is `master`; local `origin/HEAD` still stale-points at `main`                       |
+| STAB-01 secrets                | **PASS**                        | Env values not read; only template key names and ignored-file presence                          |
+| STAB-01 application tree       | **PASS**                        | No application file changes versus `9e2a442`                                                    |
+| Git start state (audit)        | **PASS**                        | Clean `master` worktree at audited baseline; local `origin/HEAD` still stale                    |
+| Node / pnpm                    | **PASS**                        | Node `20.20.2`; pnpm `9.15.4`                                                                   |
+| Flutter / Dart                 | **PASS**                        | Flutter `3.44.8`; Dart `3.12.2`                                                                 |
+| Root TypeScript verification   | **PASS**                        | format, lint, typecheck, tests, backend build, ERP build                                        |
+| STAB-07 backend canonical      | **PASS**                        | Vitest 3.2.7; 30/30 files; 188/188 tests; 0 skipped/todo/warnings; 2.83 s                       |
+| STAB-07 isolation/order        | **PASS**                        | Seed 6072026; shuffled files/tests; one worker; serialized files; 188/188; 6.03 s               |
+| STAB-07 discovery honesty      | **PASS**                        | No skip/todo/only/conditional tests; zero-match probe exits 1; no `passWithNoTests`             |
+| STAB-07 coverage status        | **GAP DOCUMENTED**              | No coverage provider, report, or threshold; STAB-16 owner                                       |
+| Backend tests                  | **PASS (STAB-07)**              | 188/188 across 30 files                                                                         |
+| STAB-08 ERP canonical          | **PASS**                        | Vitest 3.2.7; 3/3 files; 8/8 tests; zero failure/skip/todo/warning; 330 ms                      |
+| STAB-08 ERP isolation/order    | **PASS**                        | Seed 6082026; shuffled files/tests; one worker; serialized files; 8/8; 429 ms                   |
+| STAB-08 discovery honesty      | **PASS after correction**       | Removed `--passWithNoTests`; deliberate zero-match probe changed from exit 0 to exit 1          |
+| STAB-08 browser/route status   | **GAP DOCUMENTED**              | 44 route pages; no component render or browser E2E tests; STAB-17, CRM-26, and ERP-22 owners    |
+| ERP tests                      | **PASS but narrow (STAB-08)**   | 8/8 across 3 files; environment/API-refresh/helper units only                                   |
+| Flutter format                 | **PASS**                        | STAB-04: 200 Dart files, 0 changed (audit-era count was 199)                                    |
+| Flutter analysis               | **PASS**                        | no issues with fatal infos                                                                      |
+| Flutter tests                  | **PASS**                        | 435/435                                                                                         |
+| Android dev debug build        | **PASS**                        | APK compiled                                                                                    |
+| Android prod release compile   | **COMPILE PASS / RELEASE FAIL** | 69.1 MB APK; no INTERNET permission; Android Debug certificate                                  |
+| iOS unsigned release build     | **FAIL**                        | `Application not configured for iOS`                                                            |
+| Dependency audit               | **PASS (STAB-03)**              | 0 critical / 0 high remaining; 2 low owned. See `docs/05-security/dependency-security.md`       |
+| PostgreSQL integration         | **NOT VERIFIED / BLOCKED**      | Docker daemon unavailable; no in-repo integration suite                                         |
+| Browser/device E2E             | **MISSING**                     | No framework/suite                                                                              |
 
 ## Known release blockers
 
@@ -474,7 +526,7 @@ Do not ask for these until their dependent block is approaching, unless early pr
 - [x] STAB-06 TypeScript typecheck
 - [x] STAB-07 Backend tests
 - [x] STAB-08 ERP tests
-- [ ] STAB-09 Flutter analysis
+- [x] STAB-09 Flutter analysis
 - [ ] STAB-10 Flutter tests
 - [ ] STAB-11 Backend build
 - [ ] STAB-12 ERP build
