@@ -1,7 +1,8 @@
 # PostgreSQL foundation
 
-`migrations/0001_platform_foundation.sql` is the first shared persistence
-boundary for the connected Hyderabad platform.
+The ordered `migrations/0001`–`0020` catalog is the shared persistence boundary
+for the connected Hyderabad platform. `0001_platform_foundation.sql` creates
+the foundation; later files extend it without being folded into old history.
 
 It creates:
 
@@ -17,17 +18,17 @@ The mobile application and ERP never write these tables directly. They call the
 backend, which authenticates the actor, checks the active role and scope,
 performs the transaction, appends the audit event, and writes an outbox event.
 
-Apply locally after the PostgreSQL container is healthy:
+Apply the full catalog locally after the PostgreSQL container is healthy:
 
 ```sh
-psql "$DATABASE_URL" -v ON_ERROR_STOP=1 \
-  -f infrastructure/postgres/migrations/0001_platform_foundation.sql
+corepack pnpm db:migrate
 ```
 
-This migration intentionally contains only the platform foundation. Later
-migrations add connected vertical slices:
+The runner records filenames in `schema_migrations`. Seeds under `seeds/` are
+separate and are not applied by this command. Do not apply only `0001` to create
+a current database.
 
-- `0003_catalog_enquiries_leads.sql` — catalogue, enquiries, leads
-- `0004_quotations_payments_bookings.sql` — quotations, payment plans, bookings
-- `0005_event_records.sql` — Event Record aggregate, timeline, notes, documents
-- Fulfilment, warehouse, and finance tables arrive in later slices
+Canonical catalog, runner limitations, and live PostgreSQL 17.2 evidence:
+
+- [`docs/03-database/migrations.md`](../../docs/03-database/migrations.md)
+- [`docs/03-database/migration-verification-baseline.md`](../../docs/03-database/migration-verification-baseline.md)

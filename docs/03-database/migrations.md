@@ -22,6 +22,12 @@ corepack pnpm db:migrate # bash infrastructure/postgres/apply-migrations.sh
    - Skip if filename already in `schema_migrations`.
    - Otherwise run the file with `ON_ERROR_STOP=1`, then insert the filename.
 
+The migration transaction and the ledger insert are separate `psql` commands.
+An interruption after `COMMIT` but before the insert can therefore leave an
+applied-but-unrecorded file. The ledger also stores no content checksum. See
+[the STAB-14 baseline](./migration-verification-baseline.md) for the reproduced
+failure and required reconciliation ownership.
+
 Target database (local script): Docker service `postgres`, user/db `me_event` /
 `me_event_dev`.
 
@@ -32,22 +38,28 @@ Seeds are separate (`infrastructure/postgres/seeds/`, e.g.
 
 ## Catalog
 
-| File                                     | Purpose                                                                          |
-| ---------------------------------------- | -------------------------------------------------------------------------------- |
-| `0001_platform_foundation.sql`           | Branches, users/roles/sessions, settings, append-only audit, outbox, idempotency |
-| `0002_identity_persistence.sql`          | OTP challenges; refresh-token reuse detection on sessions                        |
-| `0003_catalog_enquiries_leads.sql`       | Catalog, customers, enquiries, leads                                             |
-| `0004_quotations_payments_bookings.sql`  | Quotations, payment plans/payments, bookings                                     |
-| `0005_event_records.sql`                 | Event Record aggregate, timeline, notes, documents, activities                   |
-| `0006_manager_operations.sql`            | Manager assignments, event tasks, progress, daily reports                        |
-| `0007_vendor_management.sql`             | Vendors, assignments, notes, ratings                                             |
-| `0008_worker_management.sql`             | Workers, tasks, attendance, progress, notes                                      |
-| `0009_inventory_warehouse.sql`           | Warehouses, inventory items, allocations, movements, maintenance                 |
-| `0010_finance_settlement.sql`            | Event finance, settlements, expenses, invoices, ledger                           |
-| `0011_event_operations.sql`              | Field operations: assignments, attendance, issues, materials, completion         |
-| `0012_pattern_b_inventory_cancelled.sql` | CHECK widen: `inventory_cancelled` on `event_timelines`                          |
-| `0013_pattern_b_consistency.sql`         | Module-owned timeline/activity tables                                            |
-| `0014_add_missing_fk_indexes.sql`        | Idempotent missing FK indexes (no table shape change)                            |
+| File                                         | Purpose                                                                          |
+| -------------------------------------------- | -------------------------------------------------------------------------------- |
+| `0001_platform_foundation.sql`               | Branches, users/roles/sessions, settings, append-only audit, outbox, idempotency |
+| `0002_identity_persistence.sql`              | OTP challenges; refresh-token reuse detection on sessions                        |
+| `0003_catalog_enquiries_leads.sql`           | Catalog, customers, enquiries, leads                                             |
+| `0004_quotations_payments_bookings.sql`      | Quotations, payment plans/payments, bookings                                     |
+| `0005_event_records.sql`                     | Event Record aggregate, timeline, notes, documents, activities                   |
+| `0006_manager_operations.sql`                | Manager assignments, event tasks, progress, daily reports                        |
+| `0007_vendor_management.sql`                 | Vendors, assignments, notes, ratings                                             |
+| `0008_worker_management.sql`                 | Workers, tasks, attendance, progress, notes                                      |
+| `0009_inventory_warehouse.sql`               | Warehouses, inventory items, allocations, movements, maintenance                 |
+| `0010_finance_settlement.sql`                | Event finance, settlements, expenses, invoices, ledger                           |
+| `0011_event_operations.sql`                  | Field operations: assignments, attendance, issues, materials, completion         |
+| `0012_pattern_b_inventory_cancelled.sql`     | CHECK widen: `inventory_cancelled` on `event_timelines`                          |
+| `0013_pattern_b_consistency.sql`             | Module-owned timeline/activity tables                                            |
+| `0014_add_missing_fk_indexes.sql`            | Idempotent missing FK indexes (no table shape change)                            |
+| `0015_catalog_taxonomy_v2.sql`               | Normalized services, occasion stages, affinity and aliases                       |
+| `0016_search_foundation.sql`                 | Trending-search terms and trigram search indexes                                 |
+| `0017_enquiry_preferred_external_vendor.sql` | Optional external-vendor preference on enquiries                                 |
+| `0018_catalog_taxonomy_v3.sql`               | Subcategories, products, selections and content revisions                        |
+| `0019_fix_entertainment_b2_collision.sql`    | Fail-closed correction for Female Anchor/Magician catalog codes                  |
+| `0020_catalog_media.sql`                     | Normalized reviewed media for catalog entities                                   |
 
 ---
 
@@ -63,16 +75,18 @@ Seeds are separate (`infrastructure/postgres/seeds/`, e.g.
 
 ---
 
-## Stale documentation note
+## Verified baseline
 
-[`infrastructure/postgres/README.md`](../../infrastructure/postgres/README.md)
-still describes a partial early migration list (through `0005` and “later
-slices”). This catalog and [schema-overview.md](./schema-overview.md) are the
-engineer-facing index for the full suite.
+STAB-14 verified all 20 files on PostgreSQL 17.2 across empty, tracked-upgrade,
+and legacy pre-ledger paths. All paths converged to the same normalized schema
+and stable seed-payload signatures; repeated runner invocations were no-ops.
+Checksums, live counts, integrity probes, limitations, and isolated cleanup are
+recorded in [migration-verification-baseline.md](./migration-verification-baseline.md).
 
 ---
 
 ## Related
 
 - [indexing.md](./indexing.md)
+- [migration-verification-baseline.md](./migration-verification-baseline.md)
 - [ADR 0011](../adr/0011-prd-suite-and-flutter-confirmation.md)

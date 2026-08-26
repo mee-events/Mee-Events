@@ -1,7 +1,7 @@
 # Schema Overview
 
 This document inventories the shipped PostgreSQL schema as defined by migrations
-`0001`–`0013`. It does not invent tables from product roadmaps.
+`0001`–`0020`. It does not invent tables from product roadmaps.
 
 ---
 
@@ -103,12 +103,30 @@ here.
 See [pattern-b-tables.md](./pattern-b-tables.md) for FKs and
 [Pattern B Specification](../02-architecture/pattern-b.md) for behavior.
 
+### Catalog taxonomy and search (`0015`–`0019`)
+
+`catalog_services`, `occasion_stages`, `service_occasion_affinity`,
+`catalog_aliases`, `search_trending_terms`, `catalog_subcategories`,
+`catalog_products`, `event_service_selections`, `catalog_content_revisions`
+
+Migration `0017` adds `enquiries.preferred_external_vendor`. Migration `0019`
+is a fail-closed data correction that assigns Female Anchor to
+`entertainment.A2` and restores Magician at `entertainment.B2`.
+
+### Catalog media (`0020_catalog_media.sql`)
+
+`catalog_media` stores normalized, reviewed cover/gallery/icon metadata for
+occasion, service, subcategory, and product entities. Migration `0020` seeds no
+photographs.
+
 ### Non-table migrations
 
-| Migration                                | Change                                    |
-| ---------------------------------------- | ----------------------------------------- |
-| `0012_pattern_b_inventory_cancelled.sql` | Widens `event_timelines.entry_type` CHECK |
-| `0014_add_missing_fk_indexes.sql`        | Additive FK indexes only                  |
+| Migration                                    | Change                                    |
+| -------------------------------------------- | ----------------------------------------- |
+| `0012_pattern_b_inventory_cancelled.sql`     | Widens `event_timelines.entry_type` CHECK |
+| `0014_add_missing_fk_indexes.sql`            | Additive FK indexes only                  |
+| `0017_enquiry_preferred_external_vendor.sql` | Adds one nullable enquiry column          |
+| `0019_fix_entertainment_b2_collision.sql`    | Fail-closed catalog data correction       |
 
 ---
 
@@ -116,3 +134,4 @@ See [pattern-b-tables.md](./pattern-b-tables.md) for FKs and
 
 - [erd.md](./erd.md) — relationship diagrams
 - [migrations.md](./migrations.md) — apply order and conventions
+- [migration-verification-baseline.md](./migration-verification-baseline.md) — live replay and integrity evidence

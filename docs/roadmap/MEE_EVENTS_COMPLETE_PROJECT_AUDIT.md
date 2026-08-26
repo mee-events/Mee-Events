@@ -61,11 +61,12 @@ Verified locally:
 - Flutter dev debug APK — **PASS (STAB-13)**; correct dev ID/label/version, `INTERNET`, debuggable state, and Android Debug signature verified.
 - Flutter production release APK/AAB compile — **PASS / RELEASE FAIL (STAB-13)**; both omit network permission and use the Android Debug certificate. Two AABs are byte-identical; two APKs have identical content/metadata with signing-block variance.
 - iOS flavored and non-flavored unsigned release builds — **FAIL (state verified in STAB-13)**; the host lacks usable full Xcode, bundle-ID resolution fails, and no `.app` exists.
+- PostgreSQL migration replay — **PASS WITH FINDINGS (STAB-14)**. PostgreSQL 17.2 applied all 20 files on empty, tracked-upgrade, and legacy pre-ledger paths; normalized schema/stable seed payloads match, repeat runs are no-ops, and selected integrity/rollback probes pass. The applied-but-unrecorded runner crash window is reproduced and remains `SEC-M-09`.
 - Package security audit — **FAIL at original audit**, 74 findings: 4 critical, 29 high, 31 moderate, 10 low. **STAB-03 re-audit 25 August 2026 (IST):** remediations applied; final `pnpm audit` 0 critical, 0 high, 0 moderate, 2 low. See `docs/05-security/dependency-security.md`.
 
 Not verified:
 
-- Live PostgreSQL migration replay or integration behavior; Docker Desktop was not running and `pg_isready` was unavailable.
+- At the original audit, live PostgreSQL replay/integration was unavailable. STAB-14 now proves local migration replay and selected database invariants; backend adapter/concurrency integration remains unverified pending STAB-15.
 - Real provider calls, staging, production, backups, restore, monitoring, signed store builds, or store accounts.
 - Browser/device E2E because no E2E framework exists.
 - Runtime penetration testing, DAST, load testing, accessibility certification, or legal/privacy review.
@@ -417,9 +418,11 @@ mobile Supabase), STAB-16 (Node pin / CI), INT-01 (OTP vendor adapter).
 - 20 ordered migrations contain 114 table declarations, 334 index declarations, and 68 trigger declarations.
 - Schema breadth covers identity, catalog, enquiry/CRM, quotations/payments/bookings, event records, manager/vendor/worker, inventory, finance, operations, audit, timelines, and outbox.
 - Pattern B helpers and append-only audit triggers are strong foundations.
-- The migration runner commits each SQL file and records it in `schema_migrations` in a separate command; a crash between those steps can leave an applied-but-unrecorded migration.
+- STAB-14 replayed all 20 files on PostgreSQL 17.2 across empty, tracked-upgrade, and legacy paths. All paths converged to the same normalized schema and stable seed payload; repeat runs were no-ops. Live inventory found 115 public tables including the ledger, 502 indexes, 760 constraints, 310 foreign keys, and 68 non-internal triggers; selected integrity and rollback probes passed.
+- The migration runner commits each SQL file and records it in `schema_migrations` in a separate command; STAB-14 reproduced an applied-but-unrecorded `0019` that fails on retry and does not advance to `0020`. The ledger has no checksum and no automatic reconciliation (`SEC-M-09`).
 - `idempotency_records` exists but has no application usage.
-- No live migration replay, DB integration tests, backup, or restore proof exists.
+- No backend adapter/concurrency integration suite, backup, restore, managed-host, or production database proof exists.
+- Canonical STAB-14 evidence: `docs/03-database/migration-verification-baseline.md`.
 
 ### Authentication
 
@@ -550,7 +553,7 @@ Each area is scored against ten area-specific controls worth 10 points each. Evi
 | -------------------- | ------: | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
 | Architecture         | **61%** | repo topology 10; ADR direction 8; API boundary 6; shared contracts 7; DB authority 7; auth/capabilities 7; Pattern B 6; client alignment 5; production topology 0; doc concordance 5                | Dormant direct Supabase client, unreachable staff-mobile remnants, async-flow doc drift, no production topology |
 | Backend              | **48%** | module/API breadth 9; auth 7; authorization 5; lifecycle workflows 6; validation/errors 7; audit/transactions 6; async delivery 3; real providers 0; integration proof 2; production proof 3         | Broad foundation but branch scoping, atomicity, providers, DB tests, E2E, and production proof are absent       |
-| Database             | **44%** | schema 9; constraints/indexes 8; domain breadth 8; runner 5; transactions 6; audit 7; idempotency 1; live integration 0; backups 0; production ops 0                                                 | No live replay/integration/restore; idempotency unused; runner has crash window                                 |
+| Database             | **44%** | schema 9; constraints/indexes 8; domain breadth 8; runner 5; transactions 6; audit 7; idempotency 1; live integration 0; backups 0; production ops 0                                                 | Local replay passes; adapter integration/restore/production absent; crash window remains                        |
 | Customer             | **40%** | auth/session 6; Home/Explore 7; Plan/favorites 4; enquiry 6; quotation 5; payment/booking 4; event workspace 4; profile/docs/notif/feedback 1; resilience 3; E2E/release 0                           | Real-provider and complete real-data journey missing                                                            |
 | Vendor               | **24%** | auth 5; onboarding 1; catalog/pricing 1; assignments 6; progress 5; docs/notifs 0; settlement 0; authz 4; tests 2; E2E/release 0                                                                     | Assignment slice only; business product and E2E missing                                                         |
 | Worker               | **24%** | auth 5; profile 1; availability 0; assignments 6; attendance/progress 5; location/privacy 1; docs/notifs 0; payout 0; authz 4; tests/E2E 2                                                           | Field execution is placeholder-based and unproved on device                                                     |
@@ -640,7 +643,7 @@ Critical and high findings are release blockers unless explicitly risk-accepted 
 | SEC-M-06 | Mobile bootstrap parser defaults unknown surfaces/roles to Customer                         | Fail closed on malformed/unknown authorized bootstrap responses                                                                                                                                |
 | SEC-M-07 | External OTP credentials exist in examples but were not validated in the environment schema | **Closed in STAB-02:** `OTP_PROVIDER=external` requires SMS keys at boot; staging/production reject local OTP and placeholder secrets. Residual: vendor HTTP adapter still throws until INT-01 |
 | SEC-M-08 | File upload/object-storage controls are not implemented                                     | Define allowlist, size, scanning, ownership, private buckets, signed URLs and retention before uploads                                                                                         |
-| SEC-M-09 | Migration apply and bookkeeping are not atomic                                              | Make application+recording recoverable/transactional or add checksums and applied-state reconciliation                                                                                         |
+| SEC-M-09 | Migration apply/bookkeeping are not atomic; STAB-14 reproduced retry failure                | STAB-20/PROD-03: make application+recording recoverable/transactional or add checksums, semantic applied-state reconciliation and a reviewed recovery runbook                                  |
 | SEC-M-10 | Direct Supabase client is initialized in mobile contrary to accepted boundary               | Prove no use, remove client DB path, and keep storage/DB credentials behind NestJS                                                                                                             |
 
 ### LOW / INFORMATIONAL
@@ -825,7 +828,7 @@ PHASE 11 Android release
 PHASE 12 iOS release
 ```
 
-No phase begins until the preceding gate is verified and recorded. The current phase is **Phase 0 — Stabilization**. **STAB-01** through **STAB-13** are complete. The next execution block is **STAB-14 — PostgreSQL migration verification**. Do not start STAB-14 in the STAB-13 session.
+No phase begins until the preceding gate is verified and recorded. The current phase is **Phase 0 — Stabilization** and its gate remains **NOT PASSED**. **STAB-01** through **STAB-14** are complete. The next permitted execution block is **STAB-15 — Database integration tests**. STAB-15 was not started during STAB-14.
 
 ## 19. Definition of complete
 

@@ -15,6 +15,15 @@ schema for that file when run with `ON_ERROR_STOP=1`.
 Apply tracking (`schema_migrations`) is updated by
 `apply-migrations.sh` after the file succeeds. See [migrations.md](./migrations.md).
 
+That boundary is not atomic: the file commits before a separate command inserts
+its ledger row. STAB-14 reproduced an applied-but-unrecorded `0019`; retrying
+the runner failed closed on the migration's precondition and did not recover or
+advance to `0020`. The ledger also has no checksum. This is `SEC-M-09`, owned by
+STAB-20 and PROD-03. Do not repair such a state by blindly inserting a filename;
+verify the exact file hash and semantic postconditions through an approved
+reconciliation procedure. Full evidence is in
+[migration-verification-baseline.md](./migration-verification-baseline.md).
+
 ---
 
 ## Runtime adapter transactions
@@ -97,6 +106,7 @@ new branch-scoped tables even while operating a single branch
 | Domain + Pattern B inserts | Strong — same runtime transaction                             |
 | Outbox delivery            | Eventual — after commit, via `outbox_events` status lifecycle |
 | Migration file             | All-or-nothing per file                                       |
+| Migration file + ledger    | **Not atomic** — crash reconciliation is required             |
 
 ---
 
@@ -105,3 +115,4 @@ new branch-scoped tables even while operating a single branch
 - [pattern-b-tables.md](./pattern-b-tables.md)
 - [Pattern B Specification](../02-architecture/pattern-b.md)
 - [indexing.md](./indexing.md)
+- [migration-verification-baseline.md](./migration-verification-baseline.md)

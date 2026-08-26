@@ -46,6 +46,13 @@ Canonical evidence:
 Details: [unit-tests.md](./unit-tests.md), [integration-tests.md](./integration-tests.md),
 [e2e-tests.md](./e2e-tests.md).
 
+STAB-14 adds local PostgreSQL 17.2 migration evidence: all 20 files converge
+across empty, tracked-upgrade, and legacy replay, and selected live integrity
+and rollback probes pass. It does **not** add a maintained test harness or alter
+the table above: backend adapter, HTTP, concurrency, Redis, and CI database
+integration remain STAB-15. Evidence is in
+[migration-verification-baseline.md](../03-database/migration-verification-baseline.md).
+
 ---
 
 ## Surfaces

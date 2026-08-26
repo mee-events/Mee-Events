@@ -15,7 +15,15 @@ cron, or RTO tooling.
    `corepack pnpm db:migrate`).
 3. Confirm rows in `schema_migrations` match the expected catalog.
 
+Filename count alone is not sufficient: the current ledger stores no checksum,
+and migration commit plus ledger insert are not atomic. STAB-14 reproduced an
+applied-but-unrecorded migration that fails on retry. If ledger/schema state is
+uncertain, stop and reconcile exact migration hashes and semantic postconditions
+under review; do not blindly insert a ledger row or rerun SQL.
+
 Full algorithm and file list: [migrations.md](../03-database/migrations.md).
+Local replay/failure evidence:
+[migration-verification-baseline.md](../03-database/migration-verification-baseline.md).
 
 Style expectation: additive / **expand-and-contract**. Prefer that path over
 destructive schema rollback when rolling back application code
@@ -61,6 +69,9 @@ infrastructure choice, not something implemented in this repo.
 | Domain mistakes    | Compensating writes + Pattern B audit/timeline — not silent `DELETE` of financial history |
 
 There is no in-repo CD job to automate rollback ([ci-cd.md](./ci-cd.md)).
+STAB-14 proves local schema replay and per-file rollback only. It does not prove
+a data backup, restore, PITR, managed-host, or production rollback. Those remain
+PROD-03 requirements.
 
 ---
 

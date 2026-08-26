@@ -1,15 +1,15 @@
 # Mee Events — Progress Tracker
 
-- **Updated:** 26 August 2026 16:10 IST (Asia/Kolkata, +0530); STAB-13 iOS evidence correction
+- **Updated:** 26 August 2026 16:49 IST (Asia/Kolkata, +0530); STAB-14 PostgreSQL migration verification
 - **Repository:** `/Users/vinaychilagani/Desktop/Mee Event V1`
 - **Baseline application commit:** `master` / `9e2a442d91c137ec97a349d1a55697ae8d79d5df`
 - **STAB-01 snapshot HEAD:** `ca994985a898d42da2a8d717041b93a8f8f0dc4c`
 - **Current phase:** Phase 0 — Stabilization
 - **Phase gate:** **NOT PASSED**
-- **Last completed task:** STAB-13 — Flutter build and native artifact verification
-- **Current task:** None — STAB-13 closed as instructed
-- **Next task:** STAB-14 — PostgreSQL migration verification
-- **Latest application commit:** STAB-05 closed backend script lint coverage; STAB-06/07/09/10/11/12/13 are documentation-only and STAB-08 changes tests/test configuration plus documentation, not ERP application source. Use Git history for hashes.
+- **Last completed task:** STAB-14 — PostgreSQL migration verification
+- **Current task:** None — STAB-14 closed as instructed
+- **Next task:** STAB-15 — Database integration tests
+- **Latest application commit:** STAB-05 closed backend script lint coverage; STAB-06/07/09/10/11/12/13/14 are documentation-only and STAB-08 changes tests/test configuration plus documentation, not ERP application source. Use Git history for hashes.
 
 ## Status key
 
@@ -696,10 +696,61 @@ match their starting hashes; generated output was cleaned. Phase 0 remains
 **NOT PASSED**. Next permitted block: **STAB-14 — PostgreSQL migration
 verification**; it was not started.
 
+## STAB-14 — PostgreSQL migration verification
+
+- [x] **STAB-14** PostgreSQL migration verification — completed with findings
+      26 August 2026 16:49 IST. Next: STAB-15. Do not start STAB-15 in this
+      block.
+
+Canonical evidence: `docs/03-database/migration-verification-baseline.md`.
+
+Verification began from clean `master` at
+`325f2e47ab4b0db7abad2daacdb445ffb074b551`, tracking `origin/master`, ahead
+15 and behind 0. Docker 29.5.2 / Compose 5.1.4 ran the pinned
+`postgres:17.2-alpine` image in four unique, loopback-only projects. The normal
+founder `me-event-local` Postgres/Redis project and unrelated projects were
+excluded; all four STAB-14 containers, volumes, and networks were removed, and
+the founder container IDs/health were unchanged.
+
+Filesystem and Git both contained exactly 20 sequential migrations
+`0001`–`0020`; every file has one `BEGIN`/`COMMIT`. The combined catalog
+SHA-256 is
+`790d78670e79500b2c32dae17bcc1ed75749a637e4240253a098fa082aa7e653`.
+The empty replay applied all 20 in 7.54 seconds. A tracked database at `0014`
+received `0015`–`0020`, and a legacy `0001` database without a ledger was
+correctly baselined before receiving `0002`–`0020`. Final ledgers were 20/20
+distinct; repeat runs skipped all 20 files.
+
+All three paths produced identical normalized schema SHA-256
+`90a977d40e12d998ed8bd0723640eaae34f26f560c229d4035235758941a2c36`
+and stable seed-payload SHA-256
+`b8bd2cc4852008bfaa494b876752e849e02a4c070a68ce0cb28759d8ca82aa9d`.
+The live schema had 115 public tables including the ledger, 502 indexes, 760
+constraints, 310 foreign keys, 282 CHECKs, 53 UNIQUE constraints, and 68
+non-internal triggers. All 33 `branch_id` columns had branch foreign keys; no
+constraint was unvalidated and no index was invalid. Representative
+FK/CHECK/UNIQUE, updated-at/version, catalog-media, and audit append-only probes
+passed and rolled back without residue. A forced pre-COMMIT exception exited 3
+and left no table.
+
+The known runner risk is now reproduced, not closed. Migration SQL commits
+before a separate ledger insert, and the ledger stores no checksum. After
+`0019` was deliberately committed but not recorded, the runner retried it,
+failed its semantic precondition with exit 3, retained an 18-row ledger, and
+did not reach `0020`; no automatic recovery occurred. `SEC-M-09` remains owned
+by STAB-20 and PROD-03 for checksum-aware, crash-recoverable bookkeeping and an
+approved reconciliation runbook. This local evidence is not a maintained
+backend adapter/concurrency suite, backup/restore proof, or production database
+validation. Phase 0 remains **NOT PASSED**. Next permitted block: **STAB-15 —
+Database integration tests**; it was not started.
+
 ## Latest verification
 
 | Verification                   | Result                          | Evidence summary                                                                                    |
 | ------------------------------ | ------------------------------- | --------------------------------------------------------------------------------------------------- |
+| STAB-14 migration paths        | **PASS with finding**           | Empty, tracked-upgrade and legacy paths converge; 20/20 ledger; repeat runs are no-ops              |
+| STAB-14 live integrity         | **PASS**                        | 115 tables; 760 constraints; all 33 branch columns FK-scoped; append-only and rollback probes pass  |
+| STAB-14 crash recovery         | **FAIL / risk reproduced**      | Applied-but-unrecorded `0019` fails on retry; no checksum or automatic reconciliation               |
 | STAB-13 Flutter quality        | **PASS**                        | 200 formatted/analyzed files; 0 drift/diagnostics; 27 files and 441/441 tests                       |
 | STAB-13 Android dev build      | **PASS (debug only)**           | Dev APK compiles; INTERNET present; debuggable; Android Debug certificate                           |
 | STAB-13 Android prod packages  | **COMPILE PASS / RELEASE FAIL** | APK/AAB compile; no INTERNET; debug-signed; AAB byte-identical; APK content stable                  |
@@ -804,7 +855,7 @@ Do not ask for these until their dependent block is approaching, unless early pr
 - [x] STAB-11 Backend build
 - [x] STAB-12 ERP build
 - [x] STAB-13 Flutter build
-- [ ] STAB-14 PostgreSQL migration verification
+- [x] STAB-14 PostgreSQL migration verification
 - [ ] STAB-15 Database integration tests
 - [ ] STAB-16 CI verification
 - [ ] STAB-17 E2E test foundation

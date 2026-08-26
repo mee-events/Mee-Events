@@ -2,7 +2,7 @@
 
 - **Baseline:** Complete repository audit dated 25 August 2026
 - **Current phase:** Phase 0 — Stabilization
-- **Next block:** STAB-14 — PostgreSQL migration verification
+- **Next block:** STAB-15 — Database integration tests
 - **Rule:** One block → verify → document → commit → stop.
 
 This file is the definitive ordered work inventory. The phase order is mandatory even when a later task has a higher risk priority. Do not start Customer until the Phase 0 gate passes; do not start Vendor until Customer passes; continue one major module at a time.
@@ -54,7 +54,7 @@ Status marks in this file describe execution, not how much scaffold already exis
 - [x] **STAB-11 Backend build** — Objective: verify deterministic, runnable-boundary Nest compilation without claiming deployment readiness; State: **DONE** 26 August 2026; Scope: backend build config/output, workspace runtime dependencies, compiled configuration and safe startup boundary; Action: frozen install, two sanitized clean builds, artifact/hash/security inventory, fail-closed validation and module-load smoke; Depends/Risk: STAB-10, accidental external access/artifact leakage; Test/Security: 388 identical files, all 129 source roots, zero test/spec/script/env output, no embedded secret, missing config rejects and valid synthetic config loads; DoD: reproducible artifact and documented non-standalone/runtime/deployment limits; Next: STAB-12. Evidence: `docs/07-deployment/backend-build-baseline.md`.
 - [x] **STAB-12 ERP build** — Objective: verify Next production compilation after secure dependency baseline; State: **DONE WITH FINDINGS** 26 August 2026; Scope: ERP/Next configuration, 44 routes, generated artifact, public environment, runtime/header, dependency, fixture and CI boundaries; Action: frozen install/current audits, shared builds, fail-closed probes, two clean synthetic-production builds, stable-hash comparison and loopback smoke; Depends/Risk: STAB-11 and dependency remediation; Test/Security: 0 critical/high/moderate, 44/44 routes compile, configured headers pass, no secret/private environment leakage; the fixture-free subcriterion is explicitly **NOT SATISFIED** because `/leads` still client-bundles unlabeled PII-shaped synthetic records; DoD: production build/runtime baseline green with reproducibility, normal non-standalone runtime, fixture/hardening, and CI limits honestly recorded; this task does not close CRM-06/24/26 or STAB-18/20; Next: STAB-13. Evidence: `docs/07-deployment/erp-build-baseline.md`.
 - [x] **STAB-13 Flutter build** — Objective: verify dev and production mobile builds honestly; State: **DONE WITH FINDINGS** 26 August 2026, while Android/iOS release status remains **BROKEN**; Scope: Flutter toolchain/quality, native projects, public env asset, Android APK/AAB manifests/signing/reproducibility, iOS configuration/probes and CI; Action: trap-isolated founder `.env`, resolved locked dependencies, passed format/analyze/441 tests, built dev debug plus two production APKs/AABs, inspected permissions/certificates/assets, and ran both unsigned iOS probes; Depends/Risk: STAB-12; Test/Security: synthetic `.invalid` values only, no founder value/provider/device/store access, no native/manifest/lock drift; DoD: evidence complete and every defect scheduled without calling artifacts releasable—production Android omits INTERNET and is debug-signed; on iOS, this host lacks usable full Xcode so bundle-ID resolution fails before project enumeration/compile/sign, while the missing `prod` scheme and signing setup remain later blockers; Next: STAB-14. Evidence: `docs/07-deployment/flutter-build-baseline.md`.
-- [ ] **STAB-14 PostgreSQL migration verification** — Objective: replay all 20 migrations on empty and upgrade databases; State: **NOT VERIFIED/BLOCKED** by local Docker; Scope: Compose, migration runner, SQL catalog; Action: start isolated DB, replay, checksum/catalog verify, test runner crash recovery; Depends/Risk: STAB-13, data loss if wrong target; Test/Security: explicit local/test URL, constraints/triggers/append-only checks; DoD: empty/upgrade replay green with schema evidence; Next: STAB-15.
+- [x] **STAB-14 PostgreSQL migration verification** — Objective: replay all 20 migrations on empty and upgrade databases; State: **DONE WITH FINDINGS** 26 August 2026; Scope: isolated PostgreSQL 17.2 Compose projects, migration runner, SQL catalog, legacy baseline and failure behavior; Action: verified 20 sequential file hashes, empty/tracked/legacy convergence, 20-file no-op reruns, live constraints/indexes/triggers/branch FKs, append-only/rollback behavior and scoped cleanup; Depends/Risk: STAB-13, data loss if wrong target; Test/Security: loopback-only projects, no founder/production DB access, no secrets, all synthetic writes rolled back; DoD: three paths converge with matching schema/stable seed signatures and canonical evidence, while `SEC-M-09` remains open because applied SQL plus ledger recording are non-atomic, checksum-free and not automatically recoverable; Next: STAB-15. Evidence: `docs/03-database/migration-verification-baseline.md`.
 - [ ] **STAB-15 Database integration tests** — Objective: prove real adapters, transactions, rollback, concurrency, branch scope and Pattern B; State: **MISSING**; Scope: backend integration harness/PostgreSQL; Action: create minimum live-DB suite; Depends/Risk: STAB-14; Test/Security: OTP consume, refresh, enquiry/outbox/lead, quote/payment/booking/event, IDOR denial; DoD: deterministic isolated DB suite green locally and CI-ready; Next: STAB-16.
 - [ ] **STAB-16 CI verification** — Objective: make automation match supported tools/security/boundaries; State: **PARTIAL**; Scope: `.github/workflows`, branch policy; Action: add patched SCA/secret/static and DB gates without duplicating noise; Depends/Risk: STAB-15; Test/Security: run on PR/push, least-privilege permissions, pinned actions; DoD: green CI on canonical branch with artifacts/evidence and required checks documented; Next: STAB-17.
 - [ ] **STAB-17 E2E test foundation** — Objective: select and scaffold browser/device/API E2E without implementing modules; State: **MISSING**; Scope: testing tools/config/fixtures only; Action: create one authenticated smoke per surface and cleanup strategy; Depends/Risk: STAB-16, brittle tests/PII; Test/Security: isolated accounts, no production endpoints/secrets; DoD: one stable browser and mobile/API smoke in CI-compatible harness; Next: STAB-18.
@@ -286,16 +286,28 @@ Status marks in this file describe execution, not how much scaffold already exis
 - [ ] **POLISH-05 Support and runbooks** — Objective: founder/operator can diagnose and respond; State: **MISSING**; Scope: customer support, incidents, providers, data correction; Action: severity/ownership/escalation/runbooks; Depends/Risk: production topology; Test/Security: tabletop drills and redaction; DoD: named owners and successful drills; Next: POLISH-06.
 - [ ] **POLISH-06 Final launch checklist** — Objective: prove the complete definition of done; State: **MISSING**; Scope: all evidence; Action: verify, never infer; Depends/Risk: IOS-10 and all prior gates; Test/Security: repeat critical journeys/security/restore/rollback; DoD: every required item checked with artifact/owner/date; Next: maintain/operate.
 
-## Last closed execution block — STAB-13
+## Last closed execution block — STAB-14
 
 ### TASK ID
 
-`STAB-13`
+`STAB-14`
 
 ### RESULT
 
-Completed with findings 26 August 2026. Flutter 3.44.8/Dart 3.12.2 matched CI; formatting covered 200 files unchanged, analysis emitted zero diagnostics, and 441/441 tests across 27 files passed. The founder mobile `.env` was trap-isolated without reading values, and only synthetic public `.invalid` configuration entered artifacts; the original was restored with identical metadata. Dev debug APK and two production APK/AAB builds compiled without source/native/lock drift. Production APK/AAB omit INTERNET and use the Android Debug certificate, so runtime/store readiness remains broken. The two AABs are byte-identical; APK content/metadata is stable with v2-signature-block variance. Both iOS probes fail with `Application not configured for iOS` after Flutter's Xcode-version probe finds no usable full Xcode; no project enumeration, compile, signing, or app artifact follows. The missing `prod` scheme and signing setup are later independent blockers; `.metadata` migration state did not cause the observed error. Release HTTP, Supabase/direct-data boundary, backup, native security, signing, device/store, and CI gaps remain assigned. Phase 0 gate is still not passed.
+Completed with findings 26 August 2026. Four unique loopback-only PostgreSQL
+17.2 Compose projects proved the 20-file catalog, empty replay, tracked upgrade,
+legacy pre-ledger baseline, repeat-run no-op behavior, three-path normalized
+schema/stable seed parity, live constraints/indexes/triggers/branch foreign
+keys, append-only audit enforcement, and pre-COMMIT rollback. All temporary
+containers, volumes, networks, and evidence were removed without affecting the
+founder environment. The known `SEC-M-09` crash window is reproduced rather
+than closed: migration SQL can commit before its separate ledger insert, the
+ledger has no checksum, and an applied-but-unrecorded `0019` fails on retry
+without advancing to `0020`. STAB-20/PROD-03 retain reconciliation and
+checksum-aware bookkeeping; STAB-15 retains backend adapter/concurrency tests.
+Phase 0 gate is still not passed.
 
 ### NEXT TASK
 
-`STAB-14 PostgreSQL migration verification`. Stop after committing STAB-13. Do not start STAB-14 in the same session.
+`STAB-15 Database integration tests`. Stop after committing STAB-14. Do not
+start STAB-15 in the same session.

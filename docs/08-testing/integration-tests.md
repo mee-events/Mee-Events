@@ -1,8 +1,15 @@
 # Integration Tests
 
-**Honest status:** there is **no** PostgreSQL- or Redis-backed integration test
-job in this repository. The TypeScript CI job does not start Compose or a
-database service ([ci-cd.md](../07-deployment/ci-cd.md)).
+**Honest status:** there is **no** PostgreSQL- or Redis-backed application
+integration test job in this repository. The TypeScript CI job does not start
+Compose or a database service ([ci-cd.md](../07-deployment/ci-cd.md)).
+
+STAB-14 separately performed a one-time, isolated PostgreSQL 17.2 replay of all
+20 migrations across empty, tracked-upgrade, and legacy paths, plus selected
+constraint/trigger/rollback probes. That is live migration evidence, not a
+maintained backend adapter, HTTP, concurrency, or CI integration suite. See
+[migration-verification-baseline.md](../03-database/migration-verification-baseline.md).
+STAB-15 remains not started.
 
 What exists instead is an in-process **module foundation** layer: Vitest specs
 that exercise application services with Fake repositories and assert Pattern B
@@ -65,8 +72,9 @@ Do not assume `pnpm test` requires or mutates a running database.
 
 A future DB-backed integration suite (migrate → seed → hit repositories or HTTP
 against real Postgres) would be a **new** engineering decision. It is not
-present today. Until then, treat foundation + workflow + the SQL probe as the
-closest “integration” coverage.
+present today. Until STAB-15, treat foundation/workflow specs as in-process
+evidence and the STAB-14 baseline as local migration/invariant evidence.
+Neither proves live application adapter workflows.
 
 ---
 
