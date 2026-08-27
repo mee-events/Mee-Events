@@ -2,7 +2,7 @@
 
 - **Baseline:** Complete repository audit dated 25 August 2026
 - **Current phase:** Phase 0 — Stabilization
-- **Next block:** STAB-19 — Repository cleanup, **NOT STARTED**
+- **Next block:** STAB-20 — Security baseline, **NOT STARTED**
 - **Rule:** One block → verify → document → commit → stop.
 
 This file is the definitive ordered work inventory. The phase order is mandatory even when a later task has a higher risk priority. Do not start Customer until the Phase 0 gate passes; do not start Vendor until Customer passes; continue one major module at a time.
@@ -59,7 +59,7 @@ Status marks in this file describe execution, not how much scaffold already exis
 - [x] **STAB-16 CI verification** — Objective: make automation match supported tools/security/boundaries; State: **DONE WITH FINDINGS** 27 August 2026; Scope: `.github/workflows`, branch policy (document only); Action: add patched SCA/secret/static and DB gates without duplicating noise; Depends/Risk: STAB-15 independent re-review (done 27 August 2026); Test/Security: remote CI/Security/CodeQL green on canonical `master` at `999443d` (runs 33034648786 / 33034648784 / 33034648777); `Dependency review` skipped on push as expected; branch protection and native secret scanning remain founder-owned and open; DoD: green CI on canonical branch with artifacts/evidence; required-check names documented as proposals only; Next: STAB-17. Evidence: `docs/07-deployment/ci-verification-baseline.md`.
 - [x] **STAB-17 E2E test foundation** — Objective: select and scaffold browser/device/API E2E without implementing modules; State: **DONE WITH FINDINGS** 27 August 2026; Scope: testing tools/config/fixtures only; Action: Playwright ERP login smoke, Nest authenticated API smoke, Flutter-package API contract smoke, loopback fail-closed guards, session cleanup; Depends/Risk: STAB-16, brittle tests/PII; Test/Security: isolated synthetic accounts, loopback only, no production endpoints/secrets, OTP/tokens not logged; DoD: one stable browser and mobile/API smoke in a CI-compatible harness — local live smokes passed; CI runs URL guards only (no emulator, no every-push live stack); Next: STAB-18. Evidence: `docs/08-testing/e2e-foundation-baseline.md`.
 - [x] **STAB-18 Documentation reconciliation** — Objective: align docs with audited implementation; State: **DONE WITH FINDINGS** 27 August 2026; Scope: overview/architecture/auth/testing/deployment/old roadmap references; Action: corrected async enquiry→lead, staff-mobile vs Employee Mobile, OTP resend enforcement, Supabase residual packages, `master` branch names, stale test/E2E claims; labeled 18 August PDFs historical; Depends/Risk: STAB-17; Test/Security: docs-only; no aspirational live claims; DoD: canonical docs agree with code/tests/config; historical PDFs labeled not rewritten; Next: STAB-19. Evidence: `docs/roadmap/README.md`, `docs/roadmap/MEE_EVENTS_PROGRESS.md` STAB-18. Findings: 18 August `MASTER_BUILD_ROADMAP.md` body and 25 August audit freeze body were labeled, not rewritten; EMP-\* cards retained as MISSING.
-- [ ] **STAB-19 Repository cleanup** — Objective: remove only proven generated/cache/junk; State: **NOT STARTED**; Scope: reviewed cleanup manifest covering design/build/obsolete candidates; Action: classify GENERATED/OBSOLETE/DUPLICATE/BROKEN/ACTIVE/UNKNOWN before action; Depends/Risk: STAB-18, irreversible evidence loss; Test/Security: build/tests before/after, UNKNOWN retained; DoD: approved manifest, recoverable deletion only, no active/history loss; Next: STAB-20.
+- [x] **STAB-19 Repository cleanup** — Objective: remove only proven generated/cache/junk; State: **DONE WITH FINDINGS** 27 August 2026; Scope: reviewed cleanup manifest covering design/build/obsolete candidates; Action: classified GENERATED/OBSOLETE/DUPLICATE/BROKEN/ACTIVE/UNKNOWN; git-deleted only unused `super_app_dummy_data.dart`; kept HTML masquerade images (audit spec), stitch-screens, artifacts, PDFs, EMP-\* cards, lead fixtures, `erp_warehouse.read`, Supabase packages; Depends/Risk: STAB-18, irreversible evidence loss; Test/Security: before/after format/lint/typecheck, backend 190/190, ERP 8/8, Flutter analyze + 441/441; DoD: approved manifest, recoverable deletion only, UNKNOWN retained; Next: STAB-20. Evidence: `docs/roadmap/STAB-19-cleanup-manifest.md`.
 - [ ] **STAB-20 Security baseline** — Objective: close P0 security blockers before Customer work; State: **BROKEN**; Scope: dependencies, branch scoping, auth/session races, headers/logging, outbox/idempotency, mobile release; Action: resolve SEC-C/H items in small reviewed commits; Depends/Risk: STAB-19; Test/Security: full authorization matrix, SCA, concurrency, headers, certificate/manifest checks; DoD: zero unaccepted critical/high findings, security regression suite green, residual risk signed; Next: CUST-01 only after Phase 0 gate.
 
 ### P0 security work packages (executed inside STAB-20, not in parallel)
@@ -286,22 +286,20 @@ Status marks in this file describe execution, not how much scaffold already exis
 - [ ] **POLISH-05 Support and runbooks** — Objective: founder/operator can diagnose and respond; State: **MISSING**; Scope: customer support, incidents, providers, data correction; Action: severity/ownership/escalation/runbooks; Depends/Risk: production topology; Test/Security: tabletop drills and redaction; DoD: named owners and successful drills; Next: POLISH-06.
 - [ ] **POLISH-06 Final launch checklist** — Objective: prove the complete definition of done; State: **MISSING**; Scope: all evidence; Action: verify, never infer; Depends/Risk: IOS-10 and all prior gates; Test/Security: repeat critical journeys/security/restore/rollback; DoD: every required item checked with artifact/owner/date; Next: maintain/operate.
 
-## Current acceptance block — STAB-19 Repository cleanup
+## Current acceptance block — STAB-20 Security baseline
 
 ### TASK ID
 
-`STAB-19`
+`STAB-20`
 
 ### RESULT
 
-**NOT STARTED.** STAB-18 is **DONE WITH FINDINGS** 27 August 2026:
-canonical numbered docs, README, AGENTS, PRD 10, and authentication now match
-the audited implementation (async enquiry→lead, Employee Mobile missing,
-OTP resend HTTP 429, Supabase residual packages, `master` default, STAB-15/16/17
-test/E2E facts). Historical 18 August PDFs and the 25 August audit freeze were
-labeled, not rewritten. Phase 0 remains **NOT PASSED**.
+**NOT STARTED.** STAB-19 is **DONE WITH FINDINGS** 27 August 2026: cleanup
+manifest classified candidates; git deleted only unused
+`super_app_dummy_data.dart`; caches/HTML masquerades/stitch-screens/artifacts/PDFs/EMP-\*
+cards/lead fixtures/`erp_warehouse.read` retained. Phase 0 remains **NOT PASSED**.
 
 ### NEXT TASK
 
-`STAB-19 Repository cleanup` is the next authorized Phase 0 block.
-Do not start it in the STAB-18 commit.
+`STAB-20 Security baseline` is the next authorized Phase 0 block.
+Do not start it in the STAB-19 commit.

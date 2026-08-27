@@ -1,19 +1,20 @@
 # Mee Events — Progress Tracker
 
-- **Updated:** 27 August 2026; STAB-18 DONE WITH FINDINGS (canonical docs reconciled; historical PDFs labeled)
+- **Updated:** 27 August 2026; STAB-19 DONE WITH FINDINGS (manifest + one unused Dart delete)
 - **Repository:** `/Users/vinaychilagani/Desktop/Mee Event V1`
 - **Baseline application commit:** `master` / `9e2a442d91c137ec97a349d1a55697ae8d79d5df`
 - **STAB-01 snapshot HEAD:** `ca994985a898d42da2a8d717041b93a8f8f0dc4c`
 - **Current phase:** Phase 0 — Stabilization
 - **Phase gate:** **NOT PASSED**
-- **Last completed task:** STAB-18 — DONE WITH FINDINGS
-- **Current task:** none — awaiting STAB-19
-- **Next task:** STAB-19 Repository cleanup (**NOT STARTED**)
+- **Last completed task:** STAB-19 — DONE WITH FINDINGS
+- **Current task:** none — awaiting STAB-20
+- **Next task:** STAB-20 Security baseline (**NOT STARTED**)
 - **Latest application change:** STAB-15 now coordinates refresh rotation through the existing PostgreSQL session row across two service/repository/pool instances while preserving sequential reuse revocation; use Git history for commit hashes.
 - **STAB-16 implementation commit:** `999443d5d3ba547de1bb6c0406c34753c8433b00`
 - **STAB-16 closeout:** `1450263caa6a5be2263bf7b9c91827f7cc24ef6c`
 - **STAB-17 commit:** `68894f3bbfa91937a0c7c573a8fc1a0af83ce533`
-- **STAB-18 commit:** this documentation commit on `master`
+- **STAB-18 commit:** `f66cc51a726322eeb604ab84c3d3e195050248f9`
+- **STAB-19 commit:** this commit on `master` (`chore: remove proven generated and obsolete repository junk`); parent `f66cc51`
 
 ## Status key
 
@@ -870,7 +871,27 @@ Named defects vs code:
 **Finding:** `MEE_EVENTS_MASTER_BUILD_ROADMAP.md` body and
 `MEE_EVENTS_COMPLETE_PROJECT_AUDIT.md` 25 August freeze body were **labeled**,
 not rewritten. EMP-\* cards remain MISSING. Phase 0 **NOT PASSED**. STAB-19
-**not started**.
+is **DONE WITH FINDINGS**.
+
+## STAB-19 — Repository cleanup
+
+- [x] **STAB-19** Repository cleanup — **DONE WITH FINDINGS** 27 August 2026.
+      Manifest first; then one git delete. No STAB-20 work.
+
+Canonical evidence: `docs/roadmap/STAB-19-cleanup-manifest.md`.
+
+Summary of the same classification table (full proof lives in the manifest):
+
+| Path                                                                                                             | Classification                           | Tracked? | Action                                             |
+| ---------------------------------------------------------------------------------------------------------------- | ---------------------------------------- | -------- | -------------------------------------------------- |
+| `node_modules/`, `.pnpm-store/`, `.next/`, `dist/`, `apps/mobile/build`, `.dart_tool/`                           | GENERATED                                | no       | keep / not wiped (local caches)                    |
+| Playwright `test-results/`, `.DS_Store`, `flutter_web.log`, `pw-out.log`                                         | GENERATED                                | no       | clean locally only                                 |
+| Tracked `.DS_Store` / `*.iml` / `*.log` / `.env`                                                                 | GENERATED                                | no       | already absent from git                            |
+| 24 HTML-404 `*.jpg` + other duplicate JPEG paths                                                                 | BROKEN/DUPLICATE bytes, ACTIVE inventory | yes      | keep (`catalog-media-audit.spec.ts` pins 74/24/50) |
+| `super_app_dummy_data.dart`                                                                                      | OBSOLETE                                 | yes      | **delete from git** (no `lib/`/`test/` import)     |
+| `dummy-leads.ts`, stitch-screens, artifacts, roadmap PDFs, EMP-\* cards, `erp_warehouse.read`, Supabase packages | ACTIVE / UNKNOWN                         | yes      | keep                                               |
+
+After delete: backend 190/190, ERP 8/8, Dart format 200 files, analyze 0, Flutter 441/441. Phase 0 **NOT PASSED**. STAB-20 **not started**.
 
 ## Latest verification
 
@@ -885,6 +906,7 @@ not rewritten. EMP-\* cards remain MISSING. Phase 0 **NOT PASSED**. STAB-19
 | STAB-16 local CI configuration | **DONE WITH FINDINGS**               | `999443d` CI/Security/CodeQL green (33034648786 / 33034648784 / 33034648777); protection and native scanning still open |
 | STAB-17 E2E foundation         | **DONE WITH FINDINGS**               | Playwright 1/1; API smoke PASS; mobile API contract PASS (no device); 17 URL guards; no live GitHub stack job           |
 | STAB-18 documentation          | **DONE WITH FINDINGS**               | Canonical docs aligned with code; 18 Aug PDFs labeled; 25 Aug audit freeze labeled not rewritten                        |
+| STAB-19 repository cleanup     | **DONE WITH FINDINGS**               | Manifest classified candidates; git-deleted only unused `super_app_dummy_data.dart`; HTML images and caches kept        |
 | Backend unit tests (current)   | **PASS (after STAB-15)**             | 190/190 across 30 files; STAB-07 freeze remains 188/188                                                                 |
 | STAB-13 Flutter quality        | **PASS**                             | 200 formatted/analyzed files; 0 drift/diagnostics; 27 files and 441/441 tests                                           |
 | STAB-13 Android dev build      | **PASS (debug only)**                | Dev APK compiles; INTERNET present; debuggable; Android Debug certificate                                               |
@@ -995,7 +1017,7 @@ Do not ask for these until their dependent block is approaching, unless early pr
 - [x] STAB-16 CI verification — DONE WITH FINDINGS (`999443d`; branch protection and native secret scanning remain open)
 - [x] STAB-17 E2E test foundation — DONE WITH FINDINGS (local live smokes; CI URL guards only; no emulator)
 - [x] STAB-18 Documentation reconciliation — DONE WITH FINDINGS (canonical docs; historical PDFs labeled)
-- [ ] STAB-19 Repository cleanup
+- [x] STAB-19 Repository cleanup — DONE WITH FINDINGS (manifest; git-deleted only unused dummy Dart; caches/HTML images/stitch/artifacts/PDFs/EMP-\*/leads/`erp_warehouse.read` kept)
 - [ ] STAB-20 Security baseline
 
 ### Phase 0 security packages
