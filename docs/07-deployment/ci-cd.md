@@ -1,113 +1,135 @@
 # CI / CD
 
-Continuous integration lives in [`.github/workflows/ci.yml`](../../.github/workflows/ci.yml).
-There is **no deploy / CD workflow** in this repository yet.
+Continuous integration is defined by:
 
-Product intent for future deploy stages:
+- [`.github/workflows/ci.yml`](../../.github/workflows/ci.yml)
+- [`.github/workflows/security.yml`](../../.github/workflows/security.yml)
+- [`.github/workflows/codeql.yml`](../../.github/workflows/codeql.yml)
+- [`.github/dependabot.yml`](../../.github/dependabot.yml)
+
+Canonical evidence, exact action SHAs, permissions, retention, local results,
+branch-policy guidance, and remote limitations are in
+[ci-verification-baseline.md](./ci-verification-baseline.md).
+
+There is **no deployment/CD workflow**. CI does not deploy, publish a package or
+container, sign a mobile release, access staging/production, or configure GitHub
+repository settings. Product intent for future deploy stages is in
 [PRD 10 — Deployment & DevOps](../product/prd/10-deployment-devops-prd-v1.md).
-
----
 
 ## Triggers
 
-| Event                       | Behavior                       |
-| --------------------------- | ------------------------------ |
-| `pull_request`              | Runs all applicable jobs       |
-| `push` to `master` / `main` | Runs TypeScript + Flutter jobs |
+| Workflow   | Pull request                | Push     | Schedule            | Manual |
+| ---------- | --------------------------- | -------- | ------------------- | ------ |
+| `CI`       | yes                         | `master` | no                  | no     |
+| `Security` | yes                         | `master` | Monday 02:23 UTC    | yes    |
+| `CodeQL`   | yes                         | `master` | Wednesday 03:41 UTC | yes    |
+| Dependabot | creates reviewed update PRs | no       | weekly              | no     |
 
-**Concurrency:** `ci-${{ github.ref }}` with `cancel-in-progress: true`.
+Read-only remote evidence confirms `master` is GitHub's default and only
+advertised branch. The obsolete `main` push trigger was removed. Workflow
+concurrency is isolated by workflow, event, and ref.
 
-Default `permissions.contents: read`. Dependency review elevates only what that
-action needs on PRs.
+## Toolchains and runner
 
----
+Every job uses fixed `ubuntu-24.04`. Node comes from root `.node-version` at
+`20.20.2`; pnpm is `9.15.4`; Flutter is `3.44.8` stable with its supplied Dart;
+the database harness uses official PostgreSQL `17.2-alpine`. All GitHub Actions
+are pinned to full release commit SHAs and have an adjacent release comment.
+Dependabot monitors those SHA pins.
 
-## Jobs
+## CI jobs
 
-### 1. `typescript`
+### `TypeScript quality`
 
-- Runner: `ubuntu-latest`, timeout 20 minutes
-- Node 20, pnpm `9.15.4`, `pnpm install --frozen-lockfile`
-- Steps in order:
-  1. Build `@me-event/shared-types`, then `@me-event/api-contracts`
-  2. `pnpm format:check`
-  3. `pnpm lint`
-  4. `pnpm typecheck`
-  5. `pnpm test`
-  6. `pnpm build`
+Uses a fresh checkout with no persisted credentials, frozen pnpm install,
+explicit shared-types/API-contract builds, formatting, lint, typecheck, unit
+tests, and recursive backend/ERP builds. The ERP build receives only synthetic
+public production variables:
 
-Local quality-gate parity: `corepack pnpm verify`. CI additionally prebuilds
-the shared packages before the formatted/linted/typechecked/tested recursive
-workspace sequence.
+```text
+NEXT_PUBLIC_APP_ENV=production
+NEXT_PUBLIC_API_BASE_URL=https://api.ci.mee-events.invalid/api/v1
+```
 
-STAB-11 independently proved that the backend's `nest build` artifact is
-byte-for-byte reproducible and secret-safe under the recorded local toolchain.
-CI compiles it through the recursive root build but does not retain, smoke,
-package, hash, attest, or deploy it. See
-[backend-build-baseline.md](./backend-build-baseline.md).
+The `.invalid` HTTPS hostname verifies the production public-environment
+boundary without a real endpoint or private credential.
 
-STAB-12 independently proved two clean ERP builds and a loopback-only
-production start using an explicit synthetic production API URL. CI reaches the
-same `next build` script after the same shared-package build order, but it does
-not set `NEXT_PUBLIC_APP_ENV=production` or `NEXT_PUBLIC_API_BASE_URL`.
-Consequently, CI currently compiles against the documented development fallback
-instead of verifying the production public-environment boundary. It also does
-not retain, hash, attest, start, or deploy the ERP artifact. See
-[erp-build-baseline.md](./erp-build-baseline.md).
+### `Backend PostgreSQL integration`
 
-### 2. `flutter`
+Runs `corepack pnpm test:integration:backend` through the existing isolated
+`mee-dbint-*` harness after frozen install and shared builds. The harness alone
+provisions PostgreSQL, applies migrations, validates identity, fails on zero
+tests, and removes its exact container/network/volume. CI uploads only the
+sanitized JUnit XML for three days, including after failure when present.
 
-- Runner: `ubuntu-latest`, timeout 25 minutes
-- Working directory: `apps/mobile`
-- Flutter `3.44.8` (stable) via `subosito/flutter-action@v2`
-- Steps:
-  1. `flutter pub get`
-  2. `dart format --output=none --set-exit-if-changed lib test`
-  3. `flutter analyze --fatal-infos`
-  4. `flutter test`
-  5. Debug APK: `flutter build apk --debug --flavor dev` with
-     `--dart-define=APP_ENV=dev` and
-     `--dart-define=API_BASE_URL=http://10.0.2.2:3002/api/v1`
+### `Flutter development verification`
 
-### 3. `dependency-review`
+Enforces `pubspec.lock`, checks formatting, runs fatal-info analysis and all
+tests, then builds a development-only debug APK with the emulator API URL and
+explicit `BRANCH_CODE=HYD`. The unused `APP_ENV` define is gone. The APK is not
+uploaded and is not a production/release/store artifact.
 
-- **PR only** (`if: github.event_name == 'pull_request'`)
-- `actions/dependency-review-action@v4`
+### `Dependency review`
 
-STAB-13 reproduced the Flutter job's dev debug command locally with the same
-Flutter version and additionally verified synthetic production APK/AAB and iOS
-probes. CI supplies no `BRANCH_CODE` (the application defaults to `HYD`) and
-passes `APP_ENV=dev`, which application code does not read. CI does not build
-or inspect a production APK/AAB, invoke iOS, verify merged permissions or
-signing identity, scan bundled public configuration, compare artifacts, or
-retain/attest/upload them. The current Android production artifact omits
-`INTERNET` and uses debug signing. In the local iOS probes Flutter did invoke
-`xcodebuild -version`, but this Command-Line-Tools-only host could not provide
-the utility; project enumeration, compilation, and signing were not reached.
-The absent `prod` scheme and signing setup are independent later blockers;
-`.metadata` migration state did not cause the observed error. See
-[flutter-build-baseline.md](./flutter-build-baseline.md).
+Runs only for pull requests. It reviews the dependency diff and receives no
+write permission.
 
----
+## Security jobs
 
-## What CI does not do
+`Dependency audit` installs from the frozen pnpm lockfile and runs
+`pnpm audit --audit-level high`; High/Critical findings and registry errors fail
+the job. The two documented Low findings do not fail the whole-tree audit.
 
-- No staging/production deploy
-- No container image publish
-- No backend artifact upload, compiled startup smoke, or reproducibility check
-- No ERP production-environment injection, artifact upload/attestation,
-  production-start smoke, or reproducibility comparison
-- No Flutter production APK/AAB or iOS build, native permission/signing scan,
-  device smoke, artifact retention/attestation, or store upload
-- No Terraform / infrastructure apply
-- No managed-database provisioning
+`Secret scan` installs Gitleaks 8.30.1 from an immutable, SHA-256-verified
+upstream archive and scans full Git history with complete redaction. It has no
+allowlist or broad exclusion and uploads no report.
 
----
+`CodeQL JavaScript/TypeScript` uses build mode `none` and does not repeat lint,
+typecheck, tests, or builds. Only that job receives `security-events: write`;
+all jobs otherwise use `contents: read`. Remote SARIF acceptance remains
+unverified until GitHub runs the workflow.
+
+## Artifacts and caches
+
+| Item                                | Retained | Policy                                |
+| ----------------------------------- | -------- | ------------------------------------- |
+| Sanitized PostgreSQL JUnit XML      | yes      | exact file, 3 days                    |
+| Development debug APK               | no       | build exit only; not release evidence |
+| Backend/ERP build output            | no       | compilation gate only                 |
+| Environment/database/container logs | no       | forbidden                             |
+
+Node caches only the pnpm store keyed by `pnpm-lock.yaml`; Flutter caches its
+SDK/package data. No cache contains application secrets, `.env`, databases, or
+artifacts. Frozen/enforced lockfile checks remain authoritative.
+
+## Remote and branch-policy status
+
+STAB-16 is **implemented locally; remote GitHub verification pending**. The
+workflows have not run for the 19 local commits ahead of `origin/master`.
+Authenticated read-only inspection on 27 August 2026 (`gh` as `mee-events`)
+shows branch protection on `master` is not configured, secret scanning and
+push protection are disabled, Dependabot alerts/security updates are disabled,
+and no code-scanning analysis exists. None of those settings were mutated.
+
+Proposed required checks are `TypeScript quality`,
+`Backend PostgreSQL integration`, `Flutter development verification`,
+`Dependency review`, `Dependency audit`, `Secret scan`, and
+`CodeQL JavaScript/TypeScript` when available. Configure them only after the
+reviewed workflows are pushed and GitHub has emitted successful checks with
+those exact names. See the baseline for the full founder-owned policy plan.
+
+## What CI still does not prove
+
+- browser, API, device, or end-to-end behavior;
+- a coverage percentage or threshold;
+- production Android/iOS compilation, signing, permissions, or store delivery;
+- backend/ERP packaging, startup, reproducibility, attestation, or deployment;
+- provider, cloud, staging, production, backup/restore, load, or rollback;
+- branch-protection or GitHub-native security-feature enforcement.
 
 ## Related
 
-- [local-development.md](./local-development.md)
-- [production.md](./production.md)
+- [ci-verification-baseline.md](./ci-verification-baseline.md)
 - [environment.md](./environment.md)
 - [backend-build-baseline.md](./backend-build-baseline.md)
 - [erp-build-baseline.md](./erp-build-baseline.md)

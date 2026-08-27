@@ -2,7 +2,7 @@
 
 - **Baseline:** Complete repository audit dated 25 August 2026
 - **Current phase:** Phase 0 — Stabilization
-- **Next block:** STAB-16 — CI verification, **NOT STARTED**; STAB-15 correction pending independent re-review
+- **Next block:** STAB-16 — CI verification, **PARTIAL / remote GitHub verification pending**
 - **Rule:** One block → verify → document → commit → stop.
 
 This file is the definitive ordered work inventory. The phase order is mandatory even when a later task has a higher risk priority. Do not start Customer until the Phase 0 gate passes; do not start Vendor until Customer passes; continue one major module at a time.
@@ -55,8 +55,8 @@ Status marks in this file describe execution, not how much scaffold already exis
 - [x] **STAB-12 ERP build** — Objective: verify Next production compilation after secure dependency baseline; State: **DONE WITH FINDINGS** 26 August 2026; Scope: ERP/Next configuration, 44 routes, generated artifact, public environment, runtime/header, dependency, fixture and CI boundaries; Action: frozen install/current audits, shared builds, fail-closed probes, two clean synthetic-production builds, stable-hash comparison and loopback smoke; Depends/Risk: STAB-11 and dependency remediation; Test/Security: 0 critical/high/moderate, 44/44 routes compile, configured headers pass, no secret/private environment leakage; the fixture-free subcriterion is explicitly **NOT SATISFIED** because `/leads` still client-bundles unlabeled PII-shaped synthetic records; DoD: production build/runtime baseline green with reproducibility, normal non-standalone runtime, fixture/hardening, and CI limits honestly recorded; this task does not close CRM-06/24/26 or STAB-18/20; Next: STAB-13. Evidence: `docs/07-deployment/erp-build-baseline.md`.
 - [x] **STAB-13 Flutter build** — Objective: verify dev and production mobile builds honestly; State: **DONE WITH FINDINGS** 26 August 2026, while Android/iOS release status remains **BROKEN**; Scope: Flutter toolchain/quality, native projects, public env asset, Android APK/AAB manifests/signing/reproducibility, iOS configuration/probes and CI; Action: trap-isolated founder `.env`, resolved locked dependencies, passed format/analyze/441 tests, built dev debug plus two production APKs/AABs, inspected permissions/certificates/assets, and ran both unsigned iOS probes; Depends/Risk: STAB-12; Test/Security: synthetic `.invalid` values only, no founder value/provider/device/store access, no native/manifest/lock drift; DoD: evidence complete and every defect scheduled without calling artifacts releasable—production Android omits INTERNET and is debug-signed; on iOS, this host lacks usable full Xcode so bundle-ID resolution fails before project enumeration/compile/sign, while the missing `prod` scheme and signing setup remain later blockers; Next: STAB-14. Evidence: `docs/07-deployment/flutter-build-baseline.md`.
 - [x] **STAB-14 PostgreSQL migration verification** — Objective: replay all 20 migrations on empty and upgrade databases; State: **DONE WITH FINDINGS** 26 August 2026 after the signature correction passed independent review; Scope: isolated PostgreSQL 17.2 Compose projects, migration runner, SQL catalog, legacy baseline and failure behavior; Action: verified 20 sequential file hashes, empty/tracked/legacy convergence, 20-file no-op reruns, live constraints/indexes/triggers/branch FKs, append-only/rollback behavior and scoped cleanup; corrected and independently accepted the catalog, raw/normalized schema, and stable-data byte recipes; Depends/Risk: STAB-13, data loss if wrong target; Test/Security: loopback-only projects, no founder/production DB access, no secrets, all synthetic writes rolled back; DoD: behavior and signatures reproduce across three paths; `SEC-M-09` remains open because applied SQL plus ledger recording are non-atomic, checksum-free and not automatically recoverable; Next: STAB-15. Evidence: `docs/03-database/migration-verification-baseline.md`.
-- [x] **STAB-15 Database integration tests** — Objective: prove selected real adapters, transactions, rollback, concurrency, branch scope and Pattern B; State: **CORRECTED, PENDING INDEPENDENT RE-REVIEW** 26 August 2026; Scope: isolated backend PostgreSQL 17.2 harness and critical identity/enquiry/CRM/quotation/payment/booking/Event Record paths; Action: kept the fail-closed harness, corrected the two-instance refresh race with PostgreSQL `REPEATABLE READ` plus an existing session-row lock while retaining CAS and sequential reuse revocation, and separated one-service, repository-only, and two-service/two-pool evidence; Depends/Risk: STAB-14; Test/Security: canonical, repeat, seed-6152026 and seed-8262026 shuffled fresh-database runs each pass 3/3 files and 21/21 tests; ordinary unit suite passes 30/190; the multi-instance case repeats 20 fresh user/session races per run with one conflict, one rotation audit and zero revocation audits; customer cross-owner denial, branch-list isolation, rollback and Pattern B still pass; DoD: local correction is green, while `SEC-02`, remaining `SEC-03`, `SEC-04`, `SEC-M-09`, `INT-02`, HTTP/Redis/provider/E2E and untested adapters remain open; Next: independent re-review, then STAB-16. Evidence: `docs/08-testing/database-integration-baseline.md`.
-- [ ] **STAB-16 CI verification** — Objective: make automation match supported tools/security/boundaries; State: **NOT STARTED**; Scope: `.github/workflows`, branch policy; Action: add patched SCA/secret/static and DB gates without duplicating noise; Depends/Risk: STAB-15 independent re-review; Test/Security: run on PR/push, least-privilege permissions, pinned actions; DoD: green CI on canonical branch with artifacts/evidence and required checks documented; Next: STAB-17.
+- [x] **STAB-15 Database integration tests** — Objective: prove selected real adapters, transactions, rollback, concurrency, branch scope and Pattern B; State: **INDEPENDENTLY ACCEPTED WITH FINDINGS** 27 August 2026; Scope: isolated backend PostgreSQL 17.2 harness and critical identity/enquiry/CRM/quotation/payment/booking/Event Record paths; Action: kept the fail-closed harness, corrected the two-instance refresh race with PostgreSQL `REPEATABLE READ` plus an existing session-row lock while retaining CAS and sequential reuse revocation, and separated one-service, repository-only, and two-service/two-pool evidence; Depends/Risk: STAB-14; Test/Security: independent source review 27 August 2026 accepted the suite with retained findings; STAB-16 re-ran 3/3 files and 21/21 tests on PostgreSQL 17.2; ordinary unit suite remains 30/190; Next: STAB-16 remote GitHub verification. Evidence: `docs/08-testing/database-integration-baseline.md`.
+- [~] **STAB-16 CI verification** — Objective: make automation match supported tools/security/boundaries; State: **IN PROGRESS / PARTIAL** 27 August 2026 — implemented locally, remote GitHub verification pending; Scope: `.github/workflows`, branch policy (document only); Action: add patched SCA/secret/static and DB gates without duplicating noise; Depends/Risk: STAB-15 independent re-review (done 27 August 2026); Test/Security: run on PR/push, least-privilege permissions, pinned actions; DoD: green CI on canonical branch with artifacts/evidence and required checks documented — remote half remains founder-gated; Next: STAB-17 (not authorized until remote verification). Evidence: `docs/07-deployment/ci-verification-baseline.md`.
 - [ ] **STAB-17 E2E test foundation** — Objective: select and scaffold browser/device/API E2E without implementing modules; State: **MISSING**; Scope: testing tools/config/fixtures only; Action: create one authenticated smoke per surface and cleanup strategy; Depends/Risk: STAB-16, brittle tests/PII; Test/Security: isolated accounts, no production endpoints/secrets; DoD: one stable browser and mobile/API smoke in CI-compatible harness; Next: STAB-18.
 - [ ] **STAB-18 Documentation reconciliation** — Objective: align docs with audited implementation; State: **BROKEN/PARTIAL**; Scope: overview/architecture/auth/testing/deployment/old roadmap references; Action: correct async enquiry→lead, staff-mobile, resend enforcement, Supabase boundary, branch names and stale test claims; Depends/Risk: STAB-17; Test/Security: link/command validation, no aspirational live claims; DoD: canonical docs agree with code/tests/config and historical PDFs labeled; Next: STAB-19.
 - [ ] **STAB-19 Repository cleanup** — Objective: remove only proven generated/cache/junk; State: **NOT STARTED**; Scope: reviewed cleanup manifest covering design/build/obsolete candidates; Action: classify GENERATED/OBSOLETE/DUPLICATE/BROKEN/ACTIVE/UNKNOWN before action; Depends/Risk: STAB-18, irreversible evidence loss; Test/Security: build/tests before/after, UNKNOWN retained; DoD: approved manifest, recoverable deletion only, no active/history loss; Next: STAB-20.
@@ -286,31 +286,32 @@ Status marks in this file describe execution, not how much scaffold already exis
 - [ ] **POLISH-05 Support and runbooks** — Objective: founder/operator can diagnose and respond; State: **MISSING**; Scope: customer support, incidents, providers, data correction; Action: severity/ownership/escalation/runbooks; Depends/Risk: production topology; Test/Security: tabletop drills and redaction; DoD: named owners and successful drills; Next: POLISH-06.
 - [ ] **POLISH-06 Final launch checklist** — Objective: prove the complete definition of done; State: **MISSING**; Scope: all evidence; Action: verify, never infer; Depends/Risk: IOS-10 and all prior gates; Test/Security: repeat critical journeys/security/restore/rollback; DoD: every required item checked with artifact/owner/date; Next: maintain/operate.
 
-## Current acceptance block — STAB-15 database integration tests
+## Current acceptance block — STAB-16 CI verification
 
 ### TASK ID
 
-`STAB-15`
+`STAB-16`
 
 ### RESULT
 
-Corrected 26 August 2026 and pending independent re-review. A dedicated command provisions an
-exact disposable `mee-dbint-*` PostgreSQL 17.2 project, applies all 20
-migrations, validates identity/ledger, runs 21 DBINT-01–14 cases serially, and
-removes only its own resources. Canonical, repeat, seed-`6152026`, and
-seed-`8262026` shuffled runs each passed 3/3 files and 21/21 tests. The ordinary
-30-file/190-test backend suite remains database-independent. Real production adapters/services prove
-selected identity, enquiry/CRM, quotation/payment/booking/Event Record,
-rollback, concurrency, customer ownership, branch-list, and Pattern B behavior.
-Narrow atomic OTP corrections remain covered. Refresh evidence now separates
-the process-local guard, repository CAS, and repeated two-service/two-pool
-coordination; genuine sequential previous-token reuse still revokes the session.
-STAB-14 is accepted after independent review; `SEC-M-09` remains open.
-STAB-15 does not close `SEC-02`, broader `SEC-03`, `SEC-04`, `INT-02`, HTTP,
-Redis, provider, E2E, CI, backup/restore, or production gaps. Phase 0 remains
-not passed.
+Implemented locally on 27 August 2026; **remote GitHub verification pending**.
+Committed workflows pin `ubuntu-24.04`, Node `20.20.2`, pnpm `9.15.4`, Flutter
+`3.44.8`, and PostgreSQL 17.2 via the existing STAB-15 harness. CI runs
+TypeScript quality (including synthetic production ERP public env), isolated
+backend PostgreSQL integration, Flutter development verification with
+`--enforce-lockfile`, and PR dependency review. A separate Security workflow
+runs `pnpm audit --audit-level high` and checksum-pinned Gitleaks history
+scanning. CodeQL JavaScript/TypeScript uses build-mode `none` with a SHA-pinned
+action. Dependabot watches npm, Pub, and GitHub Actions weekly against
+`master`. Actions are SHA-pinned, permissions are least-privilege, and there is
+no `pull_request_target` or application secret. STAB-15 was independently
+accepted with findings on 27 August 2026; this session re-ran 21/21 integration
+tests. Branch protection and native GitHub security features remain disabled
+and were not mutated. Green CI on canonical GitHub `master` cannot be claimed
+until the founder pushes and GitHub runs the new workflows. Phase 0 remains
+**NOT PASSED**.
 
 ### NEXT TASK
 
-`STAB-16 CI verification` — **NOT STARTED**. Do not start STAB-16 before the
-STAB-15 correction receives independent re-review.
+`STAB-17 E2E test foundation` is **NOT AUTHORIZED** until STAB-16 remote
+GitHub verification succeeds. Do not start STAB-17.

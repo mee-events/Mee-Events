@@ -236,9 +236,11 @@ exposure require SEC-05/production policy rather than an STAB-11 redesign.
 
 ## CI alignment
 
-CI uses Node 20, pnpm 9.15.4, the same frozen lockfile, explicit shared-package
+CI uses Node 20.20.2 from root `.node-version`, pnpm 9.15.4, the same frozen lockfile, explicit shared-package
 builds, then root `pnpm build`. The root recursive build includes the backend's
 same `nest build` script. Compilation needs no hidden application configuration.
+STAB-16 also adds the separate PostgreSQL integration job; it is not a compiled
+backend startup or packaging smoke.
 
 CI does not:
 
@@ -249,9 +251,9 @@ CI does not:
 - prune production dependencies or build a container;
 - deploy to staging/production or verify rollback/readiness.
 
-Those are STAB-16 and production-infrastructure responsibilities. CI's Node 20
-selection also floats the minor version; the repository has no `.nvmrc`,
-`.node-version`, or `.tool-versions` pin.
+Those remaining packaging/runtime items are production-infrastructure
+responsibilities. STAB-16 pins the verified Node minor but has no remote GitHub
+run yet.
 
 ## Known gaps and ownership
 
@@ -285,9 +287,10 @@ local environment values are intentionally not reproduced here.
 
 ## Evidence limitations
 
-This is build and module-resolution evidence on macOS using Node v20.20.2. CI
-runs Linux with a floating Node 20 minor, but STAB-11 did not execute the remote
-workflow. No server listened under valid configuration because doing so would
+This is build and module-resolution evidence on macOS using Node v20.20.2. At
+the time of STAB-11, CI floated the Node 20 minor and did not run remotely;
+STAB-16 later aligned the local workflow to 20.20.2, still pending remote proof.
+No server listened under valid configuration because doing so would
 initiate a database connection. No database, provider, HTTP integration,
 Docker, load, deployment, or public source-map exposure test was performed.
 The artifact is reproducible under the recorded local source/toolchain and is

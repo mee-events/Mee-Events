@@ -1,10 +1,10 @@
 # PostgreSQL Database Integration Baseline — STAB-15
 
-- **Corrected:** 26 August 2026; pending independent re-review
+- **Accepted:** 27 August 2026 after independent source review, with retained findings
 - **Repository:** `/Users/vinaychilagani/Desktop/Mee Event V1`
 - **Branch / correction starting commit:** `master` / `4e2b252f1732262bb9fe17a659a76e2a006b8ae3`
 - **Task:** STAB-15 — PostgreSQL database integration test foundation
-- **Result:** **CORRECTED, PENDING INDEPENDENT RE-REVIEW** — four required fresh PostgreSQL 17.2 runs passed 21/21 cases across 3/3 files; no skip, todo, expected-failure, focused case, retry, or conditional pass exists
+- **Result:** **INDEPENDENTLY ACCEPTED WITH FINDINGS** — four required fresh PostgreSQL 17.2 runs passed 21/21 cases across 3/3 files; no skip, todo, expected-failure, focused case, retry, or conditional pass exists
 - **Boundary:** repository/service integration through real `pg.Pool` connections and all 20 migrations. This is not HTTP, Redis, browser, provider, backup/restore, remote database, or production-readiness proof.
 
 ## Toolchain and commands
@@ -268,9 +268,11 @@ companions.
 
 ## CI and cleanup boundary
 
-The explicit root command is CI-ready but `.github/workflows/ci.yml` was not
-changed. Current CI runs the database-independent root unit suite and does not
-start PostgreSQL or call the integration command; wiring belongs to STAB-16.
+STAB-16 now invokes the explicit root command in a dedicated bounded CI job
+using the same isolated harness and no duplicate workflow service. On
+27 August 2026 the STAB-16 session re-ran that command with the CI JUnit
+reporters: 3/3 files and 21/21 tests passed on PostgreSQL 17.2. The workflow
+is implemented locally but has not run on GitHub.
 
 Each recorded run removed its exact container, network, and volume. A final
 Docker label inventory found no `mee-dbint-*` resource. The existing developer
@@ -280,12 +282,12 @@ artifact is tracked.
 
 ## Final verdict
 
-**CORRECTED, PENDING INDEPENDENT RE-REVIEW.** The maintained suite proves its selected real adapter,
+**INDEPENDENTLY ACCEPTED WITH FINDINGS** on 27 August 2026. The maintained suite proves its selected real adapter,
 transaction, rollback, concurrency, ownership, branch-list, Pattern B, and
 connected-workflow boundaries on PostgreSQL 17.2. Required cases pass on four
 independent disposable databases, unit discovery remains database-free, and
 cleanup is fail-checked. Broader authorization, multi-instance session,
 outbox-recovery, provider, HTTP/E2E, and production concerns remain explicitly
 open, except for the specifically verified two-instance refresh race above.
-Phase 0 remains **NOT PASSED**; STAB-16 is **NOT STARTED**. Do not begin STAB-16
-until this correction receives independent re-review.
+Phase 0 remains **NOT PASSED**. STAB-16 is implemented locally with remote
+GitHub verification pending; STAB-17 is **NOT STARTED**.

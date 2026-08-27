@@ -394,14 +394,15 @@ not cure the permission, signing, iOS toolchain/scheme, or security defects.
 
 ## CI alignment
 
-CI matches local Flutter 3.44.8 and runs pub get, formatting, fatal-infos
+CI matches local Flutter 3.44.8 and runs enforced-lockfile pub get, formatting, fatal-infos
 analysis, tests, and only a dev debug APK. It copies `.env.example`, whose
 Supabase strings are public placeholders, and passes emulator HTTP
-`API_BASE_URL` plus unused `APP_ENV=dev`. CI does not pass `BRANCH_CODE` (the
-runtime default is HYD), build staging/prod APK, build AAB, run iOS, inspect
+`API_BASE_URL` plus explicit `BRANCH_CODE=HYD`; the unused `APP_ENV` define is
+removed. CI does not build staging/prod APK, build AAB, run iOS, inspect
 merged manifests/certificates/assets, retain/upload/attest artifacts, or prove
 device/native/provider behavior. STAB-13 is local evidence; no remote CI run
-was observed. STAB-16 owns CI correction.
+was observed. STAB-16 implements the CI-only correction locally; remote proof
+is pending.
 
 ## Security findings and owners
 

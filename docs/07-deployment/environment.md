@@ -63,10 +63,10 @@ Call sites: `employee-api.ts`, `platform-bootstrap.ts`, `catalog/page.tsx`,
 `page.tsx`.
 Tests: `apps/erp-web/src/lib/environment.spec.ts`.
 
-| Variable                   | Purpose                     | Class      | Dev                                              | Test/build                                   | Staging                            | Production                         |
-| -------------------------- | --------------------------- | ---------- | ------------------------------------------------ | -------------------------------------------- | ---------------------------------- | ---------------------------------- |
-| `NEXT_PUBLIC_APP_ENV`      | Displayed/build environment | **public** | optional, default `development`                  | optional                                     | required for fail-closed API rules | required for fail-closed API rules |
-| `NEXT_PUBLIC_API_BASE_URL` | Nest API base               | **public** | optional, default `http://localhost:3002/api/v1` | CI `next build` uses the development default | required, https, non-loopback      | required, https, non-loopback      |
+| Variable                   | Purpose                     | Class      | Dev                                              | Test/build                                        | Staging                            | Production                         |
+| -------------------------- | --------------------------- | ---------- | ------------------------------------------------ | ------------------------------------------------- | ---------------------------------- | ---------------------------------- |
+| `NEXT_PUBLIC_APP_ENV`      | Displayed/build environment | **public** | optional, default `development`                  | optional                                          | required for fail-closed API rules | required for fail-closed API rules |
+| `NEXT_PUBLIC_API_BASE_URL` | Nest API base               | **public** | optional, default `http://localhost:3002/api/v1` | CI uses synthetic production `.invalid` HTTPS URL | required, https, non-loopback      | required, https, non-loopback      |
 
 There are no server-only ERP secrets today. `NODE_ENV` is set to `production`
 by `next build` even for local compile, so fail-closed rules key off
@@ -88,7 +88,7 @@ Tests: `apps/mobile/test/environment_test.dart`.
 | --------------------- | ------------------- | ----------------- | ------------------------------------------ | -------------------------- | ----------------------------------------------- | --------------------- |
 | `API_BASE_URL`        | Nest API base       | **public**        | dart-define or `.env` or localhost default | localhost default allowed  | required non-loopback via dart-define or `.env` | required non-loopback |
 | `BRANCH_CODE`         | Default branch code | **public**        | default `HYD`                              | default `HYD`              | dart-define or `.env` or `HYD`                  | same                  |
-| `APP_ENV` dart-define | Unused by the app   | n/a               | CI passes `dev`                            | unused                     | unused                                          | unused                |
+| `APP_ENV` dart-define | Unused by the app   | n/a               | not supplied by current CI                 | unused                     | unused                                          | unused                |
 | `SUPABASE_URL`        | Dormant client init | **public**        | `.env` asset, empty-string allowed         | not required by unit tests | still initialized                               | still initialized     |
 | `SUPABASE_ANON_KEY`   | Dormant client init | **public** (anon) | `.env` asset                               | same                       | same                                            | same                  |
 
@@ -121,19 +121,22 @@ state was not the cause, and the missing `prod` scheme remains a later blocker.
 
 ## CI
 
-Workflow: `.github/workflows/ci.yml`. CI does **not** inject backend or ERP
-secrets. Flutter copies `.env.example` to ignored `.env` then builds a **dev
-debug** APK with:
+Workflows: `.github/workflows/ci.yml`, `security.yml`, and `codeql.yml`. CI does
+**not** inject backend, ERP, mobile, or provider secrets. Flutter copies the
+public `.env.example` to ignored `.env` then builds a **dev debug** APK with:
 
-- `--dart-define=APP_ENV=dev` (unused by application code)
 - `--dart-define=API_BASE_URL=http://10.0.2.2:3002/api/v1`
+- `--dart-define=BRANCH_CODE=HYD`
 
-TypeScript `pnpm build` compiles ERP without `NEXT_PUBLIC_APP_ENV=production`,
-so the development localhost default remains. That is compile evidence, not a
-production deploy.
+TypeScript `pnpm build` compiles ERP with public synthetic
+`NEXT_PUBLIC_APP_ENV=production` and
+`NEXT_PUBLIC_API_BASE_URL=https://api.ci.mee-events.invalid/api/v1`. The
+reserved hostname verifies fail-closed production parsing without a real
+endpoint. That remains compile evidence, not a production deploy.
 
-No root `.nvmrc` / `.node-version` / `.tool-versions`. Engines require Node
-`>=20.11.0`; CI uses Node `20`. Follow-up: STAB-16.
+Root `.node-version` pins the verified Node `20.20.2`; CI consumes it while the
+engine requirement remains `>=20.11.0`. STAB-16 is implemented locally and
+awaits remote GitHub verification.
 
 ---
 

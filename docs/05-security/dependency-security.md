@@ -23,7 +23,7 @@ Codex cannot silently accept that risk.
 | JavaScript audit source | `corepack pnpm audit --json` and `corepack pnpm audit --prod --json` (npm/GitHub advisory database via pnpm)                            |
 | Advisory verification   | GitHub Advisory Database (GHSA), npm registry metadata, Next.js/NestJS/Vitest/Vite/sharp/js-yaml release notes                          |
 | Flutter review source   | `flutter pub outdated`, `flutter pub get`, pub.dev package/advisories API, OSV.dev `querybatch` for every hosted `pubspec.lock` package |
-| Node version pin        | Out of scope (existing STAB-16 item). Engines remain `>=20.11.0`; CI uses Node `20`                                                     |
+| Node version pin        | STAB-16 added root `.node-version` `20.20.2`; CI consumes it. Engines remain `>=20.11.0`                                                |
 
 ### Evidence limitations
 
@@ -65,6 +65,25 @@ The full lows remain `@eslint/plugin-kit@0.2.8` through ESLint and
 Supabase row appears in production scope. No dependency or lockfile changed.
 See [erp-build-baseline.md](../07-deployment/erp-build-baseline.md) for commands,
 scope, and build evidence.
+
+### STAB-16 CI enforcement
+
+On 27 August 2026, a fresh registry-backed
+`corepack pnpm audit --audit-level high` again reported zero Critical, zero High,
+zero Moderate, and the same two Low findings. STAB-16 adds a required
+`Dependency audit` job on pull requests, `master` pushes, weekly schedule, and
+manual dispatch. Network/registry errors and High/Critical findings remain
+fatal; no advisory is allowlisted and no exit code is suppressed.
+
+PR dependency review remains separate because it reviews only the proposed
+dependency diff. Weekly Dependabot monitoring now covers the root npm/pnpm
+workspace, Pub in `/apps/mobile`, and immutable GitHub Action pins. This block
+does not update either lockfile or any dependency.
+
+The automated whole-tree audit covers npm/pnpm only. Dependabot monitors Pub
+updates, but Pub has no first-party vulnerability-audit command equivalent to
+`pnpm audit`; Flutter/Dart vulnerability scanning remains an explicit gap. Do
+not claim that Dependabot update monitoring is advisory scanning.
 
 ### Flutter/Dart
 
@@ -183,7 +202,7 @@ Lockfile confirms resolved versions: `next@15.5.23`, `vitest@3.2.7`, `vite@6.4.3
 | Advisory                           | Package              | Installed | Path                                                              | Runtime/dev                                                             | Patched                                              | Exploitability                                                                                                                                                       | Ownership                                                                                             |
 | ---------------------------------- | -------------------- | --------- | ----------------------------------------------------------------- | ----------------------------------------------------------------------- | ---------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
 | GHSA-8r88-6cj9-9fh5 CVE-2025-48370 | `@supabase/auth-js`  | 2.64.4    | `apps/backend > @supabase/supabase-js@2.45.0 > @supabase/auth-js` | Runtime library, **admin UUID APIs** (`getUserById` / `deleteUser` / …) | GHSA patched `>=2.69.1`; pnpm audit lists `>=2.70.0` | Backend uses supabase-js from local scripts/adapters, not as the auth source of truth (NestJS owns auth). Malformed UUID path routing in admin helpers. Low severity | Upgrade `@supabase/supabase-js` in a later security slice; mobile direct Supabase path remains SEC-06 |
-| GHSA-xffm-g5w8-qvg7                | `@eslint/plugin-kit` | 0.2.8     | `eslint@9.17.0 > @eslint/plugin-kit` (all TS workspaces)          | Dev                                                                     | `>=0.3.4`                                            | ReDoS in `ConfigCommentParser` if ESLint parses attacker-controlled comment config. ESLint is not a public service                                                   | STAB-05 / STAB-16 eslint minor bump                                                                   |
+| GHSA-xffm-g5w8-qvg7                | `@eslint/plugin-kit` | 0.2.8     | `eslint@9.17.0 > @eslint/plugin-kit` (all TS workspaces)          | Dev                                                                     | `>=0.3.4`                                            | ReDoS in `ConfigCommentParser` if ESLint parses attacker-controlled comment config. ESLint is not a public service                                                   | Later scoped dependency-security update; STAB-16 intentionally changes no dependency                  |
 
 No moderate findings remain. Lows are not accepted critical/high risk.
 
@@ -193,7 +212,8 @@ None.
 
 ## Blockers
 
-None for STAB-03. Node toolchain pin remains assigned to STAB-16.
+None for STAB-03. The Node toolchain pin is implemented locally by STAB-16;
+remote CI enforcement remains pending.
 
 ## Supply-chain review
 
@@ -203,10 +223,10 @@ None for STAB-03. Node toolchain pin remains assigned to STAB-16.
 | Workspace sources                       | `workspace:*` / `link:` only for `@me-event/*`                                                                                                                                                          |
 | Flutter sources                         | hosted pub.dev + Flutter SDK; `publish_to: none`; no git/path packages                                                                                                                                  |
 | `.npmrc`                                | `engine-strict=true`, `frozen-lockfile=false` (local), `save-exact=true`. No registry tokens or credential URLs                                                                                         |
-| CI                                      | `.github/workflows/ci.yml` uses `pnpm install --frozen-lockfile`                                                                                                                                        |
+| CI                                      | `CI` and `Security` use frozen pnpm installs on Node `20.20.2`; `Dependency audit` fails on High/Critical                                                                                               |
 | Lifecycle scripts reviewed              | `esbuild@0.25.12` `postinstall` (already in `pnpm-workspace.yaml` `onlyBuiltDependencies`); `sharp@0.35.3` has no install script; `vite`/`next`/`vitest` have none; swagger `prepare` is publisher-side |
 | Built deps allowlist                    | Unchanged: `@nestjs/core`, `esbuild`, `sharp`, `unrs-resolver` allowed; `@scarf/scarf` and `nestjs-pino` ignored                                                                                        |
-| Dependabot / scheduled SCA              | **Missing**. PR `dependency-review-action` exists; there is no `pnpm audit` CI job and no Dependabot/Renovate config. Own in **STAB-16**, do not start it here                                          |
+| Dependabot / scheduled SCA              | STAB-16 adds weekly npm/pnpm, Pub, and GitHub Actions monitoring plus scheduled `pnpm audit`; remote execution is pending                                                                               |
 | Packages added only to greenwash audits | None                                                                                                                                                                                                    |
 
 ## Compatibility changes

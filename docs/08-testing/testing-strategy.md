@@ -35,15 +35,15 @@ Canonical evidence:
                     └─────────────────┘
 ```
 
-| Layer                           | Runner           | What exists                                                                 |
-| ------------------------------- | ---------------- | --------------------------------------------------------------------------- |
-| Pure domain + guards + services | Vitest           | Backend suite: 190 tests across 30 files after the STAB-15 correction       |
-| Module foundation / workflow    | Vitest           | `*-foundation.spec.ts`, quotation/payment workflow and Pattern B probes     |
-| Employee CRM/ERP narrow units   | Vitest           | 8 tests across environment, API refresh, and catalog form-reset behavior    |
-| Flutter unit and widget tests   | `flutter test`   | 441 tests across models, providers, stores, navigation and customer UI      |
-| PostgreSQL integration          | Vitest + Compose | 21 tests / 3 files; selected adapters and workflows; explicit local command |
-| Redis integration               | —                | **None**                                                                    |
-| Browser / device E2E            | —                | **None** (no Playwright / Cypress / Detox)                                  |
+| Layer                           | Runner           | What exists                                                                     |
+| ------------------------------- | ---------------- | ------------------------------------------------------------------------------- |
+| Pure domain + guards + services | Vitest           | Backend suite: 190 tests across 30 files after the STAB-15 correction           |
+| Module foundation / workflow    | Vitest           | `*-foundation.spec.ts`, quotation/payment workflow and Pattern B probes         |
+| Employee CRM/ERP narrow units   | Vitest           | 8 tests across environment, API refresh, and catalog form-reset behavior        |
+| Flutter unit and widget tests   | `flutter test`   | 441 tests across models, providers, stores, navigation and customer UI          |
+| PostgreSQL integration          | Vitest + Compose | 21 tests / 3 files; selected adapters/workflows; local and dedicated CI command |
+| Redis integration               | —                | **None**                                                                        |
+| Browser / device E2E            | —                | **None** (no Playwright / Cypress / Detox)                                      |
 
 Details: [unit-tests.md](./unit-tests.md), [integration-tests.md](./integration-tests.md),
 [e2e-tests.md](./e2e-tests.md).
@@ -114,7 +114,9 @@ where relevant). See the checklist in
 - No k6 / Artillery load suites (`test/perf/scalability-estimate.ts` is an
   algorithmic cost model, not live RPS)
 - No browser or device E2E frameworks
-- No Postgres service container or integration invocation in current CI; STAB-16 owns wiring
+- CI invokes the existing isolated PostgreSQL harness in its own bounded job;
+  it does not define a duplicate workflow service. Remote execution is still
+  pending under STAB-16.
 
 ---
 

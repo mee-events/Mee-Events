@@ -3,68 +3,166 @@ name: CI
 on:
   pull_request:
   push:
-    branches: [master, main]
+    branches:
+      - master
 
 permissions:
   contents: read
 
 concurrency:
-  group: ci-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   typescript:
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
+    name: TypeScript quality
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
         with:
           version: 9.15.4
-      - uses: actions/setup-node@v4
+
+      - name: Install Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: 20
+          node-version-file: .node-version
           cache: pnpm
-      - run: pnpm install --frozen-lockfile
-      - name: Build shared contracts for type-aware linting
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: corepack pnpm install --frozen-lockfile
+
+      - name: Build shared types
+        run: corepack pnpm --filter @me-event/shared-types build
+
+      - name: Build API contracts
+        run: corepack pnpm --filter @me-event/api-contracts build
+
+      - name: Check formatting
+        run: corepack pnpm format:check
+
+      - name: Lint
+        run: corepack pnpm lint
+
+      - name: Typecheck
+        run: corepack pnpm typecheck
+
+      - name: Run unit tests
+        run: corepack pnpm test
+
+      - name: Build backend and ERP with synthetic production public configuration
+        env:
+          NEXT_PUBLIC_APP_ENV: production
+          NEXT_PUBLIC_API_BASE_URL: https://api.ci.mee-events.invalid/api/v1
+        run: corepack pnpm build
+
+  backend-postgresql-integration:
+    name: Backend PostgreSQL integration
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
+        with:
+          version: 9.15.4
+
+      - name: Install Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: corepack pnpm install --frozen-lockfile
+
+      - name: Build shared types
+        run: corepack pnpm --filter @me-event/shared-types build
+
+      - name: Build API contracts
+        run: corepack pnpm --filter @me-event/api-contracts build
+
+      - name: Run isolated PostgreSQL integration tests
         run: >-
-          pnpm --filter @me-event/shared-types build &&
-          pnpm --filter @me-event/api-contracts build
-      - run: pnpm format:check
-      - run: pnpm lint
-      - run: pnpm typecheck
-      - run: pnpm test
-      - run: pnpm build
+          corepack pnpm test:integration:backend --
+          --reporter=default
+          --reporter=junit
+          --outputFile.junit="${RUNNER_TEMP}/backend-integration.xml"
+
+      - name: Upload sanitized integration test report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: backend-postgresql-integration-report
+          path: ${{ runner.temp }}/backend-integration.xml
+          if-no-files-found: warn
+          retention-days: 3
 
   flutter:
-    runs-on: ubuntu-latest
-    timeout-minutes: 25
+    name: Flutter development verification
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
     defaults:
       run:
         working-directory: apps/mobile
     steps:
-      - uses: actions/checkout@v4
-      - uses: subosito/flutter-action@v2
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          flutter-version: "3.44.8"
+          persist-credentials: false
+
+      - name: Install Flutter
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          flutter-version: 3.44.8
           channel: stable
           cache: true
-      - name: Create CI-safe mobile environment asset
+
+      - name: Create public development environment file
         run: cp .env.example .env
-      - run: flutter pub get
-      - run: dart format --output=none --set-exit-if-changed lib test
-      - run: flutter analyze --fatal-infos
-      - run: flutter test
-      - run: >-
-          flutter build apk --debug --flavor dev
-          --dart-define=APP_ENV=dev
+
+      - name: Install locked Flutter dependencies
+        run: flutter pub get --enforce-lockfile
+
+      - name: Check Dart formatting
+        run: dart format --output=none --set-exit-if-changed lib test
+
+      - name: Analyze Flutter
+        run: flutter analyze --fatal-infos
+
+      - name: Run Flutter tests
+        run: flutter test
+
+      - name: Build development-only debug APK
+        run: >-
+          flutter build apk
+          --debug
+          --flavor dev
           --dart-define=API_BASE_URL=http://10.0.2.2:3002/api/v1
+          --dart-define=BRANCH_CODE=HYD
 
   dependency-review:
-    if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
+    name: Dependency review
+    if: ${{ github.event_name == 'pull_request' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/dependency-review-action@v4
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Review dependency changes
+        uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5.0.0

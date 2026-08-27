@@ -2,8 +2,9 @@
 
 **Honest status:** STAB-15 adds a maintained PostgreSQL 17.2 repository/service
 integration suite. It is explicitly invoked and remains outside the ordinary
-database-independent unit command and current CI. There is still no Redis,
-Nest HTTP, browser, device, or provider integration suite.
+database-independent unit command. STAB-16 adds a dedicated CI job that calls
+the same harness; remote GitHub execution is still pending. There is still no
+Redis, Nest HTTP, browser, device, or provider integration suite.
 
 STAB-14 separately performed isolated PostgreSQL 17.2 replay of all 20
 migrations across empty, tracked-upgrade, and legacy paths, plus selected
@@ -97,8 +98,9 @@ the integration tree.
 The suite does not prove HTTP routing/guards, complete employee branch/BOLA
 enforcement, broader multi-instance session/revocation behavior beyond the
 corrected two-instance refresh race, outbox crash leases, real payment providers,
-Redis, backup/restore, remote environments, or production readiness. Current CI
-does not run it; STAB-16 owns CI wiring and remains not started.
+Redis, backup/restore, remote environments, or production readiness. STAB-16
+adds the same harness to a dedicated CI job without a duplicate PostgreSQL
+service; local command proof passes and remote GitHub execution is pending.
 
 ---
 

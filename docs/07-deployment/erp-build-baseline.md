@@ -263,13 +263,13 @@ the trap restored `.env.local`, and port 33012 had no remaining listener.
 | Root formatting                                    | PASS                          |
 | Shared types / API contracts builds                | PASS / PASS                   |
 
-CI uses Ubuntu, Node 20, pnpm 9.15.4, a frozen install, the same shared-package
+CI uses Ubuntu 24.04, Node 20.20.2, pnpm 9.15.4, a frozen install, the same shared-package
 build order, and recursive `pnpm build`, which reaches the ERP `next build`
-script. It does **not** provide `NEXT_PUBLIC_APP_ENV=production` or an explicit
-production API URL. Therefore CI currently compiles the ERP using its
-development fallback rather than proving the production-configured boundary
-verified here. CI does not retain, hash, attest, start, or deploy the ERP
-artifact. No remote CI run is claimed by STAB-12.
+script. STAB-16 now provides `NEXT_PUBLIC_APP_ENV=production` and the synthetic
+public URL `https://api.ci.mee-events.invalid/api/v1`, matching the fail-closed
+production boundary without a real endpoint. CI does not retain, hash, attest,
+start, or deploy the ERP artifact. No remote CI run is claimed by STAB-12 or the
+local STAB-16 implementation.
 
 ## Remaining gaps, owners, and evidence limits
 
@@ -277,8 +277,8 @@ artifact. No remote CI run is claimed by STAB-12.
   values: CRM-04/06/12/24/26, ERP-13–16/20/22, and STAB-18.
 - CSP and other deployment-aware headers, browser token/XSS posture, route and
   capability enforcement: STAB-17, STAB-20/SEC-05, CRM-01–03/24/26.
-- CI production environment injection, artifact retention/attestation, and
-  remote proof: STAB-16.
+- CI artifact retention/attestation and remote proof remain open; STAB-16 adds
+  synthetic production environment injection locally.
 - Hosting, immutable packaging, TLS/edge policy, deployment, rollback, and
   observability: PROD-01–06 after architecture/provider decisions.
 - Browser E2E, backend/API connectivity, database/provider behavior, and
