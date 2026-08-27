@@ -4,6 +4,10 @@ Backend unit and service-level specs run under **Vitest**. They use pure
 functions, guards, and application services with in-memory or inline
 `Fake*Repository` ports — not Nest HTTP bootstrap and not live Postgres.
 
+Current command: `corepack pnpm --filter @me-event/backend test` — **190/190**
+tests across 30 files after the STAB-15 unit correction. The STAB-07 freeze
+was 188/188; see [backend-test-baseline.md](./backend-test-baseline.md).
+
 ---
 
 ## How to run
@@ -16,9 +20,10 @@ corepack pnpm --filter @me-event/backend test
 corepack pnpm test
 ```
 
-Backend script: `vitest run` in [`apps/backend/package.json`](../../apps/backend/package.json).
-There is no committed `vitest.config.*`; default `*.spec.ts` discovery applies.
-Specs live in [`apps/backend/test/`](../../apps/backend/test/).
+Backend script: `vitest run --config test/vitest.unit.config.ts` in
+[`apps/backend/package.json`](../../apps/backend/package.json). Specs live in
+[`apps/backend/test/`](../../apps/backend/test/). Integration specs under
+`test/integration/` are excluded from this command.
 
 Flutter unit/widget tests are separate (`flutter test` in `apps/mobile`) — see
 [testing-strategy.md](./testing-strategy.md) and [verification.md](./verification.md).

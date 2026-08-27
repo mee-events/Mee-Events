@@ -33,8 +33,9 @@ and records outbox side effects.
 ```mermaid
 flowchart TD
   CustomerApp[Customer_Mobile]
-  ErpWeb[ERP_Web]
-  StaffMobile[Staff_Mobile_Roles]
+  VendorApp[Vendor_Mobile]
+  WorkerApp[Worker_Mobile]
+  ErpWeb[Employee_CRM_ERP]
   Rest[REST_API_v1]
   Nest[NestJS_Backend]
   Pg[(PostgreSQL)]
@@ -44,8 +45,9 @@ flowchart TD
   Activity[Activity]
   Outbox[Outbox]
   CustomerApp --> Rest
+  VendorApp --> Rest
+  WorkerApp --> Rest
   ErpWeb --> Rest
-  StaffMobile --> Rest
   Rest --> Nest
   Nest --> Pg
   Nest --> PatternB
@@ -55,20 +57,22 @@ flowchart TD
   PatternB --> Outbox
 ```
 
-| Layer               | Responsibility                                                                                                         |
-| ------------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| Customer Mobile     | Flutter customer role: catalog, enquiry, quotations, advance payment, event workspace, finance reads                   |
-| Staff Mobile roles  | Same Flutter binary: Manager, Vendor, Worker self-service against `/manager`, `/vendors`, `/workers`, and related APIs |
-| ERP Web             | Next.js Employee CRM/ERP: leads, quotes, events, operations, vendors, workers, warehouse/inventory, finance            |
-| REST API            | Versioned HTTP under `/api/v1`; OpenAPI available at `/api/docs`                                                       |
-| NestJS Backend      | Modular monolith: guards, controllers, application services, repository adapters                                       |
-| PostgreSQL          | Authoritative transactional store; versioned SQL migrations                                                            |
-| Pattern B           | On controlled mutations: timeline + activity (+ module-scoped variants) written with the business change               |
-| Audit               | Append-only `audit_events` for security and controlled operational actions                                             |
-| Timeline / Activity | Event-anchored and module-scoped history tables for narrative and operational activity                                 |
-| Outbox              | `outbox_events` written in the same transaction for reliable asynchronous side-effect delivery                         |
+| Layer               | Responsibility                                                                                            |
+| ------------------- | --------------------------------------------------------------------------------------------------------- |
+| Customer Mobile     | Flutter customer role: catalog, enquiry, quotations, advance payment, event workspace, finance reads      |
+| Vendor / Worker     | Same Flutter binary: vendor and worker self-service against `/vendors`, `/workers`, and related APIs      |
+| Employee CRM/ERP    | Next.js `employee_web`: leads, quotes, events, operations, vendors, workers, warehouse/inventory, finance |
+| REST API            | Versioned HTTP under `/api/v1`; OpenAPI available at `/api/docs`                                          |
+| NestJS Backend      | Modular monolith: guards, controllers, application services, repository adapters                          |
+| PostgreSQL          | Authoritative transactional store; versioned SQL migrations                                               |
+| Pattern B           | On controlled mutations: timeline + activity (+ module-scoped variants) written with the business change  |
+| Audit               | Append-only `audit_events` for security and controlled operational actions                                |
+| Timeline / Activity | Event-anchored and module-scoped history tables for narrative and operational activity                    |
+| Outbox              | `outbox_events` written in the same transaction for reliable asynchronous side-effect delivery            |
 
-Customer and staff mobile experiences share `apps/mobile`. ERP is `apps/erp-web`.
+Customer, Vendor, and Worker share `apps/mobile`. Employees use `apps/erp-web`.
+There is no shipped Employee Mobile app; bootstrap maps employee/manager roles
+to `employee_web`. Phase 6 `EMP-*` remains **MISSING**.
 
 ---
 
@@ -76,7 +80,7 @@ Customer and staff mobile experiences share `apps/mobile`. ERP is `apps/erp-web`
 
 ```mermaid
 flowchart TB
-  Clients[CustomerApp_ERPWeb_StaffMobile]
+  Clients[Customer_Vendor_Worker_Flutter_and_Employee_Web]
   Api[REST_api_v1]
   Nest[NestJS_ModularMonolith]
   Modules[Application_Modules]
@@ -95,11 +99,15 @@ flowchart TB
 
 ### Clients
 
-Three product surfaces call the same API:
+Four product surfaces call the same API:
 
 - Flutter Customer App
-- Next.js ERP Web
-- Flutter Staff Mobile roles (Manager, Vendor, Worker)
+- Flutter Vendor role
+- Flutter Worker role
+- Next.js Employee CRM/ERP (`employee_web`)
+
+A separate Employee Mobile application is not shipped. Manager Flutter screens
+in `apps/mobile` are not a reachable product surface.
 
 ### REST API
 
@@ -227,12 +235,12 @@ Public API lists **controller prefixes** only (not full route catalogs).
 
 ### Enquiries
 
-|                      |                                                                         |
-| -------------------- | ----------------------------------------------------------------------- |
-| **Purpose**          | Customer enquiry create and read                                        |
-| **Responsibilities** | Create enquiry (and CRM lead in the same write); list/get own enquiries |
-| **Dependencies**     | Identity; catalog; enquiry repository                                   |
-| **Public API**       | `/enquiries`                                                            |
+|                      |                                                                                                                                   |
+| -------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| **Purpose**          | Customer enquiry create and read                                                                                                  |
+| **Responsibilities** | Create enquiry and `enquiry.submitted` outbox; list/get own enquiries. CRM lead is created asynchronously by the outbox processor |
+| **Dependencies**     | Identity; catalog; enquiry repository                                                                                             |
+| **Public API**       | `/enquiries`                                                                                                                      |
 
 ### CRM (includes Leads)
 

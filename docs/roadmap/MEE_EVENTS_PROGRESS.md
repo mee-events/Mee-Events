@@ -1,18 +1,19 @@
 # Mee Events — Progress Tracker
 
-- **Updated:** 27 August 2026; STAB-17 DONE WITH FINDINGS (Playwright/API/mobile foundation; live smokes local)
+- **Updated:** 27 August 2026; STAB-18 DONE WITH FINDINGS (canonical docs reconciled; historical PDFs labeled)
 - **Repository:** `/Users/vinaychilagani/Desktop/Mee Event V1`
 - **Baseline application commit:** `master` / `9e2a442d91c137ec97a349d1a55697ae8d79d5df`
 - **STAB-01 snapshot HEAD:** `ca994985a898d42da2a8d717041b93a8f8f0dc4c`
 - **Current phase:** Phase 0 — Stabilization
 - **Phase gate:** **NOT PASSED**
-- **Last completed task:** STAB-17 — DONE WITH FINDINGS (local live smokes; CI URL guards only)
-- **Current task:** none — awaiting STAB-18
-- **Next task:** STAB-18 Documentation reconciliation (**NOT STARTED**)
+- **Last completed task:** STAB-18 — DONE WITH FINDINGS
+- **Current task:** none — awaiting STAB-19
+- **Next task:** STAB-19 Repository cleanup (**NOT STARTED**)
 - **Latest application change:** STAB-15 now coordinates refresh rotation through the existing PostgreSQL session row across two service/repository/pool instances while preserving sequential reuse revocation; use Git history for commit hashes.
 - **STAB-16 implementation commit:** `999443d5d3ba547de1bb6c0406c34753c8433b00`
 - **STAB-16 closeout:** `1450263caa6a5be2263bf7b9c91827f7cc24ef6c`
-- **STAB-17 commit:** this commit on `master` (`test(e2e): add STAB-17 browser and API smoke foundation`); parent `1450263`
+- **STAB-17 commit:** `68894f3bbfa91937a0c7c573a8fc1a0af83ce533`
+- **STAB-18 commit:** this documentation commit on `master`
 
 ## Status key
 
@@ -848,6 +849,29 @@ payment/SMS/PDF/push, or STAB-18 work was started. Founder-owned STAB-16
 findings (branch protection, native secret scanning, Dependabot alerts) remain
 open.
 
+## STAB-18 — Documentation reconciliation
+
+- [x] **STAB-18** Documentation reconciliation — **DONE WITH FINDINGS**
+      27 August 2026. Docs-only. No application, test, workflow, or migration
+      change.
+
+Named defects vs code:
+
+| Defect                                                     | Code / config                                                                                            | Doc correction                                                                      |
+| ---------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| Enquiry→lead same-write                                    | `createEnquiry` writes enquiry + `enquiry.submitted`; `EnquirySubmittedOutboxProcessor` creates the lead | overview, architecture, customer API, enquiry-to-booking                            |
+| Staff-mobile includes Manager as a shipped Flutter product | Bootstrap maps employee/manager roles to `employee_web`; EMP-\* MISSING                                  | overview, architecture                                                              |
+| OTP resend “not enforced”                                  | `auth.service.ts` `OTP_RESEND_COOLDOWN` HTTP 429                                                         | `authentication.md`, `identity-foundation.md`                                       |
+| Supabase as SoT                                            | PostgreSQL migrations; leftover `supabase_flutter` (SEC-06) and script `supabase-js`                     | overview, database README, references/supabase, ADR 0011 residual                   |
+| Default branch `main`                                      | GitHub/CI `master`                                                                                       | PRD 10, CONTRIBUTING, SECURITY, AGENTS                                              |
+| Stale test/E2E counts                                      | Unit 190/190; DBINT 21; STAB-17 foundation; no device E2E                                                | README, testing-strategy, unit-tests, verification, baselines (pointers on freezes) |
+| 18 August PDFs as live SoT                                 | Binaries unchanged                                                                                       | `docs/roadmap/README.md`; MASTER_BUILD_ROADMAP banner                               |
+
+**Finding:** `MEE_EVENTS_MASTER_BUILD_ROADMAP.md` body and
+`MEE_EVENTS_COMPLETE_PROJECT_AUDIT.md` 25 August freeze body were **labeled**,
+not rewritten. EMP-\* cards remain MISSING. Phase 0 **NOT PASSED**. STAB-19
+**not started**.
+
 ## Latest verification
 
 | Verification                   | Result                               | Evidence summary                                                                                                        |
@@ -859,6 +883,9 @@ open.
 | STAB-15 PostgreSQL integration | **ACCEPTED WITH FINDINGS**           | Four fresh runs plus STAB-16 re-run 21/21 on 27 August 2026; selected adapters and two-instance refresh proof           |
 | STAB-15 isolation/cleanup      | **PASS**                             | Fail-closed identity guards; no leaked project resource; developer containers unchanged                                 |
 | STAB-16 local CI configuration | **DONE WITH FINDINGS**               | `999443d` CI/Security/CodeQL green (33034648786 / 33034648784 / 33034648777); protection and native scanning still open |
+| STAB-17 E2E foundation         | **DONE WITH FINDINGS**               | Playwright 1/1; API smoke PASS; mobile API contract PASS (no device); 17 URL guards; no live GitHub stack job           |
+| STAB-18 documentation          | **DONE WITH FINDINGS**               | Canonical docs aligned with code; 18 Aug PDFs labeled; 25 Aug audit freeze labeled not rewritten                        |
+| Backend unit tests (current)   | **PASS (after STAB-15)**             | 190/190 across 30 files; STAB-07 freeze remains 188/188                                                                 |
 | STAB-13 Flutter quality        | **PASS**                             | 200 formatted/analyzed files; 0 drift/diagnostics; 27 files and 441/441 tests                                           |
 | STAB-13 Android dev build      | **PASS (debug only)**                | Dev APK compiles; INTERNET present; debuggable; Android Debug certificate                                               |
 | STAB-13 Android prod packages  | **COMPILE PASS / RELEASE FAIL**      | APK/AAB compile; no INTERNET; debug-signed; AAB byte-identical; APK content stable                                      |
@@ -919,7 +946,6 @@ open.
 | iOS unsigned release build     | **FAIL**                             | No Xcode interpreter; templated bundle ID unresolved; no artifact                                                       |
 | Dependency audit               | **PASS (STAB-03)**                   | 0 critical / 0 high remaining; 2 low owned. See `docs/05-security/dependency-security.md`                               |
 | PostgreSQL integration         | **ACCEPTED WITH FINDINGS (STAB-15)** | 21/21 across 3 files on four fresh PostgreSQL 17.2 projects; focused adapter/service boundary                           |
-| STAB-17 E2E foundation         | **DONE WITH FINDINGS**               | Playwright 1/1; API smoke PASS; mobile API contract PASS (no device); 17 URL guards; no live GitHub stack job           |
 | Browser/device E2E             | **FOUNDATION / DEVICE GAP**          | Playwright + API smokes local; no `integration_test/`, no emulator CI                                                   |
 
 ## Known release blockers
@@ -968,7 +994,7 @@ Do not ask for these until their dependent block is approaching, unless early pr
 - [x] STAB-15 Database integration tests — independently accepted with findings
 - [x] STAB-16 CI verification — DONE WITH FINDINGS (`999443d`; branch protection and native secret scanning remain open)
 - [x] STAB-17 E2E test foundation — DONE WITH FINDINGS (local live smokes; CI URL guards only; no emulator)
-- [ ] STAB-18 Documentation reconciliation
+- [x] STAB-18 Documentation reconciliation — DONE WITH FINDINGS (canonical docs; historical PDFs labeled)
 - [ ] STAB-19 Repository cleanup
 - [ ] STAB-20 Security baseline
 

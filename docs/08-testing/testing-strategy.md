@@ -63,12 +63,12 @@ Evidence: [database-integration-baseline.md](./database-integration-baseline.md)
 
 ## Surfaces
 
-| Surface                                    | Status                                                                                        |
-| ------------------------------------------ | --------------------------------------------------------------------------------------------- |
-| Backend (`@me-event/backend`)              | 190 unit/foundation tests across 30 files plus 21 PostgreSQL integration tests across 3 files |
-| Mobile (`apps/mobile`)                     | 441 tests; CI also runs formatting, analysis and a development APK build                      |
-| ERP (`@me-event/erp-web`)                  | 8 tests across 3 files; no rendered component or browser route coverage                       |
-| Packages (`api-contracts`, `shared-types`) | No `test` scripts                                                                             |
+| Surface                                    | Status                                                                                                                |
+| ------------------------------------------ | --------------------------------------------------------------------------------------------------------------------- |
+| Backend (`@me-event/backend`)              | 190 unit/foundation tests across 30 files plus 21 PostgreSQL integration tests across 3 files                         |
+| Mobile (`apps/mobile`)                     | 441 tests; CI also runs formatting, analysis and a development APK build                                              |
+| ERP (`@me-event/erp-web`)                  | 8 Vitest tests across 3 files; Playwright login smoke is separate (STAB-17); no rendered-component coverage in Vitest |
+| Packages (`api-contracts`, `shared-types`) | No `test` scripts                                                                                                     |
 
 Flutter's STAB-09 static gate covers all 200 maintained Dart files (172
 `lib`, 28 `test`) with `flutter_lints` 6.0.0 and

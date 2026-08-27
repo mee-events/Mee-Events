@@ -50,15 +50,15 @@ sequenceDiagram
 
 ## TTLs and digests
 
-| Item                            | Value                                         | Storage                                                                             |
-| ------------------------------- | --------------------------------------------- | ----------------------------------------------------------------------------------- |
-| OTP challenge TTL               | 300 seconds                                   | Challenge row `expiresAt`                                                           |
-| OTP resend hint                 | 60 seconds (`resendAfter`)                    | Returned to client; **not** server-enforced as a rate limit today                   |
-| OTP max attempts                | 5                                             | Decremented on failed verify                                                        |
-| OTP digest                      | HMAC-SHA256 of `` `${challengeId}:${code}` `` | Secret `OTP_HMAC_SECRET`; plaintext never stored                                    |
-| Access JWT TTL                  | 900 seconds                                   | Signed with `JWT_ACCESS_SECRET` (see [jwt.md](./jwt.md))                            |
-| Device session / refresh window | 30 days                                       | Session `expiresAt`; refresh stored as HMAC digest with `REFRESH_TOKEN_HMAC_SECRET` |
-| Refresh token                   | 48 random bytes, base64url                    | Opaque; only digest persisted                                                       |
+| Item                            | Value                                         | Storage                                                                                                                  |
+| ------------------------------- | --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| OTP challenge TTL               | 300 seconds                                   | Challenge row `expiresAt`                                                                                                |
+| OTP resend cooldown             | 60 seconds (`resendAfter`)                    | Hint returned to the client **and** enforced server-side (`OTP_RESEND_COOLDOWN` / HTTP 429 on the latest open challenge) |
+| OTP max attempts                | 5                                             | Decremented on failed verify                                                                                             |
+| OTP digest                      | HMAC-SHA256 of `` `${challengeId}:${code}` `` | Secret `OTP_HMAC_SECRET`; plaintext never stored                                                                         |
+| Access JWT TTL                  | 900 seconds                                   | Signed with `JWT_ACCESS_SECRET` (see [jwt.md](./jwt.md))                                                                 |
+| Device session / refresh window | 30 days                                       | Session `expiresAt`; refresh stored as HMAC digest with `REFRESH_TOKEN_HMAC_SECRET`                                      |
+| Refresh token                   | 48 random bytes, base64url                    | Opaque; only digest persisted                                                                                            |
 
 Verification uses `timingSafeEqual` on digests.
 

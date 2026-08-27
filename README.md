@@ -71,8 +71,10 @@ flowchart TB
 > [!IMPORTANT]
 > This repository is a connected product foundation, not a production release.
 > Production SMS OTP, payment gateway confirmation, quotation PDF generation,
-> push/outbox consumers, browser/device E2E tests, release signing, and complete
-> live CRM replacement remain release blockers.
+> push/outbox consumers, device/emulator E2E, live CRM on `/leads`, release
+> signing, and complete live CRM replacement remain release blockers. STAB-17
+> added a **local** Playwright/API/Dart E2E **foundation**; CI runs fail-closed
+> URL guards only. That is not device E2E and not product coverage.
 
 ## Current customer experience
 
@@ -171,17 +173,20 @@ corepack pnpm dev:mobile
 
 ## Verification
 
-The `master` branch is continuously verified by GitHub Actions. The latest
-verified baseline includes:
+The `master` branch is continuously verified by GitHub Actions. Counts below are
+the **current** local/CI position after STAB-15/16/17, not the 25 August audit
+table.
 
 | Check                                        |                  Verified result |
 | -------------------------------------------- | -------------------------------: |
-| Backend tests                                | 173 passing across 30 test files |
-| Employee CRM/ERP tests                       |                        2 passing |
-| Flutter tests                                |                      435 passing |
+| Backend unit tests                           | 190 passing across 30 test files |
+| Backend PostgreSQL integration               |             21 passing / 3 files |
+| Employee CRM/ERP unit tests                  |                        8 passing |
+| Flutter tests                                |                      441 passing |
 | TypeScript formatting, lint and type checks  |                          Passing |
 | Backend and Employee CRM/ERP builds          |                          Passing |
 | Flutter analysis and Android development APK |                          Passing |
+| E2E foundation (local)                       |  Playwright ERP login, API, Dart |
 
 Run the same gates locally:
 
@@ -189,7 +194,7 @@ Run the same gates locally:
 corepack pnpm verify
 
 cd apps/mobile
-dart format --output=none --set-exit-if-changed lib test
+dart format --output=none --set-exit-if-changed lib test tool
 flutter analyze --fatal-infos
 flutter test
 flutter build apk --debug --flavor dev \
@@ -198,24 +203,25 @@ flutter build apk --debug --flavor dev \
 ```
 
 CI includes a dedicated isolated PostgreSQL integration job; it succeeded on
-canonical `master` at `999443d` (run 33034648786). CI still does not prove
-browser/device E2E behavior,
-production SMS, payments, notifications, release signing or store delivery.
+canonical `master` at `999443d` (run 33034648786). STAB-17 E2E foundation is
+**local-live**; CI runs URL fail-closed guards only. CI still does not prove
+device/emulator E2E, every-push Playwright against Nest/ERP, production SMS,
+payments, notifications, release signing or store delivery.
 
 ## Documentation
 
-| Area                           | Canonical reference                                                                                |
-| ------------------------------ | -------------------------------------------------------------------------------------------------- |
-| Engineering overview           | [docs/01-overview/README.md](docs/01-overview/README.md)                                           |
-| System architecture            | [docs/02-architecture/architecture.md](docs/02-architecture/architecture.md)                       |
-| Database                       | [docs/03-database/README.md](docs/03-database/README.md)                                           |
-| API routes                     | [docs/04-api/README.md](docs/04-api/README.md)                                                     |
-| Authentication and security    | [docs/05-security](docs/05-security)                                                               |
-| Deployment and local operation | [docs/07-deployment](docs/07-deployment)                                                           |
-| Testing strategy               | [docs/08-testing/testing-strategy.md](docs/08-testing/testing-strategy.md)                         |
-| Architecture decisions         | [docs/adr](docs/adr)                                                                               |
-| Master product requirements    | [docs/product/prd/00-master-prd-v1.md](docs/product/prd/00-master-prd-v1.md)                       |
-| Master recovery/build roadmap  | [docs/roadmap/MEE_EVENTS_MASTER_BUILD_ROADMAP.md](docs/roadmap/MEE_EVENTS_MASTER_BUILD_ROADMAP.md) |
+| Area                           | Canonical reference                                                              |
+| ------------------------------ | -------------------------------------------------------------------------------- |
+| Engineering overview           | [docs/01-overview/README.md](docs/01-overview/README.md)                         |
+| System architecture            | [docs/02-architecture/architecture.md](docs/02-architecture/architecture.md)     |
+| Database                       | [docs/03-database/README.md](docs/03-database/README.md)                         |
+| API routes                     | [docs/04-api/README.md](docs/04-api/README.md)                                   |
+| Authentication and security    | [docs/05-security](docs/05-security)                                             |
+| Deployment and local operation | [docs/07-deployment](docs/07-deployment)                                         |
+| Testing strategy               | [docs/08-testing/testing-strategy.md](docs/08-testing/testing-strategy.md)       |
+| Architecture decisions         | [docs/adr](docs/adr)                                                             |
+| Master product requirements    | [docs/product/prd/00-master-prd-v1.md](docs/product/prd/00-master-prd-v1.md)     |
+| Live execution inventory       | [docs/roadmap/MEE_EVENTS_MASTER_TODO.md](docs/roadmap/MEE_EVENTS_MASTER_TODO.md) |
 
 ## Contribution and security
 
@@ -226,16 +232,22 @@ issue containing credentials or exploit details.
 
 ## Product status
 
-The next safe sequence is real integration—not parallel feature generation:
+The next safe sequence is Phase 0 completion, then real integration—not
+parallel feature generation:
 
-1. Replace the fixture CRM leads surface with real API state.
-2. Prove migrations and transactional workflows against PostgreSQL in CI.
-3. Complete external OTP, authorization denial paths and mobile token handling.
-4. Finish the real enquiry → quotation → advance → booking/Event Record pilot.
-5. Expand Vendor, Worker, CRM and ERP modules only after the pilot path is proven.
+1. Finish remaining Phase 0 blocks (STAB-19 repository cleanup, STAB-20
+   security baseline). The Phase 0 gate is **not passed**.
+2. Replace the fixture CRM leads surface with real API state.
+3. Complete external OTP, remaining authorization denial paths and mobile
+   token handling (`SEC-06` still has `supabase_flutter`).
+4. Finish the real enquiry → quotation → advance → booking/Event Record pilot
+   (enquiry→lead is already async outbox, not a same-write).
+5. Expand Vendor, Worker, CRM and ERP modules only after the pilot path is
+   proven.
 
-See the [master roadmap](docs/roadmap/MEE_EVENTS_MASTER_BUILD_ROADMAP.md) for the
-controlled module order and release gates.
+See the [live execution inventory](docs/roadmap/MEE_EVENTS_MASTER_TODO.md).
+The 18 August `MEE_EVENTS_MASTER_BUILD_ROADMAP` markdown/PDF files are
+historical.
 
 ## License
 

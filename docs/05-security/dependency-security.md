@@ -265,6 +265,10 @@ No API contract, migration, or authentication logic changes.
 
 These compatibility builds do **not** close STAB-11, STAB-12, or STAB-13.
 
+**STAB-18 pointer (27 August 2026):** the backend **188/188** row is the
+STAB-03 freeze. Current unit suite is **190/190** after STAB-15. See
+[testing-strategy.md](../08-testing/testing-strategy.md).
+
 ## Safe future upgrade policy
 
 1. Prefer the smallest patched version on the current major line.

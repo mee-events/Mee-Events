@@ -2,6 +2,12 @@
 
 ## Current State, Pending Work & Master Build Roadmap
 
+> **Historical (18 August 2026).** This markdown file and the matching PDFs in
+> this folder are **not** the live execution source of truth. Use
+> [`MEE_EVENTS_MASTER_TODO.md`](./MEE_EVENTS_MASTER_TODO.md),
+> [`MEE_EVENTS_PROGRESS.md`](./MEE_EVENTS_PROGRESS.md), numbered `docs/`, and
+> ADRs. Do not execute Phase 0 work from this document.
+
 **Customer + Vendor + Worker Mobile | Employee Mobile | CRM | ERP | Backend | Database | Release**
 
 | Document              | Value                                                                                                 |

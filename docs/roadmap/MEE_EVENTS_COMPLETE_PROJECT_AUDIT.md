@@ -17,11 +17,23 @@
 - **STAB-12 ERP build baseline:** 26 August 2026 13:32 IST. Next 15.5.23/React 19.2.3; two clean synthetic-production builds compiled all 44 maintained routes, a stable 262-file code subset matched, and loopback runtime/header smoke passed with fixture and hardening findings. See `docs/07-deployment/erp-build-baseline.md`.
 - **STAB-13 Flutter build baseline:** 26 August 2026 14:45 IST; iOS cause corrected after independent review at 16:10 IST. Flutter 3.44.8/Dart 3.12.2; dev debug APK and production APK/AAB compile, but production packages lack `INTERNET` and use the Android Debug certificate. Both iOS unsigned probes fail after the Xcode-version probe finds no usable full Xcode and before project enumeration or compilation. See `docs/07-deployment/flutter-build-baseline.md`.
 - **STAB-14 migration baseline:** Accepted 26 August 2026 after independent re-review of the corrected signature recipes. All three PostgreSQL 17.2 paths converge; `SEC-M-09` remains open. See `docs/03-database/migration-verification-baseline.md`.
-- **STAB-15 database integration correction:** 26 August 2026, pending independent re-review. Four fresh PostgreSQL 17.2 runs each pass 3/3 files and 21/21 DBINT-01–14 cases through selected production adapters/services, including repeated two-service/two-pool refresh races; broader security and CI gaps remain open. See `docs/08-testing/database-integration-baseline.md`.
+- **STAB-15 database integration correction:** 26 August 2026, independently
+  accepted with findings 27 August 2026. See `docs/08-testing/database-integration-baseline.md`.
+- **STAB-16 CI baseline:** 27 August 2026. Remote green on `999443d`. See
+  `docs/07-deployment/ci-verification-baseline.md`.
+- **STAB-17 E2E foundation:** 27 August 2026. Playwright/API/Dart smokes; CI
+  URL guards only. See `docs/08-testing/e2e-foundation-baseline.md`.
+- **STAB-18 docs reconciliation:** 27 August 2026. This file remains the
+  **25 August 2026 audit freeze**. Live execution SoT is
+  `MEE_EVENTS_MASTER_TODO.md` and `MEE_EVENTS_PROGRESS.md`. Numbered `docs/`
+  and later baselines win where they conflict.
 - **Audit type:** Read-only implementation, configuration, test, security, release, documentation, and artifact inspection
 - **Decision:** **NOT PRODUCTION-READY**
 
-This is the current source-of-truth audit. It supersedes status claims in the 18 August 2026 roadmap PDFs where those claims conflict with the repository verified on 25 August 2026. It does not replace accepted ADRs or product requirements.
+This is the **25 August 2026 audit freeze**. It supersedes status claims in the
+18 August 2026 roadmap PDFs where those claims conflict with the repository
+verified on 25 August 2026. It does not replace accepted ADRs, product
+requirements, or later STAB evidence.
 
 ## 1. Executive assessment
 

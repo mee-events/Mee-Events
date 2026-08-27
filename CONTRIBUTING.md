@@ -37,7 +37,9 @@ Understand → Plan → Implement → Test → Review → Verify → Commit
 
 ## Branches and commits
 
-- Branch from the current default branch.
+- Branch from `master` (GitHub default). Local `origin/HEAD` may still
+  stale-point at obsolete `origin/main`; do not treat `main` as the live
+  default.
 - Use a focused name such as `fix/otp-rate-limit`, `feat/customer-enquiry`, or
   `codex/catalog-validation` for Codex-managed work.
 - Do not mix unrelated backend, mobile, CRM/ERP or infrastructure work.

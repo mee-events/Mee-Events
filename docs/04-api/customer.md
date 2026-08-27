@@ -77,11 +77,11 @@ parent occasion identity from `subtitle`.
 
 ## Enquiries
 
-| Method | Path                    | Capability           | Purpose                                |
-| ------ | ----------------------- | -------------------- | -------------------------------------- |
-| POST   | `/api/v1/enquiries`     | `enquiry.create_own` | Create enquiry (also creates CRM lead) |
-| GET    | `/api/v1/enquiries`     | `enquiry.read_own`   | List own enquiries                     |
-| GET    | `/api/v1/enquiries/:id` | `enquiry.read_own`   | Get enquiry                            |
+| Method | Path                    | Capability           | Purpose                                                                         |
+| ------ | ----------------------- | -------------------- | ------------------------------------------------------------------------------- |
+| POST   | `/api/v1/enquiries`     | `enquiry.create_own` | Create enquiry + `enquiry.submitted` outbox; CRM lead is created asynchronously |
+| GET    | `/api/v1/enquiries`     | `enquiry.read_own`   | List own enquiries                                                              |
+| GET    | `/api/v1/enquiries/:id` | `enquiry.read_own`   | Get enquiry                                                                     |
 
 `POST /enquiries` accepts optional `planItems` (`productCode`, optional
 `displayName` / `serviceCode`). The API stores a server-resolved snapshot

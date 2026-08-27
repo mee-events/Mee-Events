@@ -21,7 +21,7 @@ and rotate it immediately before continuing investigation.
 
 ## Supported code
 
-Security fixes are applied to the current default branch. Historical snapshots,
+Security fixes are applied to `master` (GitHub default). Historical snapshots,
 local-only prototypes and generated artifacts are not separately supported.
 
 ## Security boundaries

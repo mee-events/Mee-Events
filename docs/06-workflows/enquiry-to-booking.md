@@ -13,8 +13,9 @@ Routes: [customer API](../04-api/customer.md), [CRM API](../04-api/crm.md).
 
 ```mermaid
 flowchart TD
-  C[Customer_POST_enquiries] --> EL[TX_enquiry_received_plus_lead_new]
-  EL --> Claim[CRM_claim_lead]
+  C[Customer_POST_enquiries] --> OB[TX_enquiry_received_plus_enquiry_submitted_outbox]
+  OB --> Lead[CRM_outbox_processor_creates_lead]
+  Lead --> Claim[CRM_claim_lead]
   Claim --> Req[CRM_save_requirements]
   Req --> Quote[CRM_quotation_draft_then_send]
   Quote --> Appr[Customer_approve]
@@ -29,7 +30,7 @@ flowchart TD
 
 | Step               | Actor          | API                                       | Effect                                                                                                                                                                            |
 | ------------------ | -------------- | ----------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1. Create enquiry  | Customer       | `POST /api/v1/enquiries`                  | **One TX:** enquiry `received` + lead `new` (source `mobile_app`); audit/outbox lead created                                                                                      |
+| 1. Create enquiry  | Customer       | `POST /api/v1/enquiries`                  | **One TX:** enquiry `received` + `enquiry.submitted` outbox. CRM lead `new` is created later by `EnquirySubmittedOutboxProcessor` (SEC-04 recovery still open)                    |
 | 2. Claim lead      | CRM            | `POST /api/v1/crm/leads/:id/claim`        | Lead → `claimed`; enquiry → `contact_pending` when previously submitted/received                                                                                                  |
 | 3. Requirements    | CRM            | `POST /api/v1/crm/leads/:id/requirements` | Lead → `contacted` or `qualified`; enquiry → `in_discussion` (lead must be claimed)                                                                                               |
 | 4. Quotation       | CRM / Customer | See [quotation.md](./quotation.md)        | Draft → send → customer approve (or reject / request revision)                                                                                                                    |
@@ -64,6 +65,8 @@ Reject quotation can mark lead `lost` and enquiry `closed` (see quotation flow).
 - Customer feedback after completion — not implemented
 - Booking before payment — not supported
 - Unused enquiry enum values may exist without writes on this path
+- CRM lead creation is asynchronous (`enquiry.submitted` outbox). Crash/retry
+  recovery remains `SEC-04`. Do not document this as a same-write.
 
 ---
 

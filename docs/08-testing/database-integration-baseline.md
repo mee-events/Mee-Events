@@ -6,6 +6,7 @@
 - **Task:** STAB-15 — PostgreSQL database integration test foundation
 - **Result:** **INDEPENDENTLY ACCEPTED WITH FINDINGS** — four required fresh PostgreSQL 17.2 runs passed 21/21 cases across 3/3 files; no skip, todo, expected-failure, focused case, retry, or conditional pass exists
 - **Boundary:** repository/service integration through real `pg.Pool` connections and all 20 migrations. This is not HTTP, Redis, browser, provider, backup/restore, remote database, or production-readiness proof.
+- **Ordinary unit suite:** **190/190** after this correction (STAB-07 freeze was 188/188).
 
 ## Toolchain and commands
 

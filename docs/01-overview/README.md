@@ -71,22 +71,25 @@ Mee Events exposes three product surfaces on one backend and one database.
 ```mermaid
 flowchart TB
   CustomerApp[CustomerApp_Flutter]
-  StaffMobile[StaffMobileRoles_Flutter]
-  ErpWeb[ERPWeb_Nextjs]
+  VendorWorker[Vendor_and_Worker_Flutter]
+  ErpWeb[EmployeeCRM_ERP_Nextjs]
   Api[NestJS_API_v1]
   Db[(PostgreSQL)]
   CustomerApp --> Api
-  StaffMobile --> Api
+  VendorWorker --> Api
   ErpWeb --> Api
   Api --> Db
 ```
 
-Customer and staff mobile experiences share the Flutter application in
-`apps/mobile`. Authentication and role determine which surface is available.
-There is no separate Staff App package. Mobile entry is **AppGateway only**
-(Customer, Vendor ops, Worker ops). Development role-preview shells and the
-former `apps/customer-web` prototype have been removed. AppGateway must never
-impersonate production authorization.
+Shipped clients are **one Flutter binary** (Customer, Vendor, Worker) and
+**one Next.js Employee CRM/ERP**. There is no separate Employee Mobile app
+package. Backend bootstrap sends employee, manager, support, finance,
+administrator, and auditor roles to `employee_web`. Manager/operations Flutter
+screens that remain in `apps/mobile` are not a reachable Employee Mobile
+product; Phase 6 `EMP-*` is still **MISSING**. Mobile entry is **AppGateway
+only** (Customer, Vendor ops, Worker ops). Development role-preview shells and
+the former `apps/customer-web` prototype have been removed. AppGateway must
+never impersonate production authorization.
 
 ### Customer App
 
@@ -110,15 +113,17 @@ Path: `apps/erp-web` (Next.js App Router under `src/app/`).
 
 ### Staff Mobile roles
 
-Staff-facing work runs in the same Flutter binary as the Customer App. Preview
-roles currently include Manager, Vendor, and Worker.
+Vendor and Worker self-service run in the same Flutter binary as the Customer
+App. Employee staff work is the Next.js portal (`apps/erp-web`), not a second
+Flutter application.
 
-#### Manager
+#### Manager (ERP Web, not a shipped mobile product)
 
 |                      |                                                                                                           |
 | -------------------- | --------------------------------------------------------------------------------------------------------- |
 | **Purpose**          | Event ownership after booking: assignment, tasks, and cross-module coordination                           |
 | **Responsibilities** | Manager assignment; task and progress views; entry points into operations, inventory, and finance screens |
+| **Client**           | `employee_web`. In-tree Flutter manager screens are not a production Employee Mobile surface              |
 
 #### Vendor
 
@@ -159,7 +164,9 @@ PostgreSQL may be hosted on a managed provider (including Supabase as a host).
 Application authentication and authorization remain backend-owned. Supabase Auth
 and RLS are not the platform authorization layer.
 `docs/references/supabase/schema.sql` is legacy and is not the schema source of
-truth ([ADR 0011](../adr/0011-prd-suite-and-flutter-confirmation.md)).
+truth ([ADR 0011](../adr/0011-prd-suite-and-flutter-confirmation.md)). Flutter
+still depends on `supabase_flutter` (`SEC-06` open). Nest still depends on
+`@supabase/supabase-js` for operational scripts, not for login or schema.
 
 ### Frontend
 
@@ -187,26 +194,26 @@ managed with the Flutter SDK. The monorepo does not use Turbo.
 
 Modules are registered from `apps/backend/src/app.module.ts` unless noted.
 
-| Module                    | Path                          | Responsibility                                                                    |
-| ------------------------- | ----------------------------- | --------------------------------------------------------------------------------- |
-| Authentication (Identity) | `modules/identity`            | OTP request/verify, refresh, logout, device sessions                              |
-| Platform Foundation       | `modules/platform-foundation` | Authenticated bootstrap (role, branch, modules, capabilities); access-token guard |
-| Authorization             | `modules/authorization`       | Capability guard, `@RequireCapability`, `@Public` (no Nest module; cross-cutting) |
-| Catalog                   | `modules/catalog`             | Event types and service categories                                                |
-| Enquiries                 | `modules/enquiries`           | Customer enquiry create/read; creates CRM lead in the same write                  |
-| CRM                       | `modules/crm`                 | Lead list/detail, claim, requirements                                             |
-| Quotations                | `modules/quotations`          | Customer and CRM quotation lifecycle                                              |
-| Payments                  | `modules/payments`            | Advance submit and CRM confirm                                                    |
-| Bookings                  | `modules/bookings`            | Booking reads after creation on advance confirm                                   |
-| Event Records             | `modules/event-records`       | Central Event Record aggregate, status, timeline, activities                      |
-| Manager Operations        | `modules/manager-operations`  | Manager assignment, tasks, progress                                               |
-| Vendor Management         | `modules/vendors`             | Vendor registry, assignments, vendor self-service                                 |
-| Worker Management         | `modules/workers`             | Worker registry, tasks, attendance, worker self-service                           |
-| Inventory                 | `modules/inventory`           | Warehouses, items, allocations, movements, maintenance                            |
-| Finance                   | `modules/finance`             | Expenses, settlements, payouts, invoices, receipts, ledger                        |
-| Operations                | `modules/operations`          | Execution tasks, attendance, issues, materials, progress, completion              |
-| Audit                     | `modules/audit`               | Global audit sink for controlled mutations                                        |
-| Health                    | `modules/health`              | Liveness and readiness (Postgres probe)                                           |
+| Module                    | Path                          | Responsibility                                                                     |
+| ------------------------- | ----------------------------- | ---------------------------------------------------------------------------------- |
+| Authentication (Identity) | `modules/identity`            | OTP request/verify, refresh, logout, device sessions                               |
+| Platform Foundation       | `modules/platform-foundation` | Authenticated bootstrap (role, branch, modules, capabilities); access-token guard  |
+| Authorization             | `modules/authorization`       | Capability guard, `@RequireCapability`, `@Public` (no Nest module; cross-cutting)  |
+| Catalog                   | `modules/catalog`             | Event types and service categories                                                 |
+| Enquiries                 | `modules/enquiries`           | Customer enquiry create/read; writes `enquiry.submitted` outbox; CRM lead is async |
+| CRM                       | `modules/crm`                 | Lead list/detail, claim, requirements                                              |
+| Quotations                | `modules/quotations`          | Customer and CRM quotation lifecycle                                               |
+| Payments                  | `modules/payments`            | Advance submit and CRM confirm                                                     |
+| Bookings                  | `modules/bookings`            | Booking reads after creation on advance confirm                                    |
+| Event Records             | `modules/event-records`       | Central Event Record aggregate, status, timeline, activities                       |
+| Manager Operations        | `modules/manager-operations`  | Manager assignment, tasks, progress                                                |
+| Vendor Management         | `modules/vendors`             | Vendor registry, assignments, vendor self-service                                  |
+| Worker Management         | `modules/workers`             | Worker registry, tasks, attendance, worker self-service                            |
+| Inventory                 | `modules/inventory`           | Warehouses, items, allocations, movements, maintenance                             |
+| Finance                   | `modules/finance`             | Expenses, settlements, payouts, invoices, receipts, ledger                         |
+| Operations                | `modules/operations`          | Execution tasks, attendance, issues, materials, progress, completion               |
+| Audit                     | `modules/audit`               | Global audit sink for controlled mutations                                         |
+| Health                    | `modules/health`              | Liveness and readiness (Postgres probe)                                            |
 
 ### Shared libraries
 
@@ -262,8 +269,11 @@ flowchart TD
 
 ### Flow notes
 
-1. **Enquiry and lead** are created in one transaction. Customers create
-   enquiries; CRM owns lead claim and requirements.
+1. **Enquiry and lead** are not created in the same write. `POST /enquiries`
+   commits the enquiry plus an `enquiry.submitted` outbox row. The CRM
+   `EnquirySubmittedOutboxProcessor` creates the lead later (`SEC-04` outbox
+   recovery remains open). Customers create enquiries; CRM owns lead claim and
+   requirements.
 2. **Quotation** is produced from a lead. Customers approve, reject, or request
    revision.
 3. **Advance payment** is submitted by the customer and confirmed by CRM.

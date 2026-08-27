@@ -26,11 +26,11 @@ Runs, in order:
 
 ## CI parity
 
-| Gate              | Where                                       | Covers                                                                               |
-| ----------------- | ------------------------------------------- | ------------------------------------------------------------------------------------ |
-| TypeScript        | `.github/workflows/ci.yml` job `typescript` | Same sequence as `verify` (`format:check` → `lint` → `typecheck` → `test` → `build`) |
-| Flutter           | job `flutter`                               | `dart format`, `flutter analyze --fatal-infos`, `flutter test`, debug APK build      |
-| Dependency review | job `dependency-review` (PRs only)          | Manifest/advisory review                                                             |
+| Gate              | Where                                       | Covers                                                                                                               |
+| ----------------- | ------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| TypeScript        | `.github/workflows/ci.yml` job `typescript` | Same sequence as `verify` (`format:check` → `lint` → `typecheck` → `test` → `build`)                                 |
+| Flutter           | job `flutter`                               | `dart format` (`lib`/`test`/`tool`), `flutter analyze --fatal-infos`, `flutter test`, debug APK, Dart E2E URL probes |
+| Dependency review | job `dependency-review` (PRs only)          | Manifest/advisory review                                                                                             |
 
 Details: [ci-cd.md](../07-deployment/ci-cd.md).
 
@@ -42,7 +42,7 @@ From `apps/mobile`:
 
 ```sh
 flutter pub get
-dart format --output=none --set-exit-if-changed lib test
+dart format --output=none --set-exit-if-changed lib test tool
 flutter analyze --fatal-infos
 flutter test
 ```

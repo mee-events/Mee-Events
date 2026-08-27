@@ -342,6 +342,10 @@ signing, iOS work, deployment/CD, cloud credential, staging/production access,
 provider integration, store workflow, or branch-setting mutation. It does not
 close `SEC-02`, remaining `SEC-03`, `SEC-04`, `SEC-M-09`, or `INT-02`.
 
+**STAB-18 pointer (27 August 2026):** the paragraph above records **STAB-16
+scope**, not later repository state. STAB-17 added a Playwright/API/Dart E2E
+foundation; see [e2e-foundation-baseline.md](../08-testing/e2e-foundation-baseline.md).
+
 ## Remote GitHub verification (closeout, 27 August 2026)
 
 Canonical `master` at `999443d5d3ba547de1bb6c0406c34753c8433b00` ran these

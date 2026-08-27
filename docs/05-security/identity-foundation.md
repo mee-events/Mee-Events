@@ -31,8 +31,11 @@ affecting other devices. Access tokens are short-lived authorization artifacts.
 ## Required before production
 
 - PostgreSQL repositories and reviewed migrations.
-- Redis-backed rate limits and resend controls across replicas (Postgres
-  enforces per-mobile resend cooldown on a single API instance today).
+- Edge/IP throttling still open. Per-mobile OTP **resend cooldown** and **hourly
+  request limit** are already enforced in PostgreSQL (`OTP_RESEND_COOLDOWN` /
+  `OTP_REQUEST_LIMIT`, HTTP 429) across API instances that share the database.
+  Redis-backed abuse controls remain a production hardening item, not the
+  current resend mechanism.
 - External SMS vendor HTTP adapter behind `ExternalOtpProvider` (fail-closed
   until `SMS_OTP_ENDPOINT` / `SMS_OTP_API_KEY` and vendor wiring are complete).
 - Approved SMS provider, templates, delivery callbacks, and regional compliance.

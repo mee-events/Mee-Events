@@ -53,6 +53,10 @@ mobile toolchain.
   in the backend per ADR 0002 and ADR 0010.
 - `docs/references/supabase/schema.sql` is a legacy artifact of an earlier prototype
   and is not part of the platform architecture.
+- Residual as of STAB-18 (27 August 2026): Flutter still depends on
+  `supabase_flutter` (`SEC-06`); Nest `@supabase/supabase-js` is used by
+  operational scripts, not as Auth or schema SoT. Those packages do not change
+  this ADR's decision.
 - ADR 0006 (Flutter toolchain) remains superseded as written, but its
   toolchain concerns return in Flutter form through the CI pipeline and the
   Deployment and DevOps PRD.

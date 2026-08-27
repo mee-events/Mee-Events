@@ -5,6 +5,7 @@
 - **Branch / starting commit:** `master` / `ff24b79a4d01132b7c0ffe8d362db5a0cd7dc27b`
 - **Task:** STAB-07 — Backend tests
 - **Result:** **PASS** — 30/30 files and 188/188 tests; zero failures, skips, todos, or warnings
+- **Current unit count (not this freeze):** after STAB-15, `corepack pnpm --filter @me-event/backend test` is **190/190** across the same 30-file unit boundary. See [testing-strategy.md](./testing-strategy.md). This file remains the STAB-07 188/188 evidence freeze.
 - **Scope boundary:** backend unit, guard, service, fake-adapter, mocked-transaction, and static foundation tests only. This is not PostgreSQL integration, HTTP E2E, provider, load, or release proof.
 
 ## Runner and discovery contract

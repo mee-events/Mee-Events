@@ -24,3 +24,4 @@ remain the decision and scope sources.
 | [product/](./product/prd/00-master-prd-v1.md)           | PRD suite and product notes                      |
 | [design-system/](./design-system/README.md)             | Design system                                    |
 | [references/supabase/](./references/supabase/README.md) | Legacy Supabase schema dump — **not** schema SoT |
+| [roadmap/](./roadmap/README.md)                         | Live TODO/PROGRESS vs historical 18 Aug PDFs     |

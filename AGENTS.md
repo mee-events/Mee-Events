@@ -7,6 +7,10 @@ Keep this file short. Deep detail lives in `docs/` and ADRs — read those on de
 Connected Hyderabad event OS: one Flutter multi-role mobile app, one NestJS API,
 one Next.js Employee CRM/ERP, one PostgreSQL source of truth.
 
+Live execution SoT: `docs/roadmap/MEE_EVENTS_MASTER_TODO.md` and
+`docs/roadmap/MEE_EVENTS_PROGRESS.md`. PDFs under `docs/roadmap/` dated
+18 August 2026 are historical. Default branch is `master`.
+
 ```text
 apps/mobile/     Flutter (Customer, Vendor, Worker)
 apps/backend/    NestJS API
@@ -28,6 +32,7 @@ docs/            engineering suites + ADRs + PRDs
 | Testing / verify gate | `docs/08-testing/testing-strategy.md`                                |
 | ADRs                  | `docs/adr/` — **ADR 0010** is the active connected-platform decision |
 | Product scope         | `docs/product/prd/00-master-prd-v1.md`                               |
+| Live TODO / progress  | `docs/roadmap/MEE_EVENTS_MASTER_TODO.md`, `MEE_EVENTS_PROGRESS.md`   |
 | AI coding controls    | `docs/05-security/ai-coding-controls.md`                             |
 
 ## Local commands

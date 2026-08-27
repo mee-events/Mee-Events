@@ -51,19 +51,29 @@ Copy `.env.example` files to ignored `.env` files before connecting clients.
 
 ## 5. Continuous integration
 
-`.github/workflows/ci.yml` runs on every pull request and push to `main`:
+`.github/workflows/ci.yml` runs on every pull request and push to `master`
+(GitHub default). Do not treat obsolete `main` as the protected default.
 
-- TypeScript job: `pnpm format:check`, `pnpm lint`, `pnpm typecheck`,
-  `pnpm test`, `pnpm build`
-- Flutter job: `dart format --set-exit-if-changed`, `flutter analyze
---fatal-infos`, `flutter test`, debug APK build
+- TypeScript quality: `pnpm format:check`, `pnpm lint`, `pnpm typecheck`,
+  `pnpm test`, `pnpm build`, then `pnpm test:e2e:guard` (fail-closed URL
+  probes; no live Playwright/Nest/ERP stack)
+- Backend PostgreSQL integration: isolated `mee-dbint-*` harness
+  (`pnpm test:integration:backend`)
+- Flutter development verification: `dart format` for `lib`/`test`/`tool`,
+  `flutter analyze --fatal-infos`, `flutter test`, development debug APK,
+  Dart E2E URL probes
 - Dependency review on pull requests
+
+Separate `security.yml` (pnpm audit + Gitleaks) and `codeql.yml` also run on
+`master`. Evidence: `docs/07-deployment/ci-cd.md`.
 
 Rules:
 
-- CI must stay green on `main`; failing checks block merges
+- CI must stay green on `master`. Founder-owned branch protection is **not**
+  configured as of STAB-16; required-check names are proposals only.
 - New backend modules ship with tests that run in the TypeScript job
-- Integration tests that need Postgres run against a CI service container
+- Integration tests that need Postgres run in the dedicated CI job, not by
+  attaching a second Compose service to the TypeScript job
 
 ## 6. Secrets management (`docs/05-security/secrets.md`)
 
