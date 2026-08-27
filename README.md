@@ -66,7 +66,7 @@ flowchart TB
 | Worker mobile    | Same Flutter binary     | Assigned work, task progress and attendance foundations exist; full field workflow is incomplete                                   |
 | Employee CRM/ERP | Next.js + TypeScript    | Routes and API clients exist across CRM and operations; the leads board still uses fixture data and is not yet production-live     |
 | Backend          | NestJS modular monolith | Auth, capabilities, catalog, enquiry, quotation, booking, event, vendor, worker, inventory, finance and operations foundations     |
-| Data             | PostgreSQL migrations   | Versioned schema through migration `0020`; isolated PostgreSQL integration is wired in local CI and awaits a GitHub run            |
+| Data             | PostgreSQL migrations   | Versioned schema through migration `0020`; isolated PostgreSQL integration runs in CI on canonical `master`                        |
 
 > [!IMPORTANT]
 > This repository is a connected product foundation, not a production release.
@@ -197,8 +197,9 @@ flutter build apk --debug --flavor dev \
   --dart-define=API_BASE_URL=http://10.0.2.2:3002/api/v1
 ```
 
-CI now includes a dedicated isolated PostgreSQL integration job locally; GitHub
-has not yet run it. CI still does not prove browser/device E2E behavior,
+CI includes a dedicated isolated PostgreSQL integration job; it succeeded on
+canonical `master` at `999443d` (run 33034648786). CI still does not prove
+browser/device E2E behavior,
 production SMS, payments, notifications, release signing or store delivery.
 
 ## Documentation

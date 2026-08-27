@@ -271,8 +271,9 @@ companions.
 STAB-16 now invokes the explicit root command in a dedicated bounded CI job
 using the same isolated harness and no duplicate workflow service. On
 27 August 2026 the STAB-16 session re-ran that command with the CI JUnit
-reporters: 3/3 files and 21/21 tests passed on PostgreSQL 17.2. The workflow
-is implemented locally but has not run on GitHub.
+reporters: 3/3 files and 21/21 tests passed on PostgreSQL 17.2. GitHub ran the
+same job green on canonical `master` at `999443d` (CI 33034648786; artifact
+`backend-postgresql-integration-report`).
 
 Each recorded run removed its exact container, network, and volume. A final
 Docker label inventory found no `mee-dbint-*` resource. The existing developer
@@ -289,5 +290,5 @@ independent disposable databases, unit discovery remains database-free, and
 cleanup is fail-checked. Broader authorization, multi-instance session,
 outbox-recovery, provider, HTTP/E2E, and production concerns remain explicitly
 open, except for the specifically verified two-instance refresh race above.
-Phase 0 remains **NOT PASSED**. STAB-16 is implemented locally with remote
-GitHub verification pending; STAB-17 is **NOT STARTED**.
+Phase 0 remains **NOT PASSED**. STAB-16 is **DONE WITH FINDINGS**; STAB-17 is
+**NOT STARTED**.

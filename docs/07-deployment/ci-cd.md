@@ -86,8 +86,9 @@ allowlist or broad exclusion and uploads no report.
 
 `CodeQL JavaScript/TypeScript` uses build mode `none` and does not repeat lint,
 typecheck, tests, or builds. Only that job receives `security-events: write`;
-all jobs otherwise use `contents: read`. Remote SARIF acceptance remains
-unverified until GitHub runs the workflow.
+all jobs otherwise use `contents: read`. The CodeQL job succeeded on canonical
+`master` at `999443d` (run 33034648777). Required-check names remain proposals
+until the founder configures branch protection.
 
 ## Artifacts and caches
 
@@ -104,19 +105,22 @@ artifacts. Frozen/enforced lockfile checks remain authoritative.
 
 ## Remote and branch-policy status
 
-STAB-16 is **implemented locally; remote GitHub verification pending**. The
-workflows have not run for the 19 local commits ahead of `origin/master`.
-Authenticated read-only inspection on 27 August 2026 (`gh` as `mee-events`)
-shows branch protection on `master` is not configured, secret scanning and
-push protection are disabled, Dependabot alerts/security updates are disabled,
-and no code-scanning analysis exists. None of those settings were mutated.
+STAB-16 is **DONE WITH FINDINGS**. Canonical `master` at `999443d` ran green
+on 27 August 2026: CI `33034648786`, Security `33034648784`, CodeQL
+`33034648777`. `Dependency review` skipped on that push, as expected. Artifact
+`backend-postgresql-integration-report` was uploaded.
+
+Authenticated inspection the same day (`gh` as `mee-events`) still shows
+branch protection on `master` **not configured**, secret scanning and push
+protection **disabled**, and Dependabot security updates/alerts **disabled**.
+None of those settings were mutated.
 
 Proposed required checks are `TypeScript quality`,
 `Backend PostgreSQL integration`, `Flutter development verification`,
 `Dependency review`, `Dependency audit`, `Secret scan`, and
-`CodeQL JavaScript/TypeScript` when available. Configure them only after the
-reviewed workflows are pushed and GitHub has emitted successful checks with
-those exact names. See the baseline for the full founder-owned policy plan.
+`CodeQL JavaScript/TypeScript`. Configure them only in a separately authorized
+founder action; the names remain proposals until protection is set. See the
+baseline for run URLs and the founder-owned policy plan.
 
 ## What CI still does not prove
 

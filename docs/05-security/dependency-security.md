@@ -72,8 +72,9 @@ On 27 August 2026, a fresh registry-backed
 `corepack pnpm audit --audit-level high` again reported zero Critical, zero High,
 zero Moderate, and the same two Low findings. STAB-16 adds a required
 `Dependency audit` job on pull requests, `master` pushes, weekly schedule, and
-manual dispatch. Network/registry errors and High/Critical findings remain
-fatal; no advisory is allowlisted and no exit code is suppressed.
+manual dispatch. That job succeeded on canonical `master` at `999443d`
+(Security run 33034648784). Network/registry errors and High/Critical findings
+remain fatal; no advisory is allowlisted and no exit code is suppressed.
 
 PR dependency review remains separate because it reviews only the proposed
 dependency diff. Weekly Dependabot monitoring now covers the root npm/pnpm
@@ -212,8 +213,8 @@ None.
 
 ## Blockers
 
-None for STAB-03. The Node toolchain pin is implemented locally by STAB-16;
-remote CI enforcement remains pending.
+None for STAB-03. The Node toolchain pin is enforced by STAB-16 CI on
+canonical `master` at `999443d`.
 
 ## Supply-chain review
 
@@ -226,7 +227,7 @@ remote CI enforcement remains pending.
 | CI                                      | `CI` and `Security` use frozen pnpm installs on Node `20.20.2`; `Dependency audit` fails on High/Critical                                                                                               |
 | Lifecycle scripts reviewed              | `esbuild@0.25.12` `postinstall` (already in `pnpm-workspace.yaml` `onlyBuiltDependencies`); `sharp@0.35.3` has no install script; `vite`/`next`/`vitest` have none; swagger `prepare` is publisher-side |
 | Built deps allowlist                    | Unchanged: `@nestjs/core`, `esbuild`, `sharp`, `unrs-resolver` allowed; `@scarf/scarf` and `nestjs-pino` ignored                                                                                        |
-| Dependabot / scheduled SCA              | STAB-16 adds weekly npm/pnpm, Pub, and GitHub Actions monitoring plus scheduled `pnpm audit`; remote execution is pending                                                                               |
+| Dependabot / scheduled SCA              | STAB-16 weekly npm/pnpm, Pub, and GitHub Actions monitoring plus `pnpm audit` ran green on `999443d`; Dependabot **security updates/alerts** remain disabled                                            |
 | Packages added only to greenwash audits | None                                                                                                                                                                                                    |
 
 ## Compatibility changes

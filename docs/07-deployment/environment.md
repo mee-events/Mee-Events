@@ -135,8 +135,8 @@ reserved hostname verifies fail-closed production parsing without a real
 endpoint. That remains compile evidence, not a production deploy.
 
 Root `.node-version` pins the verified Node `20.20.2`; CI consumes it while the
-engine requirement remains `>=20.11.0`. STAB-16 is implemented locally and
-awaits remote GitHub verification.
+engine requirement remains `>=20.11.0`. STAB-16 is **DONE WITH FINDINGS**:
+canonical `master` at `999443d` ran the pinned workflows green.
 
 ---
 

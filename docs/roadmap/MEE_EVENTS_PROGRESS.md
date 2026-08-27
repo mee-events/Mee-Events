@@ -1,15 +1,17 @@
 # Mee Events — Progress Tracker
 
-- **Updated:** 27 August 2026; STAB-16 implemented locally, remote GitHub verification pending
+- **Updated:** 27 August 2026; STAB-16 DONE WITH FINDINGS (remote CI/Security/CodeQL green on `999443d`)
 - **Repository:** `/Users/vinaychilagani/Desktop/Mee Event V1`
 - **Baseline application commit:** `master` / `9e2a442d91c137ec97a349d1a55697ae8d79d5df`
 - **STAB-01 snapshot HEAD:** `ca994985a898d42da2a8d717041b93a8f8f0dc4c`
 - **Current phase:** Phase 0 — Stabilization
 - **Phase gate:** **NOT PASSED**
-- **Last completed task:** STAB-15 — independently accepted with findings (source review 27 August 2026; STAB-16 re-ran 21/21 on PostgreSQL 17.2)
-- **Current task:** STAB-16 — implemented locally; remote GitHub verification pending
-- **Next task:** STAB-17 is **NOT AUTHORIZED** until STAB-16 remote verification
+- **Last completed task:** STAB-16 — DONE WITH FINDINGS (canonical `master` `999443d`; CI 33034648786, Security 33034648784, CodeQL 33034648777)
+- **Current task:** none — awaiting STAB-17
+- **Next task:** STAB-17 E2E test foundation (**NOT STARTED**)
 - **Latest application change:** STAB-15 now coordinates refresh rotation through the existing PostgreSQL session row across two service/repository/pool instances while preserving sequential reuse revocation; use Git history for commit hashes.
+- **STAB-16 implementation commit:** `999443d5d3ba547de1bb6c0406c34753c8433b00`
+- **STAB-16 closeout:** this documentation commit on `master` (`docs(ci): record STAB-16 remote GitHub verification`)
 
 ## Status key
 
@@ -803,100 +805,102 @@ completion, refresh state can precede its audit, and broader session controls
 remain `SEC-03`; employee direct-ID branch gaps remain `SEC-02`; outbox lease
 recovery remains `SEC-04`; provider payment authenticity remains `INT-02`; and
 migration bookkeeping remains `SEC-M-09`. No HTTP/Redis/provider/E2E,
-backup/restore, remote database, or production behavior is claimed. STAB-16 now
-invokes the suite in a dedicated local CI configuration; GitHub has not run it.
-Percentages are unchanged. Phase 0 remains **NOT PASSED**. STAB-16 is
-implemented locally with remote verification pending; STAB-17 is **NOT
-AUTHORIZED** until that remote run succeeds.
+backup/restore, remote database, or production behavior is claimed. STAB-16
+invokes the suite in CI; GitHub ran it green on `999443d` (CI 33034648786).
+Percentages are unchanged. Phase 0 remains **NOT PASSED**. STAB-16 is **DONE
+WITH FINDINGS**; STAB-17 is **NOT STARTED**.
 
 ## STAB-16 — CI verification
 
-- [~] **STAB-16** CI verification — implemented locally on 27 August 2026;
-  remote GitHub run and branch-policy verification pending.
+- [x] **STAB-16** CI verification — **DONE WITH FINDINGS** 27 August 2026.
+      Canonical `master` `999443d` ran green: CI 33034648786, Security
+      33034648784, CodeQL 33034648777. `Dependency review` skipped on push.
+      Branch protection and native secret scanning remain founder-owned and
+      open.
 
 Canonical evidence: `docs/07-deployment/ci-verification-baseline.md`.
 
-Local workflows now pin `ubuntu-24.04`, Node `20.20.2`, pnpm `9.15.4`, Flutter
+Local workflows pin `ubuntu-24.04`, Node `20.20.2`, pnpm `9.15.4`, Flutter
 `3.44.8`, and the existing STAB-15 PostgreSQL 17.2 harness. Quality, isolated
 database integration, Flutter development verification, PR dependency review,
 `pnpm audit --audit-level high`, checksum-pinned Gitleaks history scanning,
 CodeQL JavaScript/TypeScript (`build-mode: none`), and Dependabot monitoring
-are configured. Action SHAs were independently verified. Branch protection and
-native GitHub security features remain disabled and were not changed. STAB-16
-must not be marked complete until GitHub runs the committed workflows.
+are configured. Independent Antigravity review accepted the implementation with
+findings. Required-check names remain proposals; this closeout does not enable
+branch protection.
 
 ## Latest verification
 
-| Verification                   | Result                               | Evidence summary                                                                                              |
-| ------------------------------ | ------------------------------------ | ------------------------------------------------------------------------------------------------------------- |
-| STAB-14 migration paths        | **PASS with finding**                | Empty, tracked-upgrade and legacy paths converge; 20/20 ledger; repeat runs are no-ops                        |
-| STAB-14 live integrity         | **PASS**                             | 115 tables; 760 constraints; all 33 branch columns FK-scoped; append-only and rollback probes pass            |
-| STAB-14 crash recovery         | **FAIL / risk reproduced**           | Applied-but-unrecorded `0019` fails on retry; no checksum or automatic reconciliation                         |
-| STAB-14 signature correction   | **PASS / ACCEPTED**                  | Independent re-review accepted the reproducible `790d…`, raw `b47b…`, normalized `90a…`, and `a06b…` recipes  |
-| STAB-15 PostgreSQL integration | **ACCEPTED WITH FINDINGS**           | Four fresh runs plus STAB-16 re-run 21/21 on 27 August 2026; selected adapters and two-instance refresh proof |
-| STAB-15 isolation/cleanup      | **PASS**                             | Fail-closed identity guards; no leaked project resource; developer containers unchanged                       |
-| STAB-16 local CI configuration | **IMPLEMENTED; REMOTE PENDING**      | Pinned workflows, SCA/secret/CodeQL/Dependabot, STAB-15 harness job; GitHub has not run them                  |
-| STAB-13 Flutter quality        | **PASS**                             | 200 formatted/analyzed files; 0 drift/diagnostics; 27 files and 441/441 tests                                 |
-| STAB-13 Android dev build      | **PASS (debug only)**                | Dev APK compiles; INTERNET present; debuggable; Android Debug certificate                                     |
-| STAB-13 Android prod packages  | **COMPILE PASS / RELEASE FAIL**      | APK/AAB compile; no INTERNET; debug-signed; AAB byte-identical; APK content stable                            |
-| STAB-13 iOS probes             | **FAIL / state verified**            | No Xcode interpreter; no enumeration/compile/sign/artifact                                                    |
-| STAB-13 environment/security   | **PASS with high findings**          | Founder env protected; synthetic public asset only; HTTP/Supabase/backup/native gaps assigned                 |
-| STAB-12 ERP production build   | **PASS with findings**               | Two clean synthetic-production builds; 44/44 maintained routes; no warning                                    |
-| STAB-12 reproducibility        | **PASS, not byte-identical**         | Stable 262-file digest matched; Next build ID/preview/order/cache/trace variance classified                   |
-| STAB-12 runtime/headers        | **PASS with hardening debt**         | Loopback 200/200/404; configured headers present; no X-Powered-By; five headers remain unconfigured           |
-| STAB-12 artifact security      | **PASS with fixture finding**        | No secret/private env; unlabeled PII-shaped lead fixtures remain visibly assigned                             |
-| STAB-11 backend build          | **PASS**                             | Two sanitized `nest build` runs; 388 files; `dist/main.js`; 129/129 application roots                         |
-| STAB-11 reproducibility        | **PASS**                             | Matching sorted path/SHA-256 manifests; sentinel removed; no file/hash difference                             |
-| STAB-11 artifact security      | **PASS with documented debt**        | No secret/env/absolute path; maps are relative/no source content; Swagger/log/package gaps owned              |
-| STAB-11 startup boundary       | **PASS via safe method**             | Missing config fails closed; valid compiled module loads; listen omitted to avoid DB connection               |
-| STAB-10 Flutter canonical      | **PASS**                             | Flutter 3.44.8/Dart 3.12.2; 27/27 files; 441/441 pass; 0 failed/skipped/expected failures                     |
-| STAB-10 Flutter determinism    | **PASS**                             | Seed 6102026; one process; shuffled order; same 27 files/441 tests; no isolation leak                         |
-| STAB-10 discovery honesty      | **PASS**                             | No skip/focus/conditional/tag/timeout override; nonexistent path exits 1                                      |
-| STAB-10 boundary review        | **PASS with documented debt**        | Customer-heavy fake-boundary suite; Vendor/Worker routing only; no device/native/provider E2E                 |
-| STAB-09 Flutter analyze        | **PASS**                             | Flutter 3.44.8/Dart 3.12.2; 200 maintained files; 0 errors/warnings/infos                                     |
-| STAB-09 analyzer scope/policy  | **PASS**                             | 172 lib + 28 test; no exclusion/nested config/disabled rule/tracked generated Dart                            |
-| STAB-09 static security review | **PASS with documented debt**        | No hidden security finding; runtime validation, auth/bootstrap/transport/native owners retained               |
-| STAB-06 root typecheck         | **PASS**                             | TypeScript 5.7.2; four workspaces; 0 errors                                                                   |
-| STAB-06 maintained coverage    | **PASS**                             | 229 roots; backend source/tests/scripts, ERP source/tests/config, both packages all covered                   |
-| STAB-06 backend build scope    | **PASS**                             | 129 production roots; tests/scripts/specs excluded from emission only                                         |
-| STAB-06 ERP generated types    | **PASS**                             | 49 present generated roots pass; no-`.next` 64-root clean equivalent also passes                              |
-| STAB-06 type/security review   | **PASS with documented debt**        | No explicit `any`/suppressions/source double/non-null assertions; five owned follow-ups logged                |
-| STAB-05 root lint              | **PASS**                             | ESLint 9.17.0; 0 errors / 0 warnings; scripts now covered                                                     |
-| STAB-05 backend scripts        | **PASS**                             | `migrate_images.ts` and `upload_assets_to_supabase.ts` linted; type-aware; no secret logs                     |
-| STAB-04 root Prettier          | **PASS**                             | Prettier 3.4.2; 372 parser-matched tracked files; 0 drift                                                     |
-| STAB-04 Dart format            | **PASS**                             | Dart 3.12.2; 200 files in `lib`+`test`; 0 changed                                                             |
-| STAB-04 exclusions             | **PASS**                             | All `.prettierignore` entries classified; no owned TS/Dart failure hidden                                     |
-| STAB-03 JavaScript audit       | **PASS**                             | Final 0 critical / 0 high / 0 moderate / 2 low; see `docs/05-security/dependency-security.md`                 |
-| STAB-03 Flutter/Dart review    | **PASS**                             | OSV 0 findings; no discontinued direct packages; no pubspec changes                                           |
-| STAB-03 unaccepted crit/high   | **PASS (none remain)**               | No founder acceptance used                                                                                    |
-| STAB-03 compatibility verify   | **PASS**                             | Frozen install, format, lint, typecheck, 188 backend tests, 8 ERP tests, Nest/Next builds                     |
-| STAB-02 environment contracts  | **PASS**                             | Matrix in `docs/07-deployment/environment.md`; fail-closed tests with synthetic values                        |
-| STAB-01 remote default         | **PASS with local drift**            | GitHub HEAD is `master`; local `origin/HEAD` still stale-points at `main`                                     |
-| STAB-01 secrets                | **PASS**                             | Env values not read; only template key names and ignored-file presence                                        |
-| STAB-01 application tree       | **PASS**                             | No application file changes versus `9e2a442`                                                                  |
-| Git start state (audit)        | **PASS**                             | Clean `master` worktree at audited baseline; local `origin/HEAD` still stale                                  |
-| Node / pnpm                    | **PASS**                             | Node `20.20.2`; pnpm `9.15.4`                                                                                 |
-| Flutter / Dart                 | **PASS**                             | Flutter `3.44.8`; Dart `3.12.2`                                                                               |
-| Root TypeScript verification   | **PASS**                             | format, lint, typecheck, tests, backend build, ERP build                                                      |
-| STAB-07 backend canonical      | **PASS**                             | Vitest 3.2.7; 30/30 files; 188/188 tests; 0 skipped/todo/warnings; 2.83 s                                     |
-| STAB-07 isolation/order        | **PASS**                             | Seed 6072026; shuffled files/tests; one worker; serialized files; 188/188; 6.03 s                             |
-| STAB-07 discovery honesty      | **PASS**                             | No skip/todo/only/conditional tests; zero-match probe exits 1; no `passWithNoTests`                           |
-| STAB-07 coverage status        | **GAP DOCUMENTED**                   | No coverage provider, report, or threshold; STAB-16 owner                                                     |
-| Backend tests                  | **PASS (STAB-07)**                   | 188/188 across 30 files                                                                                       |
-| STAB-08 ERP canonical          | **PASS**                             | Vitest 3.2.7; 3/3 files; 8/8 tests; zero failure/skip/todo/warning; 330 ms                                    |
-| STAB-08 ERP isolation/order    | **PASS**                             | Seed 6082026; shuffled files/tests; one worker; serialized files; 8/8; 429 ms                                 |
-| STAB-08 discovery honesty      | **PASS after correction**            | Removed `--passWithNoTests`; deliberate zero-match probe changed from exit 0 to exit 1                        |
-| STAB-08 browser/route status   | **GAP DOCUMENTED**                   | 44 route pages; no component render or browser E2E tests; STAB-17, CRM-26, and ERP-22 owners                  |
-| ERP tests                      | **PASS but narrow (STAB-08)**        | 8/8 across 3 files; environment/API-refresh/helper units only                                                 |
-| Flutter format                 | **PASS**                             | STAB-04: 200 Dart files, 0 changed (audit-era count was 199)                                                  |
-| Flutter analysis               | **PASS**                             | no issues with fatal infos                                                                                    |
-| Flutter tests                  | **PASS (STAB-10)**                   | 441/441 across 27 files; canonical and seeded serialized runs                                                 |
-| Android dev debug build        | **PASS**                             | APK compiled                                                                                                  |
-| Android prod release compile   | **COMPILE PASS / RELEASE FAIL**      | 69.1 MB APK; no INTERNET permission; Android Debug certificate                                                |
-| iOS unsigned release build     | **FAIL**                             | No Xcode interpreter; templated bundle ID unresolved; no artifact                                             |
-| Dependency audit               | **PASS (STAB-03)**                   | 0 critical / 0 high remaining; 2 low owned. See `docs/05-security/dependency-security.md`                     |
-| PostgreSQL integration         | **ACCEPTED WITH FINDINGS (STAB-15)** | 21/21 across 3 files on four fresh PostgreSQL 17.2 projects; focused adapter/service boundary                 |
-| Browser/device E2E             | **MISSING**                          | No framework/suite                                                                                            |
+| Verification                   | Result                               | Evidence summary                                                                                                        |
+| ------------------------------ | ------------------------------------ | ----------------------------------------------------------------------------------------------------------------------- |
+| STAB-14 migration paths        | **PASS with finding**                | Empty, tracked-upgrade and legacy paths converge; 20/20 ledger; repeat runs are no-ops                                  |
+| STAB-14 live integrity         | **PASS**                             | 115 tables; 760 constraints; all 33 branch columns FK-scoped; append-only and rollback probes pass                      |
+| STAB-14 crash recovery         | **FAIL / risk reproduced**           | Applied-but-unrecorded `0019` fails on retry; no checksum or automatic reconciliation                                   |
+| STAB-14 signature correction   | **PASS / ACCEPTED**                  | Independent re-review accepted the reproducible `790d…`, raw `b47b…`, normalized `90a…`, and `a06b…` recipes            |
+| STAB-15 PostgreSQL integration | **ACCEPTED WITH FINDINGS**           | Four fresh runs plus STAB-16 re-run 21/21 on 27 August 2026; selected adapters and two-instance refresh proof           |
+| STAB-15 isolation/cleanup      | **PASS**                             | Fail-closed identity guards; no leaked project resource; developer containers unchanged                                 |
+| STAB-16 local CI configuration | **DONE WITH FINDINGS**               | `999443d` CI/Security/CodeQL green (33034648786 / 33034648784 / 33034648777); protection and native scanning still open |
+| STAB-13 Flutter quality        | **PASS**                             | 200 formatted/analyzed files; 0 drift/diagnostics; 27 files and 441/441 tests                                           |
+| STAB-13 Android dev build      | **PASS (debug only)**                | Dev APK compiles; INTERNET present; debuggable; Android Debug certificate                                               |
+| STAB-13 Android prod packages  | **COMPILE PASS / RELEASE FAIL**      | APK/AAB compile; no INTERNET; debug-signed; AAB byte-identical; APK content stable                                      |
+| STAB-13 iOS probes             | **FAIL / state verified**            | No Xcode interpreter; no enumeration/compile/sign/artifact                                                              |
+| STAB-13 environment/security   | **PASS with high findings**          | Founder env protected; synthetic public asset only; HTTP/Supabase/backup/native gaps assigned                           |
+| STAB-12 ERP production build   | **PASS with findings**               | Two clean synthetic-production builds; 44/44 maintained routes; no warning                                              |
+| STAB-12 reproducibility        | **PASS, not byte-identical**         | Stable 262-file digest matched; Next build ID/preview/order/cache/trace variance classified                             |
+| STAB-12 runtime/headers        | **PASS with hardening debt**         | Loopback 200/200/404; configured headers present; no X-Powered-By; five headers remain unconfigured                     |
+| STAB-12 artifact security      | **PASS with fixture finding**        | No secret/private env; unlabeled PII-shaped lead fixtures remain visibly assigned                                       |
+| STAB-11 backend build          | **PASS**                             | Two sanitized `nest build` runs; 388 files; `dist/main.js`; 129/129 application roots                                   |
+| STAB-11 reproducibility        | **PASS**                             | Matching sorted path/SHA-256 manifests; sentinel removed; no file/hash difference                                       |
+| STAB-11 artifact security      | **PASS with documented debt**        | No secret/env/absolute path; maps are relative/no source content; Swagger/log/package gaps owned                        |
+| STAB-11 startup boundary       | **PASS via safe method**             | Missing config fails closed; valid compiled module loads; listen omitted to avoid DB connection                         |
+| STAB-10 Flutter canonical      | **PASS**                             | Flutter 3.44.8/Dart 3.12.2; 27/27 files; 441/441 pass; 0 failed/skipped/expected failures                               |
+| STAB-10 Flutter determinism    | **PASS**                             | Seed 6102026; one process; shuffled order; same 27 files/441 tests; no isolation leak                                   |
+| STAB-10 discovery honesty      | **PASS**                             | No skip/focus/conditional/tag/timeout override; nonexistent path exits 1                                                |
+| STAB-10 boundary review        | **PASS with documented debt**        | Customer-heavy fake-boundary suite; Vendor/Worker routing only; no device/native/provider E2E                           |
+| STAB-09 Flutter analyze        | **PASS**                             | Flutter 3.44.8/Dart 3.12.2; 200 maintained files; 0 errors/warnings/infos                                               |
+| STAB-09 analyzer scope/policy  | **PASS**                             | 172 lib + 28 test; no exclusion/nested config/disabled rule/tracked generated Dart                                      |
+| STAB-09 static security review | **PASS with documented debt**        | No hidden security finding; runtime validation, auth/bootstrap/transport/native owners retained                         |
+| STAB-06 root typecheck         | **PASS**                             | TypeScript 5.7.2; four workspaces; 0 errors                                                                             |
+| STAB-06 maintained coverage    | **PASS**                             | 229 roots; backend source/tests/scripts, ERP source/tests/config, both packages all covered                             |
+| STAB-06 backend build scope    | **PASS**                             | 129 production roots; tests/scripts/specs excluded from emission only                                                   |
+| STAB-06 ERP generated types    | **PASS**                             | 49 present generated roots pass; no-`.next` 64-root clean equivalent also passes                                        |
+| STAB-06 type/security review   | **PASS with documented debt**        | No explicit `any`/suppressions/source double/non-null assertions; five owned follow-ups logged                          |
+| STAB-05 root lint              | **PASS**                             | ESLint 9.17.0; 0 errors / 0 warnings; scripts now covered                                                               |
+| STAB-05 backend scripts        | **PASS**                             | `migrate_images.ts` and `upload_assets_to_supabase.ts` linted; type-aware; no secret logs                               |
+| STAB-04 root Prettier          | **PASS**                             | Prettier 3.4.2; 372 parser-matched tracked files; 0 drift                                                               |
+| STAB-04 Dart format            | **PASS**                             | Dart 3.12.2; 200 files in `lib`+`test`; 0 changed                                                                       |
+| STAB-04 exclusions             | **PASS**                             | All `.prettierignore` entries classified; no owned TS/Dart failure hidden                                               |
+| STAB-03 JavaScript audit       | **PASS**                             | Final 0 critical / 0 high / 0 moderate / 2 low; see `docs/05-security/dependency-security.md`                           |
+| STAB-03 Flutter/Dart review    | **PASS**                             | OSV 0 findings; no discontinued direct packages; no pubspec changes                                                     |
+| STAB-03 unaccepted crit/high   | **PASS (none remain)**               | No founder acceptance used                                                                                              |
+| STAB-03 compatibility verify   | **PASS**                             | Frozen install, format, lint, typecheck, 188 backend tests, 8 ERP tests, Nest/Next builds                               |
+| STAB-02 environment contracts  | **PASS**                             | Matrix in `docs/07-deployment/environment.md`; fail-closed tests with synthetic values                                  |
+| STAB-01 remote default         | **PASS with local drift**            | GitHub HEAD is `master`; local `origin/HEAD` still stale-points at `main`                                               |
+| STAB-01 secrets                | **PASS**                             | Env values not read; only template key names and ignored-file presence                                                  |
+| STAB-01 application tree       | **PASS**                             | No application file changes versus `9e2a442`                                                                            |
+| Git start state (audit)        | **PASS**                             | Clean `master` worktree at audited baseline; local `origin/HEAD` still stale                                            |
+| Node / pnpm                    | **PASS**                             | Node `20.20.2`; pnpm `9.15.4`                                                                                           |
+| Flutter / Dart                 | **PASS**                             | Flutter `3.44.8`; Dart `3.12.2`                                                                                         |
+| Root TypeScript verification   | **PASS**                             | format, lint, typecheck, tests, backend build, ERP build                                                                |
+| STAB-07 backend canonical      | **PASS**                             | Vitest 3.2.7; 30/30 files; 188/188 tests; 0 skipped/todo/warnings; 2.83 s                                               |
+| STAB-07 isolation/order        | **PASS**                             | Seed 6072026; shuffled files/tests; one worker; serialized files; 188/188; 6.03 s                                       |
+| STAB-07 discovery honesty      | **PASS**                             | No skip/todo/only/conditional tests; zero-match probe exits 1; no `passWithNoTests`                                     |
+| STAB-07 coverage status        | **GAP DOCUMENTED**                   | No coverage provider, report, or threshold; STAB-16 owner                                                               |
+| Backend tests                  | **PASS (STAB-07)**                   | 188/188 across 30 files                                                                                                 |
+| STAB-08 ERP canonical          | **PASS**                             | Vitest 3.2.7; 3/3 files; 8/8 tests; zero failure/skip/todo/warning; 330 ms                                              |
+| STAB-08 ERP isolation/order    | **PASS**                             | Seed 6082026; shuffled files/tests; one worker; serialized files; 8/8; 429 ms                                           |
+| STAB-08 discovery honesty      | **PASS after correction**            | Removed `--passWithNoTests`; deliberate zero-match probe changed from exit 0 to exit 1                                  |
+| STAB-08 browser/route status   | **GAP DOCUMENTED**                   | 44 route pages; no component render or browser E2E tests; STAB-17, CRM-26, and ERP-22 owners                            |
+| ERP tests                      | **PASS but narrow (STAB-08)**        | 8/8 across 3 files; environment/API-refresh/helper units only                                                           |
+| Flutter format                 | **PASS**                             | STAB-04: 200 Dart files, 0 changed (audit-era count was 199)                                                            |
+| Flutter analysis               | **PASS**                             | no issues with fatal infos                                                                                              |
+| Flutter tests                  | **PASS (STAB-10)**                   | 441/441 across 27 files; canonical and seeded serialized runs                                                           |
+| Android dev debug build        | **PASS**                             | APK compiled                                                                                                            |
+| Android prod release compile   | **COMPILE PASS / RELEASE FAIL**      | 69.1 MB APK; no INTERNET permission; Android Debug certificate                                                          |
+| iOS unsigned release build     | **FAIL**                             | No Xcode interpreter; templated bundle ID unresolved; no artifact                                                       |
+| Dependency audit               | **PASS (STAB-03)**                   | 0 critical / 0 high remaining; 2 low owned. See `docs/05-security/dependency-security.md`                               |
+| PostgreSQL integration         | **ACCEPTED WITH FINDINGS (STAB-15)** | 21/21 across 3 files on four fresh PostgreSQL 17.2 projects; focused adapter/service boundary                           |
+| Browser/device E2E             | **MISSING**                          | No framework/suite                                                                                                      |
 
 ## Known release blockers
 
@@ -942,7 +946,7 @@ Do not ask for these until their dependent block is approaching, unless early pr
 - [x] STAB-13 Flutter build
 - [x] STAB-14 PostgreSQL migration verification — accepted with `SEC-M-09` open
 - [x] STAB-15 Database integration tests — independently accepted with findings
-- [~] STAB-16 CI verification — implemented locally; remote GitHub run pending
+- [x] STAB-16 CI verification — DONE WITH FINDINGS (`999443d`; branch protection and native secret scanning remain open)
 - [ ] STAB-17 E2E test foundation
 - [ ] STAB-18 Documentation reconciliation
 - [ ] STAB-19 Repository cleanup

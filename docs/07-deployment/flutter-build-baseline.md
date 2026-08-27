@@ -400,9 +400,9 @@ Supabase strings are public placeholders, and passes emulator HTTP
 `API_BASE_URL` plus explicit `BRANCH_CODE=HYD`; the unused `APP_ENV` define is
 removed. CI does not build staging/prod APK, build AAB, run iOS, inspect
 merged manifests/certificates/assets, retain/upload/attest artifacts, or prove
-device/native/provider behavior. STAB-13 is local evidence; no remote CI run
-was observed. STAB-16 implements the CI-only correction locally; remote proof
-is pending.
+device/native/provider behavior. STAB-13 is local evidence. STAB-16 ran the
+same development-only Flutter job green on canonical `master` at `999443d`
+(CI 33034648786).
 
 ## Security findings and owners
 

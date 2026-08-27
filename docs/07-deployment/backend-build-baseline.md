@@ -252,8 +252,8 @@ CI does not:
 - deploy to staging/production or verify rollback/readiness.
 
 Those remaining packaging/runtime items are production-infrastructure
-responsibilities. STAB-16 pins the verified Node minor but has no remote GitHub
-run yet.
+responsibilities. STAB-16 pins the verified Node minor and ran green on
+canonical `master` at `999443d`.
 
 ## Known gaps and ownership
 
@@ -288,8 +288,8 @@ local environment values are intentionally not reproduced here.
 ## Evidence limitations
 
 This is build and module-resolution evidence on macOS using Node v20.20.2. At
-the time of STAB-11, CI floated the Node 20 minor and did not run remotely;
-STAB-16 later aligned the local workflow to 20.20.2, still pending remote proof.
+the time of STAB-11, CI floated the Node 20 minor. STAB-16 pinned `.node-version`
+`20.20.2` and ran green on canonical `master` at `999443d`.
 No server listened under valid configuration because doing so would
 initiate a database connection. No database, provider, HTTP integration,
 Docker, load, deployment, or public source-map exposure test was performed.

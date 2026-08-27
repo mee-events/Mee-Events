@@ -5,17 +5,17 @@
 - **Repository:** `/Users/vinaychilagani/Desktop/Mee Event V1`
 - **Branch:** `master`
 - **Starting commit:** `2be574809d9b4bf053296b727e1437a8b93290f5`
-- **Starting upstream state:** `master...origin/master`, ahead 19, behind 0
-- **Result:** **IMPLEMENTED LOCALLY — REMOTE GITHUB VERIFICATION PENDING**
+- **Implementation commit:** `999443d5d3ba547de1bb6c0406c34753c8433b00`
+- **Starting upstream state (pre-push):** `master...origin/master`, ahead 19, behind 0
+- **Result:** **DONE WITH FINDINGS** — remote GitHub verification **SUCCEEDED** on 27 August 2026 for commit `999443d`
 - **Phase 0:** **NOT PASSED**
-- **STAB-16 MASTER_TODO:** `[~]` PARTIAL; not complete
-- **STAB-17:** **NOT AUTHORIZED** until remote GitHub verification of these workflows
+- **STAB-16 MASTER_TODO:** `[x]` DONE WITH FINDINGS
+- **STAB-17:** next block, **NOT STARTED**
 
-This document records the committed workflow design and what was proved locally
-on 27 August 2026. A local validator cannot prove that a GitHub-hosted runner,
-required status check, or native repository security feature is working.
-STAB-16 therefore remains partial until the committed workflows run
-successfully on GitHub from canonical `master` or a pull request.
+This document records the committed workflow design, local proof, and the
+canonical `master` GitHub runs that closed STAB-16. Branch protection and
+native GitHub secret scanning remain founder-owned open findings; they were
+not enabled in this block.
 
 ## Previous task acceptance
 
@@ -28,10 +28,10 @@ redesigned. Retained open findings are unchanged: `SEC-02`, remaining
 `SEC-03`, `SEC-04`, `INT-02`, `SEC-M-09`, eight untested adapters, and
 HTTP/Redis/E2E/coverage/production database.
 
-## GitHub baseline
+## GitHub baseline (pre-push snapshot)
 
-Authenticated read-only inspection on 27 August 2026 (`gh` as `mee-events`)
-established:
+Authenticated read-only inspection **before** the `999443d` push (`gh` as
+`mee-events`) established:
 
 - `git ls-remote --symref origin HEAD` resolves the remote default branch to
   `refs/heads/master` at `9e2a442d91c137ec97a349d1a55697ae8d79d5df`.
@@ -264,38 +264,36 @@ PRs, canonical pushes, manual dispatch, and a weekly schedule. It does not
 duplicate lint, typecheck, tests, or application builds. Its action is pinned to
 the CodeQL bundle v2.26.4 commit and only its job can write security events.
 
-The public repository is expected to support CodeQL, but SARIF upload was not
-remotely executed. Authenticated inspection found no code-scanning analysis.
-If GitHub rejects the upload because code scanning or the repository plan is
-unavailable, remote SAST verification is **BLOCKED** until the founder enables
-GitHub code scanning/Advanced Security as applicable. Do not replace this with
-an unreviewed scanner or mark SAST green from local YAML validation.
+Remote SAST is no longer blocked: the CodeQL job on canonical `master` at
+`999443d` succeeded, and GitHub stored a code-scanning analysis on
+`refs/heads/master` for that commit (CodeQL 2.26.3, `results_count` 3). That
+analysis count is recorded; triaging those results is not part of STAB-16.
 
 ## Local verification evidence
 
 Recorded on 27 August 2026 from commit `2be5748` plus this STAB-16 working tree.
 Host toolchain: Node `v20.20.2`, pnpm `9.15.4`, Flutter `3.44.8` / Dart `3.12.2`.
 
-| Gate                                          | Result                                                                                                                                                    |
-| --------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Frozen pnpm install                           | PASS; lockfile up to date, already installed                                                                                                              |
-| Shared types / API contracts                  | PASS                                                                                                                                                      |
-| TypeScript format/lint/typecheck/unit/build   | PASS; backend 30 files / 190 tests; ERP 3 files / 8 tests; synthetic production `pnpm build` compiled ERP                                                 |
-| PostgreSQL integration + CI JUnit path        | PASS; 3/3 files, 21/21 tests; 5,959-byte sanitized XML; no leftover `mee-dbint-*` resources                                                               |
-| Flutter locked resolution / format / analysis | PASS; 200 files, 0 changed, no diagnostics                                                                                                                |
-| Flutter tests                                 | PASS; 441/441                                                                                                                                             |
-| Flutter development-only debug APK            | **LOCAL GAP this session:** Gradle wrapper timed out twice downloading `gradle-9.1.0-all`; STAB-13 previously proved the same command; workflow unchanged |
-| `pnpm audit --audit-level high`               | PASS; zero Critical/High, two documented Low                                                                                                              |
-| Repository Gitleaks scan                      | PASS; 29 commits, ~24 MB, zero leaks                                                                                                                      |
-| Synthetic secret canary                       | PASS; scanner exited 1 with one redacted finding; canary removed                                                                                          |
-| actionlint 1.7.12                             | PASS; checksum-verified upstream Darwin ARM64 binary                                                                                                      |
-| Remote GitHub workflows                       | **NOT PERFORMED**                                                                                                                                         |
+| Gate                                          | Result                                                                                                                                                                                                                                   |
+| --------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Frozen pnpm install                           | PASS; lockfile up to date, already installed                                                                                                                                                                                             |
+| Shared types / API contracts                  | PASS                                                                                                                                                                                                                                     |
+| TypeScript format/lint/typecheck/unit/build   | PASS; backend 30 files / 190 tests; ERP 3 files / 8 tests; synthetic production `pnpm build` compiled ERP                                                                                                                                |
+| PostgreSQL integration + CI JUnit path        | PASS; 3/3 files, 21/21 tests; 5,959-byte sanitized XML; no leftover `mee-dbint-*` resources                                                                                                                                              |
+| Flutter locked resolution / format / analysis | PASS; 200 files, 0 changed, no diagnostics                                                                                                                                                                                               |
+| Flutter tests                                 | PASS; 441/441                                                                                                                                                                                                                            |
+| Flutter development-only debug APK            | Implementation session: Gradle wrapper timed out twice. Independent Antigravity review (27 August 2026) re-ran `flutter build apk --debug --flavor dev` and recorded PASS, closing that local gap. This closeout did not re-run the APK. |
+| `pnpm audit --audit-level high`               | PASS; zero Critical/High, two documented Low                                                                                                                                                                                             |
+| Repository Gitleaks scan                      | PASS; 29 commits, ~24 MB, zero leaks                                                                                                                                                                                                     |
+| Synthetic secret canary                       | PASS; scanner exited 1 with one redacted finding; canary removed                                                                                                                                                                         |
+| actionlint 1.7.12                             | PASS; checksum-verified upstream Darwin ARM64 binary                                                                                                                                                                                     |
+| Remote GitHub workflows                       | **SUCCEEDED** on canonical `master` at `999443d` — see closeout table below                                                                                                                                                              |
 
 TypeScript format, lint, typecheck, unit tests, and the synthetic production
-build were re-run after documentation formatting and all passed. This session
-could not finish the debug APK because the Gradle wrapper timed out connecting
-to `services.gradle.org` twice; that is a local network gap, not a workflow
-change. STAB-13 previously compiled the same development-only command.
+build passed after documentation formatting. The implementation session could
+not finish the debug APK because the Gradle wrapper timed out connecting to
+`services.gradle.org` twice. Independent review later proved the same
+development-only command locally; GitHub's Flutter job also succeeded.
 
 ## Required checks and branch-policy recommendation
 
@@ -309,7 +307,8 @@ Proposed stable required checks, after each exists remotely and has succeeded:
 6. `Secret scan`
 7. `CodeQL JavaScript/TypeScript` when GitHub accepts CodeQL uploads
 
-Recommended `master` policy after remote verification:
+Recommended `master` policy; names remain **proposals** until the founder
+configures branch protection:
 
 - require a pull request and all available checks above;
 - dismiss stale approvals after new commits;
@@ -319,11 +318,12 @@ Recommended `master` policy after remote verification:
   bypass used only for documented incidents;
 - do not require a security check until GitHub has emitted its exact successful
   check name, because an unavailable required context can deadlock merges;
-- configure the policy only after the reviewed local commits are pushed and
-  every workflow has completed successfully.
+- configure the policy only after GitHub has emitted successful checks with
+  those exact names (now true for the `999443d` push, except `Dependency review`
+  which is PR-only).
 
-Branch protection is **NOT VERIFIED OR CONFIGURED** in this block. The names
-above are proposals only.
+Branch protection is **NOT CONFIGURED**. The names above remain proposals only.
+This closeout does not enable protection.
 
 ## Findings, limitations, and blockers
 
@@ -331,33 +331,64 @@ above are proposals only.
 | ------------- | -------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
 | Critical      | None                                                                       | no CI blocker found locally                                                            |
 | High          | None specific to this CI implementation                                    | existing `SEC-02`, remaining `SEC-03`, `SEC-04`, `INT-02` remain open product findings |
-| Medium        | Branch protection and native repository security features are disabled     | founder verification after push; do not enable here                                    |
-| Medium        | CodeQL SARIF acceptance has no remote proof                                | remote run required; founder/plan action if rejected                                   |
+| Medium        | Branch protection on `master` is not configured                            | founder-owned; not enabled in this block                                               |
+| Medium        | GitHub secret scanning and push protection are disabled                    | founder-owned; not enabled in this block                                               |
+| Medium        | Dependabot security updates (and alerts) remain disabled                   | version-update config is present; security alerts are a separate founder setting       |
 | Low           | The whole-tree pnpm audit retains two documented Low advisories            | accepted STAB-03 follow-up; no silent allowlist                                        |
 | Informational | Pub has update monitoring but no first-party audit gate equivalent to pnpm | explicit Flutter SCA gap                                                               |
-| Informational | No remote run covers the 19 local commits or these workflows               | STAB-16 completion blocker                                                             |
 
 This task adds no E2E framework, coverage threshold, production build, release
 signing, iOS work, deployment/CD, cloud credential, staging/production access,
 provider integration, store workflow, or branch-setting mutation. It does not
 close `SEC-02`, remaining `SEC-03`, `SEC-04`, `SEC-M-09`, or `INT-02`.
 
-## Remote status and rollback
+## Remote GitHub verification (closeout, 27 August 2026)
 
-**Remote GitHub verification: NOT PERFORMED.** Required check names remain
-proposals until GitHub emits them. STAB-16 must not be marked complete and
-STAB-17 must not begin.
+Canonical `master` at `999443d5d3ba547de1bb6c0406c34753c8433b00` ran these
+push workflows. Reconfirmed with `gh` as `mee-events` on 27 August 2026.
+Independent Antigravity review the same day: **PASS WITH FINDINGS / Accept
+with findings**.
 
-If independent review rejects this local implementation, revert the single
-STAB-16 commit with an ordinary `git revert` after identifying its exact SHA.
-If workflows have already been pushed, revert rather than rewriting canonical
-history. No artifact or infrastructure rollback is needed because this block
-does not deploy or mutate remote settings. If branch protection is configured
-later, change required checks only in a separately authorized founder action
-after the revert workflow has run and its check names are known.
+| Workflow   | Run ID      | Event | Conclusion | URL                                                                 |
+| ---------- | ----------- | ----- | ---------- | ------------------------------------------------------------------- |
+| `CI`       | 33034648786 | push  | success    | <https://github.com/mee-events/Mee-Events/actions/runs/33034648786> |
+| `Security` | 33034648784 | push  | success    | <https://github.com/mee-events/Mee-Events/actions/runs/33034648784> |
+| `CodeQL`   | 33034648777 | push  | success    | <https://github.com/mee-events/Mee-Events/actions/runs/33034648777> |
+
+| Workflow   | Job                                | Conclusion |
+| ---------- | ---------------------------------- | ---------- |
+| `CI`       | `TypeScript quality`               | success    |
+| `CI`       | `Backend PostgreSQL integration`   | success    |
+| `CI`       | `Flutter development verification` | success    |
+| `CI`       | `Dependency review`                | skipped    |
+| `Security` | `Dependency audit`                 | success    |
+| `Security` | `Secret scan`                      | success    |
+| `CodeQL`   | `CodeQL JavaScript/TypeScript`     | success    |
+
+`Dependency review` skipped because this was a `push` to `master`, not a pull
+request. That skip is expected. The PostgreSQL job uploaded artifact
+`backend-postgresql-integration-report` (not expired at inspection).
+
+CodeQL also stored an analysis on `refs/heads/master` for `999443d`
+(created 27 August 2026 02:54 UTC; CodeQL 2.26.3; `results_count` 3). The
+workflow job conclusion is still success. Do not treat those three results as
+closed by STAB-16.
+
+Reconfirmed still **disabled / not configured** (not mutated by this closeout):
+
+- branch protection on `master`: **NOT CONFIGURED** (`404`)
+- secret scanning, push protection, non-provider patterns, validity checks:
+  **disabled**
+- Dependabot security updates: **disabled**; Dependabot alerts: **disabled**
+
+Required-check names remain proposals until the founder configures protection.
+
+If independent review later rejects the implementation, revert `999443d` with
+an ordinary `git revert`. Do not rewrite canonical history. No artifact or
+infrastructure rollback is needed. If branch protection is configured later,
+change required checks only in a separately authorized founder action.
 
 ## Next authorized action
 
-Founder authorization is required before pushing the reviewed local `master`
-commits and observing GitHub Actions. Keeping the commits local leaves STAB-16
-partial and keeps STAB-17 unauthorized.
+`STAB-17 E2E test foundation` is the next Phase 0 block and is **NOT STARTED**.
+Do not implement it in this closeout.

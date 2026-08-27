@@ -115,8 +115,8 @@ where relevant). See the checklist in
   algorithmic cost model, not live RPS)
 - No browser or device E2E frameworks
 - CI invokes the existing isolated PostgreSQL harness in its own bounded job;
-  it does not define a duplicate workflow service. Remote execution is still
-  pending under STAB-16.
+  it does not define a duplicate workflow service. GitHub ran that job green
+  on `999443d` (STAB-16).
 
 ---
 

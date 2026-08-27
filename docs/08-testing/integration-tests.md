@@ -100,7 +100,7 @@ enforcement, broader multi-instance session/revocation behavior beyond the
 corrected two-instance refresh race, outbox crash leases, real payment providers,
 Redis, backup/restore, remote environments, or production readiness. STAB-16
 adds the same harness to a dedicated CI job without a duplicate PostgreSQL
-service; local command proof passes and remote GitHub execution is pending.
+service; GitHub ran it green on `999443d` (run 33034648786).
 
 ---
 
