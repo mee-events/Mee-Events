@@ -1,20 +1,32 @@
 # Mee Events — Progress Tracker
 
-- **Updated:** 27 August 2026; STAB-19 DONE WITH FINDINGS (manifest + one unused Dart delete)
+- **Updated:** 27 August 2026; STAB-20 / SEC-02 DONE WITH FINDINGS (employee ID routes scoped to active branch)
 - **Repository:** `/Users/vinaychilagani/Desktop/Mee Event V1`
 - **Baseline application commit:** `master` / `9e2a442d91c137ec97a349d1a55697ae8d79d5df`
 - **STAB-01 snapshot HEAD:** `ca994985a898d42da2a8d717041b93a8f8f0dc4c`
 - **Current phase:** Phase 0 — Stabilization
 - **Phase gate:** **NOT PASSED**
-- **Last completed task:** STAB-19 — DONE WITH FINDINGS
-- **Current task:** none — awaiting STAB-20
-- **Next task:** STAB-20 Security baseline (**NOT STARTED**)
+- **Last completed task:** SEC-02 — DONE WITH FINDINGS (STAB-20 still open)
+- **Current task:** STAB-20 Security baseline (**IN PROGRESS**; SEC-02 closed)
+- **Next task:** SEC-03 Authentication atomicity and session control (**NOT STARTED**)
 - **Latest application change:** STAB-15 now coordinates refresh rotation through the existing PostgreSQL session row across two service/repository/pool instances while preserving sequential reuse revocation; use Git history for commit hashes.
 - **STAB-16 implementation commit:** `999443d5d3ba547de1bb6c0406c34753c8433b00`
 - **STAB-16 closeout:** `1450263caa6a5be2263bf7b9c91827f7cc24ef6c`
 - **STAB-17 commit:** `68894f3bbfa91937a0c7c573a8fc1a0af83ce533`
 - **STAB-18 commit:** `f66cc51a726322eeb604ab84c3d3e195050248f9`
-- **STAB-19 commit:** this commit on `master` (`chore: remove proven generated and obsolete repository junk`); parent `f66cc51`
+- **STAB-19 commit:** `e833eb82d690d65e293b9521ce3f24c390fff4f0`
+
+## SEC-02 — Branch and BOLA closure (27 August 2026)
+
+Employee UUID get/update now includes the principal’s active branch. Other-branch
+access returns the same **404** as a missing row. Inventory:
+`docs/05-security/sec-02-branch-bola-inventory.md`.
+
+STAB-20 stays **open**. SEC-03 is **not started**. Phase 0 is **not passed**.
+This slice does **not** claim production is secure.
+
+Findings kept: vendor/worker own-record 403 after unscoped load; create-from-booking
+409; HTTP BOLA remains STAB-17.
 
 ## Status key
 
@@ -805,7 +817,8 @@ typecheck, build, and required integration runs are green.
 The result is **INDEPENDENTLY ACCEPTED WITH FINDINGS**, not complete security
 or production proof. OTP consumption still precedes user/session/audit
 completion, refresh state can precede its audit, and broader session controls
-remain `SEC-03`; employee direct-ID branch gaps remain `SEC-02`; outbox lease
+remain `SEC-03`; employee UUID branch scoping is closed with findings under
+`SEC-02` (`docs/05-security/sec-02-branch-bola-inventory.md`); outbox lease
 recovery remains `SEC-04`; provider payment authenticity remains `INT-02`; and
 migration bookkeeping remains `SEC-M-09`. No HTTP/Redis/provider/E2E,
 backup/restore, remote database, or production behavior is claimed. STAB-16
@@ -1018,13 +1031,13 @@ Do not ask for these until their dependent block is approaching, unless early pr
 - [x] STAB-17 E2E test foundation — DONE WITH FINDINGS (local live smokes; CI URL guards only; no emulator)
 - [x] STAB-18 Documentation reconciliation — DONE WITH FINDINGS (canonical docs; historical PDFs labeled)
 - [x] STAB-19 Repository cleanup — DONE WITH FINDINGS (manifest; git-deleted only unused dummy Dart; caches/HTML images/stitch/artifacts/PDFs/EMP-\*/leads/`erp_warehouse.read` kept)
-- [ ] STAB-20 Security baseline
+- [ ] STAB-20 Security baseline (**IN PROGRESS**; SEC-02 done with findings)
 
 ### Phase 0 security packages
 
 - [x] SEC-01 Dependency remediation — closed by STAB-03 (`docs/05-security/dependency-security.md`); remaining work is low-severity follow-up, not unaccepted critical/high
-- [ ] SEC-02 Branch and BOLA closure
-- [ ] SEC-03 Authentication atomicity and session control
+- [x] SEC-02 Branch and BOLA closure — **DONE WITH FINDINGS** 27 August 2026; employee UUID get/update includes active branch; other-branch denied as 404; inventory `docs/05-security/sec-02-branch-bola-inventory.md`. Unit **199/199**, ERP **8/8**, PostgreSQL integration **21/21**. Findings: vendor/worker own-record 403, create-from-booking 409, HTTP BOLA still STAB-17. Does not claim production is secure.
+- [ ] SEC-03 Authentication atomicity and session control — **NOT STARTED**
 - [ ] SEC-04 Outbox and idempotency reliability
 - [ ] SEC-05 Web/API hardening
 - [ ] SEC-06 Mobile fail-closed and boundary cleanup

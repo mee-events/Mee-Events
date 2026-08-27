@@ -73,8 +73,14 @@ export class WorkerService {
     ) as WorkerListResponse;
   }
 
-  public async get(workerId: string): Promise<WorkerDetailResponse> {
-    const worker = await this.workers.getWorker(workerId);
+  public async get(
+    principal: AuthenticatedPrincipal,
+    workerId: string,
+  ): Promise<WorkerDetailResponse> {
+    const worker = await this.workers.getWorker(
+      workerId,
+      resolveBranchId(principal),
+    );
     if (worker === undefined) {
       throw new DomainError("WORKER_NOT_FOUND", "Worker not found", 404);
     }
@@ -248,16 +254,27 @@ export class WorkerService {
     return task;
   }
 
-  public async listTasks(filters?: {
-    readonly workerId?: string;
-    readonly eventRecordId?: string;
-    readonly vendorId?: string;
-  }): Promise<WorkerTaskListResponse> {
-    return { tasks: await this.workers.listTasks(filters) };
+  public async listTasks(
+    principal: AuthenticatedPrincipal,
+    filters?: {
+      readonly workerId?: string;
+      readonly eventRecordId?: string;
+      readonly vendorId?: string;
+    },
+  ): Promise<WorkerTaskListResponse> {
+    return {
+      tasks: await this.workers.listTasks({
+        ...filters,
+        branchId: resolveBranchId(principal),
+      }),
+    };
   }
 
-  public async getTask(taskId: string): Promise<WorkerTaskDetailResponse> {
-    const task = await this.workers.getTask(taskId);
+  public async getTask(
+    principal: AuthenticatedPrincipal,
+    taskId: string,
+  ): Promise<WorkerTaskDetailResponse> {
+    const task = await this.workers.getTask(taskId, resolveBranchId(principal));
     if (task === undefined) {
       throw new DomainError("WORKER_TASK_NOT_FOUND", "Task not found", 404);
     }
@@ -269,7 +286,7 @@ export class WorkerService {
     taskId: string,
   ): Promise<WorkerTaskDetailResponse> {
     await this.assertOwnsTask(principal, taskId);
-    return this.getTask(taskId);
+    return this.loadTaskById(taskId);
   }
 
   public async listOwnTasks(
@@ -279,7 +296,9 @@ export class WorkerService {
     if (workerId === undefined) {
       return { tasks: [] };
     }
-    return this.listTasks({ workerId });
+    return {
+      tasks: await this.workers.listTasks({ workerId }),
+    };
   }
 
   public async addNote(
@@ -302,10 +321,18 @@ export class WorkerService {
     return note;
   }
 
-  public async listAttendance(filters?: {
-    readonly workerId?: string;
-  }): Promise<WorkerAttendanceListResponse> {
-    return { attendance: await this.workers.listAttendance(filters) };
+  public async listAttendance(
+    principal: AuthenticatedPrincipal,
+    filters?: {
+      readonly workerId?: string;
+    },
+  ): Promise<WorkerAttendanceListResponse> {
+    return {
+      attendance: await this.workers.listAttendance({
+        ...filters,
+        branchId: resolveBranchId(principal),
+      }),
+    };
   }
 
   public getCrmDashboard(
@@ -318,6 +345,16 @@ export class WorkerService {
     principal: AuthenticatedPrincipal,
   ): Promise<WorkerDashboardResponse> {
     return this.workers.getWorkerDashboard(principal.userId);
+  }
+
+  private async loadTaskById(
+    taskId: string,
+  ): Promise<WorkerTaskDetailResponse> {
+    const task = await this.workers.getTask(taskId);
+    if (task === undefined) {
+      throw new DomainError("WORKER_TASK_NOT_FOUND", "Task not found", 404);
+    }
+    return task;
   }
 
   private async assertOwnsTask(

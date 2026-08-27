@@ -79,8 +79,9 @@ export class CrmEventRecordController {
   @ApiOperation({ summary: "Get event record detail for ERP operations" })
   public get(
     @Param("id", new ParseUUIDPipe()) id: string,
+    @Req() request: AuthenticatedPlatformRequest,
   ): Promise<EventRecordDetailResponse> {
-    return this.events.getCrm(id);
+    return this.events.getCrm(principalOf(request), id);
   }
 
   @Patch(":id")
@@ -178,8 +179,9 @@ export class CrmEventRecordController {
   @ApiOperation({ summary: "Get full event timeline" })
   public timeline(
     @Param("id", new ParseUUIDPipe()) id: string,
+    @Req() request: AuthenticatedPlatformRequest,
   ): Promise<EventTimelineResponse> {
-    return this.events.timelineCrm(id);
+    return this.events.timelineCrm(principalOf(request), id);
   }
 
   @Get(":id/activities")
@@ -187,8 +189,9 @@ export class CrmEventRecordController {
   @ApiOperation({ summary: "Get full event activity feed" })
   public activities(
     @Param("id", new ParseUUIDPipe()) id: string,
+    @Req() request: AuthenticatedPlatformRequest,
   ): Promise<EventActivityListResponse> {
-    return this.events.activitiesCrm(id);
+    return this.events.activitiesCrm(principalOf(request), id);
   }
 }
 

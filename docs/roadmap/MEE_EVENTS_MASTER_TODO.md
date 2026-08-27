@@ -2,7 +2,7 @@
 
 - **Baseline:** Complete repository audit dated 25 August 2026
 - **Current phase:** Phase 0 — Stabilization
-- **Next block:** STAB-20 — Security baseline, **NOT STARTED**
+- **Next block:** STAB-20 — Security baseline (**IN PROGRESS**; SEC-02 done with findings, SEC-03 not started)
 - **Rule:** One block → verify → document → commit → stop.
 
 This file is the definitive ordered work inventory. The phase order is mandatory even when a later task has a higher risk priority. Do not start Customer until the Phase 0 gate passes; do not start Vendor until Customer passes; continue one major module at a time.
@@ -60,12 +60,12 @@ Status marks in this file describe execution, not how much scaffold already exis
 - [x] **STAB-17 E2E test foundation** — Objective: select and scaffold browser/device/API E2E without implementing modules; State: **DONE WITH FINDINGS** 27 August 2026; Scope: testing tools/config/fixtures only; Action: Playwright ERP login smoke, Nest authenticated API smoke, Flutter-package API contract smoke, loopback fail-closed guards, session cleanup; Depends/Risk: STAB-16, brittle tests/PII; Test/Security: isolated synthetic accounts, loopback only, no production endpoints/secrets, OTP/tokens not logged; DoD: one stable browser and mobile/API smoke in a CI-compatible harness — local live smokes passed; CI runs URL guards only (no emulator, no every-push live stack); Next: STAB-18. Evidence: `docs/08-testing/e2e-foundation-baseline.md`.
 - [x] **STAB-18 Documentation reconciliation** — Objective: align docs with audited implementation; State: **DONE WITH FINDINGS** 27 August 2026; Scope: overview/architecture/auth/testing/deployment/old roadmap references; Action: corrected async enquiry→lead, staff-mobile vs Employee Mobile, OTP resend enforcement, Supabase residual packages, `master` branch names, stale test/E2E claims; labeled 18 August PDFs historical; Depends/Risk: STAB-17; Test/Security: docs-only; no aspirational live claims; DoD: canonical docs agree with code/tests/config; historical PDFs labeled not rewritten; Next: STAB-19. Evidence: `docs/roadmap/README.md`, `docs/roadmap/MEE_EVENTS_PROGRESS.md` STAB-18. Findings: 18 August `MASTER_BUILD_ROADMAP.md` body and 25 August audit freeze body were labeled, not rewritten; EMP-\* cards retained as MISSING.
 - [x] **STAB-19 Repository cleanup** — Objective: remove only proven generated/cache/junk; State: **DONE WITH FINDINGS** 27 August 2026; Scope: reviewed cleanup manifest covering design/build/obsolete candidates; Action: classified GENERATED/OBSOLETE/DUPLICATE/BROKEN/ACTIVE/UNKNOWN; git-deleted only unused `super_app_dummy_data.dart`; kept HTML masquerade images (audit spec), stitch-screens, artifacts, PDFs, EMP-\* cards, lead fixtures, `erp_warehouse.read`, Supabase packages; Depends/Risk: STAB-18, irreversible evidence loss; Test/Security: before/after format/lint/typecheck, backend 190/190, ERP 8/8, Flutter analyze + 441/441; DoD: approved manifest, recoverable deletion only, UNKNOWN retained; Next: STAB-20. Evidence: `docs/roadmap/STAB-19-cleanup-manifest.md`.
-- [ ] **STAB-20 Security baseline** — Objective: close P0 security blockers before Customer work; State: **BROKEN**; Scope: dependencies, branch scoping, auth/session races, headers/logging, outbox/idempotency, mobile release; Action: resolve SEC-C/H items in small reviewed commits; Depends/Risk: STAB-19; Test/Security: full authorization matrix, SCA, concurrency, headers, certificate/manifest checks; DoD: zero unaccepted critical/high findings, security regression suite green, residual risk signed; Next: CUST-01 only after Phase 0 gate.
+- [ ] **STAB-20 Security baseline** — Objective: close P0 security blockers before Customer work; State: **IN PROGRESS** 27 August 2026; Scope: dependencies, branch scoping, auth/session races, headers/logging, outbox/idempotency, mobile release; Action: resolve SEC-C/H items in small reviewed commits; Depends/Risk: STAB-19; Test/Security: full authorization matrix, SCA, concurrency, headers, certificate/manifest checks; DoD: zero unaccepted critical/high findings, security regression suite green, residual risk signed; Next: SEC-03 (not started). SEC-02 closed with findings this commit; Phase 0 still **NOT PASSED**. Evidence: `docs/05-security/sec-02-branch-bola-inventory.md`.
 
 ### P0 security work packages (executed inside STAB-20, not in parallel)
 
 - [x] **SEC-01 Dependency remediation** — Objective: remove 4 critical/29 high advisories; State: **DONE** via STAB-03 on 25 August 2026; Scope: Next/React, Vitest/Vite and transitive lockfile; Action: supported upgrades/codemods only; Depends/Risk: STAB-03, framework regressions; Test/Security: audit + verify + browser smoke; DoD: no unaccepted critical/high and patched versions recorded; Next: SEC-02. Residual lows and Dependabot/CI SCA remain for STAB-16 / later eslint and supabase-js slices.
-- [ ] **SEC-02 Branch and BOLA closure** — Objective: scope every employee read/mutation to active branch/resource; State: **BROKEN**; Scope: CRM/quotes/ops/manager/vendor/worker/inventory/finance services/adapters/controllers; Action: inventory every ID route and add branch predicates; Depends/Risk: SEC-01, authorization regressions; Test/Security: same/cross-branch allow/404 matrix; DoD: no unscoped route and tests prove denial; Next: SEC-03.
+- [x] **SEC-02 Branch and BOLA closure** — Objective: scope every employee read/mutation to active branch/resource; State: **DONE WITH FINDINGS** 27 August 2026; Scope: CRM/quotes/ops/manager/vendor/worker/inventory/finance services/adapters/controllers; Action: inventory every ID route and add branch predicates on UUID get/lock/update; Depends/Risk: SEC-01, authorization regressions; Test/Security: same/cross-branch allow/404 matrix (unit + PostgreSQL findById); DoD: inspected employee ID routes scoped or recorded; Next: SEC-03 **not started**. Findings: vendor/worker own-record 403, create-from-booking 409, HTTP BOLA still STAB-17. Evidence: `docs/05-security/sec-02-branch-bola-inventory.md`.
 - [ ] **SEC-03 Authentication atomicity and session control** — Objective: remove OTP/refresh races and stale-session accumulation; State: **PARTIAL/HIGH**; Scope: identity service/repository/mobile device ID; Action: transactional conditional consume/rotation, stable installation ID, revoke-all/session list; Depends/Risk: SEC-02, account lockout; Test/Security: concurrent OTP/refresh/reinstall/logout/reuse tests; DoD: one-time semantics and session visibility proven; Next: SEC-04.
 - [ ] **SEC-04 Outbox and idempotency reliability** — Objective: prevent duplicate/stranded lifecycle effects; State: **BROKEN/MISSING**; Scope: outbox processors and `idempotency_records`; Action: lease/recovery/dead-letter/dedupe/metrics; Depends/Risk: SEC-03 and DB tests; Test/Security: crash/restart/duplicate/concurrent delivery tests; DoD: exactly-once business outcome under at-least-once processing; Next: SEC-05.
 - [ ] **SEC-05 Web/API hardening** — Objective: production headers, docs exposure, throttling and log redaction; State: **PARTIAL**; Scope: Nest bootstrap/Pino/Next config/proxy; Action: Helmet/CSP/HSTS/Permissions-Policy, conditional Swagger, edge limits, sensitive-field redaction; Depends/Risk: SEC-04; Test/Security: header/CORS/log/abuse tests; DoD: staging proof with no token/PII leaks; Next: SEC-06.
@@ -294,12 +294,12 @@ Status marks in this file describe execution, not how much scaffold already exis
 
 ### RESULT
 
-**NOT STARTED.** STAB-19 is **DONE WITH FINDINGS** 27 August 2026: cleanup
-manifest classified candidates; git deleted only unused
-`super_app_dummy_data.dart`; caches/HTML masquerades/stitch-screens/artifacts/PDFs/EMP-\*
-cards/lead fixtures/`erp_warehouse.read` retained. Phase 0 remains **NOT PASSED**.
+**IN PROGRESS.** SEC-02 is **DONE WITH FINDINGS** 27 August 2026 (employee
+UUID get/update scoped to active branch; inventory in
+`docs/05-security/sec-02-branch-bola-inventory.md`). SEC-03…06 are **not
+started**. Phase 0 remains **NOT PASSED**. STAB-19 remains **DONE WITH FINDINGS**.
 
 ### NEXT TASK
 
-`STAB-20 Security baseline` is the next authorized Phase 0 block.
-Do not start it in the STAB-19 commit.
+`SEC-03 Authentication atomicity and session control` — **not started**.
+Do not start it in the SEC-02 commit.

@@ -39,6 +39,7 @@ export interface OperationsMutationContext {
   readonly actorUserId: string;
   readonly actorRole: string;
   readonly requestId: string;
+  readonly branchId: string;
 }
 
 export interface OperationsRepository {
@@ -46,10 +47,11 @@ export interface OperationsRepository {
   listEvents(branchId: string): Promise<readonly EventProgressSummary[]>;
   getEventOperations(
     eventRecordId: string,
+    branchId: string,
   ): Promise<EventOperationsDetailResponse | undefined>;
   ensureEventOperations(
     input: OperationsMutationContext & { readonly eventRecordId: string },
-  ): Promise<EventProgressSummary>;
+  ): Promise<EventProgressSummary | undefined>;
 
   createTask(
     input: OperationsMutationContext & {
@@ -68,7 +70,10 @@ export interface OperationsRepository {
       readonly eventRecordId?: string;
     },
   ): Promise<readonly OperationsTaskSummary[]>;
-  getTask(taskId: string): Promise<OperationsTaskDetailResponse | undefined>;
+  getTask(
+    taskId: string,
+    branchId: string,
+  ): Promise<OperationsTaskDetailResponse | undefined>;
   assignTask(
     input: OperationsMutationContext & {
       readonly taskId: string;
@@ -170,6 +175,7 @@ export interface OperationsRepository {
   ): Promise<EventCompletionSummary | undefined>;
   getCompletion(
     eventRecordId: string,
+    branchId: string,
   ): Promise<EventCompletionSummary | undefined>;
 }
 

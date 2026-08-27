@@ -5,6 +5,7 @@ import type {
   SubmitAdvancePaymentRequest,
 } from "@me-event/api-contracts";
 import { randomUUID } from "node:crypto";
+import { resolveBranchId } from "../../../common/branch/branch-context";
 import { DomainError } from "../../../common/errors/domain.error";
 import type { AuthenticatedPrincipal } from "../../platform-foundation/domain/platform-foundation";
 import type { ConfirmAdvanceResult } from "@me-event/api-contracts";
@@ -50,7 +51,10 @@ export class PaymentService {
     paymentId: string,
     requestId: string = randomUUID(),
   ): Promise<ConfirmAdvanceResult> {
-    const existing = await this.payments.findById(paymentId);
+    const existing = await this.payments.findById(
+      paymentId,
+      resolveBranchId(principal),
+    );
     if (existing === undefined) {
       throw new DomainError("PAYMENT_NOT_FOUND", "Payment not found", 404);
     }
@@ -64,6 +68,7 @@ export class PaymentService {
 
     const result = await this.payments.confirmAdvance({
       paymentId,
+      branchId: resolveBranchId(principal),
       actorUserId: principal.userId,
       actorRole: principal.activeRole,
       requestId,
@@ -88,10 +93,13 @@ export class PaymentService {
   }
 
   public async listPendingForQuotation(
+    principal: AuthenticatedPrincipal,
     quotationId: string,
   ): Promise<PaymentListResponse> {
-    const payments =
-      await this.payments.listPendingAdvancesForQuotation(quotationId);
+    const payments = await this.payments.listPendingAdvancesForQuotation(
+      quotationId,
+      resolveBranchId(principal),
+    );
     return { payments };
   }
 }

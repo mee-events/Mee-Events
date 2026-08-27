@@ -88,8 +88,9 @@ export class CrmFinanceController {
   @ApiOperation({ summary: "Event finance detail" })
   public getEvent(
     @Param("eventRecordId", new ParseUUIDPipe()) eventRecordId: string,
+    @Req() request: AuthenticatedPlatformRequest,
   ): Promise<EventFinanceDetailResponse> {
-    return this.finance.getEventFinance(eventRecordId);
+    return this.finance.getEventFinance(principalOf(request), eventRecordId);
   }
 
   @Post("events/:eventRecordId/ensure")
@@ -361,8 +362,9 @@ export class FinanceOpsController {
   @ApiOperation({ summary: "Manager event finance summary" })
   public eventFinance(
     @Param("eventRecordId", new ParseUUIDPipe()) eventRecordId: string,
+    @Req() request: AuthenticatedPlatformRequest,
   ): Promise<EventFinanceDetailResponse> {
-    return this.finance.getEventFinance(eventRecordId);
+    return this.finance.getEventFinance(principalOf(request), eventRecordId);
   }
 
   @Get("me/vendors")

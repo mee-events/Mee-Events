@@ -8,17 +8,25 @@ import type {
   LeadListItem,
   LeadRepository,
 } from "../src/modules/crm/ports/lead-repository";
-import type { AuthenticatedPrincipal } from "../src/modules/platform-foundation/domain/platform-foundation";
+import {
+  HYDERABAD_BRANCH,
+  type AuthenticatedPrincipal,
+} from "../src/modules/platform-foundation/domain/platform-foundation";
+
+const OTHER_BRANCH_ID = "00000000-0000-4000-8000-000000000002";
 
 interface MutableLead {
   item: LeadListItem;
   detail: LeadDetailItem;
+  branchId: string;
 }
 
 class FakeLeadRepository implements LeadRepository {
   public readonly leads = new Map<string, MutableLead>();
 
-  public seed(overrides: Partial<LeadDetailItem> = {}): LeadDetailItem {
+  public seed(
+    overrides: Partial<LeadDetailItem> & { readonly branchId?: string } = {},
+  ): LeadDetailItem {
     const id = overrides.id ?? randomUUID();
     const item: LeadListItem = {
       id,
@@ -62,22 +70,42 @@ class FakeLeadRepository implements LeadRepository {
         : { preferredExternalVendor: overrides.preferredExternalVendor }),
       updatedAt: overrides.updatedAt ?? new Date().toISOString(),
     };
-    this.leads.set(id, { item, detail });
+    this.leads.set(id, {
+      item,
+      detail,
+      branchId: overrides.branchId ?? HYDERABAD_BRANCH.id,
+    });
     return detail;
   }
 
-  public async listForBranch(): Promise<readonly LeadListItem[]> {
-    return [...this.leads.values()].map((lead) => lead.item);
+  public async listForBranch(
+    branchId: string,
+  ): Promise<readonly LeadListItem[]> {
+    return [...this.leads.values()]
+      .filter((lead) => lead.branchId === branchId)
+      .map((lead) => lead.item);
   }
 
-  public async findById(leadId: string): Promise<LeadListItem | undefined> {
-    return this.leads.get(leadId)?.item;
+  public async findById(
+    leadId: string,
+    branchId: string,
+  ): Promise<LeadListItem | undefined> {
+    const lead = this.leads.get(leadId);
+    if (lead === undefined || lead.branchId !== branchId) {
+      return undefined;
+    }
+    return lead.item;
   }
 
   public async findDetailById(
     leadId: string,
+    branchId: string,
   ): Promise<LeadDetailItem | undefined> {
-    return this.leads.get(leadId)?.detail;
+    const lead = this.leads.get(leadId);
+    if (lead === undefined || lead.branchId !== branchId) {
+      return undefined;
+    }
+    return lead.detail;
   }
 
   public async createFromEnquirySubmitted(
@@ -100,9 +128,16 @@ class FakeLeadRepository implements LeadRepository {
   public async claimLead(
     leadId: string,
     ownerUserId: string,
+    _ownerRole: string,
+    _requestId: string,
+    branchId: string,
   ): Promise<LeadListItem | undefined> {
     const lead = this.leads.get(leadId);
-    if (lead === undefined || lead.item.ownerUserId !== undefined) {
+    if (
+      lead === undefined ||
+      lead.branchId !== branchId ||
+      lead.item.ownerUserId !== undefined
+    ) {
       return undefined;
     }
     const firstRespondedAt = new Date().toISOString();
@@ -127,10 +162,13 @@ class FakeLeadRepository implements LeadRepository {
     _actorRole: string,
     _notes: string,
     status: "contacted" | "qualified",
+    _requestId: string,
+    branchId: string,
   ): Promise<LeadListItem | undefined> {
     const lead = this.leads.get(leadId);
     if (
       lead === undefined ||
+      lead.branchId !== branchId ||
       !["claimed", "contacted", "qualified"].includes(lead.item.status)
     ) {
       return undefined;
@@ -143,9 +181,13 @@ class FakeLeadRepository implements LeadRepository {
   public async updateStatus(
     leadId: string,
     status: LeadStatus,
+    _actorUserId: string,
+    _actorRole: string,
+    _requestId: string,
+    branchId: string,
   ): Promise<LeadDetailItem | undefined> {
     const lead = this.leads.get(leadId);
-    if (lead === undefined) {
+    if (lead === undefined || lead.branchId !== branchId) {
       return undefined;
     }
     const firstRespondedAt =
@@ -166,12 +208,15 @@ class FakeLeadRepository implements LeadRepository {
   }
 }
 
-function employeePrincipal(): AuthenticatedPrincipal {
+function employeePrincipal(
+  branchId: string = HYDERABAD_BRANCH.id,
+): AuthenticatedPrincipal {
   return {
     userId: randomUUID(),
     sessionId: randomUUID(),
     activeRole: "employee",
-    roleAssignments: [{ role: "employee", active: true }],
+    roleAssignments: [{ role: "employee", active: true, scopeId: branchId }],
+    branchId,
   };
 }
 
@@ -198,7 +243,7 @@ describe("CrmService", () => {
       guestCount: 350,
       location: "Taj Falaknuma",
     });
-    const detail = await service.getLead(lead.id);
+    const detail = await service.getLead(employeePrincipal(), lead.id);
     expect(detail.id).toBe(lead.id);
     expect(detail.location).toBe("Taj Falaknuma");
     expect(detail.guestCount).toBe(350);
@@ -208,9 +253,36 @@ describe("CrmService", () => {
   });
 
   it("rejects getLead for an unknown lead", async () => {
-    await expect(service.getLead(randomUUID())).rejects.toThrow(
-      "Lead not found",
+    await expect(
+      service.getLead(employeePrincipal(), randomUUID()),
+    ).rejects.toMatchObject({
+      code: "LEAD_NOT_FOUND",
+      status: 404,
+    });
+  });
+
+  it("allows same-branch lead detail and denies other-branch as 404", async () => {
+    const home = repository.seed();
+    const away = repository.seed({ branchId: OTHER_BRANCH_ID });
+    const homePrincipal = employeePrincipal();
+    const awayPrincipal = employeePrincipal(OTHER_BRANCH_ID);
+
+    await expect(
+      service.getLead(homePrincipal, home.id),
+    ).resolves.toMatchObject({ id: home.id });
+    await expect(
+      service.getLead(awayPrincipal, away.id),
+    ).resolves.toMatchObject({ id: away.id });
+
+    await expect(service.getLead(homePrincipal, away.id)).rejects.toMatchObject(
+      { code: "LEAD_NOT_FOUND", status: 404 },
     );
+    await expect(
+      service.claimLead(homePrincipal, away.id),
+    ).rejects.toMatchObject({ code: "LEAD_NOT_FOUND", status: 404 });
+    await expect(
+      service.updateStatus(homePrincipal, away.id, { status: "lost" }),
+    ).rejects.toMatchObject({ code: "LEAD_NOT_FOUND", status: 404 });
   });
 
   it("updates lead status for Kanban moves", async () => {

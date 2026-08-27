@@ -34,6 +34,7 @@ export interface FinanceMutationContext {
   readonly actorUserId: string;
   readonly actorRole: string;
   readonly requestId: string;
+  readonly branchId: string;
 }
 
 export interface FinanceRepository {
@@ -41,10 +42,11 @@ export interface FinanceRepository {
   listEventFinance(branchId: string): Promise<readonly EventFinancialSummary[]>;
   getEventFinance(
     eventRecordId: string,
+    branchId: string,
   ): Promise<EventFinanceDetailResponse | undefined>;
   ensureEventFinance(
     input: FinanceMutationContext & { readonly eventRecordId: string },
-  ): Promise<EventFinancialSummary>;
+  ): Promise<EventFinancialSummary | undefined>;
   updateEventFinance(
     input: FinanceMutationContext & {
       readonly eventRecordId: string;

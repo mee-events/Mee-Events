@@ -59,8 +59,14 @@ export class CrmService {
     );
   }
 
-  public async getLead(leadId: string): Promise<LeadDetailResponse> {
-    const lead = await this.leads.findDetailById(leadId);
+  public async getLead(
+    principal: AuthenticatedPrincipal,
+    leadId: string,
+  ): Promise<LeadDetailResponse> {
+    const lead = await this.leads.findDetailById(
+      leadId,
+      resolveBranchId(principal),
+    );
     if (lead === undefined) {
       throw new DomainError("LEAD_NOT_FOUND", "Lead not found", 404);
     }
@@ -72,7 +78,8 @@ export class CrmService {
     leadId: string,
     requestId: string = randomUUID(),
   ): Promise<LeadSummary> {
-    const existing = await this.leads.findById(leadId);
+    const branchId = resolveBranchId(principal);
+    const existing = await this.leads.findById(leadId, branchId);
     if (existing === undefined) {
       throw new DomainError("LEAD_NOT_FOUND", "Lead not found", 404);
     }
@@ -81,6 +88,7 @@ export class CrmService {
       principal.userId,
       principal.activeRole,
       requestId,
+      branchId,
     );
     if (claimed === undefined) {
       throw new DomainError(
@@ -98,7 +106,8 @@ export class CrmService {
     request: LeadRequirementsRequest,
     requestId: string = randomUUID(),
   ): Promise<LeadSummary> {
-    const existing = await this.leads.findById(leadId);
+    const branchId = resolveBranchId(principal);
+    const existing = await this.leads.findById(leadId, branchId);
     if (existing === undefined) {
       throw new DomainError("LEAD_NOT_FOUND", "Lead not found", 404);
     }
@@ -109,6 +118,7 @@ export class CrmService {
       request.notes,
       request.status,
       requestId,
+      branchId,
     );
     if (updated === undefined) {
       throw new DomainError(
@@ -126,7 +136,8 @@ export class CrmService {
     request: UpdateLeadStatusRequest,
     requestId: string = randomUUID(),
   ): Promise<LeadDetailResponse> {
-    const existing = await this.leads.findById(leadId);
+    const branchId = resolveBranchId(principal);
+    const existing = await this.leads.findById(leadId, branchId);
     if (existing === undefined) {
       throw new DomainError("LEAD_NOT_FOUND", "Lead not found", 404);
     }
@@ -136,6 +147,7 @@ export class CrmService {
       principal.userId,
       principal.activeRole,
       requestId,
+      branchId,
     );
     if (updated === undefined) {
       throw new DomainError("LEAD_NOT_FOUND", "Lead not found", 404);

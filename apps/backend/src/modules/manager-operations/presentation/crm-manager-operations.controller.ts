@@ -95,8 +95,9 @@ export class CrmManagerOperationsController {
   @ApiOperation({ summary: "Get active manager assignment for an event" })
   public assignment(
     @Param("eventId", new ParseUUIDPipe()) eventId: string,
+    @Req() request: AuthenticatedPlatformRequest,
   ): Promise<ManagerAssignmentListResponse> {
-    return this.ops.getActiveAssignment(eventId);
+    return this.ops.getActiveAssignment(principalOf(request), eventId);
   }
 
   @Patch("assignments/:assignmentId")
@@ -123,8 +124,9 @@ export class CrmManagerOperationsController {
   })
   public eventDashboard(
     @Param("eventId", new ParseUUIDPipe()) eventId: string,
+    @Req() request: AuthenticatedPlatformRequest,
   ): Promise<EventManagerDashboardResponse> {
-    return this.ops.getEventDashboard(eventId);
+    return this.ops.getEventDashboard(principalOf(request), eventId);
   }
 
   @Get("events/:eventId/tasks")
@@ -132,8 +134,9 @@ export class CrmManagerOperationsController {
   @ApiOperation({ summary: "List tasks for an event" })
   public listTasks(
     @Param("eventId", new ParseUUIDPipe()) eventId: string,
+    @Req() request: AuthenticatedPlatformRequest,
   ): Promise<EventTaskListResponse> {
-    return this.ops.listTasks(eventId);
+    return this.ops.listTasks(principalOf(request), eventId);
   }
 
   @Post("events/:eventId/tasks")
@@ -159,8 +162,9 @@ export class CrmManagerOperationsController {
   @ApiOperation({ summary: "Get task detail with comments and history" })
   public getTask(
     @Param("taskId", new ParseUUIDPipe()) taskId: string,
+    @Req() request: AuthenticatedPlatformRequest,
   ): Promise<EventTaskDetailResponse> {
-    return this.ops.getTask(taskId);
+    return this.ops.getTask(principalOf(request), taskId);
   }
 
   @Patch("tasks/:taskId")

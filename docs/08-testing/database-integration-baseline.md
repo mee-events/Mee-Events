@@ -243,12 +243,10 @@ Event Record through customer-scoped repository methods. Lead, quotation,
 booking, and Event Record list projections return only the requested branch
 when Hyderabad and a synthetic second branch coexist.
 
-Direct employee record lookups remain incompletely branch-scoped. Examples
-include lead `findById`/detail, quotation `findById`, payment `findById`, booking
-`findById`, and Event Record `findById`; additional direct reads exist in
-finance, inventory, manager operations, operations, vendors, and workers.
-STAB-15 does not close the full BOLA matrix: `SEC-02` remains owned by STAB-20
-with HTTP coverage under STAB-17.
+Direct employee UUID lookups for the named SEC-02 modules now take the
+principal’s active branch on get/lock/update. STAB-15 still does not run the
+full HTTP BOLA matrix: remaining HTTP proof is STAB-17. SEC-02 evidence:
+`docs/05-security/sec-02-branch-bola-inventory.md`.
 
 Pattern B evidence is live, not a SQL-text proxy, for the exercised workflow:
 domain rows, timeline/activity where implemented, audit, and outbox companions
@@ -257,15 +255,15 @@ companions.
 
 ## Remaining gaps and ownership
 
-| Gap                                                                                                                       | Severity / owner                                    |
-| ------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------- |
-| Direct employee ID/branch authorization matrix is incomplete                                                              | High — `SEC-02`, STAB-20; HTTP proof in STAB-17     |
-| Full OTP/session/audit atomicity and wider session/access-token controls remain                                           | High — `SEC-03`, STAB-20                            |
-| Outbox has no processing lease/crash recovery proof                                                                       | High — `SEC-04`, STAB-20                            |
-| Payment is internal/manual; no signed provider request/webhook/reconciliation                                             | High — `INT-02` and later provider work             |
-| Migration SQL commit and ledger insert remain non-atomic/checksum-free                                                    | Medium — `SEC-M-09`, STAB-20/PROD-03                |
-| Eight PostgreSQL adapter areas are not exercised here                                                                     | QA/module owners in later integration/module blocks |
-| No Nest HTTP pipeline, Redis, browser/mobile E2E, coverage percentage, load, backup/restore, or production database proof | STAB-16/17, module blocks, and production tasks     |
+| Gap                                                                                                                       | Severity / owner                                                     |
+| ------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| Direct employee ID/branch authorization (HTTP pipeline) remains outside STAB-15                                           | Medium — HTTP proof in STAB-17; service/repository covered by SEC-02 |
+| Full OTP/session/audit atomicity and wider session/access-token controls remain                                           | High — `SEC-03`, STAB-20                                             |
+| Outbox has no processing lease/crash recovery proof                                                                       | High — `SEC-04`, STAB-20                                             |
+| Payment is internal/manual; no signed provider request/webhook/reconciliation                                             | High — `INT-02` and later provider work                              |
+| Migration SQL commit and ledger insert remain non-atomic/checksum-free                                                    | Medium — `SEC-M-09`, STAB-20/PROD-03                                 |
+| Eight PostgreSQL adapter areas are not exercised here                                                                     | QA/module owners in later integration/module blocks                  |
+| No Nest HTTP pipeline, Redis, browser/mobile E2E, coverage percentage, load, backup/restore, or production database proof | STAB-16/17, module blocks, and production tasks                      |
 
 ## CI and cleanup boundary
 

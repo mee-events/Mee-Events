@@ -66,7 +66,14 @@ class FakeWorkerRepository implements WorkerRepository {
 
   public async getWorker(
     workerId: string,
+    branchId?: string,
   ): Promise<WorkerDetailResponse | undefined> {
+    if (
+      branchId !== undefined &&
+      branchId !== "00000000-0000-4000-8000-000000000001"
+    ) {
+      return undefined;
+    }
     return this.workers.get(workerId);
   }
 
@@ -334,7 +341,16 @@ class FakeWorkerRepository implements WorkerRepository {
 
   public async listTasks(filters?: {
     readonly workerId?: string;
+    readonly eventRecordId?: string;
+    readonly vendorId?: string;
+    readonly branchId?: string;
   }): Promise<readonly WorkerTaskSummary[]> {
+    if (
+      filters?.branchId !== undefined &&
+      filters.branchId !== "00000000-0000-4000-8000-000000000001"
+    ) {
+      return [];
+    }
     return [...this.tasks.values()].filter(
       (t) => filters?.workerId === undefined || t.workerId === filters.workerId,
     );
@@ -342,7 +358,14 @@ class FakeWorkerRepository implements WorkerRepository {
 
   public async getTask(
     taskId: string,
+    branchId?: string,
   ): Promise<WorkerTaskDetailResponse | undefined> {
+    if (
+      branchId !== undefined &&
+      branchId !== "00000000-0000-4000-8000-000000000001"
+    ) {
+      return undefined;
+    }
     return this.tasks.get(taskId);
   }
 
@@ -364,7 +387,14 @@ class FakeWorkerRepository implements WorkerRepository {
 
   public async listAttendance(filters?: {
     readonly workerId?: string;
+    readonly branchId?: string;
   }): Promise<readonly WorkerAttendanceSummary[]> {
+    if (
+      filters?.branchId !== undefined &&
+      filters.branchId !== "00000000-0000-4000-8000-000000000001"
+    ) {
+      return [];
+    }
     return this.attendance.filter(
       (a) => filters?.workerId === undefined || a.workerId === filters.workerId,
     );
@@ -548,7 +578,7 @@ describe("Worker Management Foundation", () => {
       markCompleted: true,
     });
 
-    const detail = await service.getTask(task.id);
+    const detail = await service.getTask(employee, task.id);
     const types = detail.timeline.map((e) => e.entryType);
 
     expect(types).toContain("worker_assigned");
@@ -592,5 +622,35 @@ describe("Worker Management Foundation", () => {
     expect(dashboard.totalWorkers).toBe(1);
     expect(dashboard.pendingAcceptances).toBe(1);
     expect(dashboard.activeTasks).toBe(1);
+  });
+
+  it("denies other-branch worker task detail as 404", async () => {
+    const worker = await service.create(employee, {
+      displayName: "Field Worker",
+      phoneE164: "+919000000004",
+      employmentType: "vendor",
+      vendorId: randomUUID(),
+    });
+    const task = await service.assign(employee, {
+      workerId: worker.id,
+      eventRecordId: randomUUID(),
+      title: "Lighting",
+    });
+    const other: AuthenticatedPrincipal = {
+      ...employee,
+      userId: "other-branch",
+      branchId: "00000000-0000-4000-8000-000000000002",
+    };
+    await expect(service.getTask(employee, task.id)).resolves.toMatchObject({
+      id: task.id,
+    });
+    await expect(service.getTask(other, task.id)).rejects.toMatchObject({
+      code: "WORKER_TASK_NOT_FOUND",
+      status: 404,
+    });
+    await expect(service.get(other, worker.id)).rejects.toMatchObject({
+      code: "WORKER_NOT_FOUND",
+      status: 404,
+    });
   });
 });

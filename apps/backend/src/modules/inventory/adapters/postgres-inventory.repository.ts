@@ -74,10 +74,11 @@ export class PostgresInventoryRepository implements InventoryRepository {
 
   public async getWarehouse(
     warehouseId: string,
+    branchId: string,
   ): Promise<WarehouseDetailResponse | undefined> {
     const result = await this.pool.query<WarehouseRow>(
-      `SELECT * FROM warehouses WHERE id = $1`,
-      [warehouseId],
+      `SELECT * FROM warehouses WHERE id = $1 AND branch_id = $2`,
+      [warehouseId, branchId],
     );
     const row = result.rows[0];
     if (row === undefined) return undefined;
@@ -159,7 +160,7 @@ export class PostgresInventoryRepository implements InventoryRepository {
         outboxTopic: notify.topic,
       });
       await client.query("COMMIT");
-      const loaded = await this.getWarehouse(warehouseId);
+      const loaded = await this.getWarehouse(warehouseId, input.branchId);
       if (loaded === undefined) throw new Error("Warehouse create lost");
       return loaded;
     } catch (error) {
@@ -176,7 +177,7 @@ export class PostgresInventoryRepository implements InventoryRepository {
       readonly body: UpdateWarehouseRequest;
     },
   ): Promise<WarehouseDetailResponse | undefined> {
-    const existing = await this.getWarehouse(input.warehouseId);
+    const existing = await this.getWarehouse(input.warehouseId, input.branchId);
     if (existing === undefined) return undefined;
     const client = await this.pool.connect();
     try {
@@ -193,7 +194,7 @@ export class PostgresInventoryRepository implements InventoryRepository {
            notes = CASE WHEN $11::boolean THEN $12 ELSE notes END,
            updated_by_user_id = $13,
            version = version + 1
-         WHERE id = $1`,
+         WHERE id = $1 AND branch_id = $14`,
         [
           input.warehouseId,
           input.body.name ?? null,
@@ -208,6 +209,7 @@ export class PostgresInventoryRepository implements InventoryRepository {
           input.body.notes !== undefined,
           input.body.notes ?? null,
           input.actorUserId,
+          input.branchId,
         ],
       );
       const notify = buildInventoryNotificationPayload(
@@ -233,7 +235,7 @@ export class PostgresInventoryRepository implements InventoryRepository {
     } finally {
       client.release();
     }
-    return this.getWarehouse(input.warehouseId);
+    return this.getWarehouse(input.warehouseId, input.branchId);
   }
 
   public async getWarehouseDashboard(
@@ -319,6 +321,7 @@ export class PostgresInventoryRepository implements InventoryRepository {
 
   public async getItem(
     itemId: string,
+    branchId: string,
   ): Promise<InventoryItemDetailResponse | undefined> {
     const result = await this.pool.query<ItemRow>(
       `SELECT i.*, w.name AS warehouse_name, l.name AS location_name,
@@ -327,8 +330,8 @@ export class PostgresInventoryRepository implements InventoryRepository {
        LEFT JOIN warehouses w ON w.id = i.warehouse_id
        LEFT JOIN warehouse_locations l ON l.id = i.location_id
        LEFT JOIN inventory_categories c ON c.id = i.category_id
-       WHERE i.id = $1`,
-      [itemId],
+       WHERE i.id = $1 AND i.branch_id = $2`,
+      [itemId, branchId],
     );
     const row = result.rows[0];
     if (row === undefined) return undefined;
@@ -435,7 +438,7 @@ export class PostgresInventoryRepository implements InventoryRepository {
         customerVisible: false,
       });
       await client.query("COMMIT");
-      const loaded = await this.getItem(itemId);
+      const loaded = await this.getItem(itemId, input.branchId);
       if (loaded === undefined) throw new Error("Item create lost");
       return loaded;
     } catch (error) {
@@ -452,7 +455,8 @@ export class PostgresInventoryRepository implements InventoryRepository {
       readonly body: UpdateInventoryItemRequest;
     },
   ): Promise<InventoryItemDetailResponse | undefined> {
-    if ((await this.getItem(input.itemId)) === undefined) return undefined;
+    if ((await this.getItem(input.itemId, input.branchId)) === undefined)
+      return undefined;
     const client = await this.pool.connect();
     try {
       await client.query("BEGIN");
@@ -472,7 +476,7 @@ export class PostgresInventoryRepository implements InventoryRepository {
            photo_placeholders = CASE WHEN $19::boolean THEN $20::jsonb ELSE photo_placeholders END,
            updated_by_user_id = $21,
            version = version + 1
-         WHERE id = $1`,
+         WHERE id = $1 AND branch_id = $22`,
         [
           input.itemId,
           input.body.name ?? null,
@@ -495,6 +499,7 @@ export class PostgresInventoryRepository implements InventoryRepository {
           input.body.photoPlaceholders !== undefined,
           JSON.stringify(input.body.photoPlaceholders ?? []),
           input.actorUserId,
+          input.branchId,
         ],
       );
       const notify = buildInventoryNotificationPayload(
@@ -528,7 +533,7 @@ export class PostgresInventoryRepository implements InventoryRepository {
     } finally {
       client.release();
     }
-    return this.getItem(input.itemId);
+    return this.getItem(input.itemId, input.branchId);
   }
 
   public async allocate(
@@ -605,8 +610,8 @@ export class PostgresInventoryRepository implements InventoryRepository {
       if (allocationId === undefined) throw new Error("Allocate failed");
 
       await client.query(
-        `UPDATE inventory_items SET status = $2, version = version + 1 WHERE id = $1`,
-        [input.body.itemId, itemStatus],
+        `UPDATE inventory_items SET status = $2, version = version + 1 WHERE id = $1 AND branch_id = $3`,
+        [input.body.itemId, itemStatus, input.branchId],
       );
 
       if (warehouseId !== null) {
@@ -705,7 +710,11 @@ export class PostgresInventoryRepository implements InventoryRepository {
     const client = await this.pool.connect();
     try {
       await client.query("BEGIN");
-      const locked = await lockAllocation(client, input.allocationId);
+      const locked = await lockAllocation(
+        client,
+        input.allocationId,
+        input.branchId,
+      );
       if (locked === undefined) {
         await client.query("ROLLBACK");
         return undefined;
@@ -740,8 +749,8 @@ export class PostgresInventoryRepository implements InventoryRepository {
 
       const itemStatus = itemStatusForAllocation(nextStatus);
       await client.query(
-        `UPDATE inventory_items SET status = $2, version = version + 1 WHERE id = $1`,
-        [locked.item_id, itemStatus],
+        `UPDATE inventory_items SET status = $2, version = version + 1 WHERE id = $1 AND branch_id = $3`,
+        [locked.item_id, itemStatus, input.branchId],
       );
 
       if (movementType !== undefined) {
@@ -836,7 +845,11 @@ export class PostgresInventoryRepository implements InventoryRepository {
     const client = await this.pool.connect();
     try {
       await client.query("BEGIN");
-      const locked = await lockAllocation(client, input.allocationId);
+      const locked = await lockAllocation(
+        client,
+        input.allocationId,
+        input.branchId,
+      );
       if (locked === undefined) {
         await client.query("ROLLBACK");
         return undefined;
@@ -876,8 +889,13 @@ export class PostgresInventoryRepository implements InventoryRepository {
            condition = $2,
            warehouse_id = COALESCE($3, warehouse_id),
            version = version + 1
-         WHERE id = $1`,
-        [locked.item_id, input.body.conditionOnReturn ?? "good", warehouseId],
+         WHERE id = $1 AND branch_id = $4`,
+        [
+          locked.item_id,
+          input.body.conditionOnReturn ?? "good",
+          warehouseId,
+          input.branchId,
+        ],
       );
 
       if (warehouseId !== null) {
@@ -1010,8 +1028,13 @@ export class PostgresInventoryRepository implements InventoryRepository {
 
   public async getAllocation(
     allocationId: string,
+    branchId: string,
   ): Promise<InventoryAllocationDetailResponse | undefined> {
-    const summary = await loadAllocationSummary(this.pool, allocationId);
+    const summary = await loadAllocationSummary(
+      this.pool,
+      allocationId,
+      branchId,
+    );
     if (summary === undefined) return undefined;
 
     const [movements, notes, timeline] = await Promise.all([
@@ -1133,7 +1156,7 @@ export class PostgresInventoryRepository implements InventoryRepository {
       readonly body: ReportInventoryDamageRequest;
     },
   ): Promise<InventoryDamageReportSummary | undefined> {
-    const item = await this.getItem(input.body.itemId);
+    const item = await this.getItem(input.body.itemId, input.branchId);
     if (item === undefined) return undefined;
     const client = await this.pool.connect();
     try {
@@ -1164,8 +1187,8 @@ export class PostgresInventoryRepository implements InventoryRepository {
 
       await client.query(
         `UPDATE inventory_items SET status = 'damaged', condition = 'damaged', version = version + 1
-         WHERE id = $1`,
-        [input.body.itemId],
+         WHERE id = $1 AND branch_id = $2`,
+        [input.body.itemId, input.branchId],
       );
 
       if (input.body.eventRecordId !== undefined) {
@@ -1240,7 +1263,7 @@ export class PostgresInventoryRepository implements InventoryRepository {
       readonly body: StartInventoryMaintenanceRequest;
     },
   ): Promise<InventoryMaintenanceSummary | undefined> {
-    const item = await this.getItem(input.body.itemId);
+    const item = await this.getItem(input.body.itemId, input.branchId);
     if (item === undefined) return undefined;
     const client = await this.pool.connect();
     try {
@@ -1267,8 +1290,8 @@ export class PostgresInventoryRepository implements InventoryRepository {
 
       await client.query(
         `UPDATE inventory_items SET status = 'maintenance', version = version + 1
-         WHERE id = $1`,
-        [input.body.itemId],
+         WHERE id = $1 AND branch_id = $2`,
+        [input.body.itemId, input.branchId],
       );
 
       const notify = buildInventoryNotificationPayload(
@@ -1351,7 +1374,8 @@ export class PostgresInventoryRepository implements InventoryRepository {
       readonly body: AddInventoryNoteRequest;
     },
   ): Promise<InventoryNoteSummary | undefined> {
-    if ((await this.getItem(input.itemId)) === undefined) return undefined;
+    if ((await this.getItem(input.itemId, input.branchId)) === undefined)
+      return undefined;
     const client = await this.pool.connect();
     try {
       await client.query("BEGIN");
@@ -1705,6 +1729,7 @@ function outboxTopicForStatus(
 async function lockAllocation(
   client: PoolClient,
   allocationId: string,
+  branchId: string,
 ): Promise<
   | {
       id: string;
@@ -1735,9 +1760,9 @@ async function lockAllocation(
      FROM inventory_allocations a
      INNER JOIN inventory_items i ON i.id = a.item_id
      INNER JOIN event_records e ON e.id = a.event_record_id
-     WHERE a.id = $1
+     WHERE a.id = $1 AND e.branch_id = $2
      FOR UPDATE OF a`,
-    [allocationId],
+    [allocationId, branchId],
   );
   return result.rows[0];
 }
@@ -1813,17 +1838,21 @@ function mapAllocationRow(row: AllocationRow): InventoryAllocationSummary {
 async function loadAllocationSummary(
   db: Pool | PoolClient,
   allocationId: string,
+  branchId?: string,
 ): Promise<InventoryAllocationSummary | undefined> {
-  const result = await db.query<AllocationRow>(
-    `SELECT a.*, e.event_number, e.event_name, i.name AS item_name,
+  const params: unknown[] = [allocationId];
+  let sql = `SELECT a.*, e.event_number, e.event_name, i.name AS item_name,
             i.inventory_code, w.name AS warehouse_name
      FROM inventory_allocations a
      INNER JOIN event_records e ON e.id = a.event_record_id
      INNER JOIN inventory_items i ON i.id = a.item_id
      LEFT JOIN warehouses w ON w.id = a.warehouse_id
-     WHERE a.id = $1`,
-    [allocationId],
-  );
+     WHERE a.id = $1`;
+  if (branchId !== undefined) {
+    params.push(branchId);
+    sql += ` AND e.branch_id = $2`;
+  }
+  const result = await db.query<AllocationRow>(sql, params);
   const row = result.rows[0];
   if (row === undefined) return undefined;
   return mapAllocationRow(row);

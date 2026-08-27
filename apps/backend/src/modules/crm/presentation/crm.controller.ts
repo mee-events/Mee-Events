@@ -62,8 +62,9 @@ export class CrmController {
   @ApiOperation({ summary: "Get one lead with enquiry detail" })
   public getLead(
     @Param("id", new ParseUUIDPipe()) id: string,
+    @Req() request: AuthenticatedPlatformRequest,
   ): Promise<LeadDetailResponse> {
-    return this.crm.getLead(id);
+    return this.crm.getLead(principalOf(request), id);
   }
 
   @Patch("leads/:id/status")

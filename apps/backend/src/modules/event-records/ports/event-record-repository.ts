@@ -17,6 +17,7 @@ export const EVENT_RECORD_REPOSITORY = Symbol("EVENT_RECORD_REPOSITORY");
 
 export interface CreateEventRecordFromBookingInput {
   readonly bookingId: string;
+  readonly branchId: string;
   readonly eventNumber: string;
   readonly actorUserId: string;
   readonly actorRole: string;
@@ -25,6 +26,7 @@ export interface CreateEventRecordFromBookingInput {
 
 export interface EventRecordMutationContext {
   readonly eventRecordId: string;
+  readonly branchId: string;
   readonly actorUserId: string;
   readonly actorRole: string;
   readonly requestId: string;
@@ -35,12 +37,16 @@ export interface EventRecordRepository {
   listForBranch(branchId: string): Promise<readonly EventRecordSummary[]>;
   findById(
     eventRecordId: string,
+    branchId: string,
   ): Promise<EventRecordDetailResponse | undefined>;
   findForCustomerUser(
     userId: string,
     eventRecordId: string,
   ): Promise<EventRecordDetailResponse | undefined>;
-  findByBookingId(bookingId: string): Promise<EventRecordSummary | undefined>;
+  findByBookingId(
+    bookingId: string,
+    branchId: string,
+  ): Promise<EventRecordSummary | undefined>;
   createFromBooking(
     input: CreateEventRecordFromBookingInput,
   ): Promise<EventRecordSummary | undefined>;

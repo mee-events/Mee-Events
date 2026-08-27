@@ -66,8 +66,9 @@ export class CrmBookingController {
   @ApiOperation({ summary: "Get booking detail for CRM" })
   public get(
     @Param("id", new ParseUUIDPipe()) id: string,
+    @Req() request: AuthenticatedPlatformRequest,
   ): Promise<BookingDetailResponse> {
-    return this.bookings.getCrm(id);
+    return this.bookings.getCrm(principalOf(request), id);
   }
 }
 

@@ -24,6 +24,8 @@ class FakeEventRecordRepository implements EventRecordRepository {
   public readonly records = new Map<string, EventRecordDetailResponse>();
   public createCalls = 0;
 
+  public eventBranches = new Map<string, string>();
+
   public async listForCustomerUser(
     userId: string,
   ): Promise<readonly EventRecordSummary[]> {
@@ -38,7 +40,14 @@ class FakeEventRecordRepository implements EventRecordRepository {
 
   public async findById(
     eventRecordId: string,
+    branchId: string,
   ): Promise<EventRecordDetailResponse | undefined> {
+    if (
+      (this.eventBranches.get(eventRecordId) ??
+        "00000000-0000-4000-8000-000000000001") !== branchId
+    ) {
+      return undefined;
+    }
     return this.records.get(eventRecordId);
   }
 
@@ -55,17 +64,29 @@ class FakeEventRecordRepository implements EventRecordRepository {
 
   public async findByBookingId(
     bookingId: string,
+    branchId: string,
   ): Promise<EventRecordSummary | undefined> {
-    return [...this.records.values()].find(
-      (event) => event.bookingId === bookingId,
+    const event = [...this.records.values()].find(
+      (row) => row.bookingId === bookingId,
     );
+    if (event === undefined) return undefined;
+    if (
+      (this.eventBranches.get(event.id) ??
+        "00000000-0000-4000-8000-000000000001") !== branchId
+    ) {
+      return undefined;
+    }
+    return event;
   }
 
   public async createFromBooking(
     input: CreateEventRecordFromBookingInput,
   ): Promise<EventRecordSummary | undefined> {
     this.createCalls += 1;
-    const existing = await this.findByBookingId(input.bookingId);
+    const existing = await this.findByBookingId(
+      input.bookingId,
+      input.branchId,
+    );
     if (existing !== undefined) {
       return existing;
     }
@@ -138,6 +159,7 @@ class FakeEventRecordRepository implements EventRecordRepository {
       upcomingActions: ["Confirm requirements", "Assign manager"],
     };
     this.records.set(id, detail);
+    this.eventBranches.set(id, input.branchId);
     return detail;
   }
 
@@ -403,7 +425,7 @@ describe("Event Record Foundation", () => {
       content: "Confirm florist availability",
       visibility: "internal",
     });
-    const detail = await service.getCrm(created.id);
+    const detail = await service.getCrm(principal, created.id);
 
     expect(note.content).toBe("Confirm florist availability");
     expect(detail.notes[0]?.id).toBe(note.id);
@@ -422,9 +444,27 @@ describe("Event Record Foundation", () => {
       entryType: "milestone",
       customerVisible: true,
     });
-    const timeline = await service.timelineCrm(created.id);
+    const timeline = await service.timelineCrm(principal, created.id);
 
     expect(entry.entryType).toBe("milestone");
     expect(timeline.timeline[0]?.title).toBe("Site survey completed");
+  });
+
+  it("denies other-branch event detail as 404", async () => {
+    const created = await service.createFromBooking(principal, {
+      bookingId: randomUUID(),
+    });
+    const other: AuthenticatedPrincipal = {
+      ...principal,
+      userId: "other-branch",
+      branchId: "00000000-0000-4000-8000-000000000002",
+    };
+    await expect(service.getCrm(principal, created.id)).resolves.toMatchObject({
+      id: created.id,
+    });
+    await expect(service.getCrm(other, created.id)).rejects.toMatchObject({
+      code: "EVENT_RECORD_NOT_FOUND",
+      status: 404,
+    });
   });
 });

@@ -116,13 +116,16 @@ export class PostgresOperationsRepository implements OperationsRepository {
 
   public async getEventOperations(
     eventRecordId: string,
+    branchId: string,
   ): Promise<EventOperationsDetailResponse | undefined> {
+    const eventBranchId = await loadEventBranchId(this.pool, eventRecordId);
+    if (eventBranchId === undefined || eventBranchId !== branchId) {
+      return undefined;
+    }
     const progress = await loadProgress(this.pool, eventRecordId);
     if (progress === undefined) return undefined;
     const completion = await loadCompletion(this.pool, eventRecordId);
     if (completion === undefined) return undefined;
-    const branchId = await loadEventBranchId(this.pool, eventRecordId);
-    if (branchId === undefined) return undefined;
 
     const [tasks, attendance, issues, photos, materials, timeline] =
       await Promise.all([
@@ -179,14 +182,18 @@ export class PostgresOperationsRepository implements OperationsRepository {
 
   public async ensureEventOperations(
     input: OperationsMutationContext & { readonly eventRecordId: string },
-  ): Promise<EventProgressSummary> {
+  ): Promise<EventProgressSummary | undefined> {
     const client = await this.pool.connect();
     try {
       await client.query("BEGIN");
-      const locked = await lockEventRecord(client, input.eventRecordId);
+      const locked = await lockEventRecord(
+        client,
+        input.eventRecordId,
+        input.branchId,
+      );
       if (locked === undefined) {
         await client.query("ROLLBACK");
-        throw new Error("Event record not found");
+        return undefined;
       }
       await ensureEventOperationsRows(client, input.eventRecordId);
       await recalculateProgress(client, input.eventRecordId);
@@ -213,7 +220,11 @@ export class PostgresOperationsRepository implements OperationsRepository {
     const client = await this.pool.connect();
     try {
       await client.query("BEGIN");
-      const locked = await lockEventRecord(client, input.body.eventRecordId);
+      const locked = await lockEventRecord(
+        client,
+        input.body.eventRecordId,
+        input.branchId,
+      );
       if (locked === undefined) {
         await client.query("ROLLBACK");
         return undefined;
@@ -322,7 +333,11 @@ export class PostgresOperationsRepository implements OperationsRepository {
         return undefined;
       }
 
-      const locked = await lockEventRecord(client, row.event_record_id);
+      const locked = await lockEventRecord(
+        client,
+        row.event_record_id,
+        input.branchId,
+      );
       if (locked === undefined) {
         await client.query("ROLLBACK");
         return undefined;
@@ -485,8 +500,9 @@ export class PostgresOperationsRepository implements OperationsRepository {
 
   public async getTask(
     taskId: string,
+    branchId: string,
   ): Promise<OperationsTaskDetailResponse | undefined> {
-    const task = await loadTask(this.pool, taskId);
+    const task = await loadTask(this.pool, taskId, branchId);
     if (task === undefined) return undefined;
     const timeline = await this.pool.query<{
       id: string;
@@ -543,7 +559,11 @@ export class PostgresOperationsRepository implements OperationsRepository {
         return undefined;
       }
 
-      const locked = await lockEventRecord(client, task.event_record_id);
+      const locked = await lockEventRecord(
+        client,
+        task.event_record_id,
+        input.branchId,
+      );
       if (locked === undefined) {
         await client.query("ROLLBACK");
         return undefined;
@@ -682,7 +702,11 @@ export class PostgresOperationsRepository implements OperationsRepository {
         await client.query("ROLLBACK");
         return undefined;
       }
-      const locked = await lockEventRecord(client, row.event_record_id);
+      const locked = await lockEventRecord(
+        client,
+        row.event_record_id,
+        input.branchId,
+      );
       if (locked === undefined) {
         await client.query("ROLLBACK");
         return undefined;
@@ -779,7 +803,11 @@ export class PostgresOperationsRepository implements OperationsRepository {
     const client = await this.pool.connect();
     try {
       await client.query("BEGIN");
-      const locked = await lockEventRecord(client, input.body.eventRecordId);
+      const locked = await lockEventRecord(
+        client,
+        input.body.eventRecordId,
+        input.branchId,
+      );
       if (locked === undefined) {
         await client.query("ROLLBACK");
         return undefined;
@@ -903,9 +931,11 @@ export class PostgresOperationsRepository implements OperationsRepository {
         status: AttendanceLogStatus;
         check_in_at: Date | null;
       }>(
-        `SELECT id, event_record_id, status, check_in_at
-         FROM attendance_logs WHERE id = $1`,
-        [input.body.attendanceLogId],
+        `SELECT a.id, a.event_record_id, a.status, a.check_in_at
+         FROM attendance_logs a
+         INNER JOIN event_records e ON e.id = a.event_record_id
+         WHERE a.id = $1 AND e.branch_id = $2`,
+        [input.body.attendanceLogId, input.branchId],
       );
       const row = existing.rows[0];
       if (row === undefined || row.status !== "checked_in") {
@@ -913,7 +943,11 @@ export class PostgresOperationsRepository implements OperationsRepository {
         return undefined;
       }
 
-      const locked = await lockEventRecord(client, row.event_record_id);
+      const locked = await lockEventRecord(
+        client,
+        row.event_record_id,
+        input.branchId,
+      );
       if (locked === undefined) {
         await client.query("ROLLBACK");
         return undefined;
@@ -1005,7 +1039,11 @@ export class PostgresOperationsRepository implements OperationsRepository {
     const client = await this.pool.connect();
     try {
       await client.query("BEGIN");
-      const locked = await lockEventRecord(client, input.body.eventRecordId);
+      const locked = await lockEventRecord(
+        client,
+        input.body.eventRecordId,
+        input.branchId,
+      );
       if (locked === undefined) {
         await client.query("ROLLBACK");
         return undefined;
@@ -1130,7 +1168,11 @@ export class PostgresOperationsRepository implements OperationsRepository {
     const client = await this.pool.connect();
     try {
       await client.query("BEGIN");
-      const locked = await lockEventRecord(client, input.body.eventRecordId);
+      const locked = await lockEventRecord(
+        client,
+        input.body.eventRecordId,
+        input.branchId,
+      );
       if (locked === undefined) {
         await client.query("ROLLBACK");
         return undefined;
@@ -1223,15 +1265,23 @@ export class PostgresOperationsRepository implements OperationsRepository {
       const existing = await client.query<{
         id: string;
         event_record_id: string;
-      }>(`SELECT id, event_record_id FROM event_issues WHERE id = $1`, [
-        input.issueId,
-      ]);
+      }>(
+        `SELECT i.id, i.event_record_id
+         FROM event_issues i
+         INNER JOIN event_records e ON e.id = i.event_record_id
+         WHERE i.id = $1 AND e.branch_id = $2`,
+        [input.issueId, input.branchId],
+      );
       const row = existing.rows[0];
       if (row === undefined) {
         await client.query("ROLLBACK");
         return undefined;
       }
-      const locked = await lockEventRecord(client, row.event_record_id);
+      const locked = await lockEventRecord(
+        client,
+        row.event_record_id,
+        input.branchId,
+      );
       if (locked === undefined) {
         await client.query("ROLLBACK");
         return undefined;
@@ -1351,7 +1401,11 @@ export class PostgresOperationsRepository implements OperationsRepository {
     const client = await this.pool.connect();
     try {
       await client.query("BEGIN");
-      const locked = await lockEventRecord(client, input.body.eventRecordId);
+      const locked = await lockEventRecord(
+        client,
+        input.body.eventRecordId,
+        input.branchId,
+      );
       if (locked === undefined) {
         await client.query("ROLLBACK");
         return undefined;
@@ -1481,7 +1535,11 @@ export class PostgresOperationsRepository implements OperationsRepository {
     const client = await this.pool.connect();
     try {
       await client.query("BEGIN");
-      const locked = await lockEventRecord(client, input.body.eventRecordId);
+      const locked = await lockEventRecord(
+        client,
+        input.body.eventRecordId,
+        input.branchId,
+      );
       if (locked === undefined) {
         await client.query("ROLLBACK");
         return undefined;
@@ -1580,15 +1638,23 @@ export class PostgresOperationsRepository implements OperationsRepository {
       const existing = await client.query<{
         id: string;
         event_record_id: string;
-      }>(`SELECT id, event_record_id FROM material_usage WHERE id = $1`, [
-        input.materialId,
-      ]);
+      }>(
+        `SELECT m.id, m.event_record_id
+         FROM material_usage m
+         INNER JOIN event_records e ON e.id = m.event_record_id
+         WHERE m.id = $1 AND e.branch_id = $2`,
+        [input.materialId, input.branchId],
+      );
       const row = existing.rows[0];
       if (row === undefined) {
         await client.query("ROLLBACK");
         return undefined;
       }
-      const locked = await lockEventRecord(client, row.event_record_id);
+      const locked = await lockEventRecord(
+        client,
+        row.event_record_id,
+        input.branchId,
+      );
       if (locked === undefined) {
         await client.query("ROLLBACK");
         return undefined;
@@ -1723,7 +1789,11 @@ export class PostgresOperationsRepository implements OperationsRepository {
     const client = await this.pool.connect();
     try {
       await client.query("BEGIN");
-      const locked = await lockEventRecord(client, input.eventRecordId);
+      const locked = await lockEventRecord(
+        client,
+        input.eventRecordId,
+        input.branchId,
+      );
       if (locked === undefined) {
         await client.query("ROLLBACK");
         return undefined;
@@ -1794,7 +1864,11 @@ export class PostgresOperationsRepository implements OperationsRepository {
     const client = await this.pool.connect();
     try {
       await client.query("BEGIN");
-      const locked = await lockEventRecord(client, input.eventRecordId);
+      const locked = await lockEventRecord(
+        client,
+        input.eventRecordId,
+        input.branchId,
+      );
       if (locked === undefined) {
         await client.query("ROLLBACK");
         return undefined;
@@ -1900,7 +1974,11 @@ export class PostgresOperationsRepository implements OperationsRepository {
     const client = await this.pool.connect();
     try {
       await client.query("BEGIN");
-      const locked = await lockEventRecord(client, input.eventRecordId);
+      const locked = await lockEventRecord(
+        client,
+        input.eventRecordId,
+        input.branchId,
+      );
       if (locked === undefined) {
         await client.query("ROLLBACK");
         return undefined;
@@ -2001,7 +2079,12 @@ export class PostgresOperationsRepository implements OperationsRepository {
 
   public async getCompletion(
     eventRecordId: string,
+    branchId: string,
   ): Promise<EventCompletionSummary | undefined> {
+    const eventBranchId = await loadEventBranchId(this.pool, eventRecordId);
+    if (eventBranchId === undefined || eventBranchId !== branchId) {
+      return undefined;
+    }
     return loadCompletion(this.pool, eventRecordId);
   }
 }
@@ -2198,13 +2281,14 @@ function resolveAssigneeIds(body: AssignOperationsTaskRequest):
 async function lockEventRecord(
   client: PoolClient,
   eventRecordId: string,
+  branchId: string,
 ): Promise<LockedEvent | undefined> {
   const result = await client.query<LockedEvent>(
     `SELECT id, branch_id, version
      FROM event_records
-     WHERE id = $1
+     WHERE id = $1 AND branch_id = $2
      FOR UPDATE`,
-    [eventRecordId],
+    [eventRecordId, branchId],
   );
   return result.rows[0];
 }
@@ -2400,14 +2484,18 @@ async function loadCompletion(
 async function loadTask(
   db: Queryable,
   taskId: string,
+  branchId?: string,
 ): Promise<OperationsTaskSummary | undefined> {
-  const result = await db.query<TaskRow>(
-    `SELECT t.*, e.event_number
+  const params: unknown[] = [taskId];
+  let sql = `SELECT t.*, e.event_number
      FROM event_tasks t
      INNER JOIN event_records e ON e.id = t.event_record_id
-     WHERE t.id = $1`,
-    [taskId],
-  );
+     WHERE t.id = $1`;
+  if (branchId !== undefined) {
+    params.push(branchId);
+    sql += ` AND e.branch_id = $2`;
+  }
+  const result = await db.query<TaskRow>(sql, params);
   const row = result.rows[0];
   if (row === undefined) return undefined;
   const assignments = await loadAssignmentsForTasks(db, [taskId]);

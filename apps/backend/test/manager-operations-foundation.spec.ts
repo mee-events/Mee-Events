@@ -109,7 +109,11 @@ class FakeManagerOpsRepository implements ManagerOperationsRepository {
 
   public async getActiveAssignment(
     eventRecordId: string,
+    branchId: string,
   ): Promise<ManagerAssignmentSummary | undefined> {
+    if (branchId !== "00000000-0000-4000-8000-000000000001") {
+      return undefined;
+    }
     return [...this.assignments.values()].find(
       (item) =>
         item.eventRecordId === eventRecordId && item.status === "active",
@@ -147,9 +151,13 @@ class FakeManagerOpsRepository implements ManagerOperationsRepository {
 
   public async getEventDashboard(
     eventRecordId: string,
+    branchId: string,
   ): Promise<EventManagerDashboardResponse | undefined> {
+    if (branchId !== "00000000-0000-4000-8000-000000000001") {
+      return undefined;
+    }
     if (eventRecordId !== this.event.id) return undefined;
-    const assignment = await this.getActiveAssignment(eventRecordId);
+    const assignment = await this.getActiveAssignment(eventRecordId, branchId);
     const tasks = [...this.tasks.values()].filter(
       (task) => task.eventRecordId === eventRecordId,
     );
@@ -167,7 +175,11 @@ class FakeManagerOpsRepository implements ManagerOperationsRepository {
 
   public async listTasks(
     eventRecordId: string,
+    branchId: string,
   ): Promise<readonly EventTaskSummary[]> {
+    if (branchId !== "00000000-0000-4000-8000-000000000001") {
+      return [];
+    }
     return [...this.tasks.values()].filter(
       (task) => task.eventRecordId === eventRecordId,
     );
@@ -182,7 +194,11 @@ class FakeManagerOpsRepository implements ManagerOperationsRepository {
 
   public async getTask(
     taskId: string,
+    branchId: string,
   ): Promise<EventTaskDetailResponse | undefined> {
+    if (branchId !== "00000000-0000-4000-8000-000000000001") {
+      return undefined;
+    }
     return this.tasks.get(taskId);
   }
 
@@ -417,8 +433,25 @@ describe("Manager Operations Foundation", () => {
     expect(dashboard.activeTasks).toBe(1);
     expect(dashboard.progressUpdatesToday).toBe(1);
 
-    const eventDash = await service.getEventDashboard(repo.event.id);
+    const eventDash = await service.getEventDashboard(principal, repo.event.id);
     expect(eventDash.assignment?.managerUserId).toBe("manager-1");
     expect(eventDash.progressUpdates[0]?.summary).toBe("Decor load-in started");
+  });
+
+  it("denies other-branch manager event dashboard as 404", async () => {
+    const other: AuthenticatedPrincipal = {
+      ...principal,
+      userId: "other-branch",
+      branchId: "00000000-0000-4000-8000-000000000002",
+    };
+    await expect(
+      service.getEventDashboard(principal, repo.event.id),
+    ).resolves.toMatchObject({ event: { id: repo.event.id } });
+    await expect(
+      service.getEventDashboard(other, repo.event.id),
+    ).rejects.toMatchObject({
+      code: "EVENT_RECORD_NOT_FOUND",
+      status: 404,
+    });
   });
 });

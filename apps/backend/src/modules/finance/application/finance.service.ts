@@ -60,9 +60,13 @@ export class FinanceService {
   }
 
   public async getEventFinance(
+    principal: AuthenticatedPrincipal,
     eventRecordId: string,
   ): Promise<EventFinanceDetailResponse> {
-    const detail = await this.finance.getEventFinance(eventRecordId);
+    const detail = await this.finance.getEventFinance(
+      eventRecordId,
+      resolveBranchId(principal),
+    );
     if (detail === undefined) {
       throw new DomainError(
         "EVENT_FINANCE_NOT_FOUND",
@@ -73,17 +77,26 @@ export class FinanceService {
     return detail;
   }
 
-  public ensureEventFinance(
+  public async ensureEventFinance(
     principal: AuthenticatedPrincipal,
     eventRecordId: string,
     requestId: string = randomUUID(),
   ): Promise<EventFinancialSummary> {
-    return this.finance.ensureEventFinance({
+    const summary = await this.finance.ensureEventFinance({
       eventRecordId,
       actorUserId: principal.userId,
       actorRole: principal.activeRole,
       requestId,
+      branchId: resolveBranchId(principal),
     });
+    if (summary === undefined) {
+      throw new DomainError(
+        "EVENT_FINANCE_NOT_FOUND",
+        "Event finance summary not found",
+        404,
+      );
+    }
+    return summary;
   }
 
   public async updateEventFinance(
@@ -98,6 +111,7 @@ export class FinanceService {
       actorUserId: principal.userId,
       actorRole: principal.activeRole,
       requestId,
+      branchId: resolveBranchId(principal),
     });
     if (summary === undefined) {
       throw new DomainError(
@@ -119,6 +133,7 @@ export class FinanceService {
       actorUserId: principal.userId,
       actorRole: principal.activeRole,
       requestId,
+      branchId: resolveBranchId(principal),
     });
     if (payment === undefined) {
       throw new DomainError(
@@ -140,6 +155,7 @@ export class FinanceService {
       actorUserId: principal.userId,
       actorRole: principal.activeRole,
       requestId,
+      branchId: resolveBranchId(principal),
     });
     if (refund === undefined) {
       throw new DomainError(
@@ -186,6 +202,7 @@ export class FinanceService {
       actorUserId: principal.userId,
       actorRole: principal.activeRole,
       requestId,
+      branchId: resolveBranchId(principal),
     });
     if (expense === undefined) {
       throw new DomainError(
@@ -215,6 +232,7 @@ export class FinanceService {
       actorUserId: principal.userId,
       actorRole: principal.activeRole,
       requestId,
+      branchId: resolveBranchId(principal),
     });
     if (settlement === undefined) {
       throw new DomainError(
@@ -238,6 +256,7 @@ export class FinanceService {
       actorUserId: principal.userId,
       actorRole: principal.activeRole,
       requestId,
+      branchId: resolveBranchId(principal),
     });
     if (settlement === undefined) {
       throw new DomainError(
@@ -269,6 +288,7 @@ export class FinanceService {
       actorUserId: principal.userId,
       actorRole: principal.activeRole,
       requestId,
+      branchId: resolveBranchId(principal),
     });
     if (payout === undefined) {
       throw new DomainError(
@@ -292,6 +312,7 @@ export class FinanceService {
       actorUserId: principal.userId,
       actorRole: principal.activeRole,
       requestId,
+      branchId: resolveBranchId(principal),
     });
     if (payout === undefined) {
       throw new DomainError(
@@ -321,6 +342,7 @@ export class FinanceService {
       actorUserId: principal.userId,
       actorRole: principal.activeRole,
       requestId,
+      branchId: resolveBranchId(principal),
     });
     if (invoice === undefined) {
       throw new DomainError(

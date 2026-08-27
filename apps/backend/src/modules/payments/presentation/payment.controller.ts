@@ -88,8 +88,12 @@ export class CrmPaymentController {
   @ApiOperation({ summary: "List pending advance payments for a quotation" })
   public pendingForQuotation(
     @Param("quotationId", new ParseUUIDPipe()) quotationId: string,
+    @Req() request: AuthenticatedPlatformRequest,
   ): Promise<PaymentListResponse> {
-    return this.payments.listPendingForQuotation(quotationId);
+    return this.payments.listPendingForQuotation(
+      principalOf(request),
+      quotationId,
+    );
   }
 }
 

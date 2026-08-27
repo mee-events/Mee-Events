@@ -198,9 +198,9 @@ export class PostgresPaymentRepository implements PaymentRepository {
          JOIN quotations q ON q.id = p.quotation_id
          JOIN enquiries en ON en.id = q.enquiry_id
          JOIN event_types et ON et.id = en.event_type_id
-         WHERE p.id = $1 AND p.kind = 'advance'
+         WHERE p.id = $1 AND p.kind = 'advance' AND p.branch_id = $2
          FOR UPDATE OF p, q`,
-        [input.paymentId],
+        [input.paymentId, input.branchId],
       );
       const payment = paymentResult.rows[0];
       if (
@@ -459,12 +459,13 @@ export class PostgresPaymentRepository implements PaymentRepository {
 
   public async findById(
     paymentId: string,
+    branchId: string,
   ): Promise<PaymentSummary | undefined> {
     const result = await this.pool.query<PaymentRow>(
       `SELECT id, payment_plan_id, quotation_id, kind, method, amount, status,
               reference_code, notes, confirmed_at, created_at
-       FROM payments WHERE id = $1`,
-      [paymentId],
+       FROM payments WHERE id = $1 AND branch_id = $2`,
+      [paymentId, branchId],
     );
     const row = result.rows[0];
     return row === undefined ? undefined : toPayment(row);
@@ -472,14 +473,18 @@ export class PostgresPaymentRepository implements PaymentRepository {
 
   public async listPendingAdvancesForQuotation(
     quotationId: string,
+    branchId: string,
   ): Promise<readonly PaymentSummary[]> {
     const result = await this.pool.query<PaymentRow>(
       `SELECT id, payment_plan_id, quotation_id, kind, method, amount, status,
               reference_code, notes, confirmed_at, created_at
        FROM payments
-       WHERE quotation_id = $1 AND kind = 'advance' AND status = 'pending'
+       WHERE quotation_id = $1
+         AND branch_id = $2
+         AND kind = 'advance'
+         AND status = 'pending'
        ORDER BY created_at DESC`,
-      [quotationId],
+      [quotationId, branchId],
     );
     return result.rows.map(toPayment);
   }

@@ -101,10 +101,13 @@ export class PostgresVendorRepository implements VendorRepository {
 
   public async getVendor(
     vendorId: string,
+    branchId?: string,
   ): Promise<VendorDetailResponse | undefined> {
     const result = await this.pool.query<VendorRow>(
-      `SELECT * FROM vendors WHERE id = $1`,
-      [vendorId],
+      branchId === undefined
+        ? `SELECT * FROM vendors WHERE id = $1`
+        : `SELECT * FROM vendors WHERE id = $1 AND branch_id = $2`,
+      branchId === undefined ? [vendorId] : [vendorId, branchId],
     );
     const row = result.rows[0];
     if (row === undefined) return undefined;
@@ -304,7 +307,7 @@ export class PostgresVendorRepository implements VendorRepository {
       });
 
       await client.query("COMMIT");
-      const detail = await this.getVendor(vendorId);
+      const detail = await this.getVendor(vendorId, input.branchId);
       if (detail === undefined) throw new Error("Vendor missing after create");
       return detail;
     } catch (error) {
@@ -325,8 +328,8 @@ export class PostgresVendorRepository implements VendorRepository {
     try {
       await client.query("BEGIN");
       const current = await client.query<{ version: number }>(
-        `SELECT version FROM vendors WHERE id = $1 FOR UPDATE`,
-        [input.vendorId],
+        `SELECT version FROM vendors WHERE id = $1 AND branch_id = $2 FOR UPDATE`,
+        [input.vendorId, input.branchId],
       );
       if (current.rows[0] === undefined) {
         await client.query("ROLLBACK");
@@ -351,7 +354,7 @@ export class PostgresVendorRepository implements VendorRepository {
            notes = CASE WHEN $21::boolean THEN $22 ELSE notes END,
            updated_by_user_id = $23,
            version = version + 1
-         WHERE id = $1`,
+         WHERE id = $1 AND branch_id = $24`,
         [
           input.vendorId,
           input.body.businessName ?? null,
@@ -376,6 +379,7 @@ export class PostgresVendorRepository implements VendorRepository {
           input.body.notes !== undefined,
           input.body.notes ?? null,
           input.actorUserId,
+          input.branchId,
         ],
       );
 
@@ -431,7 +435,7 @@ export class PostgresVendorRepository implements VendorRepository {
       });
 
       await client.query("COMMIT");
-      return await this.getVendor(input.vendorId);
+      return await this.getVendor(input.vendorId, input.branchId);
     } catch (error) {
       await client.query("ROLLBACK");
       throw error;
@@ -455,8 +459,8 @@ export class PostgresVendorRepository implements VendorRepository {
         event_number: string;
       }>(
         `SELECT id, branch_id, status, version, assigned_manager_user_id, event_number
-         FROM event_records WHERE id = $1 FOR UPDATE`,
-        [input.body.eventRecordId],
+         FROM event_records WHERE id = $1 AND branch_id = $2 FOR UPDATE`,
+        [input.body.eventRecordId, input.branchId],
       );
       const locked = event.rows[0];
       if (locked === undefined) {
@@ -465,8 +469,8 @@ export class PostgresVendorRepository implements VendorRepository {
       }
 
       const vendor = await client.query<{ id: string; business_name: string }>(
-        `SELECT id, business_name FROM vendors WHERE id = $1 AND active_status = 'active'`,
-        [input.body.vendorId],
+        `SELECT id, business_name FROM vendors WHERE id = $1 AND active_status = 'active' AND branch_id = $2`,
+        [input.body.vendorId, input.branchId],
       );
       if (vendor.rows[0] === undefined) {
         await client.query("ROLLBACK");
@@ -519,8 +523,8 @@ export class PostgresVendorRepository implements VendorRepository {
         await client.query(
           `UPDATE event_records
            SET status = 'vendor_assigned', updated_by_user_id = $2, version = version + 1
-           WHERE id = $1`,
-          [input.body.eventRecordId, input.actorUserId],
+           WHERE id = $1 AND branch_id = $3`,
+          [input.body.eventRecordId, input.actorUserId, input.branchId],
         );
         await client.query(
           `INSERT INTO event_status_history (
@@ -576,7 +580,11 @@ export class PostgresVendorRepository implements VendorRepository {
         outboxTopic: notify.topic,
       });
 
-      const summary = await loadAssignmentSummary(client, assignmentId);
+      const summary = await loadAssignmentSummary(
+        client,
+        assignmentId,
+        input.branchId,
+      );
       await client.query("COMMIT");
       return summary;
     } catch (error) {
@@ -689,7 +697,9 @@ export class PostgresVendorRepository implements VendorRepository {
     }
     if (filters?.branchId !== undefined) {
       params.push(filters.branchId);
-      clauses.push(`v.branch_id = $${params.length}`);
+      clauses.push(
+        `v.branch_id = $${params.length} AND e.branch_id = $${params.length}`,
+      );
     }
     const where = clauses.length === 0 ? "" : `WHERE ${clauses.join(" AND ")}`;
     const limit = filters?.limit ?? 200;
@@ -712,8 +722,13 @@ export class PostgresVendorRepository implements VendorRepository {
 
   public async getAssignment(
     assignmentId: string,
+    branchId?: string,
   ): Promise<VendorAssignmentDetailResponse | undefined> {
-    const summary = await loadAssignmentSummary(this.pool, assignmentId);
+    const summary = await loadAssignmentSummary(
+      this.pool,
+      assignmentId,
+      branchId,
+    );
     if (summary === undefined) return undefined;
 
     const [history, notes, timeline] = await Promise.all([
@@ -793,8 +808,8 @@ export class PostgresVendorRepository implements VendorRepository {
     try {
       await client.query("BEGIN");
       const vendor = await client.query(
-        `SELECT id FROM vendors WHERE id = $1`,
-        [input.vendorId],
+        `SELECT id FROM vendors WHERE id = $1 AND branch_id = $2`,
+        [input.vendorId, input.branchId],
       );
       if ((vendor.rowCount ?? 0) === 0) {
         await client.query("ROLLBACK");
@@ -1005,9 +1020,9 @@ export class PostgresVendorRepository implements VendorRepository {
         `SELECT a.id, a.event_record_id, a.vendor_id, a.status, a.version, e.branch_id
          FROM vendor_assignments a
          INNER JOIN event_records e ON e.id = a.event_record_id
-         WHERE a.id = $1
+         WHERE a.id = $1 AND e.branch_id = $2
          FOR UPDATE OF a`,
-        [assignmentId],
+        [assignmentId, ctx.branchId],
       );
       const row = current.rows[0];
       if (row === undefined) {
@@ -1128,7 +1143,11 @@ export class PostgresVendorRepository implements VendorRepository {
         outboxTopic: notify.topic,
       });
 
-      const summary = await loadAssignmentSummary(client, assignmentId);
+      const summary = await loadAssignmentSummary(
+        client,
+        assignmentId,
+        ctx.branchId,
+      );
       await client.query("COMMIT");
       return summary;
     } catch (error) {
@@ -1390,17 +1409,21 @@ function mapAssignmentRow(row: AssignmentSummaryRow): VendorAssignmentSummary {
 async function loadAssignmentSummary(
   db: Pool | PoolClient,
   assignmentId: string,
+  branchId?: string,
 ): Promise<VendorAssignmentSummary | undefined> {
-  const result = await db.query<AssignmentSummaryRow>(
-    `SELECT a.*, e.event_number, e.event_name, v.business_name,
+  const params: unknown[] = [assignmentId];
+  let sql = `SELECT a.*, e.event_number, e.event_name, v.business_name,
             sc.display_name AS service_category_name
      FROM vendor_assignments a
      INNER JOIN event_records e ON e.id = a.event_record_id
      INNER JOIN vendors v ON v.id = a.vendor_id
      LEFT JOIN service_categories sc ON sc.id = a.service_category_id
-     WHERE a.id = $1`,
-    [assignmentId],
-  );
+     WHERE a.id = $1`;
+  if (branchId !== undefined) {
+    params.push(branchId);
+    sql += ` AND e.branch_id = $2`;
+  }
+  const result = await db.query<AssignmentSummaryRow>(sql, params);
   const row = result.rows[0];
   if (row === undefined) return undefined;
   return mapAssignmentRow(row);

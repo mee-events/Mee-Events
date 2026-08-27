@@ -91,7 +91,11 @@ class FakeInventoryRepository implements InventoryRepository {
 
   public async getWarehouse(
     warehouseId: string,
+    branchId: string,
   ): Promise<WarehouseDetailResponse | undefined> {
+    if (branchId !== "00000000-0000-4000-8000-000000000001") {
+      return undefined;
+    }
     return this.warehouses.get(warehouseId);
   }
 
@@ -178,7 +182,11 @@ class FakeInventoryRepository implements InventoryRepository {
 
   public async getItem(
     itemId: string,
+    branchId: string,
   ): Promise<InventoryItemDetailResponse | undefined> {
+    if (branchId !== "00000000-0000-4000-8000-000000000001") {
+      return undefined;
+    }
     return this.items.get(itemId);
   }
 
@@ -442,7 +450,11 @@ class FakeInventoryRepository implements InventoryRepository {
 
   public async getAllocation(
     allocationId: string,
+    branchId: string,
   ): Promise<InventoryAllocationDetailResponse | undefined> {
+    if (branchId !== "00000000-0000-4000-8000-000000000001") {
+      return undefined;
+    }
     return this.allocations.get(allocationId);
   }
 
@@ -588,7 +600,7 @@ describe("Inventory & Warehouse Foundation", () => {
       warehouseId: warehouse.id,
     });
 
-    const detail = await service.getAllocation(reserved.id);
+    const detail = await service.getAllocation(manager, reserved.id);
     const types = detail.timeline.map((e) => e.entryType);
 
     expect(types).toContain("inventory_reserved");
@@ -621,5 +633,34 @@ describe("Inventory & Warehouse Foundation", () => {
     const dashboard = await service.getInventoryDashboard(manager);
     expect(dashboard.totalItems).toBe(1);
     expect(dashboard.availableItems).toBe(1);
+  });
+
+  it("denies other-branch inventory allocation detail as 404", async () => {
+    const item = await service.createItem(manager, {
+      name: "Chair set",
+      quantityOnHand: 10,
+      condition: "good",
+      ownershipType: "owned",
+    });
+    const reserved = await service.allocate(manager, {
+      eventRecordId: randomUUID(),
+      itemId: item.id,
+      quantity: 1,
+      status: "reserved",
+    });
+    const other: AuthenticatedPrincipal = {
+      ...manager,
+      userId: "other-branch",
+      branchId: "00000000-0000-4000-8000-000000000002",
+    };
+    await expect(
+      service.getAllocation(manager, reserved.id),
+    ).resolves.toMatchObject({ id: reserved.id });
+    await expect(
+      service.getAllocation(other, reserved.id),
+    ).rejects.toMatchObject({
+      code: "INVENTORY_ALLOCATION_NOT_FOUND",
+      status: 404,
+    });
   });
 });

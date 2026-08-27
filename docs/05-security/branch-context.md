@@ -61,6 +61,9 @@ caching the principal ([jwt.md](./jwt.md)).
 - Controllers/services pass the resolved `branchId` into mutation context.
 - Repositories **must** use that value for branch-scoped SQL — do not import
   `HYDERABAD_BRANCH` inside query methods for authorization bypass.
+- Employee UUID get/lock/update must include the resolved branch (SEC-02).
+  Cross-branch access is **404**, same as missing. Inventory:
+  [sec-02-branch-bola-inventory.md](./sec-02-branch-bola-inventory.md).
 - Pattern B `writeAuditOutbox` accepts `branchId` for `audit_events.branch_id`
   ([auditing.md](./auditing.md), [Pattern B](../02-architecture/pattern-b.md)).
 - Identity `AUDIT_SINK` security events may omit `branchId` (column nullable).

@@ -55,6 +55,7 @@ export class ManagerOperationsService {
       actorUserId: principal.userId,
       actorRole: principal.activeRole,
       requestId,
+      branchId: resolveBranchId(principal),
     });
     if (assignment === undefined) {
       throw new DomainError("EVENT_RECORD_NOT_FOUND", "Event not found", 404);
@@ -74,6 +75,7 @@ export class ManagerOperationsService {
       actorUserId: principal.userId,
       actorRole: principal.activeRole,
       requestId,
+      branchId: resolveBranchId(principal),
     });
     if (assignment === undefined) {
       throw new DomainError(
@@ -101,9 +103,13 @@ export class ManagerOperationsService {
   }
 
   public async getEventDashboard(
+    principal: AuthenticatedPrincipal,
     eventRecordId: string,
   ): Promise<EventManagerDashboardResponse> {
-    const dashboard = await this.repo.getEventDashboard(eventRecordId);
+    const dashboard = await this.repo.getEventDashboard(
+      eventRecordId,
+      resolveBranchId(principal),
+    );
     if (dashboard === undefined) {
       throw new DomainError("EVENT_RECORD_NOT_FOUND", "Event not found", 404);
     }
@@ -114,18 +120,15 @@ export class ManagerOperationsService {
     principal: AuthenticatedPrincipal,
     eventRecordId: string,
   ): Promise<EventManagerDashboardResponse> {
+    const dashboard = await this.getEventDashboard(principal, eventRecordId);
     const allowed = await this.repo.isAssignedManager(
       eventRecordId,
       principal.userId,
     );
     if (!allowed) {
-      throw new DomainError(
-        "MANAGER_EVENT_FORBIDDEN",
-        "You are not the assigned manager for this event",
-        403,
-      );
+      throw new DomainError("EVENT_RECORD_NOT_FOUND", "Event not found", 404);
     }
-    return this.getEventDashboard(eventRecordId);
+    return dashboard;
   }
 
   public async listOwnEvents(
@@ -138,9 +141,13 @@ export class ManagerOperationsService {
   }
 
   public async listTasks(
+    principal: AuthenticatedPrincipal,
     eventRecordId: string,
   ): Promise<EventTaskListResponse> {
-    const tasks = await this.repo.listTasks(eventRecordId);
+    const tasks = await this.repo.listTasks(
+      eventRecordId,
+      resolveBranchId(principal),
+    );
     return { tasks };
   }
 
@@ -153,8 +160,11 @@ export class ManagerOperationsService {
     return { tasks };
   }
 
-  public async getTask(taskId: string): Promise<EventTaskDetailResponse> {
-    const task = await this.repo.getTask(taskId);
+  public async getTask(
+    principal: AuthenticatedPrincipal,
+    taskId: string,
+  ): Promise<EventTaskDetailResponse> {
+    const task = await this.repo.getTask(taskId, resolveBranchId(principal));
     if (task === undefined) {
       throw new DomainError("EVENT_TASK_NOT_FOUND", "Task not found", 404);
     }
@@ -173,6 +183,7 @@ export class ManagerOperationsService {
       actorUserId: principal.userId,
       actorRole: principal.activeRole,
       requestId,
+      branchId: resolveBranchId(principal),
     });
     if (task === undefined) {
       throw new DomainError("EVENT_RECORD_NOT_FOUND", "Event not found", 404);
@@ -192,6 +203,7 @@ export class ManagerOperationsService {
       actorUserId: principal.userId,
       actorRole: principal.activeRole,
       requestId,
+      branchId: resolveBranchId(principal),
     });
     if (task === undefined) {
       throw new DomainError("EVENT_TASK_NOT_FOUND", "Task not found", 404);
@@ -211,6 +223,7 @@ export class ManagerOperationsService {
       actorUserId: principal.userId,
       actorRole: principal.activeRole,
       requestId,
+      branchId: resolveBranchId(principal),
     });
     if (task === undefined) {
       throw new DomainError("EVENT_TASK_NOT_FOUND", "Task not found", 404);
@@ -230,6 +243,7 @@ export class ManagerOperationsService {
       actorUserId: principal.userId,
       actorRole: principal.activeRole,
       requestId,
+      branchId: resolveBranchId(principal),
     });
     if (comment === undefined) {
       throw new DomainError("EVENT_TASK_NOT_FOUND", "Task not found", 404);
@@ -255,6 +269,7 @@ export class ManagerOperationsService {
       actorUserId: principal.userId,
       actorRole: principal.activeRole,
       requestId,
+      branchId: resolveBranchId(principal),
     });
     if (progress === undefined) {
       throw new DomainError("EVENT_RECORD_NOT_FOUND", "Event not found", 404);
@@ -274,6 +289,7 @@ export class ManagerOperationsService {
       actorUserId: principal.userId,
       actorRole: principal.activeRole,
       requestId,
+      branchId: resolveBranchId(principal),
     });
     if (progress === undefined) {
       throw new DomainError(
@@ -286,10 +302,13 @@ export class ManagerOperationsService {
   }
 
   public getActiveAssignment(
+    principal: AuthenticatedPrincipal,
     eventRecordId: string,
   ): Promise<ManagerAssignmentListResponse> {
-    return this.repo.getActiveAssignment(eventRecordId).then((assignment) => ({
-      assignments: assignment === undefined ? [] : [assignment],
-    }));
+    return this.repo
+      .getActiveAssignment(eventRecordId, resolveBranchId(principal))
+      .then((assignment) => ({
+        assignments: assignment === undefined ? [] : [assignment],
+      }));
   }
 }

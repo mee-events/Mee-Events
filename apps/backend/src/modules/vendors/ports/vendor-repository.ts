@@ -37,7 +37,10 @@ export interface VendorRepository {
     readonly items: readonly VendorSummary[];
     readonly total: number;
   }>;
-  getVendor(vendorId: string): Promise<VendorDetailResponse | undefined>;
+  getVendor(
+    vendorId: string,
+    branchId?: string,
+  ): Promise<VendorDetailResponse | undefined>;
   createVendor(
     input: VendorMutationContext & { readonly body: CreateVendorRequest },
   ): Promise<VendorDetailResponse>;
@@ -82,6 +85,7 @@ export interface VendorRepository {
   }): Promise<readonly VendorAssignmentSummary[]>;
   getAssignment(
     assignmentId: string,
+    branchId?: string,
   ): Promise<VendorAssignmentDetailResponse | undefined>;
 
   addNote(

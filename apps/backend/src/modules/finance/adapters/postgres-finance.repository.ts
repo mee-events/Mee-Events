@@ -136,11 +136,14 @@ export class PostgresFinanceRepository implements FinanceRepository {
 
   public async getEventFinance(
     eventRecordId: string,
+    branchId: string,
   ): Promise<EventFinanceDetailResponse | undefined> {
+    const eventBranchId = await loadEventBranchId(this.pool, eventRecordId);
+    if (eventBranchId === undefined || eventBranchId !== branchId) {
+      return undefined;
+    }
     const summary = await loadSummary(this.pool, eventRecordId);
     if (summary === undefined) return undefined;
-    const branchId = await loadEventBranchId(this.pool, eventRecordId);
-    if (branchId === undefined) return undefined;
 
     const [
       payments,
@@ -204,14 +207,18 @@ export class PostgresFinanceRepository implements FinanceRepository {
 
   public async ensureEventFinance(
     input: FinanceMutationContext & { readonly eventRecordId: string },
-  ): Promise<EventFinancialSummary> {
+  ): Promise<EventFinancialSummary | undefined> {
     const client = await this.pool.connect();
     try {
       await client.query("BEGIN");
-      const locked = await lockEventRecord(client, input.eventRecordId);
+      const locked = await lockEventRecord(
+        client,
+        input.eventRecordId,
+        input.branchId,
+      );
       if (locked === undefined) {
         await client.query("ROLLBACK");
-        throw new Error("Event record not found");
+        return undefined;
       }
       const summary = await ensureEventFinance(client, {
         eventRecordId: input.eventRecordId,
@@ -236,7 +243,11 @@ export class PostgresFinanceRepository implements FinanceRepository {
     const client = await this.pool.connect();
     try {
       await client.query("BEGIN");
-      const locked = await lockEventRecord(client, input.eventRecordId);
+      const locked = await lockEventRecord(
+        client,
+        input.eventRecordId,
+        input.branchId,
+      );
       if (locked === undefined) {
         await client.query("ROLLBACK");
         return undefined;
@@ -337,7 +348,11 @@ export class PostgresFinanceRepository implements FinanceRepository {
     const client = await this.pool.connect();
     try {
       await client.query("BEGIN");
-      const locked = await lockEventRecord(client, input.body.eventRecordId);
+      const locked = await lockEventRecord(
+        client,
+        input.body.eventRecordId,
+        input.branchId,
+      );
       if (locked === undefined) {
         await client.query("ROLLBACK");
         return undefined;
@@ -491,7 +506,11 @@ export class PostgresFinanceRepository implements FinanceRepository {
     const client = await this.pool.connect();
     try {
       await client.query("BEGIN");
-      const locked = await lockEventRecord(client, input.body.eventRecordId);
+      const locked = await lockEventRecord(
+        client,
+        input.body.eventRecordId,
+        input.branchId,
+      );
       if (locked === undefined) {
         await client.query("ROLLBACK");
         return undefined;
@@ -636,7 +655,11 @@ export class PostgresFinanceRepository implements FinanceRepository {
     const client = await this.pool.connect();
     try {
       await client.query("BEGIN");
-      const locked = await lockEventRecord(client, input.body.eventRecordId);
+      const locked = await lockEventRecord(
+        client,
+        input.body.eventRecordId,
+        input.branchId,
+      );
       if (locked === undefined) {
         await client.query("ROLLBACK");
         return undefined;
@@ -770,7 +793,11 @@ export class PostgresFinanceRepository implements FinanceRepository {
     const client = await this.pool.connect();
     try {
       await client.query("BEGIN");
-      const locked = await lockEventRecord(client, input.body.eventRecordId);
+      const locked = await lockEventRecord(
+        client,
+        input.body.eventRecordId,
+        input.branchId,
+      );
       if (locked === undefined) {
         await client.query("ROLLBACK");
         return undefined;
@@ -895,7 +922,11 @@ export class PostgresFinanceRepository implements FinanceRepository {
     const client = await this.pool.connect();
     try {
       await client.query("BEGIN");
-      const locked = await lockSettlement(client, input.settlementId);
+      const locked = await lockSettlement(
+        client,
+        input.settlementId,
+        input.branchId,
+      );
       if (locked === undefined) {
         await client.query("ROLLBACK");
         return undefined;
@@ -1017,7 +1048,11 @@ export class PostgresFinanceRepository implements FinanceRepository {
     const client = await this.pool.connect();
     try {
       await client.query("BEGIN");
-      const locked = await lockEventRecord(client, input.body.eventRecordId);
+      const locked = await lockEventRecord(
+        client,
+        input.body.eventRecordId,
+        input.branchId,
+      );
       if (locked === undefined) {
         await client.query("ROLLBACK");
         return undefined;
@@ -1121,7 +1156,7 @@ export class PostgresFinanceRepository implements FinanceRepository {
     const client = await this.pool.connect();
     try {
       await client.query("BEGIN");
-      const locked = await lockPayout(client, input.payoutId);
+      const locked = await lockPayout(client, input.payoutId, input.branchId);
       if (locked === undefined) {
         await client.query("ROLLBACK");
         return undefined;
@@ -1241,7 +1276,11 @@ export class PostgresFinanceRepository implements FinanceRepository {
     const client = await this.pool.connect();
     try {
       await client.query("BEGIN");
-      const locked = await lockEventRecord(client, input.body.eventRecordId);
+      const locked = await lockEventRecord(
+        client,
+        input.body.eventRecordId,
+        input.branchId,
+      );
       if (locked === undefined) {
         await client.query("ROLLBACK");
         return undefined;
@@ -1850,6 +1889,7 @@ async function loadInvoice(
 async function lockEventRecord(
   client: PoolClient,
   eventRecordId: string,
+  branchId: string,
 ): Promise<
   | { id: string; branch_id: string; version: number; budget_amount: string }
   | undefined
@@ -1863,9 +1903,9 @@ async function lockEventRecord(
   }>(
     `SELECT id, branch_id, version, budget_amount, advance_paid
      FROM event_records
-     WHERE id = $1
+     WHERE id = $1 AND branch_id = $2
      FOR UPDATE`,
-    [eventRecordId],
+    [eventRecordId, branchId],
   );
   return result.rows[0];
 }
@@ -1873,6 +1913,7 @@ async function lockEventRecord(
 async function lockSettlement(
   client: PoolClient,
   settlementId: string,
+  branchId: string,
 ): Promise<
   | {
       id: string;
@@ -1898,9 +1939,9 @@ async function lockSettlement(
             s.reference_code, e.version AS event_version
      FROM vendor_settlements s
      INNER JOIN event_records e ON e.id = s.event_record_id
-     WHERE s.id = $1
+     WHERE s.id = $1 AND s.branch_id = $2
      FOR UPDATE OF s`,
-    [settlementId],
+    [settlementId, branchId],
   );
   return result.rows[0];
 }
@@ -1908,6 +1949,7 @@ async function lockSettlement(
 async function lockPayout(
   client: PoolClient,
   payoutId: string,
+  branchId: string,
 ): Promise<
   | {
       id: string;
@@ -1933,9 +1975,9 @@ async function lockPayout(
             p.reference_code, e.version AS event_version
      FROM worker_payouts p
      INNER JOIN event_records e ON e.id = p.event_record_id
-     WHERE p.id = $1
+     WHERE p.id = $1 AND p.branch_id = $2
      FOR UPDATE OF p`,
-    [payoutId],
+    [payoutId, branchId],
   );
   return result.rows[0];
 }

@@ -95,10 +95,11 @@ export class CrmVendorController {
   @RequireCapability("crm_vendor.read")
   @ApiOperation({ summary: "List vendor assignments" })
   public listAssignments(
+    @Req() request: AuthenticatedPlatformRequest,
     @Query("eventRecordId") eventRecordId?: string,
     @Query("vendorId") vendorId?: string,
   ): Promise<VendorAssignmentListResponse> {
-    return this.vendors.listAssignments({
+    return this.vendors.listAssignments(principalOf(request), {
       ...(eventRecordId === undefined ? {} : { eventRecordId }),
       ...(vendorId === undefined ? {} : { vendorId }),
     });
@@ -124,8 +125,9 @@ export class CrmVendorController {
   @ApiOperation({ summary: "Vendor assignment detail" })
   public getAssignment(
     @Param("assignmentId", new ParseUUIDPipe()) assignmentId: string,
+    @Req() request: AuthenticatedPlatformRequest,
   ): Promise<VendorAssignmentDetailResponse> {
-    return this.vendors.getAssignment(assignmentId);
+    return this.vendors.getAssignment(principalOf(request), assignmentId);
   }
 
   @Patch("assignments/:assignmentId")
@@ -150,8 +152,9 @@ export class CrmVendorController {
   @ApiOperation({ summary: "Vendor detail" })
   public get(
     @Param("id", new ParseUUIDPipe()) id: string,
+    @Req() request: AuthenticatedPlatformRequest,
   ): Promise<VendorDetailResponse> {
-    return this.vendors.get(id);
+    return this.vendors.get(principalOf(request), id);
   }
 
   @Patch(":id")

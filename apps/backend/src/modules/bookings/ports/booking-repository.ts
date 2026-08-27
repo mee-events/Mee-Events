@@ -9,7 +9,10 @@ export const BOOKING_REPOSITORY = Symbol("BOOKING_REPOSITORY");
 export interface BookingRepository {
   listForCustomerUser(userId: string): Promise<readonly BookingSummary[]>;
   listForBranch(branchId: string): Promise<readonly BookingSummary[]>;
-  findById(bookingId: string): Promise<BookingDetailResponse | undefined>;
+  findById(
+    bookingId: string,
+    branchId: string,
+  ): Promise<BookingDetailResponse | undefined>;
   findForCustomerUser(
     userId: string,
     bookingId: string,

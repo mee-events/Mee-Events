@@ -18,6 +18,7 @@ export interface SubmitAdvanceInput {
 
 export interface ConfirmAdvanceInput {
   readonly paymentId: string;
+  readonly branchId: string;
   readonly actorUserId: string;
   readonly actorRole: string;
   readonly requestId: string;
@@ -35,9 +36,13 @@ export interface PaymentRepository {
     input: ConfirmAdvanceInput,
   ): Promise<ConfirmAdvanceResult | undefined>;
   listForCustomerUser(userId: string): Promise<readonly PaymentSummary[]>;
-  findById(paymentId: string): Promise<PaymentSummary | undefined>;
+  findById(
+    paymentId: string,
+    branchId: string,
+  ): Promise<PaymentSummary | undefined>;
   listPendingAdvancesForQuotation(
     quotationId: string,
+    branchId: string,
   ): Promise<readonly PaymentSummary[]>;
 }
 

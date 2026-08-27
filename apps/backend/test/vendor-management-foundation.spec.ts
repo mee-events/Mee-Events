@@ -121,7 +121,14 @@ class FakeVendorRepository implements VendorRepository {
 
   public async getVendor(
     vendorId: string,
+    branchId?: string,
   ): Promise<VendorDetailResponse | undefined> {
+    if (
+      branchId !== undefined &&
+      branchId !== "00000000-0000-4000-8000-000000000001"
+    ) {
+      return undefined;
+    }
     return this.vendors.get(vendorId);
   }
 
@@ -381,8 +388,15 @@ class FakeVendorRepository implements VendorRepository {
   public async listAssignments(filters?: {
     readonly vendorId?: string;
     readonly eventRecordId?: string;
+    readonly branchId?: string;
   }): Promise<readonly VendorAssignmentSummary[]> {
     return [...this.assignments.values()].filter((item) => {
+      if (
+        filters?.branchId !== undefined &&
+        filters.branchId !== "00000000-0000-4000-8000-000000000001"
+      ) {
+        return false;
+      }
       if (
         filters?.vendorId !== undefined &&
         item.vendorId !== filters.vendorId
@@ -401,7 +415,14 @@ class FakeVendorRepository implements VendorRepository {
 
   public async getAssignment(
     assignmentId: string,
+    branchId?: string,
   ): Promise<VendorAssignmentDetailResponse | undefined> {
+    if (
+      branchId !== undefined &&
+      branchId !== "00000000-0000-4000-8000-000000000001"
+    ) {
+      return undefined;
+    }
     return this.assignments.get(assignmentId);
   }
 
@@ -531,7 +552,7 @@ describe("Vendor Management Foundation", () => {
       eventRecordId,
       status: "assigned",
     });
-    const detail = await service.getAssignment(assignment.id);
+    const detail = await service.getAssignment(employee, assignment.id);
 
     expect(vendor.businessName).toBe("Decor Co");
     expect(assignment.status).toBe("assigned");
@@ -620,5 +641,39 @@ describe("Vendor Management Foundation", () => {
     const dashboard = await service.getCrmDashboard(employee);
     expect(dashboard.totalVendors).toBe(1);
     expect(dashboard.pendingAcceptances).toBe(1);
+  });
+
+  it("denies other-branch vendor assignment detail as 404", async () => {
+    const vendor = await service.create(employee, {
+      businessName: "Decor Co",
+      ownerName: "Owner",
+      phoneE164: "+919000000003",
+      categoryCodes: ["decoration"],
+      city: "Hyderabad",
+      state: "Telangana",
+    });
+    const assignment = await service.assign(employee, {
+      vendorId: vendor.id,
+      eventRecordId: randomUUID(),
+      status: "assigned",
+    });
+    const other: AuthenticatedPrincipal = {
+      ...employee,
+      userId: "other-branch",
+      branchId: "00000000-0000-4000-8000-000000000002",
+    };
+    await expect(
+      service.getAssignment(employee, assignment.id),
+    ).resolves.toMatchObject({ id: assignment.id });
+    await expect(
+      service.getAssignment(other, assignment.id),
+    ).rejects.toMatchObject({
+      code: "VENDOR_ASSIGNMENT_NOT_FOUND",
+      status: 404,
+    });
+    await expect(service.get(other, vendor.id)).rejects.toMatchObject({
+      code: "VENDOR_NOT_FOUND",
+      status: 404,
+    });
   });
 });

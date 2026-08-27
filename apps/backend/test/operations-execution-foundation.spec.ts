@@ -35,7 +35,10 @@ import type {
   OperationsMutationContext,
   OperationsRepository,
 } from "../src/modules/operations/ports/operations-repository";
-import type { AuthenticatedPrincipal } from "../src/modules/platform-foundation/domain/platform-foundation";
+import {
+  HYDERABAD_BRANCH,
+  type AuthenticatedPrincipal,
+} from "../src/modules/platform-foundation/domain/platform-foundation";
 import { PatternBSideEffects } from "./helpers/pattern-b-side-effects";
 
 class FakeOperationsRepository implements OperationsRepository {
@@ -48,6 +51,14 @@ class FakeOperationsRepository implements OperationsRepository {
   public materials = new Map<string, MaterialUsageSummary>();
   public timelineByEvent = new Map<string, EventTimelineEntry[]>();
   public patternB = new PatternBSideEffects();
+  public eventBranches = new Map<string, string>();
+
+  private inBranch(eventRecordId: string, branchId: string): boolean {
+    return (
+      (this.eventBranches.get(eventRecordId) ?? HYDERABAD_BRANCH.id) ===
+      branchId
+    );
+  }
 
   private pushTimeline(
     input: OperationsMutationContext,
@@ -222,15 +233,23 @@ class FakeOperationsRepository implements OperationsRepository {
 
   public async getEventOperations(
     eventRecordId: string,
+    branchId: string,
   ): Promise<EventOperationsDetailResponse | undefined> {
+    if (!this.inBranch(eventRecordId, branchId)) return undefined;
     return this.events.get(eventRecordId);
   }
 
   public async ensureEventOperations(
     input: OperationsMutationContext & { readonly eventRecordId: string },
-  ): Promise<EventProgressSummary> {
+  ): Promise<EventProgressSummary | undefined> {
     const existing = this.events.get(input.eventRecordId);
-    if (existing !== undefined) return existing.progress;
+    if (existing !== undefined) {
+      if (!this.inBranch(input.eventRecordId, input.branchId)) {
+        return undefined;
+      }
+      return existing.progress;
+    }
+    this.eventBranches.set(input.eventRecordId, input.branchId);
     const now = new Date().toISOString();
     const progress: EventProgressSummary = {
       id: randomUUID(),
@@ -377,9 +396,12 @@ class FakeOperationsRepository implements OperationsRepository {
 
   public async getTask(
     taskId: string,
+    branchId: string,
   ): Promise<OperationsTaskDetailResponse | undefined> {
     const task = this.tasks.get(taskId);
-    if (task === undefined) return undefined;
+    if (task === undefined || !this.inBranch(task.eventRecordId, branchId)) {
+      return undefined;
+    }
     return {
       ...task,
       timeline: this.timelineByEvent.get(task.eventRecordId) ?? [],
@@ -985,7 +1007,9 @@ class FakeOperationsRepository implements OperationsRepository {
 
   public async getCompletion(
     eventRecordId: string,
+    branchId: string,
   ): Promise<EventCompletionSummary | undefined> {
+    if (!this.inBranch(eventRecordId, branchId)) return undefined;
     return this.events.get(eventRecordId)?.completion;
   }
 }
@@ -995,6 +1019,7 @@ const opsUser: AuthenticatedPrincipal = {
   sessionId: "s1",
   activeRole: "manager",
   roleAssignments: [{ role: "manager", active: true }],
+  branchId: HYDERABAD_BRANCH.id,
 };
 
 describe("Operations (Event Execution) Foundation", () => {
@@ -1098,7 +1123,7 @@ describe("Operations (Event Execution) Foundation", () => {
     expect(completed.status).toBe("completed");
     expect(completed.completedByUserId).toBe(opsUser.userId);
 
-    const detail = await service.getEventOperations(eventId);
+    const detail = await service.getEventOperations(opsUser, eventId);
     const types = detail.timeline.map((e) => e.entryType);
     expect(types).toContain("ops_task_created");
     expect(types).toContain("ops_task_assigned");
@@ -1168,6 +1193,24 @@ describe("Operations (Event Execution) Foundation", () => {
     ).rejects.toMatchObject({
       code: "OPS_COMPLETION_GATES_FAILED",
       status: 409,
+    });
+  });
+
+  it("denies other-branch operations detail as 404", async () => {
+    await service.ensureEventOperations(opsUser, eventId);
+    const other: AuthenticatedPrincipal = {
+      ...opsUser,
+      userId: "ops-other",
+      branchId: "00000000-0000-4000-8000-000000000002",
+    };
+    await expect(
+      service.getEventOperations(opsUser, eventId),
+    ).resolves.toMatchObject({ eventRecordId: eventId });
+    await expect(
+      service.getEventOperations(other, eventId),
+    ).rejects.toMatchObject({
+      code: "EVENT_OPERATIONS_NOT_FOUND",
+      status: 404,
     });
   });
 });

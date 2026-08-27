@@ -83,30 +83,32 @@ export class PostgresBookingRepository implements BookingRepository {
 
   public async findById(
     bookingId: string,
+    branchId: string,
   ): Promise<BookingDetailResponse | undefined> {
-    return this.loadDetail(bookingId, undefined);
+    return this.loadDetail(bookingId, { branchId });
   }
 
   public async findForCustomerUser(
     userId: string,
     bookingId: string,
   ): Promise<BookingDetailResponse | undefined> {
-    return this.loadDetail(bookingId, userId);
+    return this.loadDetail(bookingId, { customerUserId: userId });
   }
 
   private async loadDetail(
     bookingId: string,
-    customerUserId: string | undefined,
+    scope: { readonly customerUserId: string } | { readonly branchId: string },
   ): Promise<BookingDetailResponse | undefined> {
     const params: unknown[] = [bookingId];
-    let where = "WHERE b.id = $1";
-    if (customerUserId !== undefined) {
-      params.push(customerUserId);
+    let where: string;
+    if ("customerUserId" in scope) {
+      params.push(scope.customerUserId);
       where = `${SELECT_BOOKING}
        JOIN customers c ON c.id = b.customer_id
        WHERE b.id = $1 AND c.user_id = $2`;
     } else {
-      where = `${SELECT_BOOKING} WHERE b.id = $1`;
+      params.push(scope.branchId);
+      where = `${SELECT_BOOKING} WHERE b.id = $1 AND b.branch_id = $2`;
     }
 
     const result = await this.pool.query<BookingRow>(where, params);

@@ -173,23 +173,25 @@ export class PostgresEventRecordRepository implements EventRecordRepository {
 
   public async findById(
     eventRecordId: string,
+    branchId: string,
   ): Promise<EventRecordDetailResponse | undefined> {
-    return this.loadDetail(eventRecordId, undefined);
+    return this.loadDetail(eventRecordId, { branchId });
   }
 
   public async findForCustomerUser(
     userId: string,
     eventRecordId: string,
   ): Promise<EventRecordDetailResponse | undefined> {
-    return this.loadDetail(eventRecordId, userId);
+    return this.loadDetail(eventRecordId, { customerUserId: userId });
   }
 
   public async findByBookingId(
     bookingId: string,
+    branchId: string,
   ): Promise<EventRecordSummary | undefined> {
     const result = await this.pool.query<EventRow>(
-      `${SELECT_EVENT} WHERE e.booking_id = $1`,
-      [bookingId],
+      `${SELECT_EVENT} WHERE e.booking_id = $1 AND e.branch_id = $2`,
+      [bookingId, branchId],
     );
     const row = result.rows[0];
     return row === undefined ? undefined : toSummary(row);
@@ -198,7 +200,10 @@ export class PostgresEventRecordRepository implements EventRecordRepository {
   public async createFromBooking(
     input: CreateEventRecordFromBookingInput,
   ): Promise<EventRecordSummary | undefined> {
-    const existing = await this.findByBookingId(input.bookingId);
+    const existing = await this.findByBookingId(
+      input.bookingId,
+      input.branchId,
+    );
     if (existing !== undefined) {
       return existing;
     }
@@ -233,9 +238,9 @@ export class PostgresEventRecordRepository implements EventRecordRepository {
          FROM bookings b
          JOIN enquiries en ON en.id = b.enquiry_id
          JOIN event_types et ON et.id = en.event_type_id
-         WHERE b.id = $1
+         WHERE b.id = $1 AND b.branch_id = $2
          FOR UPDATE OF b`,
-        [input.bookingId],
+        [input.bookingId, input.branchId],
       );
       const source = booking.rows[0];
       if (source === undefined) {
@@ -304,7 +309,7 @@ export class PostgresEventRecordRepository implements EventRecordRepository {
       });
 
       await client.query("COMMIT");
-      return await this.findByBookingId(input.bookingId);
+      return await this.findByBookingId(input.bookingId, input.branchId);
     } catch (error) {
       await client.query("ROLLBACK");
       throw error;
@@ -321,7 +326,11 @@ export class PostgresEventRecordRepository implements EventRecordRepository {
     const client = await this.pool.connect();
     try {
       await client.query("BEGIN");
-      const current = await lockEvent(client, input.eventRecordId);
+      const current = await lockEvent(
+        client,
+        input.eventRecordId,
+        input.branchId,
+      );
       if (current === undefined) {
         await client.query("ROLLBACK");
         return undefined;
@@ -400,7 +409,7 @@ export class PostgresEventRecordRepository implements EventRecordRepository {
       });
 
       await client.query("COMMIT");
-      return await this.findById(input.eventRecordId);
+      return await this.findById(input.eventRecordId, input.branchId);
     } catch (error) {
       await client.query("ROLLBACK");
       throw error;
@@ -417,14 +426,18 @@ export class PostgresEventRecordRepository implements EventRecordRepository {
     const client = await this.pool.connect();
     try {
       await client.query("BEGIN");
-      const current = await lockEvent(client, input.eventRecordId);
+      const current = await lockEvent(
+        client,
+        input.eventRecordId,
+        input.branchId,
+      );
       if (current === undefined) {
         await client.query("ROLLBACK");
         return undefined;
       }
       if (current.status === input.body.status) {
         await client.query("ROLLBACK");
-        return await this.findById(input.eventRecordId);
+        return await this.findById(input.eventRecordId, input.branchId);
       }
       if (!isAllowedTransition(current.status, input.body.status)) {
         await client.query("ROLLBACK");
@@ -495,7 +508,7 @@ export class PostgresEventRecordRepository implements EventRecordRepository {
       });
 
       await client.query("COMMIT");
-      return await this.findById(input.eventRecordId);
+      return await this.findById(input.eventRecordId, input.branchId);
     } catch (error) {
       await client.query("ROLLBACK");
       throw error;
@@ -512,7 +525,11 @@ export class PostgresEventRecordRepository implements EventRecordRepository {
     const client = await this.pool.connect();
     try {
       await client.query("BEGIN");
-      const current = await lockEvent(client, input.eventRecordId);
+      const current = await lockEvent(
+        client,
+        input.eventRecordId,
+        input.branchId,
+      );
       if (current === undefined) {
         await client.query("ROLLBACK");
         return undefined;
@@ -598,7 +615,11 @@ export class PostgresEventRecordRepository implements EventRecordRepository {
     const client = await this.pool.connect();
     try {
       await client.query("BEGIN");
-      const current = await lockEvent(client, input.eventRecordId);
+      const current = await lockEvent(
+        client,
+        input.eventRecordId,
+        input.branchId,
+      );
       if (current === undefined) {
         await client.query("ROLLBACK");
         return undefined;
@@ -681,7 +702,11 @@ export class PostgresEventRecordRepository implements EventRecordRepository {
     const client = await this.pool.connect();
     try {
       await client.query("BEGIN");
-      const current = await lockEvent(client, input.eventRecordId);
+      const current = await lockEvent(
+        client,
+        input.eventRecordId,
+        input.branchId,
+      );
       if (current === undefined) {
         await client.query("ROLLBACK");
         return undefined;
@@ -777,13 +802,16 @@ export class PostgresEventRecordRepository implements EventRecordRepository {
 
   private async loadDetail(
     eventRecordId: string,
-    customerUserId: string | undefined,
+    scope: { readonly customerUserId: string } | { readonly branchId: string },
   ): Promise<EventRecordDetailResponse | undefined> {
     const params: unknown[] = [eventRecordId];
-    let sql = `${SELECT_EVENT} WHERE e.id = $1`;
-    if (customerUserId !== undefined) {
-      params.push(customerUserId);
+    let sql: string;
+    if ("customerUserId" in scope) {
+      params.push(scope.customerUserId);
       sql = `${SELECT_EVENT} WHERE e.id = $1 AND c.user_id = $2`;
+    } else {
+      params.push(scope.branchId);
+      sql = `${SELECT_EVENT} WHERE e.id = $1 AND e.branch_id = $2`;
     }
 
     const result = await this.pool.query<EventRow>(sql, params);
@@ -792,7 +820,7 @@ export class PostgresEventRecordRepository implements EventRecordRepository {
       return undefined;
     }
 
-    const customerVisibleOnly = customerUserId !== undefined;
+    const customerVisibleOnly = "customerUserId" in scope;
     const [timeline, activities, notes, documents, statusHistory] =
       await Promise.all([
         this.getTimeline(eventRecordId, customerVisibleOnly),
@@ -838,6 +866,7 @@ export class PostgresEventRecordRepository implements EventRecordRepository {
 async function lockEvent(
   client: PoolClient,
   eventRecordId: string,
+  branchId: string,
 ): Promise<
   { branch_id: string; status: EventRecordStatus; version: number } | undefined
 > {
@@ -848,9 +877,9 @@ async function lockEvent(
   }>(
     `SELECT branch_id, status, version
      FROM event_records
-     WHERE id = $1
+     WHERE id = $1 AND branch_id = $2
      FOR UPDATE`,
-    [eventRecordId],
+    [eventRecordId, branchId],
   );
   return result.rows[0];
 }

@@ -15,7 +15,10 @@ import type {
   QuotationDetailResponse,
   QuotationSummary,
 } from "@me-event/api-contracts";
-import type { AuthenticatedPrincipal } from "../src/modules/platform-foundation/domain/platform-foundation";
+import {
+  HYDERABAD_BRANCH,
+  type AuthenticatedPrincipal,
+} from "../src/modules/platform-foundation/domain/platform-foundation";
 import { PaymentService } from "../src/modules/payments/application/payment.service";
 import type {
   ConfirmAdvanceInput,
@@ -27,9 +30,20 @@ import type { PaymentSummary } from "@me-event/api-contracts";
 
 class FakeQuotationRepository implements QuotationRepository {
   public readonly quotes = new Map<string, QuotationDetailResponse>();
+  public readonly quoteBranches = new Map<string, string>();
   public lead: LeadContext | undefined;
 
-  public async findLeadContext(): Promise<LeadContext | undefined> {
+  public async findLeadContext(
+    leadId: string,
+    branchId: string,
+  ): Promise<LeadContext | undefined> {
+    if (
+      this.lead === undefined ||
+      this.lead.leadId !== leadId ||
+      this.lead.branchId !== branchId
+    ) {
+      return undefined;
+    }
     return this.lead;
   }
 
@@ -71,12 +85,19 @@ class FakeQuotationRepository implements QuotationRepository {
         createdAt: new Date().toISOString(),
       },
     });
+    this.quoteBranches.set(id, input.branchId);
     return id;
   }
 
   public async updateDraft(input: UpdateDraftQuotationInput): Promise<boolean> {
     const quote = this.quotes.get(input.quotationId);
-    if (quote === undefined || quote.status !== "draft") return false;
+    if (
+      quote === undefined ||
+      quote.status !== "draft" ||
+      this.quoteBranches.get(input.quotationId) !== input.branchId
+    ) {
+      return false;
+    }
     this.quotes.set(input.quotationId, {
       ...quote,
       finalAmount: String(input.totals.finalAmount),
@@ -96,7 +117,12 @@ class FakeQuotationRepository implements QuotationRepository {
 
   public async revise(input: ReviseQuotationInput): Promise<boolean> {
     const quote = this.quotes.get(input.quotationId);
-    if (quote === undefined) return false;
+    if (
+      quote === undefined ||
+      this.quoteBranches.get(input.quotationId) !== input.branchId
+    ) {
+      return false;
+    }
     this.quotes.set(input.quotationId, {
       ...quote,
       status: "draft",
@@ -107,7 +133,13 @@ class FakeQuotationRepository implements QuotationRepository {
 
   public async send(input: SendQuotationInput): Promise<boolean> {
     const quote = this.quotes.get(input.quotationId);
-    if (quote === undefined || quote.status !== "draft") return false;
+    if (
+      quote === undefined ||
+      quote.status !== "draft" ||
+      this.quoteBranches.get(input.quotationId) !== input.branchId
+    ) {
+      return false;
+    }
     this.quotes.set(input.quotationId, {
       ...quote,
       status: "sent",
@@ -150,7 +182,11 @@ class FakeQuotationRepository implements QuotationRepository {
 
   public async findById(
     quotationId: string,
+    branchId: string,
   ): Promise<QuotationDetailResponse | undefined> {
+    if (this.quoteBranches.get(quotationId) !== branchId) {
+      return undefined;
+    }
     return this.quotes.get(quotationId);
   }
 
@@ -182,6 +218,7 @@ class FakeQuotationRepository implements QuotationRepository {
 
 class FakePaymentRepository implements PaymentRepository {
   public payments = new Map<string, PaymentSummary>();
+  public paymentBranches = new Map<string, string>();
   public approvedQuotationId: string | undefined;
 
   public async submitAdvance(
@@ -200,6 +237,10 @@ class FakePaymentRepository implements PaymentRepository {
       createdAt: new Date().toISOString(),
     };
     this.payments.set(payment.id, payment);
+    this.paymentBranches.set(
+      payment.id,
+      "00000000-0000-4000-8000-000000000001",
+    );
     return payment;
   }
 
@@ -207,7 +248,13 @@ class FakePaymentRepository implements PaymentRepository {
     input: ConfirmAdvanceInput,
   ): Promise<ConfirmAdvanceResult | undefined> {
     const payment = this.payments.get(input.paymentId);
-    if (payment === undefined || payment.status !== "pending") return undefined;
+    if (
+      payment === undefined ||
+      payment.status !== "pending" ||
+      this.paymentBranches.get(input.paymentId) !== input.branchId
+    ) {
+      return undefined;
+    }
     const paid = { ...payment, status: "paid" as const };
     this.payments.set(payment.id, paid);
     const bookingId = randomUUID();
@@ -256,25 +303,36 @@ class FakePaymentRepository implements PaymentRepository {
 
   public async findById(
     paymentId: string,
+    branchId: string,
   ): Promise<PaymentSummary | undefined> {
+    if (this.paymentBranches.get(paymentId) !== branchId) {
+      return undefined;
+    }
     return this.payments.get(paymentId);
   }
 
   public async listPendingAdvancesForQuotation(
     quotationId: string,
+    branchId: string,
   ): Promise<readonly PaymentSummary[]> {
     return [...this.payments.values()].filter(
-      (p) => p.quotationId === quotationId && p.status === "pending",
+      (p) =>
+        p.quotationId === quotationId &&
+        p.status === "pending" &&
+        this.paymentBranches.get(p.id) === branchId,
     );
   }
 }
 
-function employee(): AuthenticatedPrincipal {
+function employee(
+  branchId: string = HYDERABAD_BRANCH.id,
+): AuthenticatedPrincipal {
   return {
     userId: randomUUID(),
     sessionId: randomUUID(),
     activeRole: "employee",
-    roleAssignments: [{ role: "employee", active: true }],
+    roleAssignments: [{ role: "employee", active: true, scopeId: branchId }],
+    branchId,
   };
 }
 
@@ -395,5 +453,47 @@ describe("QuotationService + PaymentService workflow", () => {
 
     const resent = await quotationService.send(employee(), created.id);
     expect(resent.status).toBe("sent");
+  });
+
+  it("denies other-branch quotation and payment detail as 404", async () => {
+    const created = await quotationService.create(employee(), {
+      leadId: quotes.lead!.leadId,
+      items: [
+        {
+          itemType: "package",
+          title: "Wedding decor",
+          quantity: 1,
+          unitPrice: 10000,
+        },
+      ],
+      gstPercent: 18,
+      discountAmount: 0,
+      discountPercent: 0,
+      advancePercent: 30,
+    });
+    const other = employee("00000000-0000-4000-8000-000000000002");
+    await expect(
+      quotationService.getCrm(employee(), created.id),
+    ).resolves.toMatchObject({ id: created.id });
+    await expect(
+      quotationService.getCrm(other, created.id),
+    ).rejects.toMatchObject({ code: "QUOTATION_NOT_FOUND", status: 404 });
+    await expect(
+      quotationService.send(other, created.id),
+    ).rejects.toMatchObject({
+      code: "QUOTATION_NOT_FOUND",
+      status: 404,
+    });
+
+    await quotationService.send(employee(), created.id);
+    await quotationService.approve(customer(), created.id);
+    payments.approvedQuotationId = created.id;
+    const advance = await paymentService.submitAdvance(customer(), {
+      quotationId: created.id,
+      method: "upi",
+    });
+    await expect(
+      paymentService.confirmAdvance(other, advance.id),
+    ).rejects.toMatchObject({ code: "PAYMENT_NOT_FOUND", status: 404 });
   });
 });

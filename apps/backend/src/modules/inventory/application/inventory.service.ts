@@ -59,9 +59,13 @@ export class InventoryService {
   }
 
   public async getWarehouse(
+    principal: AuthenticatedPrincipal,
     warehouseId: string,
   ): Promise<WarehouseDetailResponse> {
-    const warehouse = await this.inventory.getWarehouse(warehouseId);
+    const warehouse = await this.inventory.getWarehouse(
+      warehouseId,
+      resolveBranchId(principal),
+    );
     if (warehouse === undefined) {
       throw new DomainError("WAREHOUSE_NOT_FOUND", "Warehouse not found", 404);
     }
@@ -158,8 +162,14 @@ export class InventoryService {
     ) as InventoryListResponse;
   }
 
-  public async getItem(itemId: string): Promise<InventoryItemDetailResponse> {
-    const item = await this.inventory.getItem(itemId);
+  public async getItem(
+    principal: AuthenticatedPrincipal,
+    itemId: string,
+  ): Promise<InventoryItemDetailResponse> {
+    const item = await this.inventory.getItem(
+      itemId,
+      resolveBranchId(principal),
+    );
     if (item === undefined) {
       throw new DomainError(
         "INVENTORY_NOT_FOUND",
@@ -282,9 +292,13 @@ export class InventoryService {
   }
 
   public async getAllocation(
+    principal: AuthenticatedPrincipal,
     allocationId: string,
   ): Promise<InventoryAllocationDetailResponse> {
-    const allocation = await this.inventory.getAllocation(allocationId);
+    const allocation = await this.inventory.getAllocation(
+      allocationId,
+      resolveBranchId(principal),
+    );
     if (allocation === undefined) {
       throw new DomainError(
         "INVENTORY_ALLOCATION_NOT_FOUND",

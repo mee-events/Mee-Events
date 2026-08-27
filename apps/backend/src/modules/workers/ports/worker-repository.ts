@@ -41,7 +41,10 @@ export interface WorkerRepository {
     readonly items: readonly WorkerSummary[];
     readonly total: number;
   }>;
-  getWorker(workerId: string): Promise<WorkerDetailResponse | undefined>;
+  getWorker(
+    workerId: string,
+    branchId?: string,
+  ): Promise<WorkerDetailResponse | undefined>;
   createWorker(
     input: WorkerMutationContext & { readonly body: CreateWorkerRequest },
   ): Promise<WorkerDetailResponse>;
@@ -87,8 +90,12 @@ export interface WorkerRepository {
     readonly workerId?: string;
     readonly eventRecordId?: string;
     readonly vendorId?: string;
+    readonly branchId?: string;
   }): Promise<readonly WorkerTaskSummary[]>;
-  getTask(taskId: string): Promise<WorkerTaskDetailResponse | undefined>;
+  getTask(
+    taskId: string,
+    branchId?: string,
+  ): Promise<WorkerTaskDetailResponse | undefined>;
 
   addNote(
     input: WorkerMutationContext & {
@@ -99,6 +106,7 @@ export interface WorkerRepository {
 
   listAttendance(filters?: {
     readonly workerId?: string;
+    readonly branchId?: string;
   }): Promise<readonly WorkerAttendanceSummary[]>;
 
   getCrmDashboard(branchId: string): Promise<WorkerDashboardResponse>;

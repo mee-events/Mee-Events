@@ -185,6 +185,7 @@ export async function createSyntheticLeadFlow(
     employee.id,
     "employee",
     `dbint-claim-${label}`,
+    branchId,
   );
   if (claimed === undefined) {
     throw new Error("Synthetic lead could not be claimed");

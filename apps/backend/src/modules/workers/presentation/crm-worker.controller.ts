@@ -91,11 +91,12 @@ export class CrmWorkerController {
   @RequireCapability("crm_worker.read")
   @ApiOperation({ summary: "List worker tasks" })
   public listTasks(
+    @Req() request: AuthenticatedPlatformRequest,
     @Query("eventRecordId") eventRecordId?: string,
     @Query("workerId") workerId?: string,
     @Query("vendorId") vendorId?: string,
   ): Promise<WorkerTaskListResponse> {
-    return this.workers.listTasks({
+    return this.workers.listTasks(principalOf(request), {
       ...(eventRecordId === undefined ? {} : { eventRecordId }),
       ...(workerId === undefined ? {} : { workerId }),
       ...(vendorId === undefined ? {} : { vendorId }),
@@ -122,17 +123,19 @@ export class CrmWorkerController {
   @ApiOperation({ summary: "Worker task detail" })
   public getTask(
     @Param("taskId", new ParseUUIDPipe()) taskId: string,
+    @Req() request: AuthenticatedPlatformRequest,
   ): Promise<WorkerTaskDetailResponse> {
-    return this.workers.getTask(taskId);
+    return this.workers.getTask(principalOf(request), taskId);
   }
 
   @Get("attendance")
   @RequireCapability("crm_worker.read")
   @ApiOperation({ summary: "List worker attendance" })
   public listAttendance(
+    @Req() request: AuthenticatedPlatformRequest,
     @Query("workerId") workerId?: string,
   ): Promise<WorkerAttendanceListResponse> {
-    return this.workers.listAttendance({
+    return this.workers.listAttendance(principalOf(request), {
       ...(workerId === undefined ? {} : { workerId }),
     });
   }
@@ -142,8 +145,9 @@ export class CrmWorkerController {
   @ApiOperation({ summary: "Worker detail" })
   public get(
     @Param("id", new ParseUUIDPipe()) id: string,
+    @Req() request: AuthenticatedPlatformRequest,
   ): Promise<WorkerDetailResponse> {
-    return this.workers.get(id);
+    return this.workers.get(principalOf(request), id);
   }
 
   @Patch(":id")

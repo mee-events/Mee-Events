@@ -40,6 +40,7 @@ export interface CreateQuotationInput {
 
 export interface UpdateDraftQuotationInput {
   readonly quotationId: string;
+  readonly branchId: string;
   readonly actorUserId: string;
   readonly actorRole: string;
   readonly requestId: string;
@@ -53,6 +54,7 @@ export interface UpdateDraftQuotationInput {
 
 export interface ReviseQuotationInput {
   readonly quotationId: string;
+  readonly branchId: string;
   readonly actorUserId: string;
   readonly actorRole: string;
   readonly requestId: string;
@@ -67,6 +69,7 @@ export interface ReviseQuotationInput {
 
 export interface SendQuotationInput {
   readonly quotationId: string;
+  readonly branchId: string;
   readonly actorUserId: string;
   readonly actorRole: string;
   readonly requestId: string;
@@ -93,7 +96,10 @@ export interface LeadContext {
 export const QUOTATION_REPOSITORY = Symbol("QUOTATION_REPOSITORY");
 
 export interface QuotationRepository {
-  findLeadContext(leadId: string): Promise<LeadContext | undefined>;
+  findLeadContext(
+    leadId: string,
+    branchId: string,
+  ): Promise<LeadContext | undefined>;
   createDraft(input: CreateQuotationInput): Promise<string>;
   updateDraft(input: UpdateDraftQuotationInput): Promise<boolean>;
   revise(input: ReviseQuotationInput): Promise<boolean>;
@@ -103,7 +109,10 @@ export interface QuotationRepository {
   requestRevision(input: CustomerDecisionInput): Promise<boolean>;
   listForBranch(branchId: string): Promise<readonly QuotationSummary[]>;
   listForCustomerUser(userId: string): Promise<readonly QuotationSummary[]>;
-  findById(quotationId: string): Promise<QuotationDetailResponse | undefined>;
+  findById(
+    quotationId: string,
+    branchId: string,
+  ): Promise<QuotationDetailResponse | undefined>;
   findForCustomerUser(
     userId: string,
     quotationId: string,

@@ -67,8 +67,14 @@ export class VendorService {
     return paginatedCollection("vendors", result.items, meta);
   }
 
-  public async get(vendorId: string): Promise<VendorDetailResponse> {
-    const vendor = await this.vendors.getVendor(vendorId);
+  public async get(
+    principal: AuthenticatedPrincipal,
+    vendorId: string,
+  ): Promise<VendorDetailResponse> {
+    const vendor = await this.vendors.getVendor(
+      vendorId,
+      resolveBranchId(principal),
+    );
     if (vendor === undefined) {
       throw new DomainError("VENDOR_NOT_FOUND", "Vendor not found", 404);
     }
@@ -228,19 +234,29 @@ export class VendorService {
     return assignment;
   }
 
-  public async listAssignments(filters?: {
-    readonly vendorId?: string;
-    readonly eventRecordId?: string;
-  }): Promise<VendorAssignmentListResponse> {
+  public async listAssignments(
+    principal: AuthenticatedPrincipal,
+    filters?: {
+      readonly vendorId?: string;
+      readonly eventRecordId?: string;
+    },
+  ): Promise<VendorAssignmentListResponse> {
     return {
-      assignments: await this.vendors.listAssignments(filters),
+      assignments: await this.vendors.listAssignments({
+        ...filters,
+        branchId: resolveBranchId(principal),
+      }),
     };
   }
 
   public async getAssignment(
+    principal: AuthenticatedPrincipal,
     assignmentId: string,
   ): Promise<VendorAssignmentDetailResponse> {
-    const assignment = await this.vendors.getAssignment(assignmentId);
+    const assignment = await this.vendors.getAssignment(
+      assignmentId,
+      resolveBranchId(principal),
+    );
     if (assignment === undefined) {
       throw new DomainError(
         "VENDOR_ASSIGNMENT_NOT_FOUND",
@@ -256,7 +272,7 @@ export class VendorService {
     assignmentId: string,
   ): Promise<VendorAssignmentDetailResponse> {
     await this.assertOwnsAssignment(principal, assignmentId);
-    return this.getAssignment(assignmentId);
+    return this.loadAssignmentById(assignmentId);
   }
 
   public async listOwnAssignments(
@@ -266,7 +282,9 @@ export class VendorService {
     if (vendorId === undefined) {
       return { assignments: [] };
     }
-    return this.listAssignments({ vendorId });
+    return {
+      assignments: await this.vendors.listAssignments({ vendorId }),
+    };
   }
 
   public async addNote(
@@ -299,6 +317,20 @@ export class VendorService {
     principal: AuthenticatedPrincipal,
   ): Promise<VendorDashboardResponse> {
     return this.vendors.getVendorDashboard(principal.userId);
+  }
+
+  private async loadAssignmentById(
+    assignmentId: string,
+  ): Promise<VendorAssignmentDetailResponse> {
+    const assignment = await this.vendors.getAssignment(assignmentId);
+    if (assignment === undefined) {
+      throw new DomainError(
+        "VENDOR_ASSIGNMENT_NOT_FOUND",
+        "Assignment not found",
+        404,
+      );
+    }
+    return assignment;
   }
 
   private async assertOwnsAssignment(

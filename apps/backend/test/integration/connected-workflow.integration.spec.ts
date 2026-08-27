@@ -248,6 +248,7 @@ describe("DBINT-07 CRM lead update back to enquiry", () => {
       flow.employee.id,
       "employee",
       "dbint-lead-contacted",
+      HYDERABAD_BRANCH_ID,
     );
     expect(updated?.status).toBe("contacted");
 
@@ -690,6 +691,7 @@ describe("DBINT-12 forced lifecycle rollback", () => {
     await expect(
       target.paymentRepository.confirmAdvance({
         paymentId: target.payment.id,
+        branchId: HYDERABAD_BRANCH_ID,
         actorUserId: target.employee.id,
         actorRole: "employee",
         requestId: "dbint-forced-lifecycle-rollback",
@@ -819,6 +821,30 @@ describe("DBINT-13 ownership and branch isolation", () => {
     expect(
       (await events.listForBranch(HYDERABAD_BRANCH_ID)).map((row) => row.id),
     ).not.toContain(branchResult.eventRecord.id);
+    expect(
+      await leads.findById(branchFlow.leadId, HYDERABAD_BRANCH_ID),
+    ).toBeUndefined();
+    expect(await leads.findById(branchFlow.leadId, secondBranch)).toMatchObject(
+      { id: branchFlow.leadId },
+    );
+    expect(
+      await quotations.findById(branchFlow.approved.id, HYDERABAD_BRANCH_ID),
+    ).toBeUndefined();
+    expect(
+      await quotations.findById(branchFlow.approved.id, secondBranch),
+    ).toMatchObject({ id: branchFlow.approved.id });
+    expect(
+      await bookings.findById(branchResult.booking.id, HYDERABAD_BRANCH_ID),
+    ).toBeUndefined();
+    expect(
+      await bookings.findById(branchResult.booking.id, secondBranch),
+    ).toMatchObject({ id: branchResult.booking.id });
+    expect(
+      await events.findById(branchResult.eventRecord.id, HYDERABAD_BRANCH_ID),
+    ).toBeUndefined();
+    expect(
+      await events.findById(branchResult.eventRecord.id, secondBranch),
+    ).toMatchObject({ id: branchResult.eventRecord.id });
   });
 });
 

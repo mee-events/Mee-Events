@@ -49,6 +49,7 @@ export interface InventoryRepository {
   listWarehouses(branchId: string): Promise<readonly WarehouseSummary[]>;
   getWarehouse(
     warehouseId: string,
+    branchId: string,
   ): Promise<WarehouseDetailResponse | undefined>;
   createWarehouse(
     input: InventoryMutationContext & { readonly body: CreateWarehouseRequest },
@@ -65,7 +66,10 @@ export interface InventoryRepository {
     readonly items: readonly InventoryItemDetailResponse[];
     readonly total: number;
   }>;
-  getItem(itemId: string): Promise<InventoryItemDetailResponse | undefined>;
+  getItem(
+    itemId: string,
+    branchId: string,
+  ): Promise<InventoryItemDetailResponse | undefined>;
   createItem(
     input: InventoryMutationContext & {
       readonly body: CreateInventoryItemRequest;
@@ -105,6 +109,7 @@ export interface InventoryRepository {
   }): Promise<readonly InventoryAllocationSummary[]>;
   getAllocation(
     allocationId: string,
+    branchId: string,
   ): Promise<InventoryAllocationDetailResponse | undefined>;
 
   listMovements(filters?: {

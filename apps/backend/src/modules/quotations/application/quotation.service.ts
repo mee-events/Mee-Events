@@ -34,11 +34,11 @@ export class QuotationService {
     request: CreateQuotationRequest,
     requestId: string = randomUUID(),
   ): Promise<QuotationDetailResponse> {
-    const lead = await this.quotations.findLeadContext(request.leadId);
+    const lead = await this.quotations.findLeadContext(
+      request.leadId,
+      resolveBranchId(principal),
+    );
     if (lead === undefined) {
-      throw new DomainError("LEAD_NOT_FOUND", "Lead not found", 404);
-    }
-    if (lead.branchId !== resolveBranchId(principal)) {
       throw new DomainError("LEAD_NOT_FOUND", "Lead not found", 404);
     }
 
@@ -72,7 +72,7 @@ export class QuotationService {
         : { customerNotes: request.customerNotes }),
     });
 
-    return this.requireDetail(quotationId);
+    return this.requireDetail(principal, quotationId);
   }
 
   public async updateDraft(
@@ -81,7 +81,10 @@ export class QuotationService {
     request: UpdateQuotationRequest,
     requestId: string = randomUUID(),
   ): Promise<QuotationDetailResponse> {
-    const existing = await this.quotations.findById(quotationId);
+    const existing = await this.quotations.findById(
+      quotationId,
+      resolveBranchId(principal),
+    );
     if (existing === undefined) {
       throw new DomainError("QUOTATION_NOT_FOUND", "Quotation not found", 404);
     }
@@ -107,6 +110,7 @@ export class QuotationService {
 
     const updated = await this.quotations.updateDraft({
       quotationId,
+      branchId: resolveBranchId(principal),
       actorUserId: principal.userId,
       actorRole: principal.activeRole,
       requestId,
@@ -134,7 +138,7 @@ export class QuotationService {
         409,
       );
     }
-    return this.requireDetail(quotationId);
+    return this.requireDetail(principal, quotationId);
   }
 
   public async revise(
@@ -143,7 +147,10 @@ export class QuotationService {
     request: ReviseQuotationRequest,
     requestId: string = randomUUID(),
   ): Promise<QuotationDetailResponse> {
-    const existing = await this.quotations.findById(quotationId);
+    const existing = await this.quotations.findById(
+      quotationId,
+      resolveBranchId(principal),
+    );
     if (existing === undefined) {
       throw new DomainError("QUOTATION_NOT_FOUND", "Quotation not found", 404);
     }
@@ -169,6 +176,7 @@ export class QuotationService {
 
     const revised = await this.quotations.revise({
       quotationId,
+      branchId: resolveBranchId(principal),
       actorUserId: principal.userId,
       actorRole: principal.activeRole,
       requestId,
@@ -197,7 +205,7 @@ export class QuotationService {
         409,
       );
     }
-    return this.requireDetail(quotationId);
+    return this.requireDetail(principal, quotationId);
   }
 
   public async send(
@@ -205,7 +213,10 @@ export class QuotationService {
     quotationId: string,
     requestId: string = randomUUID(),
   ): Promise<QuotationDetailResponse> {
-    const existing = await this.quotations.findById(quotationId);
+    const existing = await this.quotations.findById(
+      quotationId,
+      resolveBranchId(principal),
+    );
     if (existing === undefined) {
       throw new DomainError("QUOTATION_NOT_FOUND", "Quotation not found", 404);
     }
@@ -226,6 +237,7 @@ export class QuotationService {
 
     const sent = await this.quotations.send({
       quotationId,
+      branchId: resolveBranchId(principal),
       actorUserId: principal.userId,
       actorRole: principal.activeRole,
       requestId,
@@ -237,7 +249,7 @@ export class QuotationService {
         409,
       );
     }
-    return this.requireDetail(quotationId);
+    return this.requireDetail(principal, quotationId);
   }
 
   public async listCrm(
@@ -249,8 +261,11 @@ export class QuotationService {
     return { quotations };
   }
 
-  public async getCrm(quotationId: string): Promise<QuotationDetailResponse> {
-    return this.requireDetail(quotationId);
+  public async getCrm(
+    principal: AuthenticatedPrincipal,
+    quotationId: string,
+  ): Promise<QuotationDetailResponse> {
+    return this.requireDetail(principal, quotationId);
   }
 
   public async listOwn(
@@ -277,9 +292,10 @@ export class QuotationService {
   }
 
   public async timelineCrm(
+    principal: AuthenticatedPrincipal,
     quotationId: string,
   ): Promise<readonly QuotationActivitySummary[]> {
-    await this.requireDetail(quotationId);
+    await this.requireDetail(principal, quotationId);
     return this.quotations.listTimeline(quotationId);
   }
 
@@ -359,9 +375,10 @@ export class QuotationService {
   }
 
   public async pdfPlaceholder(
+    principal: AuthenticatedPrincipal,
     quotationId: string,
   ): Promise<QuotationPdfPlaceholderResponse> {
-    await this.requireDetail(quotationId);
+    await this.requireDetail(principal, quotationId);
     return this.quotations.ensurePdfPlaceholder(quotationId);
   }
 
@@ -374,9 +391,13 @@ export class QuotationService {
   }
 
   private async requireDetail(
+    principal: AuthenticatedPrincipal,
     quotationId: string,
   ): Promise<QuotationDetailResponse> {
-    const detail = await this.quotations.findById(quotationId);
+    const detail = await this.quotations.findById(
+      quotationId,
+      resolveBranchId(principal),
+    );
     if (detail === undefined) {
       throw new DomainError("QUOTATION_NOT_FOUND", "Quotation not found", 404);
     }

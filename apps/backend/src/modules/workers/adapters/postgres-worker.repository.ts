@@ -134,10 +134,13 @@ export class PostgresWorkerRepository implements WorkerRepository {
 
   public async getWorker(
     workerId: string,
+    branchId?: string,
   ): Promise<WorkerDetailResponse | undefined> {
     const result = await this.pool.query<WorkerRow>(
-      `SELECT * FROM workers WHERE id = $1`,
-      [workerId],
+      branchId === undefined
+        ? `SELECT * FROM workers WHERE id = $1`
+        : `SELECT * FROM workers WHERE id = $1 AND branch_id = $2`,
+      branchId === undefined ? [workerId] : [workerId, branchId],
     );
     const row = result.rows[0];
     if (row === undefined) return undefined;
@@ -375,7 +378,7 @@ export class PostgresWorkerRepository implements WorkerRepository {
       });
 
       await client.query("COMMIT");
-      const loaded = await this.getWorker(workerId);
+      const loaded = await this.getWorker(workerId, input.branchId);
       if (loaded === undefined) throw new Error("Worker create lost");
       return loaded;
     } catch (error) {
@@ -392,7 +395,7 @@ export class PostgresWorkerRepository implements WorkerRepository {
       readonly body: UpdateWorkerRequest;
     },
   ): Promise<WorkerDetailResponse | undefined> {
-    const existing = await this.getWorker(input.workerId);
+    const existing = await this.getWorker(input.workerId, input.branchId);
     if (existing === undefined) return undefined;
 
     const client = await this.pool.connect();
@@ -408,7 +411,7 @@ export class PostgresWorkerRepository implements WorkerRepository {
            availability_status = COALESCE($9, availability_status),
            updated_by_user_id = $10,
            version = version + 1
-         WHERE id = $1`,
+         WHERE id = $1 AND branch_id = $11`,
         [
           input.workerId,
           input.body.displayName ?? null,
@@ -422,6 +425,7 @@ export class PostgresWorkerRepository implements WorkerRepository {
           input.body.status ?? null,
           input.body.availabilityStatus ?? null,
           input.actorUserId,
+          input.branchId,
         ],
       );
 
@@ -518,7 +522,7 @@ export class PostgresWorkerRepository implements WorkerRepository {
     } finally {
       client.release();
     }
-    return this.getWorker(input.workerId);
+    return this.getWorker(input.workerId, input.branchId);
   }
 
   public async assignWorker(
@@ -534,8 +538,8 @@ export class PostgresWorkerRepository implements WorkerRepository {
         event_number: string;
       }>(
         `SELECT id, branch_id, version, event_number
-         FROM event_records WHERE id = $1 FOR UPDATE`,
-        [input.body.eventRecordId],
+         FROM event_records WHERE id = $1 AND branch_id = $2 FOR UPDATE`,
+        [input.body.eventRecordId, input.branchId],
       );
       const locked = event.rows[0];
       if (locked === undefined) {
@@ -547,9 +551,10 @@ export class PostgresWorkerRepository implements WorkerRepository {
         id: string;
         display_name: string;
         status: string;
-      }>(`SELECT id, display_name, status FROM workers WHERE id = $1`, [
-        input.body.workerId,
-      ]);
+      }>(
+        `SELECT id, display_name, status FROM workers WHERE id = $1 AND branch_id = $2`,
+        [input.body.workerId, input.branchId],
+      );
       const workerRow = worker.rows[0];
       if (workerRow === undefined || workerRow.status !== "active") {
         await client.query("ROLLBACK");
@@ -696,7 +701,7 @@ export class PostgresWorkerRepository implements WorkerRepository {
     const client = await this.pool.connect();
     try {
       await client.query("BEGIN");
-      const locked = await lockTask(client, input.taskId);
+      const locked = await lockTask(client, input.taskId, input.branchId);
       if (locked === undefined) {
         await client.query("ROLLBACK");
         return undefined;
@@ -819,7 +824,7 @@ export class PostgresWorkerRepository implements WorkerRepository {
     const client = await this.pool.connect();
     try {
       await client.query("BEGIN");
-      const locked = await lockTask(client, input.taskId);
+      const locked = await lockTask(client, input.taskId, input.branchId);
       if (locked === undefined) {
         await client.query("ROLLBACK");
         return undefined;
@@ -950,7 +955,7 @@ export class PostgresWorkerRepository implements WorkerRepository {
     const client = await this.pool.connect();
     try {
       await client.query("BEGIN");
-      const locked = await lockTask(client, input.taskId);
+      const locked = await lockTask(client, input.taskId, input.branchId);
       if (locked === undefined) {
         await client.query("ROLLBACK");
         return undefined;
@@ -1047,6 +1052,7 @@ export class PostgresWorkerRepository implements WorkerRepository {
     readonly workerId?: string;
     readonly eventRecordId?: string;
     readonly vendorId?: string;
+    readonly branchId?: string;
   }): Promise<readonly WorkerTaskSummary[]> {
     const clauses: string[] = [];
     const params: unknown[] = [];
@@ -1061,6 +1067,10 @@ export class PostgresWorkerRepository implements WorkerRepository {
     if (filters?.vendorId !== undefined) {
       params.push(filters.vendorId);
       clauses.push(`t.vendor_id = $${params.length}`);
+    }
+    if (filters?.branchId !== undefined) {
+      params.push(filters.branchId);
+      clauses.push(`e.branch_id = $${params.length}`);
     }
     const where = clauses.length === 0 ? "" : `WHERE ${clauses.join(" AND ")}`;
     const result = await this.pool.query<TaskSummaryRow>(
@@ -1079,8 +1089,9 @@ export class PostgresWorkerRepository implements WorkerRepository {
 
   public async getTask(
     taskId: string,
+    branchId?: string,
   ): Promise<WorkerTaskDetailResponse | undefined> {
-    const summary = await loadTaskSummary(this.pool, taskId);
+    const summary = await loadTaskSummary(this.pool, taskId, branchId);
     if (summary === undefined) return undefined;
 
     const [history, checkins, progress, notes, timeline] = await Promise.all([
@@ -1229,7 +1240,7 @@ export class PostgresWorkerRepository implements WorkerRepository {
       readonly body: AddWorkerNoteRequest;
     },
   ): Promise<WorkerNoteSummary | undefined> {
-    const worker = await this.getWorker(input.workerId);
+    const worker = await this.getWorker(input.workerId, input.branchId);
     if (worker === undefined) return undefined;
 
     const client = await this.pool.connect();
@@ -1318,25 +1329,28 @@ export class PostgresWorkerRepository implements WorkerRepository {
 
   public async listAttendance(filters?: {
     readonly workerId?: string;
+    readonly branchId?: string;
   }): Promise<readonly WorkerAttendanceSummary[]> {
-    const result =
-      filters?.workerId === undefined
-        ? await this.pool.query<AttendanceRow>(
-            `SELECT a.*, w.display_name
-             FROM worker_attendance a
-             INNER JOIN workers w ON w.id = a.worker_id
-             ORDER BY a.attendance_date DESC, a.created_at DESC
-             LIMIT 200`,
-          )
-        : await this.pool.query<AttendanceRow>(
-            `SELECT a.*, w.display_name
-             FROM worker_attendance a
-             INNER JOIN workers w ON w.id = a.worker_id
-             WHERE a.worker_id = $1
-             ORDER BY a.attendance_date DESC, a.created_at DESC
-             LIMIT 200`,
-            [filters.workerId],
-          );
+    const clauses: string[] = [];
+    const params: unknown[] = [];
+    if (filters?.workerId !== undefined) {
+      params.push(filters.workerId);
+      clauses.push(`a.worker_id = $${params.length}`);
+    }
+    if (filters?.branchId !== undefined) {
+      params.push(filters.branchId);
+      clauses.push(`w.branch_id = $${params.length}`);
+    }
+    const where = clauses.length === 0 ? "" : `WHERE ${clauses.join(" AND ")}`;
+    const result = await this.pool.query<AttendanceRow>(
+      `SELECT a.*, w.display_name
+       FROM worker_attendance a
+       INNER JOIN workers w ON w.id = a.worker_id
+       ${where}
+       ORDER BY a.attendance_date DESC, a.created_at DESC
+       LIMIT 200`,
+      params,
+    );
     return result.rows.map(toAttendance);
   }
 
@@ -1482,7 +1496,7 @@ export class PostgresWorkerRepository implements WorkerRepository {
     const client = await this.pool.connect();
     try {
       await client.query("BEGIN");
-      const locked = await lockTask(client, taskId);
+      const locked = await lockTask(client, taskId, ctx.branchId);
       if (locked === undefined) {
         await client.query("ROLLBACK");
         return undefined;
@@ -1792,6 +1806,7 @@ function asStringArray(value: unknown): readonly string[] {
 async function lockTask(
   client: PoolClient,
   taskId: string,
+  branchId: string,
 ): Promise<
   | {
       id: string;
@@ -1818,9 +1833,9 @@ async function lockTask(
      FROM worker_tasks t
      INNER JOIN event_records e ON e.id = t.event_record_id
      INNER JOIN workers w ON w.id = t.worker_id
-     WHERE t.id = $1
+     WHERE t.id = $1 AND e.branch_id = $2
      FOR UPDATE OF t`,
-    [taskId],
+    [taskId, branchId],
   );
   return result.rows[0];
 }
@@ -1828,16 +1843,20 @@ async function lockTask(
 async function loadTaskSummary(
   db: Pool | PoolClient,
   taskId: string,
+  branchId?: string,
 ): Promise<WorkerTaskSummary | undefined> {
-  const result = await db.query<TaskSummaryRow>(
-    `SELECT t.*, e.event_number, e.event_name, w.display_name, v.business_name
+  const params: unknown[] = [taskId];
+  let sql = `SELECT t.*, e.event_number, e.event_name, w.display_name, v.business_name
      FROM worker_tasks t
      INNER JOIN event_records e ON e.id = t.event_record_id
      INNER JOIN workers w ON w.id = t.worker_id
      LEFT JOIN vendors v ON v.id = t.vendor_id
-     WHERE t.id = $1`,
-    [taskId],
-  );
+     WHERE t.id = $1`;
+  if (branchId !== undefined) {
+    params.push(branchId);
+    sql += ` AND e.branch_id = $2`;
+  }
+  const result = await db.query<TaskSummaryRow>(sql, params);
   const row = result.rows[0];
   if (row === undefined) return undefined;
   return mapTaskSummaryRow(row);

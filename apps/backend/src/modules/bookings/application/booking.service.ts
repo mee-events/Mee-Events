@@ -48,8 +48,14 @@ export class BookingService {
     return { bookings };
   }
 
-  public async getCrm(bookingId: string): Promise<BookingDetailResponse> {
-    const booking = await this.bookings.findById(bookingId);
+  public async getCrm(
+    principal: AuthenticatedPrincipal,
+    bookingId: string,
+  ): Promise<BookingDetailResponse> {
+    const booking = await this.bookings.findById(
+      bookingId,
+      resolveBranchId(principal),
+    );
     if (booking === undefined) {
       throw new DomainError("BOOKING_NOT_FOUND", "Booking not found", 404);
     }

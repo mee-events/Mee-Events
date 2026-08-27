@@ -64,9 +64,13 @@ export class OperationsService {
   }
 
   public async getEventOperations(
+    principal: AuthenticatedPrincipal,
     eventRecordId: string,
   ): Promise<EventOperationsDetailResponse> {
-    const detail = await this.operations.getEventOperations(eventRecordId);
+    const detail = await this.operations.getEventOperations(
+      eventRecordId,
+      resolveBranchId(principal),
+    );
     if (detail === undefined) {
       throw new DomainError(
         "EVENT_OPERATIONS_NOT_FOUND",
@@ -82,12 +86,24 @@ export class OperationsService {
     eventRecordId: string,
     requestId: string = randomUUID(),
   ): Promise<EventProgressSummary> {
-    return this.operations.ensureEventOperations({
-      eventRecordId,
-      actorUserId: principal.userId,
-      actorRole: principal.activeRole,
-      requestId,
-    });
+    return this.operations
+      .ensureEventOperations({
+        eventRecordId,
+        actorUserId: principal.userId,
+        actorRole: principal.activeRole,
+        requestId,
+        branchId: resolveBranchId(principal),
+      })
+      .then((progress) => {
+        if (progress === undefined) {
+          throw new DomainError(
+            "EVENT_OPERATIONS_NOT_FOUND",
+            "Event operations not found",
+            404,
+          );
+        }
+        return progress;
+      });
   }
 
   public async createTask(
@@ -100,6 +116,7 @@ export class OperationsService {
       actorUserId: principal.userId,
       actorRole: principal.activeRole,
       requestId,
+      branchId: resolveBranchId(principal),
     });
     if (task === undefined) {
       throw new DomainError(
@@ -123,6 +140,7 @@ export class OperationsService {
       actorUserId: principal.userId,
       actorRole: principal.activeRole,
       requestId,
+      branchId: resolveBranchId(principal),
     });
     if (task === undefined) {
       throw new DomainError("OPS_TASK_NOT_FOUND", "Task not found", 404);
@@ -144,8 +162,14 @@ export class OperationsService {
     };
   }
 
-  public async getTask(taskId: string): Promise<OperationsTaskDetailResponse> {
-    const task = await this.operations.getTask(taskId);
+  public async getTask(
+    principal: AuthenticatedPrincipal,
+    taskId: string,
+  ): Promise<OperationsTaskDetailResponse> {
+    const task = await this.operations.getTask(
+      taskId,
+      resolveBranchId(principal),
+    );
     if (task === undefined) {
       throw new DomainError("OPS_TASK_NOT_FOUND", "Task not found", 404);
     }
@@ -164,6 +188,7 @@ export class OperationsService {
       actorUserId: principal.userId,
       actorRole: principal.activeRole,
       requestId,
+      branchId: resolveBranchId(principal),
     });
     if (assignment === undefined) {
       throw new DomainError(
@@ -187,6 +212,7 @@ export class OperationsService {
       actorUserId: principal.userId,
       actorRole: principal.activeRole,
       requestId,
+      branchId: resolveBranchId(principal),
     });
     if (assignment === undefined) {
       throw new DomainError(
@@ -208,6 +234,7 @@ export class OperationsService {
       actorUserId: principal.userId,
       actorRole: principal.activeRole,
       requestId,
+      branchId: resolveBranchId(principal),
     });
     if (log === undefined) {
       throw new DomainError(
@@ -229,6 +256,7 @@ export class OperationsService {
       actorUserId: principal.userId,
       actorRole: principal.activeRole,
       requestId,
+      branchId: resolveBranchId(principal),
     });
     if (log === undefined) {
       throw new DomainError(
@@ -250,6 +278,7 @@ export class OperationsService {
       actorUserId: principal.userId,
       actorRole: principal.activeRole,
       requestId,
+      branchId: resolveBranchId(principal),
     });
     if (completion === undefined) {
       throw new DomainError(
@@ -285,6 +314,7 @@ export class OperationsService {
       actorUserId: principal.userId,
       actorRole: principal.activeRole,
       requestId,
+      branchId: resolveBranchId(principal),
     });
     if (issue === undefined) {
       throw new DomainError(
@@ -308,6 +338,7 @@ export class OperationsService {
       actorUserId: principal.userId,
       actorRole: principal.activeRole,
       requestId,
+      branchId: resolveBranchId(principal),
     });
     if (issue === undefined) {
       throw new DomainError("OPS_ISSUE_NOT_FOUND", "Issue not found", 404);
@@ -339,6 +370,7 @@ export class OperationsService {
       actorUserId: principal.userId,
       actorRole: principal.activeRole,
       requestId,
+      branchId: resolveBranchId(principal),
     });
     if (photo === undefined) {
       throw new DomainError(
@@ -374,6 +406,7 @@ export class OperationsService {
       actorUserId: principal.userId,
       actorRole: principal.activeRole,
       requestId,
+      branchId: resolveBranchId(principal),
     });
     if (material === undefined) {
       throw new DomainError(
@@ -397,6 +430,7 @@ export class OperationsService {
       actorUserId: principal.userId,
       actorRole: principal.activeRole,
       requestId,
+      branchId: resolveBranchId(principal),
     });
     if (material === undefined) {
       throw new DomainError(
@@ -440,6 +474,7 @@ export class OperationsService {
       actorUserId: principal.userId,
       actorRole: principal.activeRole,
       requestId,
+      branchId: resolveBranchId(principal),
     });
     if (progress === undefined) {
       throw new DomainError(
@@ -463,6 +498,7 @@ export class OperationsService {
       actorUserId: principal.userId,
       actorRole: principal.activeRole,
       requestId,
+      branchId: resolveBranchId(principal),
     });
     if (completion === undefined) {
       throw new DomainError(
@@ -486,6 +522,7 @@ export class OperationsService {
       actorUserId: principal.userId,
       actorRole: principal.activeRole,
       requestId,
+      branchId: resolveBranchId(principal),
     });
     if (completion === undefined) {
       throw new DomainError(
@@ -498,9 +535,13 @@ export class OperationsService {
   }
 
   public async getCompletion(
+    principal: AuthenticatedPrincipal,
     eventRecordId: string,
   ): Promise<EventCompletionSummary> {
-    const completion = await this.operations.getCompletion(eventRecordId);
+    const completion = await this.operations.getCompletion(
+      eventRecordId,
+      resolveBranchId(principal),
+    );
     if (completion === undefined) {
       throw new DomainError(
         "EVENT_COMPLETION_NOT_FOUND",

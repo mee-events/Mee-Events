@@ -77,9 +77,13 @@ export class EventRecordService {
   }
 
   public async getCrm(
+    principal: AuthenticatedPrincipal,
     eventRecordId: string,
   ): Promise<EventRecordDetailResponse> {
-    const event = await this.events.findById(eventRecordId);
+    const event = await this.events.findById(
+      eventRecordId,
+      resolveBranchId(principal),
+    );
     if (event === undefined) {
       throw new DomainError("EVENT_RECORD_NOT_FOUND", "Event not found", 404);
     }
@@ -93,6 +97,7 @@ export class EventRecordService {
   ): Promise<EventRecordDetailResponse> {
     const created = await this.events.createFromBooking({
       bookingId: body.bookingId,
+      branchId: resolveBranchId(principal),
       eventNumber: generateEventNumber(),
       actorUserId: principal.userId,
       actorRole: principal.activeRole,
@@ -105,7 +110,7 @@ export class EventRecordService {
         409,
       );
     }
-    return this.getCrm(created.id);
+    return this.getCrm(principal, created.id);
   }
 
   public async update(
@@ -115,10 +120,7 @@ export class EventRecordService {
     requestId: string = randomUUID(),
   ): Promise<EventRecordDetailResponse> {
     const updated = await this.events.update({
-      eventRecordId,
-      actorUserId: principal.userId,
-      actorRole: principal.activeRole,
-      requestId,
+      ...eventMutation(principal, eventRecordId, requestId),
       patch,
     });
     if (updated === undefined) {
@@ -133,15 +135,15 @@ export class EventRecordService {
     body: ChangeEventStatusRequest,
     requestId: string = randomUUID(),
   ): Promise<EventRecordDetailResponse> {
-    const existing = await this.events.findById(eventRecordId);
+    const existing = await this.events.findById(
+      eventRecordId,
+      resolveBranchId(principal),
+    );
     if (existing === undefined) {
       throw new DomainError("EVENT_RECORD_NOT_FOUND", "Event not found", 404);
     }
     const updated = await this.events.changeStatus({
-      eventRecordId,
-      actorUserId: principal.userId,
-      actorRole: principal.activeRole,
-      requestId,
+      ...eventMutation(principal, eventRecordId, requestId),
       body,
     });
     if (updated === undefined) {
@@ -161,10 +163,7 @@ export class EventRecordService {
     requestId: string = randomUUID(),
   ): Promise<EventNoteSummary> {
     const note = await this.events.addNote({
-      eventRecordId,
-      actorUserId: principal.userId,
-      actorRole: principal.activeRole,
-      requestId,
+      ...eventMutation(principal, eventRecordId, requestId),
       body,
     });
     if (note === undefined) {
@@ -181,11 +180,8 @@ export class EventRecordService {
     requestId: string = randomUUID(),
   ): Promise<EventNoteSummary> {
     const note = await this.events.updateNote({
-      eventRecordId,
+      ...eventMutation(principal, eventRecordId, requestId),
       noteId,
-      actorUserId: principal.userId,
-      actorRole: principal.activeRole,
-      requestId,
       body,
     });
     if (note === undefined) {
@@ -205,10 +201,7 @@ export class EventRecordService {
     requestId: string = randomUUID(),
   ): Promise<EventTimelineEntry> {
     const entry = await this.events.addTimelineEntry({
-      eventRecordId,
-      actorUserId: principal.userId,
-      actorRole: principal.activeRole,
-      requestId,
+      ...eventMutation(principal, eventRecordId, requestId),
       body,
     });
     if (entry === undefined) {
@@ -218,18 +211,40 @@ export class EventRecordService {
   }
 
   public async timelineCrm(
+    principal: AuthenticatedPrincipal,
     eventRecordId: string,
   ): Promise<EventTimelineResponse> {
-    await this.getCrm(eventRecordId);
+    await this.getCrm(principal, eventRecordId);
     const timeline = await this.events.getTimeline(eventRecordId, false);
     return { timeline };
   }
 
   public async activitiesCrm(
+    principal: AuthenticatedPrincipal,
     eventRecordId: string,
   ): Promise<EventActivityListResponse> {
-    await this.getCrm(eventRecordId);
+    await this.getCrm(principal, eventRecordId);
     const activities = await this.events.getActivities(eventRecordId, false);
     return { activities };
   }
+}
+
+function eventMutation(
+  principal: AuthenticatedPrincipal,
+  eventRecordId: string,
+  requestId: string,
+): {
+  readonly eventRecordId: string;
+  readonly branchId: string;
+  readonly actorUserId: string;
+  readonly actorRole: string;
+  readonly requestId: string;
+} {
+  return {
+    eventRecordId,
+    branchId: resolveBranchId(principal),
+    actorUserId: principal.userId,
+    actorRole: principal.activeRole,
+    requestId,
+  };
 }

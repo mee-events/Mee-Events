@@ -119,13 +119,20 @@ class FakeFinanceRepository implements FinanceRepository {
 
   public async getEventFinance(
     eventRecordId: string,
+    branchId: string,
   ): Promise<EventFinanceDetailResponse | undefined> {
+    if (branchId !== "00000000-0000-4000-8000-000000000001") {
+      return undefined;
+    }
     return this.summaries.get(eventRecordId);
   }
 
   public async ensureEventFinance(
     input: FinanceMutationContext & { readonly eventRecordId: string },
-  ): Promise<EventFinancialSummary> {
+  ): Promise<EventFinancialSummary | undefined> {
+    if (input.branchId !== "00000000-0000-4000-8000-000000000001") {
+      return undefined;
+    }
     const existing = this.summaries.get(input.eventRecordId);
     if (existing !== undefined) return existing;
     const now = new Date().toISOString();
@@ -685,7 +692,7 @@ describe("Finance & Settlement Foundation", () => {
       description: "Transport",
     });
 
-    const detail = await service.getEventFinance(eventId);
+    const detail = await service.getEventFinance(financeUser, eventId);
     const types = detail.timeline.map((e) => e.entryType);
 
     expect(types).toContain("finance_payment_recorded");
@@ -725,5 +732,23 @@ describe("Finance & Settlement Foundation", () => {
     const dashboard = await service.getDashboard(financeUser);
     expect(dashboard.totalEvents).toBe(1);
     expect(Number(dashboard.totalAdvanceReceived)).toBe(10000);
+  });
+
+  it("denies other-branch event finance detail as 404", async () => {
+    await service.ensureEventFinance(financeUser, eventId);
+    const other: AuthenticatedPrincipal = {
+      ...financeUser,
+      userId: "other-branch",
+      branchId: "00000000-0000-4000-8000-000000000002",
+    };
+    await expect(
+      service.getEventFinance(financeUser, eventId),
+    ).resolves.toMatchObject({ eventRecordId: eventId });
+    await expect(service.getEventFinance(other, eventId)).rejects.toMatchObject(
+      {
+        code: "EVENT_FINANCE_NOT_FOUND",
+        status: 404,
+      },
+    );
   });
 });

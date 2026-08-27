@@ -99,8 +99,12 @@ export class CrmOperationsController {
   @ApiOperation({ summary: "Event operations detail" })
   public getEvent(
     @Param("eventRecordId", new ParseUUIDPipe()) eventRecordId: string,
+    @Req() request: AuthenticatedPlatformRequest,
   ): Promise<EventOperationsDetailResponse> {
-    return this.operations.getEventOperations(eventRecordId);
+    return this.operations.getEventOperations(
+      principalOf(request),
+      eventRecordId,
+    );
   }
 
   @Post("events/:eventRecordId/ensure")
@@ -151,8 +155,9 @@ export class CrmOperationsController {
   @ApiOperation({ summary: "Get operations task detail" })
   public getTask(
     @Param("taskId", new ParseUUIDPipe()) taskId: string,
+    @Req() request: AuthenticatedPlatformRequest,
   ): Promise<OperationsTaskDetailResponse> {
-    return this.operations.getTask(taskId);
+    return this.operations.getTask(principalOf(request), taskId);
   }
 
   @Patch("tasks/:taskId")
@@ -414,8 +419,9 @@ export class CrmOperationsController {
   @ApiOperation({ summary: "Get event completion gates" })
   public getCompletion(
     @Param("eventRecordId", new ParseUUIDPipe()) eventRecordId: string,
+    @Req() request: AuthenticatedPlatformRequest,
   ): Promise<EventCompletionSummary> {
-    return this.operations.getCompletion(eventRecordId);
+    return this.operations.getCompletion(principalOf(request), eventRecordId);
   }
 
   @Patch("events/:eventRecordId/completion")
@@ -484,8 +490,12 @@ export class OperationsOpsController {
   @ApiOperation({ summary: "Event operations detail for ops roles" })
   public getEvent(
     @Param("eventRecordId", new ParseUUIDPipe()) eventRecordId: string,
+    @Req() request: AuthenticatedPlatformRequest,
   ): Promise<EventOperationsDetailResponse> {
-    return this.operations.getEventOperations(eventRecordId);
+    return this.operations.getEventOperations(
+      principalOf(request),
+      eventRecordId,
+    );
   }
 
   @Get("me/tasks")

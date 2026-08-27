@@ -84,8 +84,9 @@ export class ManagerOperationsController {
   @ApiOperation({ summary: "Task detail for the manager" })
   public getTask(
     @Param("taskId", new ParseUUIDPipe()) taskId: string,
+    @Req() request: AuthenticatedPlatformRequest,
   ): Promise<EventTaskDetailResponse> {
-    return this.ops.getTask(taskId);
+    return this.ops.getTask(principalOf(request), taskId);
   }
 
   @Patch("tasks/:taskId")

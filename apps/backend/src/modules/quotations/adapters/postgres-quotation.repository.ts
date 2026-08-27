@@ -108,6 +108,7 @@ export class PostgresQuotationRepository implements QuotationRepository {
 
   public async findLeadContext(
     leadId: string,
+    branchId: string,
   ): Promise<LeadContext | undefined> {
     const result = await this.pool.query<{
       lead_id: string;
@@ -118,8 +119,11 @@ export class PostgresQuotationRepository implements QuotationRepository {
       owner_user_id: string | null;
     }>(
       `SELECT id AS lead_id, enquiry_id, customer_id, branch_id, status, owner_user_id
-       FROM leads WHERE id = $1 AND enquiry_id IS NOT NULL`,
-      [leadId],
+       FROM leads
+       WHERE id = $1
+         AND branch_id = $2
+         AND enquiry_id IS NOT NULL`,
+      [leadId, branchId],
     );
     const row = result.rows[0];
     if (row === undefined || row.enquiry_id === null) {
@@ -242,8 +246,10 @@ export class PostgresQuotationRepository implements QuotationRepository {
         branch_id: string;
       }>(
         `SELECT id, status, current_revision_id, version, branch_id
-         FROM quotations WHERE id = $1 FOR UPDATE`,
-        [input.quotationId],
+         FROM quotations
+         WHERE id = $1 AND branch_id = $2
+         FOR UPDATE`,
+        [input.quotationId, input.branchId],
       );
       const quote = header.rows[0];
       if (
@@ -342,10 +348,10 @@ export class PostgresQuotationRepository implements QuotationRepository {
                 COALESCE(MAX(r.revision_number), 0) AS max_revision
          FROM quotations q
          LEFT JOIN quotation_revisions r ON r.quotation_id = q.id
-         WHERE q.id = $1
+         WHERE q.id = $1 AND q.branch_id = $2
          GROUP BY q.id
          FOR UPDATE OF q`,
-        [input.quotationId],
+        [input.quotationId, input.branchId],
       );
       const quote = header.rows[0];
       if (
@@ -449,9 +455,9 @@ export class PostgresQuotationRepository implements QuotationRepository {
                 r.final_amount, r.advance_amount
          FROM quotations q
          JOIN quotation_revisions r ON r.id = q.current_revision_id
-         WHERE q.id = $1
+         WHERE q.id = $1 AND q.branch_id = $2
          FOR UPDATE OF q`,
-        [input.quotationId],
+        [input.quotationId, input.branchId],
       );
       const quote = header.rows[0];
       if (
@@ -642,15 +648,16 @@ export class PostgresQuotationRepository implements QuotationRepository {
 
   public async findById(
     quotationId: string,
+    branchId: string,
   ): Promise<QuotationDetailResponse | undefined> {
-    return this.loadDetail(quotationId, undefined);
+    return this.loadDetail(quotationId, { branchId });
   }
 
   public async findForCustomerUser(
     userId: string,
     quotationId: string,
   ): Promise<QuotationDetailResponse | undefined> {
-    return this.loadDetail(quotationId, userId);
+    return this.loadDetail(quotationId, { customerUserId: userId });
   }
 
   public async listTimeline(
@@ -821,13 +828,16 @@ export class PostgresQuotationRepository implements QuotationRepository {
 
   private async loadDetail(
     quotationId: string,
-    customerUserId: string | undefined,
+    scope: { readonly customerUserId: string } | { readonly branchId: string },
   ): Promise<QuotationDetailResponse | undefined> {
     const params: unknown[] = [quotationId];
     let where = "WHERE q.id = $1";
-    if (customerUserId !== undefined) {
-      params.push(customerUserId);
+    if ("customerUserId" in scope) {
+      params.push(scope.customerUserId);
       where += ` AND c.user_id = $2 AND q.status <> 'draft'`;
+    } else {
+      params.push(scope.branchId);
+      where += ` AND q.branch_id = $2`;
     }
 
     const headerResult = await this.pool.query<QuotationHeaderRow>(
@@ -854,7 +864,7 @@ export class PostgresQuotationRepository implements QuotationRepository {
       );
       const rev = revisionResult.rows[0];
       if (rev !== undefined) {
-        revision = toRevision(rev, customerUserId !== undefined);
+        revision = toRevision(rev, "customerUserId" in scope);
         const itemResult = await this.pool.query<ItemRow>(
           `SELECT id, item_type, title, description, quantity, unit_price,
                   line_total, sort_order

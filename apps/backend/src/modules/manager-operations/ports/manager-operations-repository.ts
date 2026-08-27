@@ -28,6 +28,7 @@ export interface ManagerMutationContext {
   readonly actorUserId: string;
   readonly actorRole: string;
   readonly requestId: string;
+  readonly branchId: string;
 }
 
 export interface ManagerOperationsRepository {
@@ -49,6 +50,7 @@ export interface ManagerOperationsRepository {
 
   getActiveAssignment(
     eventRecordId: string,
+    branchId: string,
   ): Promise<ManagerAssignmentSummary | undefined>;
 
   getManagerDashboard(
@@ -58,16 +60,23 @@ export interface ManagerOperationsRepository {
 
   getEventDashboard(
     eventRecordId: string,
+    branchId: string,
   ): Promise<EventManagerDashboardResponse | undefined>;
 
-  listTasks(eventRecordId: string): Promise<readonly EventTaskSummary[]>;
+  listTasks(
+    eventRecordId: string,
+    branchId: string,
+  ): Promise<readonly EventTaskSummary[]>;
 
   listTasksForManager(
     managerUserId: string,
     options?: { readonly todayOnly?: boolean },
   ): Promise<readonly EventTaskSummary[]>;
 
-  getTask(taskId: string): Promise<EventTaskDetailResponse | undefined>;
+  getTask(
+    taskId: string,
+    branchId: string,
+  ): Promise<EventTaskDetailResponse | undefined>;
 
   createTask(
     input: ManagerMutationContext & {

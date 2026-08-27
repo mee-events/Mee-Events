@@ -103,8 +103,9 @@ export class CrmInventoryController {
   @ApiOperation({ summary: "Warehouse detail" })
   public getWarehouse(
     @Param("id", new ParseUUIDPipe()) id: string,
+    @Req() request: AuthenticatedPlatformRequest,
   ): Promise<WarehouseDetailResponse> {
-    return this.inventory.getWarehouse(id);
+    return this.inventory.getWarehouse(principalOf(request), id);
   }
 
   @Patch("warehouses/:id")
@@ -200,8 +201,9 @@ export class CrmInventoryController {
   @ApiOperation({ summary: "Allocation detail" })
   public getAllocation(
     @Param("allocationId", new ParseUUIDPipe()) allocationId: string,
+    @Req() request: AuthenticatedPlatformRequest,
   ): Promise<InventoryAllocationDetailResponse> {
-    return this.inventory.getAllocation(allocationId);
+    return this.inventory.getAllocation(principalOf(request), allocationId);
   }
 
   @Patch("inventory/allocations/:allocationId")
@@ -297,8 +299,9 @@ export class CrmInventoryController {
   @ApiOperation({ summary: "Inventory item detail" })
   public getItem(
     @Param("id", new ParseUUIDPipe()) id: string,
+    @Req() request: AuthenticatedPlatformRequest,
   ): Promise<InventoryItemDetailResponse> {
-    return this.inventory.getItem(id);
+    return this.inventory.getItem(principalOf(request), id);
   }
 
   @Patch("inventory/:id")
@@ -370,8 +373,9 @@ export class InventoryOpsController {
   @ApiOperation({ summary: "Allocation detail with movement timeline" })
   public getAllocation(
     @Param("allocationId", new ParseUUIDPipe()) allocationId: string,
+    @Req() request: AuthenticatedPlatformRequest,
   ): Promise<InventoryAllocationDetailResponse> {
-    return this.inventory.getAllocation(allocationId);
+    return this.inventory.getAllocation(principalOf(request), allocationId);
   }
 
   @Post("me/allocations")

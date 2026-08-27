@@ -69,8 +69,9 @@ export class CrmQuotationController {
   @ApiOperation({ summary: "Get quotation detail for CRM" })
   public get(
     @Param("id", new ParseUUIDPipe()) id: string,
+    @Req() request: AuthenticatedPlatformRequest,
   ): Promise<QuotationDetailResponse> {
-    return this.quotations.getCrm(id);
+    return this.quotations.getCrm(principalOf(request), id);
   }
 
   @Get(":id/timeline")
@@ -78,8 +79,12 @@ export class CrmQuotationController {
   @ApiOperation({ summary: "Get quotation timeline for CRM" })
   public async timeline(
     @Param("id", new ParseUUIDPipe()) id: string,
+    @Req() request: AuthenticatedPlatformRequest,
   ): Promise<{ activities: readonly QuotationActivitySummary[] }> {
-    const activities = await this.quotations.timelineCrm(id);
+    const activities = await this.quotations.timelineCrm(
+      principalOf(request),
+      id,
+    );
     return { activities };
   }
 
@@ -88,8 +93,9 @@ export class CrmQuotationController {
   @ApiOperation({ summary: "PDF placeholder for CRM" })
   public pdf(
     @Param("id", new ParseUUIDPipe()) id: string,
+    @Req() request: AuthenticatedPlatformRequest,
   ): Promise<QuotationPdfPlaceholderResponse> {
-    return this.quotations.pdfPlaceholder(id);
+    return this.quotations.pdfPlaceholder(principalOf(request), id);
   }
 
   @Patch(":id")

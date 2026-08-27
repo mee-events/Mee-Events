@@ -37,8 +37,11 @@ export interface EnquirySubmittedPayload {
 
 export interface LeadRepository {
   listForBranch(branchId: string): Promise<readonly LeadListItem[]>;
-  findById(leadId: string): Promise<LeadListItem | undefined>;
-  findDetailById(leadId: string): Promise<LeadDetailItem | undefined>;
+  findById(leadId: string, branchId: string): Promise<LeadListItem | undefined>;
+  findDetailById(
+    leadId: string,
+    branchId: string,
+  ): Promise<LeadDetailItem | undefined>;
   /**
    * Idempotent CRM reaction to `enquiry.submitted`: creates the lead + activity
    * + audit when no lead exists for the enquiry yet.
@@ -57,6 +60,7 @@ export interface LeadRepository {
     ownerUserId: string,
     ownerRole: string,
     requestId: string,
+    branchId: string,
   ): Promise<LeadListItem | undefined>;
   /**
    * Records requirements notes and advances lead/enquiry discussion statuses.
@@ -68,6 +72,7 @@ export interface LeadRepository {
     notes: string,
     status: "contacted" | "qualified",
     requestId: string,
+    branchId: string,
   ): Promise<LeadListItem | undefined>;
   /**
    * Updates lead pipeline status for Kanban moves; syncs enquiry status and
@@ -79,5 +84,6 @@ export interface LeadRepository {
     actorUserId: string,
     actorRole: string,
     requestId: string,
+    branchId: string,
   ): Promise<LeadDetailItem | undefined>;
 }

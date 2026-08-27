@@ -84,7 +84,11 @@ export class PostgresManagerOperationsRepository
     const client = await this.pool.connect();
     try {
       await client.query("BEGIN");
-      const locked = await lockEvent(client, input.eventRecordId);
+      const locked = await lockEvent(
+        client,
+        input.eventRecordId,
+        input.branchId,
+      );
       if (locked === undefined) {
         await client.query("ROLLBACK");
         return undefined;
@@ -244,9 +248,9 @@ export class PostgresManagerOperationsRepository
         `SELECT a.id, a.event_record_id, a.status, a.version, e.branch_id
          FROM event_manager_assignments a
          INNER JOIN event_records e ON e.id = a.event_record_id
-         WHERE a.id = $1
+         WHERE a.id = $1 AND e.branch_id = $2
          FOR UPDATE OF a`,
-        [input.assignmentId],
+        [input.assignmentId, input.branchId],
       );
       const row = current.rows[0];
       if (row === undefined) {
@@ -324,12 +328,17 @@ export class PostgresManagerOperationsRepository
 
   public async getActiveAssignment(
     eventRecordId: string,
+    branchId: string,
   ): Promise<ManagerAssignmentSummary | undefined> {
     const result = await this.pool.query<{ id: string }>(
-      `SELECT id FROM event_manager_assignments
-       WHERE event_record_id = $1 AND status = 'active'
+      `SELECT a.id
+       FROM event_manager_assignments a
+       INNER JOIN event_records e ON e.id = a.event_record_id
+       WHERE a.event_record_id = $1
+         AND e.branch_id = $2
+         AND a.status = 'active'
        LIMIT 1`,
-      [eventRecordId],
+      [eventRecordId, branchId],
     );
     const id = result.rows[0]?.id;
     if (id === undefined) return undefined;
@@ -392,13 +401,14 @@ export class PostgresManagerOperationsRepository
 
   public async getEventDashboard(
     eventRecordId: string,
+    branchId: string,
   ): Promise<EventManagerDashboardResponse | undefined> {
-    const event = await this.loadEventSummary(eventRecordId);
+    const event = await this.loadEventSummary(eventRecordId, branchId);
     if (event === undefined) return undefined;
     const [assignment, tasks, progress, timeline, activities] =
       await Promise.all([
-        this.getActiveAssignment(eventRecordId),
-        this.listTasks(eventRecordId),
+        this.getActiveAssignment(eventRecordId, branchId),
+        this.listTasks(eventRecordId, branchId),
         this.listProgress(eventRecordId),
         this.getTimeline(eventRecordId),
         this.getActivities(eventRecordId),
@@ -420,10 +430,13 @@ export class PostgresManagerOperationsRepository
 
   public async listTasks(
     eventRecordId: string,
+    branchId: string,
   ): Promise<readonly EventTaskSummary[]> {
     const result = await this.pool.query<TaskRow>(
-      `${TASK_SELECT} WHERE t.event_record_id = $1 ORDER BY t.due_at NULLS LAST, t.created_at DESC`,
-      [eventRecordId],
+      `${TASK_SELECT}
+       WHERE t.event_record_id = $1 AND e.branch_id = $2
+       ORDER BY t.due_at NULLS LAST, t.created_at DESC`,
+      [eventRecordId, branchId],
     );
     return result.rows.map(toTask);
   }
@@ -448,10 +461,11 @@ export class PostgresManagerOperationsRepository
 
   public async getTask(
     taskId: string,
+    branchId: string,
   ): Promise<EventTaskDetailResponse | undefined> {
     const result = await this.pool.query<TaskRow>(
-      `${TASK_SELECT} WHERE t.id = $1`,
-      [taskId],
+      `${TASK_SELECT} WHERE t.id = $1 AND e.branch_id = $2`,
+      [taskId, branchId],
     );
     const row = result.rows[0];
     if (row === undefined) return undefined;
@@ -518,7 +532,11 @@ export class PostgresManagerOperationsRepository
     const client = await this.pool.connect();
     try {
       await client.query("BEGIN");
-      const locked = await lockEvent(client, input.eventRecordId);
+      const locked = await lockEvent(
+        client,
+        input.eventRecordId,
+        input.branchId,
+      );
       if (locked === undefined) {
         await client.query("ROLLBACK");
         return undefined;
@@ -650,9 +668,9 @@ export class PostgresManagerOperationsRepository
         `SELECT t.*, e.branch_id
          FROM event_tasks t
          INNER JOIN event_records e ON e.id = t.event_record_id
-         WHERE t.id = $1
+         WHERE t.id = $1 AND e.branch_id = $2
          FOR UPDATE OF t`,
-        [input.taskId],
+        [input.taskId, input.branchId],
       );
       const row = current.rows[0];
       if (row === undefined) {
@@ -787,6 +805,7 @@ export class PostgresManagerOperationsRepository
       actorUserId: input.actorUserId,
       actorRole: input.actorRole,
       requestId: input.requestId,
+      branchId: input.branchId,
       taskId: input.taskId,
       body: {
         status: "completed",
@@ -815,9 +834,9 @@ export class PostgresManagerOperationsRepository
         `SELECT t.id, t.event_record_id, t.version, e.branch_id
          FROM event_tasks t
          INNER JOIN event_records e ON e.id = t.event_record_id
-         WHERE t.id = $1
+         WHERE t.id = $1 AND e.branch_id = $2
          FOR UPDATE OF t`,
-        [input.taskId],
+        [input.taskId, input.branchId],
       );
       const row = task.rows[0];
       if (row === undefined) {
@@ -936,7 +955,11 @@ export class PostgresManagerOperationsRepository
     const client = await this.pool.connect();
     try {
       await client.query("BEGIN");
-      const locked = await lockEvent(client, input.eventRecordId);
+      const locked = await lockEvent(
+        client,
+        input.eventRecordId,
+        input.branchId,
+      );
       if (locked === undefined) {
         await client.query("ROLLBACK");
         return undefined;
@@ -1051,9 +1074,9 @@ export class PostgresManagerOperationsRepository
         `SELECT p.*, e.branch_id
          FROM event_progress_updates p
          INNER JOIN event_records e ON e.id = p.event_record_id
-         WHERE p.id = $1
+         WHERE p.id = $1 AND e.branch_id = $2
          FOR UPDATE OF p`,
-        [input.progressId],
+        [input.progressId, input.branchId],
       );
       const row = current.rows[0];
       if (row === undefined) {
@@ -1166,10 +1189,11 @@ export class PostgresManagerOperationsRepository
 
   private async loadEventSummary(
     eventRecordId: string,
+    branchId: string,
   ): Promise<EventRecordSummary | undefined> {
     const result = await this.pool.query<EventSummaryRow>(
-      `${EVENT_SUMMARY_SELECT} WHERE e.id = $1`,
-      [eventRecordId],
+      `${EVENT_SUMMARY_SELECT} WHERE e.id = $1 AND e.branch_id = $2`,
+      [eventRecordId, branchId],
     );
     const row = result.rows[0];
     return row === undefined ? undefined : toEventSummary(row);
@@ -1373,6 +1397,7 @@ const EVENT_SUMMARY_SELECT = `SELECT e.id, e.event_number, e.booking_id, b.booki
 async function lockEvent(
   client: PoolClient,
   eventRecordId: string,
+  branchId: string,
 ): Promise<
   { branch_id: string; status: EventRecordStatus; version: number } | undefined
 > {
@@ -1381,8 +1406,11 @@ async function lockEvent(
     status: EventRecordStatus;
     version: number;
   }>(
-    `SELECT branch_id, status, version FROM event_records WHERE id = $1 FOR UPDATE`,
-    [eventRecordId],
+    `SELECT branch_id, status, version
+     FROM event_records
+     WHERE id = $1 AND branch_id = $2
+     FOR UPDATE`,
+    [eventRecordId, branchId],
   );
   return result.rows[0];
 }

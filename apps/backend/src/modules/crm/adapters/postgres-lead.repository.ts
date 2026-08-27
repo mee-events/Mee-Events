@@ -100,11 +100,14 @@ export class PostgresLeadRepository implements LeadRepository {
     return result.rows.map(toListItem);
   }
 
-  public async findById(leadId: string): Promise<LeadListItem | undefined> {
+  public async findById(
+    leadId: string,
+    branchId: string,
+  ): Promise<LeadListItem | undefined> {
     const result = await this.pool.query<LeadRow>(
       `${SELECT_LEAD}
-       WHERE l.id = $1`,
-      [leadId],
+       WHERE l.id = $1 AND l.branch_id = $2`,
+      [leadId, branchId],
     );
     const row = result.rows[0];
     return row === undefined ? undefined : toListItem(row);
@@ -112,11 +115,12 @@ export class PostgresLeadRepository implements LeadRepository {
 
   public async findDetailById(
     leadId: string,
+    branchId: string,
   ): Promise<LeadDetailItem | undefined> {
     const result = await this.pool.query<LeadDetailRow>(
       `${SELECT_LEAD_DETAIL}
-       WHERE l.id = $1`,
-      [leadId],
+       WHERE l.id = $1 AND l.branch_id = $2`,
+      [leadId, branchId],
     );
     const row = result.rows[0];
     return row === undefined ? undefined : toDetailItem(row);
@@ -194,6 +198,7 @@ export class PostgresLeadRepository implements LeadRepository {
     ownerUserId: string,
     ownerRole: string,
     requestId: string,
+    branchId: string,
   ): Promise<LeadListItem | undefined> {
     const client = await this.pool.connect();
     try {
@@ -208,9 +213,12 @@ export class PostgresLeadRepository implements LeadRepository {
          SET owner_user_id = $2,
              status = 'claimed',
              first_responded_at = COALESCE(first_responded_at, now())
-         WHERE id = $1 AND owner_user_id IS NULL AND status = 'new'
+         WHERE id = $1
+           AND branch_id = $3
+           AND owner_user_id IS NULL
+           AND status = 'new'
          RETURNING id, enquiry_id, version`,
-        [leadId, ownerUserId],
+        [leadId, ownerUserId, branchId],
       );
       const updated = updateResult.rows[0];
       if (updated === undefined) {
@@ -259,7 +267,7 @@ export class PostgresLeadRepository implements LeadRepository {
     } finally {
       client.release();
     }
-    return this.findById(leadId);
+    return this.findById(leadId, branchId);
   }
 
   public async saveRequirements(
@@ -269,6 +277,7 @@ export class PostgresLeadRepository implements LeadRepository {
     notes: string,
     status: "contacted" | "qualified",
     requestId: string,
+    branchId: string,
   ): Promise<LeadListItem | undefined> {
     const client = await this.pool.connect();
     try {
@@ -283,9 +292,10 @@ export class PostgresLeadRepository implements LeadRepository {
         `UPDATE leads
          SET status = $2
          WHERE id = $1
+           AND branch_id = $3
            AND status IN ('claimed', 'contacted', 'qualified')
          RETURNING id, enquiry_id, version, branch_id`,
-        [leadId, status],
+        [leadId, status, branchId],
       );
       const updated = updateResult.rows[0];
       if (updated === undefined) {
@@ -335,7 +345,7 @@ export class PostgresLeadRepository implements LeadRepository {
     } finally {
       client.release();
     }
-    return this.findById(leadId);
+    return this.findById(leadId, branchId);
   }
 
   public async updateStatus(
@@ -344,6 +354,7 @@ export class PostgresLeadRepository implements LeadRepository {
     actorUserId: string,
     actorRole: string,
     requestId: string,
+    branchId: string,
   ): Promise<LeadDetailItem | undefined> {
     const client = await this.pool.connect();
     try {
@@ -358,9 +369,9 @@ export class PostgresLeadRepository implements LeadRepository {
       }>(
         `SELECT id, enquiry_id, version, branch_id, status
          FROM leads
-         WHERE id = $1
+         WHERE id = $1 AND branch_id = $2
          FOR UPDATE`,
-        [leadId],
+        [leadId, branchId],
       );
       const current = existing.rows[0];
       if (current === undefined) {
@@ -380,9 +391,9 @@ export class PostgresLeadRepository implements LeadRepository {
                WHEN $3::text = 'new' THEN COALESCE(first_responded_at, now())
                ELSE first_responded_at
              END
-         WHERE id = $1
+         WHERE id = $1 AND branch_id = $4
          RETURNING id, enquiry_id, version, branch_id`,
-        [leadId, status, current.status],
+        [leadId, status, current.status, branchId],
       );
       const updated = updateResult.rows[0];
       if (updated === undefined) {
@@ -435,7 +446,7 @@ export class PostgresLeadRepository implements LeadRepository {
     } finally {
       client.release();
     }
-    return this.findDetailById(leadId);
+    return this.findDetailById(leadId, branchId);
   }
 }
 
