@@ -53,12 +53,12 @@ Root scripts only wrap `flutter run` (`dev:mobile*`), not analyze/test.
 
 ## Merge expectation
 
-| Check                                                                     | Required                                                                          |
-| ------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
-| `corepack pnpm verify` green (or equivalent CI typescript job)            | Yes                                                                               |
-| Flutter CI job green (`format` + `analyze` + `test` + debug APK)          | Yes for mobile-touching or always-on CI policy on the branch                      |
-| Backend PostgreSQL integration (`corepack pnpm test:integration:backend`) | Required for backend persistence/identity/workflow changes; not yet wired into CI |
-| Automated UI E2E                                                          | N/A — does not exist                                                              |
+| Check                                                                     | Required                                                                  |
+| ------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| `corepack pnpm verify` green (or equivalent CI typescript job)            | Yes                                                                       |
+| Flutter CI job green (`format` + `analyze` + `test` + debug APK)          | Yes for mobile-touching or always-on CI policy on the branch              |
+| Backend PostgreSQL integration (`corepack pnpm test:integration:backend`) | Required for backend persistence/identity/workflow changes; CI job exists |
+| Automated UI E2E                                                          | Foundation only — local Playwright/API/mobile smokes; CI runs URL guards  |
 
 Backend handbook reminder: run verify before merging backend changes
 ([backend.md](../02-architecture/backend.md)).
@@ -75,5 +75,6 @@ service wiring remains STAB-16; a local pass is not remote CI proof.
 
 - [testing-strategy.md](./testing-strategy.md)
 - [unit-tests.md](./unit-tests.md)
+- [e2e-tests.md](./e2e-tests.md)
 - [local-development.md](../07-deployment/local-development.md)
 - [ci-cd.md](../07-deployment/ci-cd.md)

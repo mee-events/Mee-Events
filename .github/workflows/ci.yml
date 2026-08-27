@@ -9,6 +9,9 @@ on:
 permissions:
   contents: read
 
+env:
+  PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: true
@@ -56,6 +59,9 @@ jobs:
 
       - name: Run unit tests
         run: corepack pnpm test
+
+      - name: Prove E2E loopback guards fail closed
+        run: corepack pnpm test:e2e:guard
 
       - name: Build backend and ERP with synthetic production public configuration
         env:
@@ -137,7 +143,19 @@ jobs:
         run: flutter pub get --enforce-lockfile
 
       - name: Check Dart formatting
-        run: dart format --output=none --set-exit-if-changed lib test
+        run: dart format --output=none --set-exit-if-changed lib test tool
+
+      - name: Prove mobile E2E URL guard fails closed
+        run: |
+          set -euo pipefail
+          if env -u E2E_API_BASE_URL dart run tool/e2e_api_contract_smoke.dart; then
+            echo "missing E2E_API_BASE_URL must fail" >&2
+            exit 1
+          fi
+          if E2E_API_BASE_URL=https://api.example.com/api/v1 dart run tool/e2e_api_contract_smoke.dart; then
+            echo "non-loopback E2E_API_BASE_URL must fail" >&2
+            exit 1
+          fi
 
       - name: Analyze Flutter
         run: flutter analyze --fatal-infos

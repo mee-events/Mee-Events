@@ -10,7 +10,7 @@
 - **Result:** **DONE WITH FINDINGS** — remote GitHub verification **SUCCEEDED** on 27 August 2026 for commit `999443d`
 - **Phase 0:** **NOT PASSED**
 - **STAB-16 MASTER_TODO:** `[x]` DONE WITH FINDINGS
-- **STAB-17:** next block, **NOT STARTED**
+- **STAB-17:** **DONE WITH FINDINGS**. Evidence: `docs/08-testing/e2e-foundation-baseline.md`.
 
 This document records the committed workflow design, local proof, and the
 canonical `master` GitHub runs that closed STAB-16. Branch protection and

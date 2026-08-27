@@ -13,6 +13,7 @@ Canonical evidence:
 - [ERP test baseline](./erp-test-baseline.md)
 - [Flutter analysis baseline](./flutter-analysis-baseline.md)
 - [Flutter test baseline](./flutter-test-baseline.md)
+- [E2E foundation baseline](./e2e-foundation-baseline.md)
 
 ---
 
@@ -20,7 +21,8 @@ Canonical evidence:
 
 ```text
                     ┌─────────────────┐
-                    │  UI E2E         │  ← not implemented
+                    │  UI / API E2E   │  ← STAB-17 foundation (local live;
+                    │                 │     CI fail-closed URL probes only)
                     ├─────────────────┤
                     │  DB integration │  ← selected Postgres adapters/workflows
                     ├─────────────────┤
@@ -35,15 +37,16 @@ Canonical evidence:
                     └─────────────────┘
 ```
 
-| Layer                           | Runner           | What exists                                                                     |
-| ------------------------------- | ---------------- | ------------------------------------------------------------------------------- |
-| Pure domain + guards + services | Vitest           | Backend suite: 190 tests across 30 files after the STAB-15 correction           |
-| Module foundation / workflow    | Vitest           | `*-foundation.spec.ts`, quotation/payment workflow and Pattern B probes         |
-| Employee CRM/ERP narrow units   | Vitest           | 8 tests across environment, API refresh, and catalog form-reset behavior        |
-| Flutter unit and widget tests   | `flutter test`   | 441 tests across models, providers, stores, navigation and customer UI          |
-| PostgreSQL integration          | Vitest + Compose | 21 tests / 3 files; selected adapters/workflows; local and dedicated CI command |
-| Redis integration               | —                | **None**                                                                        |
-| Browser / device E2E            | —                | **None** (no Playwright / Cypress / Detox)                                      |
+| Layer                           | Runner                  | What exists                                                                     |
+| ------------------------------- | ----------------------- | ------------------------------------------------------------------------------- |
+| Pure domain + guards + services | Vitest                  | Backend suite: 190 tests across 30 files after the STAB-15 correction           |
+| Module foundation / workflow    | Vitest                  | `*-foundation.spec.ts`, quotation/payment workflow and Pattern B probes         |
+| Employee CRM/ERP narrow units   | Vitest                  | 8 tests across environment, API refresh, and catalog form-reset behavior        |
+| Flutter unit and widget tests   | `flutter test`          | 441 tests across models, providers, stores, navigation and customer UI          |
+| PostgreSQL integration          | Vitest + Compose        | 21 tests / 3 files; selected adapters/workflows; local and dedicated CI command |
+| Redis integration               | —                       | **None**                                                                        |
+| Browser / API E2E               | Playwright + shell/Dart | One ERP login smoke, one Nest authenticated smoke; CI runs URL guards only      |
+| Mobile device E2E               | —                       | **None** (headless API contract only; no emulator/integration_test)             |
 
 Details: [unit-tests.md](./unit-tests.md), [integration-tests.md](./integration-tests.md),
 [e2e-tests.md](./e2e-tests.md).
@@ -113,10 +116,11 @@ where relevant). See the checklist in
 - No APM or test-reporting SaaS wiring
 - No k6 / Artillery load suites (`test/perf/scalability-estimate.ts` is an
   algorithmic cost model, not live RPS)
-- No browser or device E2E frameworks
+- No emulator/device UI E2E and no second browser framework
 - CI invokes the existing isolated PostgreSQL harness in its own bounded job;
   it does not define a duplicate workflow service. GitHub ran that job green
-  on `999443d` (STAB-16).
+  on `999443d` (STAB-16). STAB-17 adds fail-closed E2E URL probes to that CI
+  file without starting a live Nest/ERP/Playwright stack on every push.
 
 ---
 
@@ -125,4 +129,5 @@ where relevant). See the checklist in
 - [unit-tests.md](./unit-tests.md)
 - [integration-tests.md](./integration-tests.md)
 - [e2e-tests.md](./e2e-tests.md)
+- [e2e-foundation-baseline.md](./e2e-foundation-baseline.md)
 - [verification.md](./verification.md)

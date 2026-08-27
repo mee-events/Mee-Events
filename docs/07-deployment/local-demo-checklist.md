@@ -17,10 +17,15 @@ corepack pnpm dev:erp
 API-only smokes (no UI):
 
 ```sh
-# Slice 1 — enquiry → claim → contact_pending
+# STAB-17 foundation (authenticated health/OTP/bootstrap; not the sale journey)
+corepack pnpm test:e2e:api
+corepack pnpm test:e2e:erp
+corepack pnpm test:e2e:mobile
+
+# Slice 1 — enquiry → claim → contact_pending (manual demo, not STAB-17 DoD)
 bash scripts/demo-enquiry-claim-smoke.sh
 
-# Full sale — enquiry → quote → advance → booking + event
+# Full sale — enquiry → quote → advance → booking + event (manual demo)
 bash scripts/demo-enquiry-to-booking-smoke.sh
 ```
 

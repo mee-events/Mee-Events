@@ -52,7 +52,9 @@ NEXT_PUBLIC_API_BASE_URL=https://api.ci.mee-events.invalid/api/v1
 ```
 
 The `.invalid` HTTPS hostname verifies the production public-environment
-boundary without a real endpoint or private credential.
+boundary without a real endpoint or private credential. After unit tests the
+job runs `corepack pnpm test:e2e:guard` (loopback fail-closed probes). That
+step does not start Nest, ERP, Playwright browsers, or Postgres.
 
 ### `Backend PostgreSQL integration`
 
@@ -64,10 +66,12 @@ sanitized JUnit XML for three days, including after failure when present.
 
 ### `Flutter development verification`
 
-Enforces `pubspec.lock`, checks formatting, runs fatal-info analysis and all
+Enforces `pubspec.lock`, checks formatting for `lib`, `test`, and `tool`,
+proves the mobile E2E URL guard fails closed, runs fatal-info analysis and all
 tests, then builds a development-only debug APK with the emulator API URL and
 explicit `BRANCH_CODE=HYD`. The unused `APP_ENV` define is gone. The APK is not
-uploaded and is not a production/release/store artifact.
+uploaded and is not a production/release/store artifact. Analysis includes
+`apps/mobile/tool/e2e_api_contract_smoke.dart`. CI does not boot an emulator.
 
 ### `Dependency review`
 
@@ -122,9 +126,14 @@ Proposed required checks are `TypeScript quality`,
 founder action; the names remain proposals until protection is set. See the
 baseline for run URLs and the founder-owned policy plan.
 
+`CI` and `Security` set `PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1` so frozen pnpm
+install does not fetch Chromium. Browser binaries are installed locally with
+`corepack pnpm --filter @me-event/erp-web test:e2e:install`.
+
 ## What CI still does not prove
 
-- browser, API, device, or end-to-end behavior;
+- live browser, Nest, or device end-to-end behavior (STAB-17 runs URL guards
+  in CI; live smokes are local);
 - a coverage percentage or threshold;
 - production Android/iOS compilation, signing, permissions, or store delivery;
 - backend/ERP packaging, startup, reproducibility, attestation, or deployment;
@@ -138,3 +147,5 @@ baseline for run URLs and the founder-owned policy plan.
 - [backend-build-baseline.md](./backend-build-baseline.md)
 - [erp-build-baseline.md](./erp-build-baseline.md)
 - [flutter-build-baseline.md](./flutter-build-baseline.md)
+- [e2e-tests.md](../08-testing/e2e-tests.md)
+- [e2e-foundation-baseline.md](../08-testing/e2e-foundation-baseline.md)

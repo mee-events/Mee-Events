@@ -3,8 +3,10 @@
 **Honest status:** STAB-15 adds a maintained PostgreSQL 17.2 repository/service
 integration suite. It is explicitly invoked and remains outside the ordinary
 database-independent unit command. STAB-16 adds a dedicated CI job that calls
-the same harness; remote GitHub execution is still pending. There is still no
-Redis, Nest HTTP, browser, device, or provider integration suite.
+the same harness; GitHub ran that job green on `999443d`. There is still no
+Redis or provider integration suite. STAB-17 adds a loopback Nest HTTP
+authenticated smoke (`scripts/e2e/api-smoke.sh`); that is an E2E foundation
+check, not a module integration suite.
 
 STAB-14 separately performed isolated PostgreSQL 17.2 replay of all 20
 migrations across empty, tracked-upgrade, and legacy paths, plus selected

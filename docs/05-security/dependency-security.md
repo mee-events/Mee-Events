@@ -81,6 +81,14 @@ dependency diff. Weekly Dependabot monitoring now covers the root npm/pnpm
 workspace, Pub in `/apps/mobile`, and immutable GitHub Action pins. This block
 does not update either lockfile or any dependency.
 
+### STAB-17 Playwright add
+
+On 27 August 2026 STAB-17 added exact-pinned `@playwright/test` `1.62.1` as an
+ERP devDependency and updated the pnpm lockfile. `corepack pnpm audit --audit-level high`
+still reported **0 critical / 0 high / 0 moderate / 2 low**. Playwright did
+not introduce a High or Critical advisory. The two lows remain
+`@eslint/plugin-kit` and `@supabase/auth-js`. No advisory was allowlisted.
+
 The automated whole-tree audit covers npm/pnpm only. Dependabot monitors Pub
 updates, but Pub has no first-party vulnerability-audit command equivalent to
 `pnpm audit`; Flutter/Dart vulnerability scanning remains an explicit gap. Do

@@ -154,3 +154,10 @@ TypeScript and React escaping are useful controls, but neither replaces runtime 
 The eight-test ERP suite is green, deterministic under a shuffled serialized fresh process, and now fails when discovery finds zero tests. Its three tests provide meaningful but extremely narrow unit evidence. They do not prove any rendered route, employee authorization, branch isolation, browser session lifecycle, real API integration, or CRM/ERP business journey.
 
 The production-visible fixture and fixed-value behaviors remain explicitly assigned to later CRM/ERP/security blocks. Phase 0 remains **NOT PASSED**. The next permitted task is **STAB-09 — Flutter analysis**; STAB-09 was not started here.
+
+## STAB-17 follow-up (27 August 2026)
+
+STAB-17 added `apps/erp-web/vitest.config.ts` so Vitest excludes `e2e/`. The
+STAB-08 unit command still passes 3/3 files and 8/8 tests. Playwright lives
+under `apps/erp-web/e2e/` and is not part of `pnpm --filter @me-event/erp-web test`.
+See [e2e-foundation-baseline.md](./e2e-foundation-baseline.md).

@@ -18,3 +18,7 @@ design/stitch-screens/**
 
 # Media assets, evidence, and licensing artifacts
 artifacts/**
+
+# Playwright generated reports
+**/playwright-report/**
+**/test-results/**

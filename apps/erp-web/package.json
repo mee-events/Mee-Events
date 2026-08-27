@@ -8,7 +8,9 @@
     "start": "next start --port 3001",
     "lint": "eslint . --max-warnings=0",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "test:e2e:install": "playwright install chromium"
   },
   "dependencies": {
     "@me-event/api-contracts": "workspace:*",
@@ -19,6 +21,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "3.2.0",
+    "@playwright/test": "1.62.1",
     "@types/node": "22.10.2",
     "@types/react": "19.2.17",
     "@types/react-dom": "19.2.3",

@@ -1,17 +1,18 @@
 # Mee Events — Progress Tracker
 
-- **Updated:** 27 August 2026; STAB-16 DONE WITH FINDINGS (remote CI/Security/CodeQL green on `999443d`)
+- **Updated:** 27 August 2026; STAB-17 DONE WITH FINDINGS (Playwright/API/mobile foundation; live smokes local)
 - **Repository:** `/Users/vinaychilagani/Desktop/Mee Event V1`
 - **Baseline application commit:** `master` / `9e2a442d91c137ec97a349d1a55697ae8d79d5df`
 - **STAB-01 snapshot HEAD:** `ca994985a898d42da2a8d717041b93a8f8f0dc4c`
 - **Current phase:** Phase 0 — Stabilization
 - **Phase gate:** **NOT PASSED**
-- **Last completed task:** STAB-16 — DONE WITH FINDINGS (canonical `master` `999443d`; CI 33034648786, Security 33034648784, CodeQL 33034648777)
-- **Current task:** none — awaiting STAB-17
-- **Next task:** STAB-17 E2E test foundation (**NOT STARTED**)
+- **Last completed task:** STAB-17 — DONE WITH FINDINGS (local live smokes; CI URL guards only)
+- **Current task:** none — awaiting STAB-18
+- **Next task:** STAB-18 Documentation reconciliation (**NOT STARTED**)
 - **Latest application change:** STAB-15 now coordinates refresh rotation through the existing PostgreSQL session row across two service/repository/pool instances while preserving sequential reuse revocation; use Git history for commit hashes.
 - **STAB-16 implementation commit:** `999443d5d3ba547de1bb6c0406c34753c8433b00`
-- **STAB-16 closeout:** this documentation commit on `master` (`docs(ci): record STAB-16 remote GitHub verification`)
+- **STAB-16 closeout:** `1450263caa6a5be2263bf7b9c91827f7cc24ef6c`
+- **STAB-17 commit:** this commit on `master` (`test(e2e): add STAB-17 browser and API smoke foundation`); parent `1450263`
 
 ## Status key
 
@@ -808,7 +809,7 @@ migration bookkeeping remains `SEC-M-09`. No HTTP/Redis/provider/E2E,
 backup/restore, remote database, or production behavior is claimed. STAB-16
 invokes the suite in CI; GitHub ran it green on `999443d` (CI 33034648786).
 Percentages are unchanged. Phase 0 remains **NOT PASSED**. STAB-16 is **DONE
-WITH FINDINGS**; STAB-17 is **NOT STARTED**.
+WITH FINDINGS**; STAB-17 is **DONE WITH FINDINGS**.
 
 ## STAB-16 — CI verification
 
@@ -828,6 +829,24 @@ CodeQL JavaScript/TypeScript (`build-mode: none`), and Dependabot monitoring
 are configured. Independent Antigravity review accepted the implementation with
 findings. Required-check names remain proposals; this closeout does not enable
 branch protection.
+
+## STAB-17 — E2E test foundation
+
+- [x] **STAB-17** E2E test foundation — **DONE WITH FINDINGS** 27 August 2026.
+      Playwright `@playwright/test` `1.62.1` is the only browser runner.
+      Local loopback smokes passed: ERP employee login → `/quotes`, Nest
+      authenticated API (unique synthetic customer), Dart mobile API contract
+      (no device). Fail-closed URL probes: 17. CI runs those guards on
+      TypeScript quality and Dart URL denial on Flutter verification; it does
+      not boot an emulator or a live Nest/ERP/Playwright stack on every push.
+
+Canonical evidence: `docs/08-testing/e2e-foundation-baseline.md` and
+`docs/08-testing/e2e-tests.md`.
+
+No Customer/Vendor/Worker/CRM/ERP product module, enquiry→booking product gate,
+payment/SMS/PDF/push, or STAB-18 work was started. Founder-owned STAB-16
+findings (branch protection, native secret scanning, Dependabot alerts) remain
+open.
 
 ## Latest verification
 
@@ -890,7 +909,7 @@ branch protection.
 | STAB-08 ERP canonical          | **PASS**                             | Vitest 3.2.7; 3/3 files; 8/8 tests; zero failure/skip/todo/warning; 330 ms                                              |
 | STAB-08 ERP isolation/order    | **PASS**                             | Seed 6082026; shuffled files/tests; one worker; serialized files; 8/8; 429 ms                                           |
 | STAB-08 discovery honesty      | **PASS after correction**            | Removed `--passWithNoTests`; deliberate zero-match probe changed from exit 0 to exit 1                                  |
-| STAB-08 browser/route status   | **GAP DOCUMENTED**                   | 44 route pages; no component render or browser E2E tests; STAB-17, CRM-26, and ERP-22 owners                            |
+| STAB-08 browser/route status   | **GAP NARROWED**                     | STAB-17 adds one `/quotes` login smoke; 44 routes still lack component tests; `/leads` remains fixtures                 |
 | ERP tests                      | **PASS but narrow (STAB-08)**        | 8/8 across 3 files; environment/API-refresh/helper units only                                                           |
 | Flutter format                 | **PASS**                             | STAB-04: 200 Dart files, 0 changed (audit-era count was 199)                                                            |
 | Flutter analysis               | **PASS**                             | no issues with fatal infos                                                                                              |
@@ -900,7 +919,8 @@ branch protection.
 | iOS unsigned release build     | **FAIL**                             | No Xcode interpreter; templated bundle ID unresolved; no artifact                                                       |
 | Dependency audit               | **PASS (STAB-03)**                   | 0 critical / 0 high remaining; 2 low owned. See `docs/05-security/dependency-security.md`                               |
 | PostgreSQL integration         | **ACCEPTED WITH FINDINGS (STAB-15)** | 21/21 across 3 files on four fresh PostgreSQL 17.2 projects; focused adapter/service boundary                           |
-| Browser/device E2E             | **MISSING**                          | No framework/suite                                                                                                      |
+| STAB-17 E2E foundation         | **DONE WITH FINDINGS**               | Playwright 1/1; API smoke PASS; mobile API contract PASS (no device); 17 URL guards; no live GitHub stack job           |
+| Browser/device E2E             | **FOUNDATION / DEVICE GAP**          | Playwright + API smokes local; no `integration_test/`, no emulator CI                                                   |
 
 ## Known release blockers
 
@@ -910,7 +930,7 @@ branch protection.
 4. Outbox crash recovery and application idempotency are incomplete.
 5. ERP Lead Inbox is fixture-backed; employee bootstrap/capability routing is incomplete.
 6. Real OTP, payment, private storage, PDF, push/email, maps, monitoring and crash integrations are absent.
-7. Live database, HTTP integration, cross-module, browser/device E2E and security suites are missing.
+7. Device/emulator E2E, full HTTP/module integration, and security suites remain incomplete; STAB-17 added a loopback foundation only.
 8. Staging/production infrastructure, secrets, backups/restore, observability, CD and rollback are absent.
 9. Android production artifact lacks network permission and uses debug signing.
 10. The verified host lacks usable full Xcode; the later iOS `prod` scheme,
@@ -947,7 +967,7 @@ Do not ask for these until their dependent block is approaching, unless early pr
 - [x] STAB-14 PostgreSQL migration verification — accepted with `SEC-M-09` open
 - [x] STAB-15 Database integration tests — independently accepted with findings
 - [x] STAB-16 CI verification — DONE WITH FINDINGS (`999443d`; branch protection and native secret scanning remain open)
-- [ ] STAB-17 E2E test foundation
+- [x] STAB-17 E2E test foundation — DONE WITH FINDINGS (local live smokes; CI URL guards only; no emulator)
 - [ ] STAB-18 Documentation reconciliation
 - [ ] STAB-19 Repository cleanup
 - [ ] STAB-20 Security baseline
