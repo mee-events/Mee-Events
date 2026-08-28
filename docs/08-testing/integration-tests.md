@@ -91,10 +91,11 @@ or directly:
 corepack pnpm --filter @me-event/backend test:integration
 ```
 
-The three integration files contain 21 cases covering DBINT-01–14. The runner
+The three integration files contain 26 cases after SEC-03 (STAB-15 freeze was
+DBINT-01–14, 21 cases). The runner
 uses actual `pg.Pool` connections and production adapters/services for identity,
 audit, enquiries, CRM, quotations, payments, bookings, and Event Records.
-Ordinary unit discovery is 30 files / 190 tests and explicitly excludes
+Ordinary unit discovery is 31 files / 208 tests and explicitly excludes
 the integration tree.
 
 The suite does not prove HTTP routing/guards, complete employee branch/BOLA

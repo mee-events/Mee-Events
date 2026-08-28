@@ -6,7 +6,7 @@
 - **Task:** STAB-15 — PostgreSQL database integration test foundation
 - **Result:** **INDEPENDENTLY ACCEPTED WITH FINDINGS** — four required fresh PostgreSQL 17.2 runs passed 21/21 cases across 3/3 files; no skip, todo, expected-failure, focused case, retry, or conditional pass exists
 - **Boundary:** repository/service integration through real `pg.Pool` connections and all 20 migrations. This is not HTTP, Redis, browser, provider, backup/restore, remote database, or production-readiness proof.
-- **Ordinary unit suite:** **190/190** after this correction (STAB-07 freeze was 188/188).
+- **Ordinary unit suite:** **190/190** after this STAB-15 correction (STAB-07 freeze was 188/188). After SEC-03 the live unit suite is **208/208** across 31 files and live PostgreSQL integration is **26/26** across the same 3 files; the 21/21 tables below remain the STAB-15 freeze.
 
 ## Toolchain and commands
 
@@ -188,11 +188,13 @@ API processes. No raw token or digest is used as a PostgreSQL coordination key,
 and no table, migration, grace window, retry, sleep, or test-only coordinator
 was added. The in-memory adapter preserves interface parity.
 
-This correction does not complete `SEC-03`: OTP consumption still precedes
-user/session/audit completion; refresh state mutation can still precede audit
-completion; full session/audit transactional atomicity, stable installation
-identity, session inventory/revoke-all, and broader access-token/session
-revocation design remain open under `SEC-03`/STAB-20.
+This correction does not complete broader STAB-20 work. SEC-03 now commits
+OTP consume + user + session + audit in one transaction, writes refresh
+rotation/reuse audit in the same `REPEATABLE READ` session TX, persists a
+stable mobile installation ID, and adds list-sessions / logout-all. Remaining
+SEC-03 findings (session UI, 15s process-local principal cache, HTTP E2E) are
+in `docs/05-security/sec-03-session-control-inventory.md`. Outbox (`SEC-04`),
+headers (`SEC-05`), and mobile Supabase (`SEC-06`) are not started.
 
 ## Enquiry, outbox, and CRM results
 
@@ -255,15 +257,15 @@ companions.
 
 ## Remaining gaps and ownership
 
-| Gap                                                                                                                       | Severity / owner                                                     |
-| ------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
-| Direct employee ID/branch authorization (HTTP pipeline) remains outside STAB-15                                           | Medium — HTTP proof in STAB-17; service/repository covered by SEC-02 |
-| Full OTP/session/audit atomicity and wider session/access-token controls remain                                           | High — `SEC-03`, STAB-20                                             |
-| Outbox has no processing lease/crash recovery proof                                                                       | High — `SEC-04`, STAB-20                                             |
-| Payment is internal/manual; no signed provider request/webhook/reconciliation                                             | High — `INT-02` and later provider work                              |
-| Migration SQL commit and ledger insert remain non-atomic/checksum-free                                                    | Medium — `SEC-M-09`, STAB-20/PROD-03                                 |
-| Eight PostgreSQL adapter areas are not exercised here                                                                     | QA/module owners in later integration/module blocks                  |
-| No Nest HTTP pipeline, Redis, browser/mobile E2E, coverage percentage, load, backup/restore, or production database proof | STAB-16/17, module blocks, and production tasks                      |
+| Gap                                                                                                                       | Severity / owner                                                                       |
+| ------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| Direct employee ID/branch authorization (HTTP pipeline) remains outside STAB-15                                           | Medium — HTTP proof in STAB-17; service/repository covered by SEC-02                   |
+| Session list/revoke-all HTTP E2E, 15s process-local principal cache across API instances, session UI                      | Medium — `SEC-03` findings; see `docs/05-security/sec-03-session-control-inventory.md` |
+| Outbox has no processing lease/crash recovery proof                                                                       | High — `SEC-04`, STAB-20                                                               |
+| Payment is internal/manual; no signed provider request/webhook/reconciliation                                             | High — `INT-02` and later provider work                                                |
+| Migration SQL commit and ledger insert remain non-atomic/checksum-free                                                    | Medium — `SEC-M-09`, STAB-20/PROD-03                                                   |
+| Eight PostgreSQL adapter areas are not exercised here                                                                     | QA/module owners in later integration/module blocks                                    |
+| No Nest HTTP pipeline, Redis, browser/mobile E2E, coverage percentage, load, backup/restore, or production database proof | STAB-16/17, module blocks, and production tasks                                        |
 
 ## CI and cleanup boundary
 

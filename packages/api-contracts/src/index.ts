@@ -68,6 +68,24 @@ export interface LogoutResponse {
   readonly revoked: true;
 }
 
+export interface DeviceSessionSummary {
+  readonly id: string;
+  readonly deviceId: string;
+  readonly createdAt: string;
+  readonly lastSeenAt: string;
+  readonly expiresAt: string;
+  readonly current: boolean;
+}
+
+export interface ListSessionsResponse {
+  readonly sessions: readonly DeviceSessionSummary[];
+}
+
+export interface LogoutAllResponse {
+  readonly revoked: true;
+  readonly revokedCount: number;
+}
+
 export interface ApiError {
   readonly code: string;
   readonly message: string;

@@ -19,6 +19,8 @@ Identity model: [Identity foundation](../05-security/identity-foundation.md),
 | POST   | `/api/v1/auth/otp/verify`  | Public | Verify OTP; issue access JWT + refresh; create device session   |
 | POST   | `/api/v1/auth/refresh`     | Public | Rotate refresh token; issue new access token                    |
 | POST   | `/api/v1/auth/logout`      | Bearer | Revoke current device session                                   |
+| GET    | `/api/v1/auth/sessions`    | Bearer | List the caller’s non-revoked device sessions (no tokens)       |
+| POST   | `/api/v1/auth/logout-all`  | Bearer | Revoke every active device session for the caller               |
 | POST   | `/api/v1/auth/switch-role` | Bearer | Persist active mobile role; issue a new role-bound access token |
 
 `POST /api/v1/auth/switch-role` accepts `{ "role": "customer" | "vendor_owner" | "vendor_member" | "worker" }`.
@@ -29,6 +31,12 @@ refresh token is unchanged. Unassigned or inactive roles return `403`
 `VERSION_CONFLICT`. Employee roles are rejected by the request schema.
 
 `POST /api/v1/auth/refresh` also returns server-authoritative `activeRole`.
+
+`GET /api/v1/auth/sessions` returns `{ "sessions": [{ "id", "deviceId",
+"createdAt", "lastSeenAt", "expiresAt", "current" }] }`. Refresh tokens and
+digests are never included. `POST /api/v1/auth/logout-all` returns
+`{ "revoked": true, "revokedCount": n }` and invalidates cached principals for
+the user.
 
 Body schemas live in `@me-event/api-contracts` (OTP request/verify and refresh
 payloads).

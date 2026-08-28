@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Post,
@@ -18,6 +19,8 @@ import {
   requestOtpSchema,
   switchRoleSchema,
   verifyOtpSchema,
+  type ListSessionsResponse,
+  type LogoutAllResponse,
   type LogoutResponse,
   type RefreshSessionRequest,
   type RefreshSessionResponse,
@@ -89,6 +92,41 @@ export class AuthController {
     return this.auth.logout(
       principal.userId,
       principal.sessionId,
+      principal.activeRole,
+      requestIdOf(request),
+    );
+  }
+
+  @Get("sessions")
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: "List active device sessions for the signed-in user",
+  })
+  @ApiResponse({ status: HttpStatus.OK })
+  public listSessions(
+    @Req() request: AuthenticatedPlatformRequest,
+  ): Promise<ListSessionsResponse> {
+    const principal = request.user;
+    if (principal === undefined) {
+      throw new UnauthorizedException("Authenticated principal is required");
+    }
+    return this.auth.listSessions(principal.userId, principal.sessionId);
+  }
+
+  @Post("logout-all")
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: "Revoke every active device session for the user" })
+  @ApiResponse({ status: HttpStatus.OK })
+  public logoutAll(
+    @Req() request: AuthenticatedPlatformRequest,
+  ): Promise<LogoutAllResponse> {
+    const principal = request.user;
+    if (principal === undefined) {
+      throw new UnauthorizedException("Authenticated principal is required");
+    }
+    return this.auth.logoutAll(
+      principal.userId,
       principal.activeRole,
       requestIdOf(request),
     );

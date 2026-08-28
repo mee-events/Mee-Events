@@ -38,13 +38,15 @@ sequenceDiagram
   Auth->>DB: revoke session
 ```
 
-| Step        | Endpoint                        | Auth   | Behavior                                                                                                                                                         |
-| ----------- | ------------------------------- | ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Request OTP | `POST /api/v1/auth/otp/request` | Public | Normalize E.164 mobile; create challenge; send code via OTP provider                                                                                             |
-| Verify OTP  | `POST /api/v1/auth/otp/verify`  | Public | Constant-time digest compare; consume challenge once; create user if needed (default role `customer`); issue session + tokens                                    |
-| Refresh     | `POST /api/v1/auth/refresh`     | Public | Rotate opaque refresh; extend session; issue new access JWT                                                                                                      |
-| Logout      | `POST /api/v1/auth/logout`      | Bearer | Revoke current device session; invalidate principal cache                                                                                                        |
-| Switch role | `POST /api/v1/auth/switch-role` | Bearer | Confirm an active mobile assignment; persist `lastActiveRole`; invalidate all cached principals for the user; issue a new access JWT for the same device session |
+| Step          | Endpoint                        | Auth   | Behavior                                                                                                                                                         |
+| ------------- | ------------------------------- | ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Request OTP   | `POST /api/v1/auth/otp/request` | Public | Normalize E.164 mobile; create challenge; send code via OTP provider                                                                                             |
+| Verify OTP    | `POST /api/v1/auth/otp/verify`  | Public | Constant-time digest compare; consume challenge once; create user if needed (default role `customer`); issue session + tokens                                    |
+| Refresh       | `POST /api/v1/auth/refresh`     | Public | Rotate opaque refresh; extend session; issue new access JWT                                                                                                      |
+| Logout        | `POST /api/v1/auth/logout`      | Bearer | Revoke current device session; invalidate principal cache                                                                                                        |
+| List sessions | `GET /api/v1/auth/sessions`     | Bearer | List the caller’s non-revoked device sessions (`id`, `deviceId`, timestamps, `current`). No refresh tokens.                                                      |
+| Logout all    | `POST /api/v1/auth/logout-all`  | Bearer | Revoke every active session for the caller; invalidate principal cache for the user                                                                              |
+| Switch role   | `POST /api/v1/auth/switch-role` | Bearer | Confirm an active mobile assignment; persist `lastActiveRole`; invalidate all cached principals for the user; issue a new access JWT for the same device session |
 
 ---
 
@@ -80,19 +82,37 @@ On refresh:
    loser to controlled `SESSION_REFRESH_CONFLICT`; it is not classified as
    theft and receives no credentials.
 4. A later request that observes the digest as **previous** is genuine reuse:
-   revoke the session, invalidate principal cache, audit
-   `identity.session.revoked` with reason `refresh-token-reuse`, and reject the
-   rotated token afterward.
-5. A successful rotation extends expiry by 30 days and audits
-   `identity.session.rotated`.
+   revoke the session, write `identity.session.revoked` with reason
+   `refresh-token-reuse` in the **same transaction**, invalidate principal
+   cache, and reject the rotated token afterward.
+5. A successful rotation extends expiry by 30 days and writes
+   `identity.session.rotated` in that same transaction.
 
 The row lock uses the existing session row; no token/digest advisory-lock key,
-new table, grace window, retry, or sleep is involved. Rotation/revocation state
-can still commit before its separate audit append, and OTP consumption still
-precedes user/session/audit completion. Those wider atomicity and session-control
-limits remain under `SEC-03`.
+new table, grace window, retry, or sleep is involved.
 
-Logout audits `identity.session.revoked` with reason `logout`.
+OTP verify consumes the challenge, creates the user if needed, inserts the
+device session, and writes `identity.user.created` / `identity.session.created`
+in **one** transaction (`completeOtpVerification`). A concurrent correct verify
+loses the consume and fails closed (`OTP_CHALLENGE_INVALID`).
+
+Mobile persists a stable installation ID in secure storage
+(`mee_events.installation_id.v1`). The same install reuses the same `deviceId`;
+a new install may generate a new one and does not take over the old session.
+ERP Web already stores a stable id in `localStorage`.
+
+`GET /api/v1/auth/sessions` lists the caller’s non-revoked sessions without
+tokens. `POST /api/v1/auth/logout-all` revokes every active session for that
+user. Logout of the current device remains `POST /api/v1/auth/logout`.
+
+SEC-03 is **done with findings**. Remaining limits (session UI, 15s
+process-local principal cache across API instances, HTTP E2E, SMS vendor) are
+listed in [sec-03-session-control-inventory.md](./sec-03-session-control-inventory.md).
+This is not a production-security claim. `SEC-04` is not started.
+
+Logout audits `identity.session.revoked` with reason `logout` in the same
+transaction as the revoke. Revoke-all audits `identity.sessions.revoked` with
+reason `logout-all` (count only; no tokens).
 
 ---
 

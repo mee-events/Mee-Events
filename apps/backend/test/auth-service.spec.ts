@@ -1,11 +1,14 @@
-import type { VerifyOtpResponse } from "@me-event/api-contracts";
+import type {
+  ListSessionsResponse,
+  LogoutAllResponse,
+  VerifyOtpResponse,
+} from "@me-event/api-contracts";
 import type { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
 import { createHmac, randomUUID } from "node:crypto";
 import { beforeEach, describe, expect, it } from "vitest";
 import { InMemoryIdentityRepository } from "../src/modules/identity/adapters/in-memory-identity.repository";
 import { AuthService } from "../src/modules/identity/application/auth.service";
-import type { AuditEvent, AuditSink } from "../src/modules/audit/audit-event";
 import type {
   OtpDelivery,
   OtpProvider,
@@ -22,14 +25,6 @@ const secrets: Readonly<Record<string, string>> = {
   REFRESH_TOKEN_HMAC_SECRET,
 };
 
-class RecordingAuditSink implements AuditSink {
-  public readonly events: AuditEvent[] = [];
-
-  public async append(event: AuditEvent): Promise<void> {
-    this.events.push(event);
-  }
-}
-
 class CapturingOtpProvider implements OtpProvider {
   public lastCode: string | undefined;
 
@@ -45,17 +40,14 @@ class CapturingOtpProvider implements OtpProvider {
 describe("AuthService sessions", () => {
   let repository: InMemoryIdentityRepository;
   let otpProvider: CapturingOtpProvider;
-  let audit: RecordingAuditSink;
   let service: AuthService;
 
   beforeEach(() => {
     repository = new InMemoryIdentityRepository();
     otpProvider = new CapturingOtpProvider();
-    audit = new RecordingAuditSink();
     service = new AuthService(
       repository,
       otpProvider,
-      audit,
       {
         getOrThrow: (key: string): string => {
           const value = secrets[key];
@@ -133,7 +125,7 @@ describe("AuthService sessions", () => {
     expect(result.user.lastActiveRole).toBe("customer");
     expect(result.accessToken).not.toHaveLength(0);
     expect(result.refreshToken).not.toHaveLength(0);
-    expect(audit.events.map((event) => event.action)).toEqual([
+    expect(repository.identityAudits.map((event) => event.action)).toEqual([
       "identity.user.created",
       "identity.session.created",
     ]);
@@ -182,12 +174,12 @@ describe("AuthService sessions", () => {
     expect(winner?.match).toBe("current");
     expect(winner?.record.session.revokedAt).toBeUndefined();
     expect(
-      audit.events.filter(
+      repository.identityAudits.filter(
         (event) => event.action === "identity.session.rotated",
       ),
     ).toHaveLength(1);
     expect(
-      audit.events.filter(
+      repository.identityAudits.filter(
         (event) => event.action === "identity.session.revoked",
       ),
     ).toHaveLength(0);
@@ -206,7 +198,7 @@ describe("AuthService sessions", () => {
       service.refreshSession({ refreshToken: rotated.refreshToken }),
     ).rejects.toMatchObject({ code: "SESSION_NOT_ACTIVE", status: 401 });
 
-    const revocation = audit.events.find(
+    const revocation = repository.identityAudits.find(
       (event) =>
         event.action === "identity.session.revoked" &&
         event.reason === "refresh-token-reuse",
@@ -267,6 +259,191 @@ describe("AuthService sessions", () => {
     await expect(
       service.refreshSession({ refreshToken: result.refreshToken }),
     ).rejects.toThrow("not active");
+    expect(
+      repository.identityAudits.some(
+        (event) =>
+          event.action === "identity.session.revoked" &&
+          event.reason === "logout",
+      ),
+    ).toBe(true);
+  });
+
+  it("allows exactly one concurrent OTP verification from one challenge", async () => {
+    const challenge = await service.requestOtp({
+      mobileNumber: "+919876543210",
+    });
+    const code = otpProvider.lastCode ?? "";
+    const results = await Promise.allSettled([
+      service.verifyOtp({
+        challengeId: challenge.challengeId,
+        code,
+        deviceId: "device-concurrent-a",
+      }),
+      service.verifyOtp({
+        challengeId: challenge.challengeId,
+        code,
+        deviceId: "device-concurrent-b",
+      }),
+    ]);
+    expect(
+      results.filter((result) => result.status === "fulfilled"),
+    ).toHaveLength(1);
+    expect(
+      results
+        .filter((result) => result.status === "rejected")
+        .map((result) => errorCode(result.reason)),
+    ).toEqual(["OTP_CHALLENGE_INVALID"]);
+    const user = await repository.findUserByMobile("+919876543210");
+    expect(user).toBeDefined();
+    expect(await repository.listSessionsForUser(user?.id ?? "")).toHaveLength(
+      1,
+    );
+    expect(
+      (await repository.findChallenge(challenge.challengeId))?.consumedAt,
+    ).toBeDefined();
+  });
+
+  it("lists sessions without refresh tokens and marks the current device", async () => {
+    const result = await login();
+    const match = await repository.findSessionByRefreshDigest(
+      digestOf(result.refreshToken),
+    );
+    const listed: ListSessionsResponse = await service.listSessions(
+      result.user.id,
+      match?.record.session.id ?? "",
+    );
+    expect(listed.sessions).toHaveLength(1);
+    expect(listed.sessions[0]?.current).toBe(true);
+    expect(listed.sessions[0]?.deviceId).toBe("device-0001");
+    expect(JSON.stringify(listed)).not.toMatch(/refresh/i);
+    expect(JSON.stringify(listed)).not.toContain(result.refreshToken);
+    expect(JSON.stringify(listed)).not.toContain(result.accessToken);
+  });
+
+  it("logout of the current session leaves another device usable", async () => {
+    const first = await login();
+    const firstMatch = await repository.findSessionByRefreshDigest(
+      digestOf(first.refreshToken),
+    );
+    const otherRefresh = "other-device-refresh-token-000000000000";
+    const now = new Date();
+    await repository.saveSession(
+      {
+        id: randomUUID(),
+        userId: first.user.id,
+        deviceId: "device-other",
+        createdAt: now.toISOString(),
+        lastSeenAt: now.toISOString(),
+        expiresAt: new Date(now.getTime() + 60_000).toISOString(),
+      },
+      digestOf(otherRefresh),
+    );
+
+    await service.logout(
+      first.user.id,
+      firstMatch?.record.session.id ?? "",
+      "customer",
+    );
+    await expect(
+      service.refreshSession({ refreshToken: first.refreshToken }),
+    ).rejects.toMatchObject({ code: "SESSION_NOT_ACTIVE", status: 401 });
+    const rotated = await service.refreshSession({
+      refreshToken: otherRefresh,
+    });
+    expect(rotated.refreshToken).not.toHaveLength(0);
+  });
+
+  it("revoke-all ends every session for the user and not another user", async () => {
+    const first = await login();
+    const otherChallenge = await service.requestOtp({
+      mobileNumber: "+919876543219",
+    });
+    const other = await service.verifyOtp({
+      challengeId: otherChallenge.challengeId,
+      code: otpProvider.lastCode ?? "",
+      deviceId: "device-other-user",
+    });
+    const now = new Date();
+    await repository.saveSession(
+      {
+        id: randomUUID(),
+        userId: first.user.id,
+        deviceId: "device-second",
+        createdAt: now.toISOString(),
+        lastSeenAt: now.toISOString(),
+        expiresAt: new Date(now.getTime() + 60_000).toISOString(),
+      },
+      digestOf("second-device-refresh-token-0000000000"),
+    );
+
+    const revoked: LogoutAllResponse = await service.logoutAll(
+      first.user.id,
+      "customer",
+    );
+    expect(revoked).toEqual({ revoked: true, revokedCount: 2 });
+    expect(await service.listSessions(first.user.id, randomUUID())).toEqual({
+      sessions: [],
+    });
+    await expect(
+      service.refreshSession({ refreshToken: first.refreshToken }),
+    ).rejects.toMatchObject({ code: "SESSION_NOT_ACTIVE", status: 401 });
+    const otherRotated = await service.refreshSession({
+      refreshToken: other.refreshToken,
+    });
+    expect(otherRotated.refreshToken).not.toHaveLength(0);
+  });
+
+  it("a new device id does not steal an existing session", async () => {
+    const original = await login();
+    const challengeId = randomUUID();
+    await repository.saveChallenge({
+      id: challengeId,
+      mobileNumber: "+919876543210",
+      codeDigest: createHmac("sha256", OTP_HMAC_SECRET)
+        .update(`${challengeId}:123456`)
+        .digest("hex"),
+      createdAt: new Date(),
+      expiresAt: new Date(Date.now() + 60_000),
+      resendAfter: new Date(Date.now() + 1_000),
+      attemptsRemaining: 5,
+    });
+    const reinstall = await service.verifyOtp({
+      challengeId,
+      code: "123456",
+      deviceId: "device-reinstall",
+    });
+    expect(reinstall.refreshToken).not.toBe(original.refreshToken);
+    const listed: ListSessionsResponse = await service.listSessions(
+      original.user.id,
+      randomUUID(),
+    );
+    expect(listed.sessions.map((session) => session.deviceId).sort()).toEqual([
+      "device-0001",
+      "device-reinstall",
+    ]);
+    const rotated = await service.refreshSession({
+      refreshToken: original.refreshToken,
+    });
+    expect(rotated.refreshToken).not.toHaveLength(0);
+  });
+
+  it("rolls back OTP consume when session audit cannot be written", async () => {
+    const challenge = await service.requestOtp({
+      mobileNumber: "+919876543210",
+    });
+    repository.failNextSessionAudit = true;
+    await expect(
+      service.verifyOtp({
+        challengeId: challenge.challengeId,
+        code: otpProvider.lastCode ?? "",
+        deviceId: "device-0001",
+      }),
+    ).rejects.toThrow("audit insert failed");
+    expect(
+      (await repository.findChallenge(challenge.challengeId))?.consumedAt,
+    ).toBeUndefined();
+    expect(await repository.findUserByMobile("+919876543210")).toBeUndefined();
+    expect(repository.sessionCount()).toBe(0);
   });
 });
 

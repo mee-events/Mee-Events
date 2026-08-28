@@ -1,8 +1,7 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mee_events/design_system/design_system.dart';
+import 'package:mee_events/features/auth/installation_id.dart';
 import 'package:mee_events/features/auth/session_provider.dart';
 import 'package:mee_events/models/api_error.dart';
 import 'package:mee_events/models/auth_session.dart';
@@ -85,10 +84,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     });
     try {
       final api = ref.read(mobileApiProvider);
+      final deviceId = await ref
+          .read(installationIdStoreProvider)
+          .readOrCreate();
+      if (!mounted) return;
       final session = await api.verifyOtp(
         challengeId: challenge.challengeId,
         code: code,
-        deviceId: _deviceId(),
+        deviceId: deviceId,
       );
       await ref.read(sessionProvider.notifier).signIn(session);
       if (!mounted) return;
@@ -182,15 +185,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       ),
     );
   }
-}
-
-String _deviceId() {
-  final random = Random();
-  final suffix = List.generate(
-    16,
-    (_) => random.nextInt(16).toRadixString(16),
-  ).join();
-  return 'mobile-$suffix';
 }
 
 String? _normalizeIndianMobile(String raw) {

@@ -3,11 +3,15 @@ import type { DeviceSession, PlatformRole } from "@me-event/shared-types";
 import { randomUUID } from "node:crypto";
 import type { AuditEvent } from "../../audit/audit-event";
 import type {
+  CompleteOtpVerificationInput,
+  CompleteOtpVerificationResult,
   CoordinatedRefreshResult,
   DeviceSessionRecord,
   IdentityRepository,
   OtpChallengeRecord,
   RefreshDigestMatch,
+  RevokeAllSessionsInput,
+  RevokeCurrentSessionInput,
   RoleSwitchPersistence,
 } from "../ports/identity-repository";
 import type { UserRecord } from "../domain/user";
@@ -24,7 +28,10 @@ export class InMemoryIdentityRepository implements IdentityRepository {
   private readonly users = new Map<string, UserRecord>();
   private readonly sessions = new Map<string, StoredSession>();
   public readonly roleSwitchAudits: AuditEvent[] = [];
+  public readonly identityAudits: AuditEvent[] = [];
   public failNextRoleSwitchAudit = false;
+  public failNextSessionAudit = false;
+  private mutationQueue: Promise<unknown> = Promise.resolve();
 
   public async saveChallenge(challenge: OtpChallengeRecord): Promise<void> {
     this.challenges.set(challenge.id, challenge);
@@ -113,6 +120,89 @@ export class InMemoryIdentityRepository implements IdentityRepository {
     return true;
   }
 
+  public async completeOtpVerification(
+    input: CompleteOtpVerificationInput,
+  ): Promise<CompleteOtpVerificationResult> {
+    return this.enqueueMutation(async () => {
+      const challengeBefore = this.challenges.get(input.challengeId);
+      const usersBefore = new Map(this.users);
+      const sessionsBefore = new Map(
+        [...this.sessions.entries()].map(
+          ([id, stored]) =>
+            [id, { ...stored, session: { ...stored.session } }] as const,
+        ),
+      );
+      try {
+        const consumed = await this.consumeChallenge(
+          input.challengeId,
+          input.now,
+        );
+        if (!consumed) {
+          return { outcome: "invalid" };
+        }
+        const challenge = this.challenges.get(input.challengeId);
+        if (challenge === undefined) {
+          return { outcome: "invalid" };
+        }
+
+        const existingUser = await this.findUserByMobile(
+          challenge.mobileNumber,
+        );
+        const created = existingUser === undefined;
+        const user =
+          existingUser ??
+          (await this.createUser(challenge.mobileNumber, input.defaultRole));
+
+        const session: DeviceSession = {
+          id: input.sessionId,
+          userId: user.id,
+          deviceId: input.deviceId,
+          createdAt: input.now.toISOString(),
+          lastSeenAt: input.now.toISOString(),
+          expiresAt: input.expiresAt.toISOString(),
+        };
+        this.persistSession(session, input.refreshTokenDigest, input.now);
+
+        const pendingAudits: AuditEvent[] = [];
+        if (created) {
+          pendingAudits.push({
+            requestId: input.requestId,
+            actorUserId: user.id,
+            actorRole: user.lastActiveRole,
+            entityType: "app_user",
+            entityId: user.id,
+            action: "identity.user.created",
+            afterVersion: user.version,
+          });
+        }
+        pendingAudits.push({
+          requestId: input.requestId,
+          actorUserId: user.id,
+          actorRole: user.lastActiveRole,
+          entityType: "device_session",
+          entityId: session.id,
+          action: "identity.session.created",
+          afterVersion: 1,
+        });
+        this.commitSessionAudits(pendingAudits);
+        return { outcome: "completed", user, session };
+      } catch (error) {
+        if (challengeBefore !== undefined) {
+          this.challenges.set(input.challengeId, challengeBefore);
+        }
+        this.users.clear();
+        for (const [mobileNumber, user] of usersBefore) {
+          this.users.set(mobileNumber, user);
+        }
+        this.sessions.clear();
+        for (const [id, stored] of sessionsBefore) {
+          this.sessions.set(id, stored);
+        }
+        throw error;
+      }
+    });
+  }
+
   public async findUserByMobile(
     mobileNumber: string,
   ): Promise<UserRecord | undefined> {
@@ -155,7 +245,7 @@ export class InMemoryIdentityRepository implements IdentityRepository {
     session: DeviceSession,
     refreshTokenDigest: string,
   ): Promise<void> {
-    this.sessions.set(session.id, { session, digest: refreshTokenDigest });
+    this.persistSession(session, refreshTokenDigest, new Date());
   }
 
   public async findSessionById(id: string): Promise<DeviceSession | undefined> {
@@ -176,11 +266,25 @@ export class InMemoryIdentityRepository implements IdentityRepository {
     return undefined;
   }
 
+  public async listSessionsForUser(
+    userId: string,
+  ): Promise<readonly DeviceSession[]> {
+    return [...this.sessions.values()]
+      .filter(
+        (stored) =>
+          stored.session.userId === userId &&
+          stored.session.revokedAt === undefined,
+      )
+      .map((stored) => stored.session)
+      .sort((left, right) => right.lastSeenAt.localeCompare(left.lastSeenAt));
+  }
+
   public async coordinateSessionRefresh(
     presentedRefreshTokenDigest: string,
     nextRefreshTokenDigest: string,
     lastSeenAt: Date,
     expiresAt: Date,
+    requestId: string,
   ): Promise<CoordinatedRefreshResult> {
     const found = await this.findSessionByRefreshDigest(
       presentedRefreshTokenDigest,
@@ -190,7 +294,25 @@ export class InMemoryIdentityRepository implements IdentityRepository {
     }
     const { session } = found.record;
     if (found.match === "previous") {
+      const before = this.sessions.get(session.id);
       await this.revokeSession(session.id, lastSeenAt);
+      try {
+        this.commitSessionAudits([
+          {
+            requestId,
+            actorUserId: session.userId,
+            entityType: "device_session",
+            entityId: session.id,
+            action: "identity.session.revoked",
+            reason: "refresh-token-reuse",
+          },
+        ]);
+      } catch (error) {
+        if (before !== undefined) {
+          this.sessions.set(session.id, before);
+        }
+        throw error;
+      }
       return { outcome: "reused", session };
     }
     if (
@@ -203,6 +325,7 @@ export class InMemoryIdentityRepository implements IdentityRepository {
     if (user === undefined) {
       return { outcome: "inactive" };
     }
+    const beforeRotate = this.sessions.get(session.id);
     const rotated = await this.rotateSessionRefreshToken(
       session.id,
       nextRefreshTokenDigest,
@@ -210,9 +333,27 @@ export class InMemoryIdentityRepository implements IdentityRepository {
       lastSeenAt,
       expiresAt,
     );
-    return rotated
-      ? { outcome: "rotated", session, user }
-      : { outcome: "conflict" };
+    if (!rotated) {
+      return { outcome: "conflict" };
+    }
+    try {
+      this.commitSessionAudits([
+        {
+          requestId,
+          actorUserId: user.id,
+          actorRole: user.lastActiveRole,
+          entityType: "device_session",
+          entityId: session.id,
+          action: "identity.session.rotated",
+        },
+      ]);
+    } catch (error) {
+      if (beforeRotate !== undefined) {
+        this.sessions.set(session.id, beforeRotate);
+      }
+      throw error;
+    }
+    return { outcome: "rotated", session, user };
   }
 
   public async rotateSessionRefreshToken(
@@ -256,6 +397,80 @@ export class InMemoryIdentityRepository implements IdentityRepository {
     });
   }
 
+  public async revokeCurrentSession(
+    input: RevokeCurrentSessionInput,
+  ): Promise<void> {
+    const stored = this.sessions.get(input.sessionId);
+    if (
+      stored === undefined ||
+      stored.session.userId !== input.userId ||
+      stored.session.revokedAt !== undefined
+    ) {
+      return;
+    }
+    const before = stored;
+    await this.revokeSession(input.sessionId, input.revokedAt);
+    try {
+      this.commitSessionAudits([
+        {
+          requestId: input.requestId,
+          actorUserId: input.userId,
+          actorRole: input.actorRole,
+          entityType: "device_session",
+          entityId: input.sessionId,
+          action: "identity.session.revoked",
+          reason: "logout",
+        },
+      ]);
+    } catch (error) {
+      this.sessions.set(input.sessionId, before);
+      throw error;
+    }
+  }
+
+  public async revokeAllSessionsForUser(
+    input: RevokeAllSessionsInput,
+  ): Promise<number> {
+    const snapshot = [...this.sessions.entries()].map(
+      ([id, stored]) =>
+        [id, { ...stored, session: { ...stored.session } }] as const,
+    );
+    let revokedCount = 0;
+    for (const stored of this.sessions.values()) {
+      if (
+        stored.session.userId === input.userId &&
+        stored.session.revokedAt === undefined
+      ) {
+        stored.session = {
+          ...stored.session,
+          revokedAt: input.revokedAt.toISOString(),
+        };
+        revokedCount += 1;
+      }
+    }
+    try {
+      this.commitSessionAudits([
+        {
+          requestId: input.requestId,
+          actorUserId: input.userId,
+          actorRole: input.actorRole,
+          entityType: "app_user",
+          entityId: input.userId,
+          action: "identity.sessions.revoked",
+          reason: "logout-all",
+          metadata: { revokedCount },
+        },
+      ]);
+    } catch (error) {
+      this.sessions.clear();
+      for (const [id, stored] of snapshot) {
+        this.sessions.set(id, stored);
+      }
+      throw error;
+    }
+    return revokedCount;
+  }
+
   public async persistRoleSwitch(
     input: RoleSwitchPersistence,
   ): Promise<UserRecord | undefined> {
@@ -296,6 +511,47 @@ export class InMemoryIdentityRepository implements IdentityRepository {
       this.users.set(current.mobileNumber, current);
       throw error;
     }
+  }
+
+  private enqueueMutation<T>(work: () => Promise<T>): Promise<T> {
+    const run = this.mutationQueue.then(work, work);
+    this.mutationQueue = run.then(
+      () => undefined,
+      () => undefined,
+    );
+    return run;
+  }
+
+  private persistSession(
+    session: DeviceSession,
+    refreshTokenDigest: string,
+    revokedAt: Date,
+  ): void {
+    for (const [id, stored] of this.sessions) {
+      if (
+        stored.session.userId === session.userId &&
+        stored.session.deviceId === session.deviceId &&
+        stored.session.revokedAt === undefined &&
+        id !== session.id
+      ) {
+        this.sessions.set(id, {
+          ...stored,
+          session: {
+            ...stored.session,
+            revokedAt: revokedAt.toISOString(),
+          },
+        });
+      }
+    }
+    this.sessions.set(session.id, { session, digest: refreshTokenDigest });
+  }
+
+  private commitSessionAudits(events: readonly AuditEvent[]): void {
+    if (this.failNextSessionAudit) {
+      this.failNextSessionAudit = false;
+      throw new Error("audit insert failed");
+    }
+    this.identityAudits.push(...events);
   }
 
   private toRecord(stored: StoredSession): DeviceSessionRecord {

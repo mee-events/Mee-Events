@@ -8,10 +8,14 @@ import type { Pool, PoolClient } from "pg";
 import { PG_POOL } from "../../../database/database.module";
 import type { UserRecord } from "../domain/user";
 import type {
+  CompleteOtpVerificationInput,
+  CompleteOtpVerificationResult,
   CoordinatedRefreshResult,
   IdentityRepository,
   OtpChallengeRecord,
   RefreshDigestMatch,
+  RevokeAllSessionsInput,
+  RevokeCurrentSessionInput,
   RoleSwitchPersistence,
 } from "../ports/identity-repository";
 
@@ -173,6 +177,89 @@ export class PostgresIdentityRepository implements IdentityRepository {
     return result.rows[0] !== undefined;
   }
 
+  public async completeOtpVerification(
+    input: CompleteOtpVerificationInput,
+  ): Promise<CompleteOtpVerificationResult> {
+    return this.withTransaction(async (client) => {
+      const consumed = await client.query<ChallengeRow>(
+        `UPDATE otp_challenges
+         SET consumed_at = $2
+         WHERE id = $1
+           AND consumed_at IS NULL
+           AND attempts_remaining > 0
+           AND expires_at > $2
+         RETURNING *`,
+        [input.challengeId, input.now],
+      );
+      const challenge = consumed.rows[0];
+      if (challenge === undefined) {
+        return { outcome: "invalid" };
+      }
+
+      const { user, created } = await this.findOrCreateUserForOtp(
+        client,
+        challenge.mobile_e164,
+        input.defaultRole,
+      );
+
+      await client.query(
+        `UPDATE device_sessions
+         SET revoked_at = $3, version = version + 1
+         WHERE user_id = $1 AND device_id = $2 AND revoked_at IS NULL`,
+        [user.id, input.deviceId, input.now],
+      );
+
+      const session: DeviceSession = {
+        id: input.sessionId,
+        userId: user.id,
+        deviceId: input.deviceId,
+        createdAt: input.now.toISOString(),
+        lastSeenAt: input.now.toISOString(),
+        expiresAt: input.expiresAt.toISOString(),
+      };
+      await client.query(
+        `INSERT INTO device_sessions (
+           id, user_id, device_id, device_name, refresh_token_digest,
+           created_at, last_seen_at, expires_at
+         )
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+        [
+          session.id,
+          session.userId,
+          session.deviceId,
+          null,
+          input.refreshTokenDigest,
+          session.createdAt,
+          session.lastSeenAt,
+          session.expiresAt,
+        ],
+      );
+
+      if (created) {
+        await this.insertAuditEvent(client, {
+          requestId: input.requestId,
+          actorUserId: user.id,
+          actorRole: user.lastActiveRole,
+          entityType: "app_user",
+          entityId: user.id,
+          action: "identity.user.created",
+          afterVersion: user.version,
+        });
+      }
+      await this.insertAuditEvent(client, {
+        requestId: input.requestId,
+        actorUserId: user.id,
+        actorRole: user.lastActiveRole,
+        entityType: "device_session",
+        entityId: session.id,
+        action: "identity.session.created",
+        afterVersion: 1,
+      });
+
+      return { outcome: "completed", user, session };
+    });
+  }
+
   public async findUserByMobile(
     mobileNumber: string,
   ): Promise<UserRecord | undefined> {
@@ -294,11 +381,24 @@ export class PostgresIdentityRepository implements IdentityRepository {
     };
   }
 
+  public async listSessionsForUser(
+    userId: string,
+  ): Promise<readonly DeviceSession[]> {
+    const result = await this.pool.query<SessionRow>(
+      `SELECT * FROM device_sessions
+       WHERE user_id = $1 AND revoked_at IS NULL
+       ORDER BY last_seen_at DESC`,
+      [userId],
+    );
+    return result.rows.map((row) => this.toDeviceSession(row));
+  }
+
   public async coordinateSessionRefresh(
     presentedRefreshTokenDigest: string,
     nextRefreshTokenDigest: string,
     lastSeenAt: Date,
     expiresAt: Date,
+    requestId: string,
   ): Promise<CoordinatedRefreshResult> {
     const client = await this.pool.connect();
     let transactionOpen = false;
@@ -330,6 +430,14 @@ export class PostgresIdentityRepository implements IdentityRepository {
            WHERE id = $1 AND revoked_at IS NULL`,
           [session.id, lastSeenAt],
         );
+        await this.insertAuditEvent(client, {
+          requestId,
+          actorUserId: session.userId,
+          entityType: "device_session",
+          entityId: session.id,
+          action: "identity.session.revoked",
+          reason: "refresh-token-reuse",
+        });
         await client.query("COMMIT");
         transactionOpen = false;
         return { outcome: "reused", session };
@@ -370,6 +478,14 @@ export class PostgresIdentityRepository implements IdentityRepository {
         transactionOpen = false;
         return { outcome: "conflict" };
       }
+      await this.insertAuditEvent(client, {
+        requestId,
+        actorUserId: user.id,
+        actorRole: user.lastActiveRole,
+        entityType: "device_session",
+        entityId: session.id,
+        action: "identity.session.rotated",
+      });
       await client.query("COMMIT");
       transactionOpen = false;
       return { outcome: "rotated", session, user };
@@ -445,6 +561,58 @@ export class PostgresIdentityRepository implements IdentityRepository {
     );
   }
 
+  public async revokeCurrentSession(
+    input: RevokeCurrentSessionInput,
+  ): Promise<void> {
+    await this.withTransaction(async (client) => {
+      const result = await client.query<{ id: string }>(
+        `UPDATE device_sessions
+         SET revoked_at = $3, version = version + 1
+         WHERE id = $1 AND user_id = $2 AND revoked_at IS NULL
+         RETURNING id`,
+        [input.sessionId, input.userId, input.revokedAt],
+      );
+      if (result.rows[0] === undefined) {
+        return;
+      }
+      await this.insertAuditEvent(client, {
+        requestId: input.requestId,
+        actorUserId: input.userId,
+        actorRole: input.actorRole,
+        entityType: "device_session",
+        entityId: input.sessionId,
+        action: "identity.session.revoked",
+        reason: "logout",
+      });
+    });
+  }
+
+  public async revokeAllSessionsForUser(
+    input: RevokeAllSessionsInput,
+  ): Promise<number> {
+    return this.withTransaction(async (client) => {
+      const result = await client.query<{ id: string }>(
+        `UPDATE device_sessions
+         SET revoked_at = $2, version = version + 1
+         WHERE user_id = $1 AND revoked_at IS NULL
+         RETURNING id`,
+        [input.userId, input.revokedAt],
+      );
+      const revokedCount = result.rows.length;
+      await this.insertAuditEvent(client, {
+        requestId: input.requestId,
+        actorUserId: input.userId,
+        actorRole: input.actorRole,
+        entityType: "app_user",
+        entityId: input.userId,
+        action: "identity.sessions.revoked",
+        reason: "logout-all",
+        metadata: { revokedCount },
+      });
+      return revokedCount;
+    });
+  }
+
   public async persistRoleSwitch(
     input: RoleSwitchPersistence,
   ): Promise<UserRecord | undefined> {
@@ -491,6 +659,89 @@ export class PostgresIdentityRepository implements IdentityRepository {
         await this.loadRoleAssignments(row.id, client),
       );
     });
+  }
+
+  private async findOrCreateUserForOtp(
+    client: PoolClient,
+    mobileNumber: string,
+    defaultRole: PlatformRole,
+  ): Promise<{ readonly user: UserRecord; readonly created: boolean }> {
+    const inserted = await client.query<UserRow>(
+      `INSERT INTO app_users (mobile_e164, last_active_role)
+       VALUES ($1, $2)
+       ON CONFLICT (mobile_e164) DO NOTHING
+       RETURNING *`,
+      [mobileNumber, defaultRole],
+    );
+    const createdRow = inserted.rows[0];
+    if (createdRow !== undefined) {
+      const assignmentResult = await client.query<RoleAssignmentRow>(
+        `INSERT INTO role_assignments (
+           user_id, role, state, scope_type, scope_id, verified_at
+         )
+         VALUES ($1, $2, 'active', 'branch', $3, now())
+         RETURNING role, state, scope_id, verified_at`,
+        [createdRow.id, defaultRole, DEFAULT_BRANCH_ID],
+      );
+      return {
+        user: this.toUserRecord(createdRow, assignmentResult.rows),
+        created: true,
+      };
+    }
+
+    const existing = await client.query<UserRow>(
+      `SELECT * FROM app_users WHERE mobile_e164 = $1 FOR UPDATE`,
+      [mobileNumber],
+    );
+    const row = existing.rows[0];
+    if (row === undefined) {
+      throw new Error("app_users row missing after mobile conflict");
+    }
+    return {
+      user: this.toUserRecord(
+        row,
+        await this.loadRoleAssignments(row.id, client),
+      ),
+      created: false,
+    };
+  }
+
+  private async insertAuditEvent(
+    executor: Pool | PoolClient,
+    event: {
+      readonly requestId: string;
+      readonly actorUserId?: string;
+      readonly actorRole?: string;
+      readonly entityType: string;
+      readonly entityId: string;
+      readonly action: string;
+      readonly beforeVersion?: number;
+      readonly afterVersion?: number;
+      readonly reason?: string;
+      readonly metadata?: Readonly<Record<string, unknown>>;
+    },
+  ): Promise<void> {
+    await executor.query(
+      `INSERT INTO audit_events (
+         request_id, actor_user_id, actor_role, branch_id,
+         entity_type, entity_id, action,
+         before_version, after_version, reason, metadata
+       )
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
+      [
+        event.requestId,
+        event.actorUserId ?? null,
+        event.actorRole ?? null,
+        null,
+        event.entityType,
+        event.entityId,
+        event.action,
+        event.beforeVersion ?? null,
+        event.afterVersion ?? null,
+        event.reason ?? null,
+        JSON.stringify(event.metadata ?? {}),
+      ],
+    );
   }
 
   private async loadRoleAssignments(

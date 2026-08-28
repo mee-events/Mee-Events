@@ -3,7 +3,10 @@ import { JwtService } from "@nestjs/jwt";
 import { createHmac } from "node:crypto";
 import type { Pool } from "pg";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { PostgresAuditSink } from "../../src/modules/audit/adapters/postgres-audit.sink";
+import type {
+  ListSessionsResponse,
+  LogoutAllResponse,
+} from "@me-event/api-contracts";
 import { PostgresIdentityRepository } from "../../src/modules/identity/adapters/postgres-identity.repository";
 import { AuthService } from "../../src/modules/identity/application/auth.service";
 import type {
@@ -485,6 +488,211 @@ describe("DBINT-04 refresh rotation concurrency and reuse", () => {
   });
 });
 
+describe("SEC-03 session control", () => {
+  let pool: Pool;
+
+  beforeAll(() => {
+    pool = createIntegrationPool();
+  });
+
+  afterAll(async () => {
+    await pool.end();
+  });
+
+  it("rolls back OTP consume when session audit cannot be written", async () => {
+    const { repository, provider, service } = createAuthHarness(pool);
+    await pool.query(
+      `CREATE FUNCTION sec03_reject_session_created_audit()
+       RETURNS trigger LANGUAGE plpgsql AS $function$
+       BEGIN
+         IF NEW.action = 'identity.session.created' THEN
+           RAISE EXCEPTION 'synthetic session created audit failure';
+         END IF;
+         RETURN NEW;
+       END;
+       $function$`,
+    );
+    await pool.query(
+      `CREATE TRIGGER sec03_reject_session_created_audit
+       BEFORE INSERT ON audit_events
+       FOR EACH ROW EXECUTE FUNCTION sec03_reject_session_created_audit()`,
+    );
+    const mobileNumber = syntheticMobile("otp-audit-rollback");
+    try {
+      const challenge = await service.requestOtp({ mobileNumber });
+      const code = provider.lastCode;
+      if (code === undefined) {
+        throw new Error("Synthetic OTP capture is missing");
+      }
+      await expect(
+        service.verifyOtp({
+          challengeId: challenge.challengeId,
+          code,
+          deviceId: "synthetic-otp-audit-device",
+        }),
+      ).rejects.toThrow("synthetic session created audit failure");
+      expect(
+        (await repository.findChallenge(challenge.challengeId))?.consumedAt,
+      ).toBeUndefined();
+      expect(await repository.findUserByMobile(mobileNumber)).toBeUndefined();
+    } finally {
+      await pool.query(
+        `DROP TRIGGER IF EXISTS sec03_reject_session_created_audit ON audit_events`,
+      );
+      await pool.query(
+        `DROP FUNCTION IF EXISTS sec03_reject_session_created_audit()`,
+      );
+    }
+  });
+
+  it("rolls back refresh rotation when the rotation audit cannot be written", async () => {
+    const { repository, service } = createAuthHarness(pool);
+    const login = await loginWithOtp(service, "refresh-audit-rollback");
+    await pool.query(
+      `CREATE FUNCTION sec03_reject_session_rotated_audit()
+       RETURNS trigger LANGUAGE plpgsql AS $function$
+       BEGIN
+         IF NEW.action = 'identity.session.rotated' THEN
+           RAISE EXCEPTION 'synthetic session rotated audit failure';
+         END IF;
+         RETURN NEW;
+       END;
+       $function$`,
+    );
+    await pool.query(
+      `CREATE TRIGGER sec03_reject_session_rotated_audit
+       BEFORE INSERT ON audit_events
+       FOR EACH ROW EXECUTE FUNCTION sec03_reject_session_rotated_audit()`,
+    );
+    try {
+      await expect(
+        service.refreshSession({ refreshToken: login.refreshToken }),
+      ).rejects.toThrow("synthetic session rotated audit failure");
+      const stillCurrent = await repository.findSessionByRefreshDigest(
+        digestRefresh(login.refreshToken),
+      );
+      expect(stillCurrent?.match).toBe("current");
+      expect(stillCurrent?.record.session.revokedAt).toBeUndefined();
+    } finally {
+      await pool.query(
+        `DROP TRIGGER IF EXISTS sec03_reject_session_rotated_audit ON audit_events`,
+      );
+      await pool.query(
+        `DROP FUNCTION IF EXISTS sec03_reject_session_rotated_audit()`,
+      );
+    }
+    const rotated = await service.refreshSession({
+      refreshToken: login.refreshToken,
+    });
+    expect(rotated.refreshToken).not.toBe(login.refreshToken);
+  });
+
+  it("logout of the current session leaves another device usable", async () => {
+    const { repository, service } = createAuthHarness(pool);
+    const first = await loginWithOtp(service, "logout-other-device");
+    const firstMatch = await repository.findSessionByRefreshDigest(
+      digestRefresh(first.refreshToken),
+    );
+    const otherId = stableUuid("session:logout-other-device");
+    await repository.saveSession(
+      {
+        id: otherId,
+        userId: first.user.id,
+        deviceId: "synthetic-device-logout-other",
+        createdAt: "2026-08-26T12:00:00.000Z",
+        lastSeenAt: "2026-08-26T12:00:00.000Z",
+        expiresAt: "2099-09-25T12:00:00.000Z",
+      },
+      digestRefresh("logout-other-refresh-token-000000000000"),
+    );
+    await service.logout(
+      first.user.id,
+      firstMatch?.record.session.id ?? "",
+      "customer",
+    );
+    await expect(
+      service.refreshSession({ refreshToken: first.refreshToken }),
+    ).rejects.toMatchObject({ code: "SESSION_NOT_ACTIVE", status: 401 });
+    const rotated = await service.refreshSession({
+      refreshToken: "logout-other-refresh-token-000000000000",
+    });
+    expect(rotated.refreshToken).not.toHaveLength(0);
+  });
+
+  it("revoke-all ends every session for the user and not another user", async () => {
+    const { repository, service } = createAuthHarness(pool);
+    const first = await loginWithOtp(service, "logout-all-owner");
+    const other = await loginWithOtp(service, "logout-all-bystander");
+    await repository.saveSession(
+      {
+        id: stableUuid("session:logout-all-second"),
+        userId: first.user.id,
+        deviceId: "synthetic-device-logout-all-second",
+        createdAt: "2026-08-26T12:00:00.000Z",
+        lastSeenAt: "2026-08-26T12:00:00.000Z",
+        expiresAt: "2099-09-25T12:00:00.000Z",
+      },
+      digestRefresh("logout-all-second-refresh-token-000000"),
+    );
+    const revoked: LogoutAllResponse = await service.logoutAll(
+      first.user.id,
+      "customer",
+    );
+    expect(revoked.revoked).toBe(true);
+    expect(revoked.revokedCount).toBe(2);
+    expect(await service.listSessions(first.user.id, "")).toEqual({
+      sessions: [],
+    });
+    await expect(
+      service.refreshSession({ refreshToken: first.refreshToken }),
+    ).rejects.toMatchObject({ code: "SESSION_NOT_ACTIVE", status: 401 });
+    const otherRotated = await service.refreshSession({
+      refreshToken: other.refreshToken,
+    });
+    expect(otherRotated.refreshToken).not.toHaveLength(0);
+    const listed: ListSessionsResponse = await service.listSessions(
+      other.user.id,
+      "",
+    );
+    expect(JSON.stringify(listed)).not.toMatch(/refresh/i);
+    expect(listed.sessions).toHaveLength(1);
+  });
+
+  it("a new device id does not steal an existing session", async () => {
+    const { repository, service } = createAuthHarness(pool);
+    const original = await loginWithOtp(service, "reinstall-keep-old");
+    const challengeId = stableUuid("challenge:reinstall-keep-old");
+    await repository.saveChallenge({
+      id: challengeId,
+      mobileNumber: original.user.mobileNumber,
+      codeDigest: digestOtp(challengeId, "123456"),
+      createdAt: new Date("2026-08-26T12:00:00.000Z"),
+      expiresAt: new Date("2099-08-26T12:05:00.000Z"),
+      resendAfter: new Date("2026-08-26T12:01:00.000Z"),
+      attemptsRemaining: 5,
+    });
+    const reinstall = await service.verifyOtp({
+      challengeId,
+      code: "123456",
+      deviceId: "synthetic-device-reinstall-new",
+    });
+    expect(reinstall.refreshToken).not.toBe(original.refreshToken);
+    const listed: ListSessionsResponse = await service.listSessions(
+      original.user.id,
+      "",
+    );
+    expect(listed.sessions.map((session) => session.deviceId).sort()).toEqual([
+      "synthetic-device-reinstall-keep-old",
+      "synthetic-device-reinstall-new",
+    ]);
+    expect(JSON.stringify(listed)).not.toMatch(/refresh/i);
+    const rotated = await service.refreshSession({
+      refreshToken: original.refreshToken,
+    });
+    expect(rotated.refreshToken).not.toHaveLength(0);
+  });
+});
+
 function createAuthHarness(pool: Pool): {
   readonly repository: PostgresIdentityRepository;
   readonly provider: CapturingOtpProvider;
@@ -514,7 +722,6 @@ function createAuthHarness(pool: Pool): {
     service: new AuthService(
       repository,
       provider,
-      new PostgresAuditSink(pool),
       config,
       new JwtService({ secret: JWT_ACCESS_SECRET }),
     ),

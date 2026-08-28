@@ -2,6 +2,8 @@ import { Inject, Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
 import type {
+  ListSessionsResponse,
+  LogoutAllResponse,
   LogoutResponse,
   MobileSwitchableRole,
   RefreshSessionRequest,
@@ -12,7 +14,6 @@ import type {
   VerifyOtpRequest,
   VerifyOtpResponse,
 } from "@me-event/api-contracts";
-import type { DeviceSession } from "@me-event/shared-types";
 import {
   createHmac,
   randomInt,
@@ -21,7 +22,6 @@ import {
   timingSafeEqual,
 } from "node:crypto";
 import { DomainError } from "../../../common/errors/domain.error";
-import { AUDIT_SINK, type AuditSink } from "../../audit/audit-event";
 import { authPrincipalCache } from "../../platform-foundation/security/auth-principal-cache";
 import { normalizeMobileNumber } from "../domain/phone-number";
 import { assertActiveAssignment, isMobileSwitchableRole } from "../domain/user";
@@ -47,7 +47,6 @@ export class AuthService {
     @Inject(IDENTITY_REPOSITORY)
     private readonly repository: IdentityRepository,
     @Inject(OTP_PROVIDER) private readonly otpProvider: OtpProvider,
-    @Inject(AUDIT_SINK) private readonly audit: AuditSink,
     private readonly config: ConfigService,
     private readonly jwt: JwtService,
   ) {}
@@ -115,8 +114,9 @@ export class AuthService {
 
   public async verifyOtp(
     request: VerifyOtpRequest,
-    requestId: string = randomUUID(),
+    requestId?: string,
   ): Promise<VerifyOtpResponse> {
+    const auditRequestId = requestId ?? randomUUID();
     const challenge = await this.repository.findChallenge(request.challengeId);
     if (challenge === undefined || challenge.consumedAt !== undefined) {
       throw new DomainError(
@@ -149,58 +149,29 @@ export class AuthService {
       throw new DomainError("OTP_INCORRECT", "OTP is incorrect", 401);
     }
 
-    const consumed = await this.repository.consumeChallenge(
-      challenge.id,
-      new Date(),
-    );
-    if (!consumed) {
+    const refreshToken = randomBytes(48).toString("base64url");
+    const now = new Date();
+    const completed = await this.repository.completeOtpVerification({
+      challengeId: challenge.id,
+      deviceId: request.deviceId,
+      sessionId: randomUUID(),
+      refreshTokenDigest: this.digest(
+        refreshToken,
+        "REFRESH_TOKEN_HMAC_SECRET",
+      ),
+      now,
+      expiresAt: new Date(now.getTime() + SESSION_TTL_MS),
+      requestId: auditRequestId,
+      defaultRole: "customer",
+    });
+    if (completed.outcome === "invalid") {
       throw new DomainError(
         "OTP_CHALLENGE_INVALID",
         "OTP challenge is invalid",
         401,
       );
     }
-    const existingUser = await this.repository.findUserByMobile(
-      challenge.mobileNumber,
-    );
-    const user =
-      existingUser ??
-      (await this.repository.createUser(challenge.mobileNumber, "customer"));
-    if (existingUser === undefined) {
-      await this.audit.append({
-        requestId,
-        actorUserId: user.id,
-        actorRole: user.lastActiveRole,
-        entityType: "app_user",
-        entityId: user.id,
-        action: "identity.user.created",
-        afterVersion: user.version,
-      });
-    }
-
-    const refreshToken = randomBytes(48).toString("base64url");
-    const now = new Date();
-    const session: DeviceSession = {
-      id: randomUUID(),
-      userId: user.id,
-      deviceId: request.deviceId,
-      createdAt: now.toISOString(),
-      lastSeenAt: now.toISOString(),
-      expiresAt: new Date(now.getTime() + SESSION_TTL_MS).toISOString(),
-    };
-    await this.repository.saveSession(
-      session,
-      this.digest(refreshToken, "REFRESH_TOKEN_HMAC_SECRET"),
-    );
-    await this.audit.append({
-      requestId,
-      actorUserId: user.id,
-      actorRole: user.lastActiveRole,
-      entityType: "device_session",
-      entityId: session.id,
-      action: "identity.session.created",
-      afterVersion: 1,
-    });
+    const { user, session } = completed;
 
     const accessToken = await this.signAccessToken(
       user.id,
@@ -222,8 +193,9 @@ export class AuthService {
 
   public async refreshSession(
     request: RefreshSessionRequest,
-    requestId: string = randomUUID(),
+    requestId?: string,
   ): Promise<RefreshSessionResponse> {
+    const auditRequestId = requestId ?? randomUUID();
     const presentedDigest = this.digest(
       request.refreshToken,
       "REFRESH_TOKEN_HMAC_SECRET",
@@ -244,6 +216,7 @@ export class AuthService {
         this.digest(nextRefreshToken, "REFRESH_TOKEN_HMAC_SECRET"),
         now,
         new Date(now.getTime() + SESSION_TTL_MS),
+        auditRequestId,
       );
       if (result.outcome === "invalid") {
         throw new DomainError(
@@ -256,14 +229,6 @@ export class AuthService {
       if (result.outcome === "reused") {
         const session = result.session;
         authPrincipalCache.invalidateSession(session.id);
-        await this.audit.append({
-          requestId,
-          actorUserId: session.userId,
-          entityType: "device_session",
-          entityId: session.id,
-          action: "identity.session.revoked",
-          reason: "refresh-token-reuse",
-        });
         throw new DomainError(
           "SESSION_REFRESH_REUSED",
           "Refresh token reuse detected; session revoked",
@@ -285,14 +250,6 @@ export class AuthService {
         );
       }
       const { session, user } = result;
-      await this.audit.append({
-        requestId,
-        actorUserId: user.id,
-        actorRole: user.lastActiveRole,
-        entityType: "device_session",
-        entityId: session.id,
-        action: "identity.session.rotated",
-      });
 
       const accessToken = await this.signAccessToken(
         user.id,
@@ -314,7 +271,7 @@ export class AuthService {
     userId: string,
     sessionId: string,
     role: MobileSwitchableRole,
-    requestId: string = randomUUID(),
+    requestId?: string,
   ): Promise<SwitchRoleResponse> {
     if (!isMobileSwitchableRole(role)) {
       throw new DomainError(
@@ -350,7 +307,7 @@ export class AuthService {
       userId: user.id,
       role,
       expectedVersion: user.version,
-      requestId,
+      requestId: requestId ?? randomUUID(),
       actorUserId: user.id,
       actorRole: fromRole,
       fromRole,
@@ -372,24 +329,53 @@ export class AuthService {
     };
   }
 
+  public async listSessions(
+    userId: string,
+    currentSessionId: string,
+  ): Promise<ListSessionsResponse> {
+    const sessions = await this.repository.listSessionsForUser(userId);
+    return {
+      sessions: sessions.map((session) => ({
+        id: session.id,
+        deviceId: session.deviceId,
+        createdAt: session.createdAt,
+        lastSeenAt: session.lastSeenAt,
+        expiresAt: session.expiresAt,
+        current: session.id === currentSessionId,
+      })),
+    };
+  }
+
   public async logout(
     userId: string,
     sessionId: string,
     activeRole: string,
-    requestId: string = randomUUID(),
+    requestId?: string,
   ): Promise<LogoutResponse> {
-    await this.repository.revokeSession(sessionId, new Date());
-    authPrincipalCache.invalidateSession(sessionId);
-    await this.audit.append({
-      requestId,
-      actorUserId: userId,
+    await this.repository.revokeCurrentSession({
+      sessionId,
+      userId,
+      revokedAt: new Date(),
+      requestId: requestId ?? randomUUID(),
       actorRole: activeRole,
-      entityType: "device_session",
-      entityId: sessionId,
-      action: "identity.session.revoked",
-      reason: "logout",
     });
+    authPrincipalCache.invalidateSession(sessionId);
     return { revoked: true };
+  }
+
+  public async logoutAll(
+    userId: string,
+    activeRole: string,
+    requestId?: string,
+  ): Promise<LogoutAllResponse> {
+    const revokedCount = await this.repository.revokeAllSessionsForUser({
+      userId,
+      revokedAt: new Date(),
+      requestId: requestId ?? randomUUID(),
+      actorRole: activeRole,
+    });
+    authPrincipalCache.invalidateUser(userId);
+    return { revoked: true, revokedCount };
   }
 
   private signAccessToken(

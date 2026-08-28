@@ -9,7 +9,6 @@ import { InMemoryIdentityRepository } from "../src/modules/identity/adapters/in-
 import { AuthService } from "../src/modules/identity/application/auth.service";
 import { AuthController } from "../src/modules/identity/presentation/auth.controller";
 import { IS_PUBLIC_KEY } from "../src/modules/authorization/public.decorator";
-import type { AuditEvent, AuditSink } from "../src/modules/audit/audit-event";
 import type {
   OtpDelivery,
   OtpProvider,
@@ -33,13 +32,6 @@ const secrets: Readonly<Record<string, string>> = {
   REFRESH_TOKEN_HMAC_SECRET,
 };
 
-class RecordingAuditSink implements AuditSink {
-  public readonly events: AuditEvent[] = [];
-  public async append(event: AuditEvent): Promise<void> {
-    this.events.push(event);
-  }
-}
-
 class CapturingOtpProvider implements OtpProvider {
   public lastCode: string | undefined;
   public async sendCode(
@@ -54,7 +46,6 @@ class CapturingOtpProvider implements OtpProvider {
 describe("AuthService switch-role", () => {
   let repository: InMemoryIdentityRepository;
   let otpProvider: CapturingOtpProvider;
-  let audit: RecordingAuditSink;
   let service: AuthService;
   let jwt: JwtService;
   let guard: AccessTokenGuard;
@@ -63,12 +54,10 @@ describe("AuthService switch-role", () => {
     authPrincipalCache.clear();
     repository = new InMemoryIdentityRepository();
     otpProvider = new CapturingOtpProvider();
-    audit = new RecordingAuditSink();
     jwt = new JwtService({ secret: JWT_ACCESS_SECRET });
     service = new AuthService(
       repository,
       otpProvider,
-      audit,
       {
         getOrThrow: (key: string): string => {
           const value = secrets[key];
@@ -187,7 +176,7 @@ describe("AuthService switch-role", () => {
   it("is idempotent when switching to the already-active role", async () => {
     const loginResult = await login();
     const userBefore = await repository.findUserById(loginResult.user.id);
-    const auditCount = audit.events.length;
+    const identityAuditCount = repository.identityAudits.length;
     const switched = await service.switchRole(
       loginResult.user.id,
       await sessionIdOf(loginResult),
@@ -202,7 +191,7 @@ describe("AuthService switch-role", () => {
         (event) => event.action === "identity.role.switched",
       ),
     ).toHaveLength(0);
-    expect(audit.events).toHaveLength(auditCount);
+    expect(repository.identityAudits).toHaveLength(identityAuditCount);
   });
 
   it("returns 409 when the persisted version does not match", async () => {
@@ -459,11 +448,29 @@ describe("AuthService switch-role", () => {
     expect(repository.roleSwitchAudits).toHaveLength(1);
   });
 
-  it("does not mark switch-role as a public route", () => {
+  it("does not mark switch-role, sessions, or logout-all as public routes", () => {
     expect(
       Reflect.getMetadata(
         IS_PUBLIC_KEY,
         AuthController.prototype.switchRole as object,
+      ),
+    ).toBeUndefined();
+    expect(
+      Reflect.getMetadata(
+        IS_PUBLIC_KEY,
+        AuthController.prototype.listSessions as object,
+      ),
+    ).toBeUndefined();
+    expect(
+      Reflect.getMetadata(
+        IS_PUBLIC_KEY,
+        AuthController.prototype.logoutAll as object,
+      ),
+    ).toBeUndefined();
+    expect(
+      Reflect.getMetadata(
+        IS_PUBLIC_KEY,
+        AuthController.prototype.logout as object,
       ),
     ).toBeUndefined();
     expect(

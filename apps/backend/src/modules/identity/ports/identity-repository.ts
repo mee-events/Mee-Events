@@ -47,6 +47,40 @@ export interface RoleSwitchPersistence {
   readonly toRole: PlatformRole;
 }
 
+export interface CompleteOtpVerificationInput {
+  readonly challengeId: string;
+  readonly deviceId: string;
+  readonly sessionId: string;
+  readonly refreshTokenDigest: string;
+  readonly now: Date;
+  readonly expiresAt: Date;
+  readonly requestId: string;
+  readonly defaultRole: PlatformRole;
+}
+
+export type CompleteOtpVerificationResult =
+  | { readonly outcome: "invalid" }
+  | {
+      readonly outcome: "completed";
+      readonly user: UserRecord;
+      readonly session: DeviceSession;
+    };
+
+export interface RevokeCurrentSessionInput {
+  readonly sessionId: string;
+  readonly userId: string;
+  readonly revokedAt: Date;
+  readonly requestId: string;
+  readonly actorRole: string;
+}
+
+export interface RevokeAllSessionsInput {
+  readonly userId: string;
+  readonly revokedAt: Date;
+  readonly requestId: string;
+  readonly actorRole: string;
+}
+
 export interface IdentityRepository {
   saveChallenge(challenge: OtpChallengeRecord): Promise<void>;
   findChallenge(id: string): Promise<OtpChallengeRecord | undefined>;
@@ -58,6 +92,9 @@ export interface IdentityRepository {
     challengeId: string,
   ): Promise<OtpChallengeRecord | undefined>;
   consumeChallenge(challengeId: string, consumedAt: Date): Promise<boolean>;
+  completeOtpVerification(
+    input: CompleteOtpVerificationInput,
+  ): Promise<CompleteOtpVerificationResult>;
   findUserByMobile(mobileNumber: string): Promise<UserRecord | undefined>;
   findUserById(id: string): Promise<UserRecord | undefined>;
   createUser(
@@ -72,11 +109,13 @@ export interface IdentityRepository {
   findSessionByRefreshDigest(
     digest: string,
   ): Promise<RefreshDigestMatch | undefined>;
+  listSessionsForUser(userId: string): Promise<readonly DeviceSession[]>;
   coordinateSessionRefresh(
     presentedRefreshTokenDigest: string,
     nextRefreshTokenDigest: string,
     lastSeenAt: Date,
     expiresAt: Date,
+    requestId: string,
   ): Promise<CoordinatedRefreshResult>;
   rotateSessionRefreshToken(
     sessionId: string,
@@ -86,6 +125,8 @@ export interface IdentityRepository {
     expiresAt: Date,
   ): Promise<boolean>;
   revokeSession(sessionId: string, revokedAt: Date): Promise<void>;
+  revokeCurrentSession(input: RevokeCurrentSessionInput): Promise<void>;
+  revokeAllSessionsForUser(input: RevokeAllSessionsInput): Promise<number>;
   persistRoleSwitch(
     input: RoleSwitchPersistence,
   ): Promise<UserRecord | undefined>;

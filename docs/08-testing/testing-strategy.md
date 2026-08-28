@@ -37,16 +37,16 @@ Canonical evidence:
                     └─────────────────┘
 ```
 
-| Layer                           | Runner                  | What exists                                                                     |
-| ------------------------------- | ----------------------- | ------------------------------------------------------------------------------- |
-| Pure domain + guards + services | Vitest                  | Backend suite: 190 tests across 30 files after the STAB-15 correction           |
-| Module foundation / workflow    | Vitest                  | `*-foundation.spec.ts`, quotation/payment workflow and Pattern B probes         |
-| Employee CRM/ERP narrow units   | Vitest                  | 8 tests across environment, API refresh, and catalog form-reset behavior        |
-| Flutter unit and widget tests   | `flutter test`          | 441 tests across models, providers, stores, navigation and customer UI          |
-| PostgreSQL integration          | Vitest + Compose        | 21 tests / 3 files; selected adapters/workflows; local and dedicated CI command |
-| Redis integration               | —                       | **None**                                                                        |
-| Browser / API E2E               | Playwright + shell/Dart | One ERP login smoke, one Nest authenticated smoke; CI runs URL guards only      |
-| Mobile device E2E               | —                       | **None** (headless API contract only; no emulator/integration_test)             |
+| Layer                           | Runner                  | What exists                                                                          |
+| ------------------------------- | ----------------------- | ------------------------------------------------------------------------------------ |
+| Pure domain + guards + services | Vitest                  | Backend suite: 208 tests across 31 files after SEC-03 (STAB-15 freeze was 190/30)    |
+| Module foundation / workflow    | Vitest                  | `*-foundation.spec.ts`, quotation/payment workflow and Pattern B probes              |
+| Employee CRM/ERP narrow units   | Vitest                  | 8 tests across environment, API refresh, and catalog form-reset behavior             |
+| Flutter unit and widget tests   | `flutter test`          | 444 tests across models, providers, stores, navigation, customer UI, installation ID |
+| PostgreSQL integration          | Vitest + Compose        | 26 tests / 3 files after SEC-03; STAB-15 freeze was 21/3                             |
+| Redis integration               | —                       | **None**                                                                             |
+| Browser / API E2E               | Playwright + shell/Dart | One ERP login smoke, one Nest authenticated smoke; CI runs URL guards only           |
+| Mobile device E2E               | —                       | **None** (headless API contract only; no emulator/integration_test)                  |
 
 Details: [unit-tests.md](./unit-tests.md), [integration-tests.md](./integration-tests.md),
 [e2e-tests.md](./e2e-tests.md).
@@ -65,8 +65,8 @@ Evidence: [database-integration-baseline.md](./database-integration-baseline.md)
 
 | Surface                                    | Status                                                                                                                |
 | ------------------------------------------ | --------------------------------------------------------------------------------------------------------------------- |
-| Backend (`@me-event/backend`)              | 190 unit/foundation tests across 30 files plus 21 PostgreSQL integration tests across 3 files                         |
-| Mobile (`apps/mobile`)                     | 441 tests; CI also runs formatting, analysis and a development APK build                                              |
+| Backend (`@me-event/backend`)              | 208 unit/foundation tests across 31 files plus 26 PostgreSQL integration tests across 3 files                         |
+| Mobile (`apps/mobile`)                     | 444 tests; CI also runs formatting, analysis and a development APK build                                              |
 | ERP (`@me-event/erp-web`)                  | 8 Vitest tests across 3 files; Playwright login smoke is separate (STAB-17); no rendered-component coverage in Vitest |
 | Packages (`api-contracts`, `shared-types`) | No `test` scripts                                                                                                     |
 
