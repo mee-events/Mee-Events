@@ -1,20 +1,42 @@
 # Mee Events — Progress Tracker
 
-- **Updated:** 28 August 2026; STAB-20 / SEC-04 DONE WITH FINDINGS (outbox lease/recovery/dead-letter)
+- **Updated:** 28 August 2026; STAB-20 / SEC-05 DONE WITH FINDINGS (headers, Swagger, redaction, OTP IP 429)
 - **Repository:** `/Users/vinaychilagani/Desktop/Mee Event V1`
 - **Baseline application commit:** `master` / `9e2a442d91c137ec97a349d1a55697ae8d79d5df`
 - **STAB-01 snapshot HEAD:** `ca994985a898d42da2a8d717041b93a8f8f0dc4c`
 - **Current phase:** Phase 0 — Stabilization
 - **Phase gate:** **NOT PASSED**
-- **Last completed task:** SEC-04 — DONE WITH FINDINGS (STAB-20 still open)
-- **Current task:** STAB-20 Security baseline (**IN PROGRESS**; SEC-04 closed)
-- **Next task:** SEC-05 Web/API hardening (**NOT STARTED**)
-- **Latest application change:** SEC-04 reclaims expired `processing` outbox rows via `available_at` lease, dead-letters after 8 handler failures, and keeps lead create idempotent under duplicate/concurrent delivery; use Git history for commit hashes.
+- **Last completed task:** SEC-05 — DONE WITH FINDINGS (STAB-20 still open)
+- **Current task:** STAB-20 Security baseline (**IN PROGRESS**; SEC-05 closed)
+- **Next task:** SEC-06 Mobile fail-closed and boundary cleanup (**NOT STARTED**)
+- **Latest application change:** SEC-05 adds API Helmet headers and env-gated HSTS, keeps OpenAPI off in staging/production, expands Pino redaction, adds a process-local IP 429 on public OTP routes, and adds ERP CSP/Permissions-Policy/HSTS; use Git history for commit hashes.
 - **STAB-16 implementation commit:** `999443d5d3ba547de1bb6c0406c34753c8433b00`
 - **STAB-16 closeout:** `1450263caa6a5be2263bf7b9c91827f7cc24ef6c`
 - **STAB-17 commit:** `68894f3bbfa91937a0c7c573a8fc1a0af83ce533`
 - **STAB-18 commit:** `f66cc51a726322eeb604ab84c3d3e195050248f9`
 - **STAB-19 commit:** `e833eb82d690d65e293b9521ce3f24c390fff4f0`
+
+## SEC-05 — Web/API hardening (28 August 2026)
+
+API responses now include Helmet nosniff / frame-deny / referrer / Permissions-Policy
+headers. HSTS is sent only when `APP_ENV` is `staging` or `production`. OpenAPI
+at `/api/docs` is on in development, off by default in test, and always off in
+staging/production. `ENABLE_OPENAPI=true` is a test-only override. Pino redacts
+Authorization, cookies, OTP codes, and token/secret field names; the local OTP
+provider no longer writes codes or mobile numbers to logs. Public OTP
+request/verify have a process-local IP
+429 (`AUTH_IP_RATE_LIMIT`). ERP keeps the previous three headers and adds CSP,
+Permissions-Policy, and env-gated HSTS.
+
+There is **no live staging host**. Checks used loopback and `APP_ENV` config.
+Verified this slice: format/lint/typecheck green; backend unit **237/237** (39
+files); ERP **12/12**; PostgreSQL integration **32/32**; loopback Playwright
+login smoke **1/1**.
+
+Inventory: `docs/05-security/sec-05-web-api-hardening-inventory.md`.
+
+STAB-20 stays **open**. SEC-06 is **not started**. Phase 0 is **not passed**.
+This slice does **not** claim production is secure.
 
 ## SEC-04 — Outbox and idempotency reliability (28 August 2026)
 
@@ -30,8 +52,8 @@ PostgreSQL integration **32/32**, format/lint/typecheck green.
 
 Inventory: `docs/05-security/sec-04-outbox-reliability-inventory.md`.
 
-STAB-20 stays **open**. SEC-05 is **not started**. Phase 0 is **not passed**.
-This slice does **not** claim production is secure.
+STAB-20 stays **open**. At close of this slice SEC-05 was **not started**.
+Phase 0 is **not passed**. This slice does **not** claim production is secure.
 
 ## SEC-03 — Authentication atomicity and session control (28 August 2026)
 
@@ -1071,7 +1093,7 @@ Do not ask for these until their dependent block is approaching, unless early pr
 - [x] STAB-17 E2E test foundation — DONE WITH FINDINGS (local live smokes; CI URL guards only; no emulator)
 - [x] STAB-18 Documentation reconciliation — DONE WITH FINDINGS (canonical docs; historical PDFs labeled)
 - [x] STAB-19 Repository cleanup — DONE WITH FINDINGS (manifest; git-deleted only unused dummy Dart; caches/HTML images/stitch/artifacts/PDFs/EMP-\*/leads/`erp_warehouse.read` kept)
-- [ ] STAB-20 Security baseline (**IN PROGRESS**; SEC-04 done with findings)
+- [ ] STAB-20 Security baseline (**IN PROGRESS**; SEC-05 done with findings)
 
 ### Phase 0 security packages
 
@@ -1079,8 +1101,8 @@ Do not ask for these until their dependent block is approaching, unless early pr
 - [x] SEC-02 Branch and BOLA closure — **DONE WITH FINDINGS** 27 August 2026; employee UUID get/update includes active branch; other-branch denied as 404; inventory `docs/05-security/sec-02-branch-bola-inventory.md`. Findings: vendor/worker own-record 403, create-from-booking 409, HTTP BOLA still STAB-17. Does not claim production is secure.
 - [x] SEC-03 Authentication atomicity and session control — **DONE WITH FINDINGS** 28 August 2026; OTP consume+user+session+audit one TX; refresh audit in STAB-15 session TX; stable Flutter installation ID; list-sessions and logout-all. Inventory `docs/05-security/sec-03-session-control-inventory.md`. Findings: session UI, 15s principal cache, HTTP E2E still STAB-17. Does not claim production is secure.
 - [x] SEC-04 Outbox and idempotency reliability — **DONE WITH FINDINGS** 28 August 2026; live processors recover expired `processing` via `available_at` lease, dead-letter at 8 attempts, one lead under duplicate/concurrent delivery. Inventory `docs/05-security/sec-04-outbox-reliability-inventory.md`. Findings: unconsumed topics, unused `idempotency_records`, no HTTP Idempotency-Key, no metrics product. Does not claim production is secure.
-- [ ] SEC-05 Web/API hardening — **NOT STARTED**
-- [ ] SEC-06 Mobile fail-closed and boundary cleanup
+- [x] SEC-05 Web/API hardening — **DONE WITH FINDINGS** 28 August 2026; Helmet headers, env-gated HSTS, Swagger off in staging/production config, Pino token/cookie redaction, process-local OTP IP 429, ERP CSP/Permissions-Policy/HSTS. Inventory `docs/05-security/sec-05-web-api-hardening-inventory.md`. Findings: no live staging, process-local IP cap, Next CSP unsafe-inline (`unsafe-eval` development/test only). Does not claim production is secure.
+- [ ] SEC-06 Mobile fail-closed and boundary cleanup — **NOT STARTED**
 
 ## Phase 1 — Customer
 

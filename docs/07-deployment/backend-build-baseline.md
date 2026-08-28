@@ -228,11 +228,11 @@ The generated artifact scan found:
 
 Pino redacts authorization headers, OTP request codes, and response cookies.
 The global exception filter returns generic messages for unexpected/server
-errors. Remaining operational gaps are unchanged: refresh-token and wider PII
-redaction needs a complete STAB-20 review, local process stack traces contain
-runtime filesystem paths, and Swagger is registered unconditionally at
-`/api/docs`. Production log access, debug levels, stack handling, and Swagger
-exposure require SEC-05/production policy rather than an STAB-11 redesign.
+errors. Remaining operational gaps are unchanged: local process stack traces
+contain runtime filesystem paths. Swagger registration and wider token/cookie
+redaction were later addressed in SEC-05
+(`docs/05-security/sec-05-web-api-hardening-inventory.md`); this STAB-11 freeze
+still describes the code as it was at that commit.
 
 ## CI alignment
 
@@ -262,7 +262,7 @@ canonical `master` at `999443d`.
 | High          | No production host, image/package, secret injection, TLS, deploy, rollback, or readiness proof                                   | PROD-01 through PROD-06                                          |
 | High          | Full startup immediately attempts PostgreSQL through two outbox processors; no isolated live-DB startup was run here             | STAB-14/STAB-15, then PROD-03/04                                 |
 | Medium        | Production database TLS is not enforced by the environment schema                                                                | PROD-03 / STAB-20 policy review                                  |
-| Medium        | Swagger is always registered and log redaction/stack policy is incomplete                                                        | SEC-05 in STAB-20                                                |
+| Medium        | Swagger was always registered at STAB-11; later gated in SEC-05                                                                  | SEC-05 closed with findings                                      |
 | Medium        | CI does not retain, smoke, or attest the backend artifact                                                                        | STAB-16                                                          |
 | Low           | Maps, declarations, and build metadata are emitted but not needed at runtime                                                     | Production packaging / PROD-04                                   |
 | Informational | `@supabase/supabase-js` is a production dependency for excluded operational scripts, so a generic production install includes it | Dependency/package review after operational packaging is defined |

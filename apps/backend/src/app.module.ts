@@ -3,6 +3,7 @@ import { APP_GUARD } from "@nestjs/core";
 import { ConfigModule } from "@nestjs/config";
 import { LoggerModule } from "nestjs-pino";
 import { randomUUID } from "node:crypto";
+import { PINO_REDACT_PATHS } from "./common/http/http-surface";
 import { validateEnvironment } from "./config/environment";
 import { DatabaseModule } from "./database/database.module";
 import { AuditModule } from "./modules/audit/audit.module";
@@ -36,11 +37,7 @@ import { OperationsModule } from "./modules/operations/operations.module";
       pinoHttp: {
         level: process.env.LOG_LEVEL ?? "info",
         redact: {
-          paths: [
-            "req.headers.authorization",
-            "req.body.code",
-            "res.headers['set-cookie']",
-          ],
+          paths: [...PINO_REDACT_PATHS],
           censor: "[REDACTED]",
         },
         genReqId: (request) =>

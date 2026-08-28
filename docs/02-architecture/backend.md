@@ -82,18 +82,18 @@ Example path: `POST /api/v1/crm/vendors` → `CrmVendorController` →
 
 ## 3. Folder Structure
 
-| Path                             | Purpose                                                                               |
-| -------------------------------- | ------------------------------------------------------------------------------------- |
-| `apps/backend/src/modules/`      | Domain Nest modules (identity, CRM, vendors, finance, …)                              |
-| `apps/backend/src/common/`       | Shared Pattern B writers, pagination, branch context, HTTP filter/pipe, `DomainError` |
-| `apps/backend/src/config/`       | Startup-validated environment                                                         |
-| `apps/backend/src/database/`     | Global `PG_POOL` (`pg.Pool`)                                                          |
-| `apps/backend/src/main.ts`       | Bootstrap: prefix `api`, URI version `1`, global exception filter, Swagger            |
-| `apps/backend/src/app.module.ts` | Root module imports and global `AccessTokenGuard`                                     |
-| `packages/api-contracts/`        | Shared Zod request/response schemas, module and capability catalogs                   |
-| `packages/shared-types/`         | Shared identity and role types                                                        |
-| `infrastructure/postgres/`       | Versioned SQL migrations, apply script, seeds                                         |
-| `apps/backend/test/`             | Backend specs and foundation tests                                                    |
+| Path                             | Purpose                                                                                             |
+| -------------------------------- | --------------------------------------------------------------------------------------------------- |
+| `apps/backend/src/modules/`      | Domain Nest modules (identity, CRM, vendors, finance, …)                                            |
+| `apps/backend/src/common/`       | Shared Pattern B writers, pagination, branch context, HTTP filter/pipe, `DomainError`               |
+| `apps/backend/src/config/`       | Startup-validated environment                                                                       |
+| `apps/backend/src/database/`     | Global `PG_POOL` (`pg.Pool`)                                                                        |
+| `apps/backend/src/main.ts`       | Bootstrap: prefix `api`, URI version `1`, global exception filter, Helmet/CORS, conditional Swagger |
+| `apps/backend/src/app.module.ts` | Root module imports and global `AccessTokenGuard`                                                   |
+| `packages/api-contracts/`        | Shared Zod request/response schemas, module and capability catalogs                                 |
+| `packages/shared-types/`         | Shared identity and role types                                                                      |
+| `infrastructure/postgres/`       | Versioned SQL migrations, apply script, seeds                                                       |
+| `apps/backend/test/`             | Backend specs and foundation tests                                                                  |
 
 Flutter and ERP clients consume this API; they do not own backend folders.
 

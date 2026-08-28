@@ -64,7 +64,7 @@ install’s session.
 | HTTP pipeline / Nest E2E for the new session routes                                | STAB-17                                               | Service + PostgreSQL identity tests cover behavior; no live HTTP BOLA matrix here                                                      |
 | Real SMS vendor                                                                    | `ExternalOtpProvider`                                 | Explicitly out of scope                                                                                                                |
 | Outbox / idempotency                                                               | SEC-04                                                | Closed with findings in the SEC-04 slice; see [sec-04-outbox-reliability-inventory.md](./sec-04-outbox-reliability-inventory.md)       |
-| Headers / log redaction / Swagger exposure                                         | SEC-05                                                | **Not started**                                                                                                                        |
+| Headers / log redaction / Swagger exposure                                         | SEC-05                                                | Closed with findings in the SEC-05 slice; see [sec-05-web-api-hardening-inventory.md](./sec-05-web-api-hardening-inventory.md)         |
 | Direct Supabase on mobile                                                          | SEC-06                                                | **Not started**                                                                                                                        |
 
 ## Tests

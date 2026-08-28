@@ -40,12 +40,12 @@ Copy each app’s `.env.example` to an ignored `.env` before connecting clients
 
 ## Ports
 
-| Service     | Default host port               |
-| ----------- | ------------------------------- |
-| PostgreSQL  | `5433` → container `5432`       |
-| Redis       | `6380` → container `6379`       |
-| Backend API | `3002` (Swagger at `/api/docs`) |
-| ERP web     | `3001`                          |
+| Service     | Default host port                              |
+| ----------- | ---------------------------------------------- |
+| PostgreSQL  | `5433` → container `5432`                      |
+| Redis       | `6380` → container `6379`                      |
+| Backend API | `3002` (Swagger at `/api/docs` in development) |
+| ERP web     | `3001`                                         |
 
 Compose file: `infrastructure/docker-compose.yml` (Postgres 17.2, Redis 7.4).
 Compose is **local only** — not a production stack.

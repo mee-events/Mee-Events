@@ -244,13 +244,15 @@ loopback bind with `EPERM`; after narrowly scoped loopback permission, Next
 | `/login`                    |    200 | present | `strict-origin-when-cross-origin` | `DENY`       | absent       |
 | `/__stab12_missing_route__` |    404 | present | `strict-origin-when-cross-origin` | `DENY`       | absent       |
 
-Content-Security-Policy, Permissions-Policy, Strict-Transport-Security,
-Cross-Origin-Opener-Policy, and Cross-Origin-Resource-Policy are absent. They
-remain deployment-aware STAB-20/SEC-05 work; speculative CSP or HSTS was not
-added before hosting/resource origins are selected. Response HTML contained no
-private-key or JWT-shaped marker. Only `/`, `/login`, and the 404 probe were
-requested, so no API call was triggered. The process was interrupted cleanly,
-the trap restored `.env.local`, and port 33012 had no remaining listener.
+Content-Security-Policy, Permissions-Policy, and env-gated
+Strict-Transport-Security were added later in SEC-05
+(`docs/05-security/sec-05-web-api-hardening-inventory.md`). The STAB-12 smoke
+table above remains the freeze (those three headers were absent at STAB-12).
+Cross-Origin-Opener-Policy and Cross-Origin-Resource-Policy were not added.
+Response HTML contained no private-key or JWT-shaped marker. Only `/`,
+`/login`, and the 404 probe were requested, so no API call was triggered. The
+process was interrupted cleanly, the trap restored `.env.local`, and port
+33012 had no remaining listener.
 
 ## Quality and CI alignment
 
@@ -275,8 +277,10 @@ later ran the synthetic production ERP compile green on `999443d`.
 
 - Production-visible lead fixtures and fixed operational/financial scaffold
   values: CRM-04/06/12/24/26, ERP-13–16/20/22, and STAB-18.
-- CSP and other deployment-aware headers, browser token/XSS posture, route and
-  capability enforcement: STAB-17, STAB-20/SEC-05, CRM-01–03/24/26.
+- CSP/Permissions-Policy/HSTS were added in SEC-05 with findings (Next requires
+  `'unsafe-inline'`; `'unsafe-eval'` is limited to development/test). Browser
+  token/XSS posture, route and capability enforcement remain STAB-17,
+  CRM-01–03/24/26.
 - CI artifact retention/attestation remain open. STAB-16 injects the synthetic
   production public environment and the ERP compile succeeded on `999443d`.
 - Hosting, immutable packaging, TLS/edge policy, deployment, rollback, and

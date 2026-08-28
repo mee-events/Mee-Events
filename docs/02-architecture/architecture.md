@@ -62,7 +62,7 @@ flowchart TD
 | Customer Mobile     | Flutter customer role: catalog, enquiry, quotations, advance payment, event workspace, finance reads      |
 | Vendor / Worker     | Same Flutter binary: vendor and worker self-service against `/vendors`, `/workers`, and related APIs      |
 | Employee CRM/ERP    | Next.js `employee_web`: leads, quotes, events, operations, vendors, workers, warehouse/inventory, finance |
-| REST API            | Versioned HTTP under `/api/v1`; OpenAPI available at `/api/docs`                                          |
+| REST API            | Versioned HTTP under `/api/v1`; OpenAPI at `/api/docs` in development (always off in staging/production)  |
 | NestJS Backend      | Modular monolith: guards, controllers, application services, repository adapters                          |
 | PostgreSQL          | Authoritative transactional store; versioned SQL migrations                                               |
 | Pattern B           | On controlled mutations: timeline + activity (+ module-scoped variants) written with the business change  |

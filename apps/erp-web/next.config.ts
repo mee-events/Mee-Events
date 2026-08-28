@@ -1,5 +1,6 @@
 import path from "node:path";
 import type { NextConfig } from "next";
+import { employeeSecurityHeaders } from "./src/lib/security-headers";
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
@@ -10,11 +11,12 @@ const nextConfig: NextConfig = {
     return [
       {
         source: "/(.*)",
-        headers: [
-          { key: "X-Content-Type-Options", value: "nosniff" },
-          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
-          { key: "X-Frame-Options", value: "DENY" },
-        ],
+        headers: employeeSecurityHeaders({
+          appEnv: process.env.NEXT_PUBLIC_APP_ENV ?? "development",
+          apiBaseUrl:
+            process.env.NEXT_PUBLIC_API_BASE_URL ??
+            "http://localhost:3002/api/v1",
+        }),
       },
     ];
   },

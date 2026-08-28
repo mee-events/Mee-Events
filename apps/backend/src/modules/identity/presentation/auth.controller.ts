@@ -7,6 +7,7 @@ import {
   Post,
   Req,
   UnauthorizedException,
+  UseGuards,
 } from "@nestjs/common";
 import {
   ApiBearerAuth,
@@ -34,6 +35,7 @@ import {
 import { ZodValidationPipe } from "../../../common/http/zod-validation.pipe";
 import { Public } from "../../authorization/public.decorator";
 import type { AuthenticatedPlatformRequest } from "../../platform-foundation/security/access-token.guard";
+import { AuthIpRateLimitGuard } from "../application/auth-ip-rate-limit.guard";
 import { AuthService } from "../application/auth.service";
 
 @ApiTags("Authentication")
@@ -42,6 +44,7 @@ export class AuthController {
   public constructor(private readonly auth: AuthService) {}
 
   @Public()
+  @UseGuards(AuthIpRateLimitGuard)
   @Post("otp/request")
   @HttpCode(HttpStatus.ACCEPTED)
   @ApiOperation({ summary: "Request a mobile-number OTP challenge" })
@@ -53,6 +56,7 @@ export class AuthController {
   }
 
   @Public()
+  @UseGuards(AuthIpRateLimitGuard)
   @Post("otp/verify")
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: "Verify an OTP and create a device session" })

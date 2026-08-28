@@ -195,8 +195,10 @@ stable mobile installation ID, and adds list-sessions / logout-all. Remaining
 SEC-03 findings (session UI, 15s process-local principal cache, HTTP E2E) are
 in `docs/05-security/sec-03-session-control-inventory.md`. Outbox lease/recovery
 for live processors is `SEC-04`
-(`docs/05-security/sec-04-outbox-reliability-inventory.md`). Headers
-(`SEC-05`) and mobile Supabase (`SEC-06`) are not started.
+(`docs/05-security/sec-04-outbox-reliability-inventory.md`). Headers and
+Swagger/redaction (`SEC-05`) are closed with findings in
+`docs/05-security/sec-05-web-api-hardening-inventory.md`. Mobile Supabase
+(`SEC-06`) is not started.
 
 ## Enquiry, outbox, and CRM results
 

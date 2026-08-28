@@ -3,8 +3,9 @@
 This directory is the official REST API reference for backend and client
 engineers. It catalogs **implemented** routes under `/api/v1`.
 
-Live OpenAPI (Swagger UI): **`/api/docs`** on the running backend
-([`apps/backend/src/main.ts`](../../apps/backend/src/main.ts)).
+Live OpenAPI (Swagger UI and JSON): **`/api/docs`** on the backend when
+`APP_ENV=development`. It is off in test unless `ENABLE_OPENAPI=true`; staging
+and production config always keep the UI and JSON spec off.
 
 Request/response shapes are defined as Zod schemas in
 [`packages/api-contracts`](../../packages/api-contracts). Controllers validate

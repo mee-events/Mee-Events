@@ -2,7 +2,9 @@
 
 - **Task:** STAB-20 / SEC-04 only (crash-safe retry, dead-letter, exactly one business result)
 - **Date:** 28 August 2026
-- **Phase 0:** still **NOT PASSED**. STAB-20 remains **open**. SEC-05 is **not started**.
+- **Phase 0:** still **NOT PASSED**. STAB-20 remains **open**. SEC-05 later
+  closed with findings; see [sec-05-web-api-hardening-inventory.md](./sec-05-web-api-hardening-inventory.md).
+  This file is the SEC-04 snapshot.
 - **Result:** **DONE WITH FINDINGS**
 - **This slice does not claim production is secure.**
 
@@ -103,14 +105,14 @@ silent publisher in this commit.
 
 ## Still open (not blocked; not this slice)
 
-| Item                                                                                | Owner / later task     | Reason                                                                                          |
-| ----------------------------------------------------------------------------------- | ---------------------- | ----------------------------------------------------------------------------------------------- |
-| HTTP `Idempotency-Key` / `idempotency_records` writes                               | Later API work         | Table unused; not required to keep one lead                                                     |
-| Push / email / SMS publishers for unconsumed topics                                 | Notification work      | Explicitly out of scope                                                                         |
-| `syncStatusFromCrmLead` for `qualified` / `quoted` / `lost` / `closed` is unguarded | Enquiry status machine | Same-row retry is a same-value overwrite; an _older_ event after a _newer_ status could regress |
-| Operator dashboard / Prometheus for outbox depth                                    | Observability          | Dead-letter is `failed` + `last_error` + warn log                                               |
-| Headers / Swagger / log redaction                                                   | SEC-05                 | **Not started**                                                                                 |
-| Direct Supabase on mobile                                                           | SEC-06                 | **Not started**                                                                                 |
+| Item                                                                                | Owner / later task     | Reason                                                                                                                         |
+| ----------------------------------------------------------------------------------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| HTTP `Idempotency-Key` / `idempotency_records` writes                               | Later API work         | Table unused; not required to keep one lead                                                                                    |
+| Push / email / SMS publishers for unconsumed topics                                 | Notification work      | Explicitly out of scope                                                                                                        |
+| `syncStatusFromCrmLead` for `qualified` / `quoted` / `lost` / `closed` is unguarded | Enquiry status machine | Same-row retry is a same-value overwrite; an _older_ event after a _newer_ status could regress                                |
+| Operator dashboard / Prometheus for outbox depth                                    | Observability          | Dead-letter is `failed` + `last_error` + warn log                                                                              |
+| Headers / Swagger / log redaction                                                   | SEC-05                 | Closed with findings in the SEC-05 slice; see [sec-05-web-api-hardening-inventory.md](./sec-05-web-api-hardening-inventory.md) |
+| Direct Supabase on mobile                                                           | SEC-06                 | **Not started**                                                                                                                |
 
 ## Tests
 

@@ -75,13 +75,13 @@ bash scripts/demo-enquiry-to-booking-smoke.sh
 
 ## Failure hints
 
-| Symptom                      | Check                                        |
-| ---------------------------- | -------------------------------------------- |
-| OTP never arrives            | `OTP_PROVIDER=local`; read Nest terminal     |
-| ERP “Could not reach API”    | Backend on `:3002`; CORS / `.env.local`      |
-| Empty leads after submit     | Same Postgres; customer used real OTP login  |
-| Status stuck on Received     | Claim succeeded? Pull-to-refresh on mobile   |
-| Cannot create quotation      | Lead claimed + requirements saved first      |
-| Advance submit fails         | Quotation must be `approved`                 |
-| Confirm does nothing         | Pending payment exists on that quotation     |
-| Booking smoke fails mid-path | Re-run after backend restart; check 4xx body |
+| Symptom                      | Check                                             |
+| ---------------------------- | ------------------------------------------------- |
+| OTP never arrives            | `OTP_PROVIDER=local`; read the UI/API `debugCode` |
+| ERP “Could not reach API”    | Backend on `:3002`; CORS / `.env.local`           |
+| Empty leads after submit     | Same Postgres; customer used real OTP login       |
+| Status stuck on Received     | Claim succeeded? Pull-to-refresh on mobile        |
+| Cannot create quotation      | Lead claimed + requirements saved first           |
+| Advance submit fails         | Quotation must be `approved`                      |
+| Confirm does nothing         | Pending payment exists on that quotation          |
+| Booking smoke fails mid-path | Re-run after backend restart; check 4xx body      |

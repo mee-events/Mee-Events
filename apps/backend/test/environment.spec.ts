@@ -134,6 +134,16 @@ describe("environment validation", () => {
     ).toThrow("Wildcard CORS");
   });
 
+  it("rejects wildcard CORS in staging", () => {
+    expect(() =>
+      validateEnvironment({
+        ...production,
+        APP_ENV: "staging",
+        ALLOWED_ORIGINS: "*",
+      }),
+    ).toThrow("Wildcard CORS");
+  });
+
   it("rejects loopback CORS in production", () => {
     expect(() =>
       validateEnvironment({
@@ -141,6 +151,20 @@ describe("environment validation", () => {
         ALLOWED_ORIGINS: "https://localhost:3001",
       }),
     ).toThrow("loopback");
+  });
+
+  it("accepts ENABLE_OPENAPI true or false and rejects other values", () => {
+    expect(
+      validateEnvironment({ ...development, ENABLE_OPENAPI: "true" })
+        .ENABLE_OPENAPI,
+    ).toBe("true");
+    expect(
+      validateEnvironment({ ...production, ENABLE_OPENAPI: "false" })
+        .ENABLE_OPENAPI,
+    ).toBe("false");
+    expect(() =>
+      validateEnvironment({ ...development, ENABLE_OPENAPI: "yes" }),
+    ).toThrow("ENABLE_OPENAPI");
   });
 
   it("rejects missing SMS configuration when OTP_PROVIDER is external", () => {

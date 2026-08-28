@@ -1,11 +1,17 @@
 import { Module } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { JwtModule } from "@nestjs/jwt";
+import {
+  AUTH_IP_RATE_LIMIT_MAX,
+  AUTH_IP_RATE_LIMIT_WINDOW_MS,
+  MemoryWindowCounter,
+} from "../../common/http/memory-window-counter";
 import { AccessTokenGuard } from "../platform-foundation/security/access-token.guard";
-import { AuthService } from "./application/auth.service";
 import { ExternalOtpProvider } from "./adapters/external-otp.provider";
 import { LocalOtpProvider } from "./adapters/local-otp.provider";
 import { PostgresIdentityRepository } from "./adapters/postgres-identity.repository";
+import { AuthIpRateLimitGuard } from "./application/auth-ip-rate-limit.guard";
+import { AuthService } from "./application/auth.service";
 import { IDENTITY_REPOSITORY } from "./ports/identity-repository";
 import { OTP_PROVIDER, type OtpProvider } from "./ports/otp-provider";
 import { AuthController } from "./presentation/auth.controller";
@@ -23,6 +29,15 @@ import { AuthController } from "./presentation/auth.controller";
   providers: [
     AuthService,
     AccessTokenGuard,
+    AuthIpRateLimitGuard,
+    {
+      provide: MemoryWindowCounter,
+      useFactory: (): MemoryWindowCounter =>
+        new MemoryWindowCounter(
+          AUTH_IP_RATE_LIMIT_MAX,
+          AUTH_IP_RATE_LIMIT_WINDOW_MS,
+        ),
+    },
     LocalOtpProvider,
     ExternalOtpProvider,
     { provide: IDENTITY_REPOSITORY, useClass: PostgresIdentityRepository },

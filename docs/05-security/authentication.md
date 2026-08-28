@@ -108,7 +108,7 @@ user. Logout of the current device remains `POST /api/v1/auth/logout`.
 SEC-03 is **done with findings**. Remaining limits (session UI, 15s
 process-local principal cache across API instances, HTTP E2E, SMS vendor) are
 listed in [sec-03-session-control-inventory.md](./sec-03-session-control-inventory.md).
-This is not a production-security claim. `SEC-04` is not started.
+This is not a production-security claim.
 
 Logout audits `identity.session.revoked` with reason `logout` in the same
 transaction as the revoke. Revoke-all audits `identity.sessions.revoked` with
@@ -142,14 +142,20 @@ enforcement.
 - A PostgreSQL-backed per-mobile request window allows at most five OTP
   challenges per hour (`OTP_REQUEST_LIMIT` / HTTP 429). Because all replicas
   share PostgreSQL, the limit is enforced across backend instances.
+- A **process-local** IP cap on `POST /api/v1/auth/otp/request` and
+  `POST /api/v1/auth/otp/verify` (`AUTH_IP_RATE_LIMIT` / HTTP 429, 30 hits /
+  10 minutes / process). It is **not** shared across API instances and is **not**
+  a CDN/WAF.
 
 **Still open for production:**
 
-- Edge/IP throttling to limit abuse spread across many mobile numbers.
+- Shared edge/IP throttling (CDN/WAF or Redis) across replicas.
 - Vendor SMS delivery + delivery callbacks.
 
-Treat edge/IP throttling as the remaining rate-limit hardening item
+Treat a real edge limiter as remaining production hardening
 ([identity-foundation.md](./identity-foundation.md)).
+SEC-05 closed the in-process IP cap with findings
+([sec-05-web-api-hardening-inventory.md](./sec-05-web-api-hardening-inventory.md)).
 
 ---
 

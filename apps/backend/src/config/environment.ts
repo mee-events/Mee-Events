@@ -15,6 +15,7 @@ const schema = z
     JWT_ACCESS_SECRET: z.string().min(32),
     REFRESH_TOKEN_HMAC_SECRET: z.string().min(32),
     ALLOWED_ORIGINS: z.string().min(1),
+    ENABLE_OPENAPI: z.enum(["true", "false"]).optional(),
     SMS_OTP_ENDPOINT: z.string().optional(),
     SMS_OTP_API_KEY: z.string().optional(),
   })

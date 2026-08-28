@@ -11,11 +11,11 @@ log-shipping stack configured in this repository.
 Configured in `apps/backend/src/app.module.ts` via `nestjs-pino` /
 `pinoHttp`:
 
-| Aspect     | Behavior                                                                                 |
-| ---------- | ---------------------------------------------------------------------------------------- |
-| Level      | `LOG_LEVEL` env (default `info`)                                                         |
-| Request id | `x-request-id` header if present; otherwise a new UUID (`genReqId`)                      |
-| Redaction  | `req.headers.authorization`, `req.body.code`, `res.headers['set-cookie']` → `[REDACTED]` |
+| Aspect     | Behavior                                                                                                                                                    |
+| ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Level      | `LOG_LEVEL` env (default `info`)                                                                                                                            |
+| Request id | `x-request-id` header if present; otherwise a new UUID (`genReqId`)                                                                                         |
+| Redaction  | `PINO_REDACT_PATHS` in `http-surface.ts`: Authorization, Cookie, Set-Cookie, OTP `code`, refresh/access tokens, password/apiKey/hmac secrets → `[REDACTED]` |
 
 Bootstrap uses the pino Nest logger (`main.ts`). Exceptions surface
 `requestId` through `GlobalExceptionFilter`.
@@ -58,7 +58,7 @@ Until an APM vendor is chosen, wire at least:
 
 1. Process supervisor restart alerts for the Nest API.
 2. Load-balancer / probe alerts on `GET /api/v1/health/ready` → not ready.
-3. Log alerts for spike in `5xx` and `OTP_RESEND_COOLDOWN` / `OTP_PROVIDER_UNCONFIGURED`.
+3. Log alerts for spike in `5xx` and `OTP_RESEND_COOLDOWN` / `OTP_REQUEST_LIMIT` / `AUTH_IP_RATE_LIMIT` / `OTP_PROVIDER_UNCONFIGURED`.
 4. Disk / Postgres connection saturation alerts on the managed database.
 
 Do not store OTPs or tokens in alert payloads.
