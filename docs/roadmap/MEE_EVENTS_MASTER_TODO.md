@@ -2,7 +2,7 @@
 
 - **Baseline:** Complete repository audit dated 25 August 2026
 - **Current phase:** Phase 0 — Stabilization
-- **Next block:** Canonical GitHub verification (**NOT STARTED**)
+- **Next block:** Final Phase 0 review (**NOT STARTED**)
 - **Rule:** One block → verify → document → commit → stop.
 
 This file is the definitive ordered work inventory. The phase order is mandatory even when a later task has a higher risk priority. Do not start Customer until the Phase 0 gate passes; do not start Vendor until Customer passes; continue one major module at a time.
@@ -60,7 +60,7 @@ Status marks in this file describe execution, not how much scaffold already exis
 - [x] **STAB-17 E2E test foundation** — Objective: select and scaffold browser/device/API E2E without implementing modules; State: **DONE WITH FINDINGS** 27 August 2026; Scope: testing tools/config/fixtures only; Action: Playwright ERP login smoke, Nest authenticated API smoke, Flutter-package API contract smoke, loopback fail-closed guards, session cleanup; Depends/Risk: STAB-16, brittle tests/PII; Test/Security: isolated synthetic accounts, loopback only, no production endpoints/secrets, OTP/tokens not logged; DoD: one stable browser and mobile/API smoke in a CI-compatible harness — local live smokes passed; CI runs URL guards only (no emulator, no every-push live stack); Next: STAB-18. Evidence: `docs/08-testing/e2e-foundation-baseline.md`.
 - [x] **STAB-18 Documentation reconciliation** — Objective: align docs with audited implementation; State: **DONE WITH FINDINGS** 27 August 2026; Scope: overview/architecture/auth/testing/deployment/old roadmap references; Action: corrected async enquiry→lead, staff-mobile vs Employee Mobile, OTP resend enforcement, Supabase residual packages, `master` branch names, stale test/E2E claims; labeled 18 August PDFs historical; Depends/Risk: STAB-17; Test/Security: docs-only; no aspirational live claims; DoD: canonical docs agree with code/tests/config; historical PDFs labeled not rewritten; Next: STAB-19. Evidence: `docs/roadmap/README.md`, `docs/roadmap/MEE_EVENTS_PROGRESS.md` STAB-18. Findings: 18 August `MASTER_BUILD_ROADMAP.md` body and 25 August audit freeze body were labeled, not rewritten; EMP-\* cards retained as MISSING.
 - [x] **STAB-19 Repository cleanup** — Objective: remove only proven generated/cache/junk; State: **DONE WITH FINDINGS** 27 August 2026; Scope: reviewed cleanup manifest covering design/build/obsolete candidates; Action: classified GENERATED/OBSOLETE/DUPLICATE/BROKEN/ACTIVE/UNKNOWN; git-deleted only unused `super_app_dummy_data.dart`; kept HTML masquerade images (audit spec), stitch-screens, artifacts, PDFs, EMP-\* cards, lead fixtures, `erp_warehouse.read`, Supabase packages; Depends/Risk: STAB-18, irreversible evidence loss; Test/Security: before/after format/lint/typecheck, backend 190/190, ERP 8/8, Flutter analyze + 441/441; DoD: approved manifest, recoverable deletion only, UNKNOWN retained; Next: STAB-20. Evidence: `docs/roadmap/STAB-19-cleanup-manifest.md`.
-- [ ] **STAB-20 Security baseline** — Objective: close P0 security blockers before Customer work; State: **IN PROGRESS** 28 August 2026; Scope: dependencies, branch scoping, auth/session races, headers/logging, outbox/idempotency, mobile release; Action: resolve SEC-C/H items in small reviewed commits; Depends/Risk: STAB-19; Test/Security: full authorization matrix, SCA, concurrency, headers, certificate/manifest checks; DoD: zero unaccepted critical/high findings, security regression suite green, residual risk signed; Next: canonical GitHub verification (**NOT STARTED**). Android release boundary corrective work is done with findings: prod networking is present, debug-signing fallback is removed, complete external signing is supported, and no-input local releases are unsigned/not store-ready. SEC-M-09 remains done with findings; Phase 0 still **NOT PASSED**. Evidence: `docs/05-security/android-release-boundary-inventory.md`, `docs/05-security/sec-m-09-migration-integrity-inventory.md`, `docs/05-security/sec-02-branch-bola-inventory.md`, `docs/05-security/sec-05-web-api-hardening-inventory.md`, `docs/05-security/sec-06-mobile-boundary-inventory.md`.
+- [ ] **STAB-20 Security baseline** — Objective: close P0 security blockers before Customer work; State: **IN PROGRESS** 28 August 2026; Scope: dependencies, branch scoping, auth/session races, headers/logging, outbox/idempotency, mobile release; Action: resolve SEC-C/H items in small reviewed commits; Depends/Risk: STAB-19; Test/Security: full authorization matrix, SCA, concurrency, headers, certificate/manifest checks; DoD: zero unaccepted critical/high findings, security regression suite green, residual risk signed; Next: final Phase 0 review (**NOT STARTED**). Canonical GitHub verification is **DONE WITH FINDINGS** for `37cf6c2`: CI `33178045303`, Security `33178045308`, and CodeQL `33178045381` completed `success`, while four open CodeQL alerts on that commit have high security severity and remain unclassified. Android release boundary corrective work is done with findings: prod networking is present, debug-signing fallback is removed, complete external signing is supported, and no-input local releases are unsigned/not store-ready. SEC-M-09 remains done with findings; Phase 0 still **NOT PASSED**. Evidence: `docs/07-deployment/stab-20-canonical-github-verification.md`, `docs/05-security/android-release-boundary-inventory.md`, `docs/05-security/sec-m-09-migration-integrity-inventory.md`, `docs/05-security/sec-02-branch-bola-inventory.md`, `docs/05-security/sec-05-web-api-hardening-inventory.md`, `docs/05-security/sec-06-mobile-boundary-inventory.md`.
 
 ### P0 security work packages (executed inside STAB-20, not in parallel)
 
@@ -317,11 +317,15 @@ isolated PostgreSQL crash/tamper proof; inventory in
 FINDINGS** 28 August 2026 (main-manifest `INTERNET`, no debug-signing fallback,
 external signing contract, unsigned no-credential artifact proof; inventory in
 `docs/05-security/android-release-boundary-inventory.md`). STAB-20 remains
-**open**.
+**open**. Canonical GitHub verification is **DONE WITH FINDINGS** for
+`37cf6c2`: CI `33178045303`, Security `33178045308`, and CodeQL `33178045381`
+completed `success`; four open CodeQL alerts are rated high security severity
+and remain unclassified. Exact evidence is in
+`docs/07-deployment/stab-20-canonical-github-verification.md`.
 STAB-19 remains **DONE WITH FINDINGS**. There is **no live staging host**.
 
 ### NEXT TASK
 
-Canonical GitHub verification — **NOT STARTED**. Do not push or start GitHub
-verification, Phase 0 acceptance review, Customer work, or iOS work in the
-Android release-boundary commit.
+Final Phase 0 review — **NOT STARTED**. Do not classify or fix the CodeQL
+findings, pass Phase 0, start Customer or iOS work, push the documentation
+closeout commit, or change GitHub settings in this verification block.

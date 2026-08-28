@@ -4,7 +4,10 @@
 - **Date:** 28 August 2026
 - **Result:** **DONE WITH FINDINGS**
 - **Phase 0:** **NOT PASSED**; STAB-20 remains **open**
-- **Next:** canonical GitHub verification, **NOT STARTED**
+- **Subsequent gate:** canonical GitHub verification **DONE WITH FINDINGS** for
+  `37cf6c2`; evidence in
+  `docs/07-deployment/stab-20-canonical-github-verification.md`
+- **Next:** final Phase 0 review, **NOT STARTED**
 
 This block corrects the Android network-permission and debug-signing boundary.
 It does not create or inspect a founder keystore, sign a store artifact, upload
@@ -133,5 +136,6 @@ integration was not run.
 
 Android release boundary corrective work is **DONE WITH FINDINGS**. This does
 not claim Play Store readiness or production security. STAB-20 remains open and
-Phase 0 remains **NOT PASSED**. Canonical GitHub verification is next and
+Phase 0 remains **NOT PASSED**. Canonical GitHub verification was subsequently
+completed with findings on 28 August 2026; the final Phase 0 review is next and
 **NOT STARTED**.
