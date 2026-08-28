@@ -275,7 +275,7 @@ companions.
 | Session list/revoke-all HTTP E2E, 15s process-local principal cache across API instances, session UI                      | Medium — `SEC-03` findings; see `docs/05-security/sec-03-session-control-inventory.md` |
 | Outbox topics without a consumer remain pending; `idempotency_records` unused                                             | Medium — `SEC-04` findings; live processors have lease/dead-letter proof               |
 | Payment is internal/manual; no signed provider request/webhook/reconciliation                                             | High — `INT-02` and later provider work                                                |
-| Migration SQL commit and ledger insert remain non-atomic/checksum-free                                                    | Medium — `SEC-M-09`, STAB-20/PROD-03                                                   |
+| Legacy filename-only checksum backfill cannot attest which historical bytes were applied; no backup/restore rehearsal     | Medium — SEC-M-09 retained finding; production operation remains PROD-03               |
 | Eight PostgreSQL adapter areas are not exercised here                                                                     | QA/module owners in later integration/module blocks                                    |
 | No Nest HTTP pipeline, Redis, browser/mobile E2E, coverage percentage, load, backup/restore, or production database proof | STAB-16/17, module blocks, and production tasks                                        |
 
@@ -293,6 +293,18 @@ Docker label inventory found no `mee-dbint-*` resource. The existing developer
 Postgres and Redis containers retained their original IDs and healthy state.
 No environment file, database dump, coverage output, test log, or generated
 artifact is tracked.
+
+## SEC-M-09 maintained-runner addendum — 28 August 2026
+
+The integration setup now uses the same shared migration runner as
+`corepack pnpm db:migrate`. It verifies legacy checksum backfill, rejects a
+tampered applied checksum, and terminates a PostgreSQL session after synthetic
+test-owned writes but before commit to prove that neither schema work nor the
+ledger row survives. Two maintained tests compare all 20 durable SHA-256 values
+to the repository files and inspect the non-null validated checksum constraint.
+The current run passed **5/5 files and 39/39 tests** on isolated PostgreSQL
+17.2. See
+`docs/05-security/sec-m-09-migration-integrity-inventory.md` for boundaries.
 
 ## Final verdict
 

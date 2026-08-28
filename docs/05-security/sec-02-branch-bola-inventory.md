@@ -2,7 +2,7 @@
 
 - **Task:** STAB-20 / SEC-02 plus the inventory-allocation corrective follow-up
 - **Date:** 27 August 2026; corrective follow-up 28 August 2026
-- **Phase 0:** still **NOT PASSED**. STAB-20 remains **open**. SEC-M-09 is **NOT STARTED**.
+- **Phase 0:** still **NOT PASSED**. STAB-20 remains **open**. SEC-M-09 was subsequently closed with findings on 28 August 2026.
 - **Result:** **DONE WITH FINDINGS**
 - **Rule:** other-branch access must look like missing (**404**), never 403 that confirms the record exists.
 
@@ -180,7 +180,8 @@ inventory redesign, schema change, or quantity/concurrency behavior changed.
    and PostgreSQL tests.
 4. **No live staging or production environment has been proven.** This
    corrective follow-up does not make production secure, close STAB-20, or pass
-   Phase 0. The exact next block is SEC-M-09, **NOT STARTED**.
+   Phase 0. SEC-M-09 was the next block and was subsequently closed with
+   findings on 28 August 2026.
 
 ## Tests
 

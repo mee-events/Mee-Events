@@ -13,13 +13,15 @@ cron, or RTO tooling.
 2. Apply migrations in filename order via
    `infrastructure/postgres/apply-migrations.sh` (local:
    `corepack pnpm db:migrate`).
-3. Confirm rows in `schema_migrations` match the expected catalog.
+3. Confirm every filename and SHA-256 in `schema_migrations` matches the
+   expected catalog.
 
-Filename count alone is not sufficient: the current ledger stores no checksum,
-and migration commit plus ledger insert are not atomic. STAB-14 reproduced an
-applied-but-unrecorded migration that fails on retry. If ledger/schema state is
-uncertain, stop and reconcile exact migration hashes and semantic postconditions
-under review; do not blindly insert a ledger row or rerun SQL.
+The current runner commits migration work and its checksum ledger row in the
+same transaction and rejects mismatches before new work. STAB-14 still proves
+what the old runner could leave behind. If a pre-correction database has
+uncertain or applied-but-unrecorded state, stop and reconcile exact migration
+hashes and semantic postconditions under review; do not blindly insert a ledger
+row or rerun SQL.
 
 Full algorithm and file list: [migrations.md](../03-database/migrations.md).
 Local replay/failure evidence:

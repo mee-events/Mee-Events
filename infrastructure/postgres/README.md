@@ -24,9 +24,10 @@ Apply the full catalog locally after the PostgreSQL container is healthy:
 corepack pnpm db:migrate
 ```
 
-The runner records filenames in `schema_migrations`. Seeds under `seeds/` are
-separate and are not applied by this command. Do not apply only `0001` to create
-a current database.
+The runner atomically records each filename and exact SHA-256 in
+`schema_migrations`, and fails closed if an applied checksum changes. Seeds
+under `seeds/` are separate and are not applied by this command. Do not apply
+only `0001` to create a current database.
 
 Canonical catalog, runner limitations, and live PostgreSQL 17.2 evidence:
 

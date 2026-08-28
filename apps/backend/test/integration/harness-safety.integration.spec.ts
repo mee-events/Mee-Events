@@ -71,17 +71,21 @@ describe("DBINT-01 harness safety", () => {
       project_name: string;
       version: string;
       migration_count: number;
+      migration_checksum_count: number;
     }>(
       `SELECT current_database() AS database_name,
               identity.project_name,
               current_setting('server_version') AS version,
-              (SELECT count(*)::int FROM schema_migrations) AS migration_count
+              (SELECT count(*)::int FROM schema_migrations) AS migration_count,
+              (SELECT count(*)::int FROM schema_migrations
+                WHERE checksum ~ '^[0-9a-f]{64}$') AS migration_checksum_count
        FROM database_integration_identity identity`,
     );
     expect(result.rows[0]).toMatchObject({
       database_name: config.databaseName,
       project_name: config.projectName,
       migration_count: 20,
+      migration_checksum_count: 20,
     });
     expect(result.rows[0]?.version).toMatch(/^17\.2/);
   });

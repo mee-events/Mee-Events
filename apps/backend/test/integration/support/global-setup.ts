@@ -30,15 +30,20 @@ export default async function setup(): Promise<void> {
 
     const ledger = await pool.query<{
       count: number;
+      checksumCount: number;
       first: string;
       last: string;
     }>(
-      `SELECT count(*)::int AS count, min(filename) AS first, max(filename) AS last
+      `SELECT count(*)::int AS count,
+              count(*) FILTER (WHERE checksum ~ '^[0-9a-f]{64}$')::int AS "checksumCount",
+              min(filename) AS first,
+              max(filename) AS last
        FROM schema_migrations`,
     );
     const migration = ledger.rows[0];
     if (
       migration?.count !== 20 ||
+      migration.checksumCount !== 20 ||
       migration.first !== "0001_platform_foundation.sql" ||
       migration.last !== "0020_catalog_media.sql"
     ) {

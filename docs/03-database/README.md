@@ -19,8 +19,8 @@ corepack pnpm db:migrate
 ```
 
 That runs [`infrastructure/postgres/apply-migrations.sh`](../../infrastructure/postgres/apply-migrations.sh),
-which applies each `migrations/*.sql` file exactly once and records it in
-`schema_migrations`.
+which applies each `migrations/*.sql` file exactly once and atomically records
+its filename plus SHA-256 in `schema_migrations`.
 
 ## Contents
 

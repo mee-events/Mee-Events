@@ -12,17 +12,20 @@ Each migration under `infrastructure/postgres/migrations/` wraps DDL/DML in
 `BEGIN` / `COMMIT`. A failed migration file does not leave a half-applied
 schema for that file when run with `ON_ERROR_STOP=1`.
 
-Apply tracking (`schema_migrations`) is updated by
-`apply-migrations.sh` after the file succeeds. See [migrations.md](./migrations.md).
+`apply-migrations.sh` uses the shared checksum-aware runner. It snapshots each
+pending migration, inserts the filename and SHA-256 immediately after that
+file's `BEGIN`, and retains the file's original `COMMIT`. Schema/data work and
+the ledger row therefore commit or roll back together. Applied rows are skipped
+only after their checksum matches the maintained catalog. See
+[migrations.md](./migrations.md).
 
-That boundary is not atomic: the file commits before a separate command inserts
-its ledger row. STAB-14 reproduced an applied-but-unrecorded `0019`; retrying
-the runner failed closed on the migration's precondition and did not recover or
-advance to `0020`. The ledger also has no checksum. This is `SEC-M-09`, owned by
-STAB-20 and PROD-03. Do not repair such a state by blindly inserting a filename;
-verify the exact file hash and semantic postconditions through an approved
-reconciliation procedure. Full evidence is in
-[migration-verification-baseline.md](./migration-verification-baseline.md).
+STAB-14's old-runner experiment remains important historical evidence: an
+applied-but-unrecorded `0019` could not be retried safely. SEC-M-09 prevents a
+new instance of that commit window and fails closed on checksum mismatch. It
+does not guess how to repair a database already left in that historical state;
+verify exact hashes and semantic postconditions through an approved reviewed
+reconciliation. Evidence and limits are in
+[the SEC-M-09 inventory](../05-security/sec-m-09-migration-integrity-inventory.md).
 
 ---
 

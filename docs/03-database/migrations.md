@@ -14,19 +14,25 @@ corepack pnpm db:migrate # bash infrastructure/postgres/apply-migrations.sh
 
 ### Algorithm (`apply-migrations.sh`)
 
-1. Ensure table `schema_migrations (filename text PRIMARY KEY, applied_at timestamptz)`.
-2. If `branches` already exists and `schema_migrations` is empty, baseline by
-   recording `0001_platform_foundation.sql` (databases that received foundation
-   before tracking existed).
-3. For each `migrations/*.sql` in filename order:
-   - Skip if filename already in `schema_migrations`.
-   - Otherwise run the file with `ON_ERROR_STOP=1`, then insert the filename.
+1. Ensure `schema_migrations` contains `filename`, a lowercase SHA-256
+   `checksum`, and `applied_at`; backfill a legacy missing/null checksum from
+   the trusted current checkout, then enforce `NOT NULL` plus a validated
+   64-character hexadecimal check.
+2. If `branches` already exists and `schema_migrations` is empty, baseline
+   `0001_platform_foundation.sql` only after its required table, seed, function,
+   trigger, extension, and pre-`0002` sentinel postconditions pass.
+3. Validate the complete catalog and reject an unknown ledger filename or a
+   checksum mismatch before applying any missing file.
+4. For each `migrations/*.sql` in filename order:
+   - Skip only when filename and checksum both match.
+   - Snapshot a missing file and hash the exact snapshot.
+   - Insert filename/checksum immediately after the file's existing `BEGIN`,
+     then execute the rest with `ON_ERROR_STOP=1` and its original `COMMIT`.
 
-The migration transaction and the ledger insert are separate `psql` commands.
-An interruption after `COMMIT` but before the insert can therefore leave an
-applied-but-unrecorded file. The ledger also stores no content checksum. See
-[the STAB-14 baseline](./migration-verification-baseline.md) for the reproduced
-failure and required reconciliation ownership.
+Migration work and its ledger row therefore commit or roll back together. The
+runner also rejects files that do not contain exactly one outer transaction.
+The old runner's reproduced applied-but-unrecorded failure remains historical
+evidence in [the STAB-14 baseline](./migration-verification-baseline.md).
 
 Target database (local script): Docker service `postgres`, user/db `me_event` /
 `me_event_dev`.
@@ -70,7 +76,7 @@ Seeds are separate (`infrastructure/postgres/seeds/`, e.g.
 | Filename           | `NNNN_snake_description.sql` (zero-padded sequence)                          |
 | Transaction        | Each migration file wraps work in `BEGIN` / `COMMIT`                         |
 | Style              | Additive / expand-and-contract; avoid destructive drops of financial history |
-| Tracking           | One row per applied file in `schema_migrations`                              |
+| Tracking           | One filename plus exact SHA-256 per applied file in `schema_migrations`      |
 | Idempotent indexes | Prefer `CREATE INDEX IF NOT EXISTS` for backfill migrations like `0014`      |
 
 ---
@@ -82,6 +88,10 @@ and legacy pre-ledger paths. All paths converged to the same normalized schema
 and stable seed-payload signatures; repeated runner invocations were no-ops.
 Checksums, live counts, integrity probes, limitations, and isolated cleanup are
 recorded in [migration-verification-baseline.md](./migration-verification-baseline.md).
+
+SEC-M-09 later added maintained atomic/checksum probes to the backend
+PostgreSQL harness. See
+[the SEC-M-09 inventory](../05-security/sec-m-09-migration-integrity-inventory.md).
 
 ---
 

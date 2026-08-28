@@ -27,6 +27,17 @@ re-run on three new isolated PostgreSQL 17.2 databases. Independent re-review
 accepted the correction before STAB-15 began. STAB-14 is complete with its
 `SEC-M-09` finding unchanged.
 
+### SEC-M-09 correction addendum — 28 August 2026
+
+The statements above describe the runner that STAB-14 tested and remain valid
+historical evidence. SEC-M-09 subsequently replaced its two-command boundary
+with atomic filename/SHA-256 bookkeeping, checksum preflight, legacy checksum
+backfill, and maintained crash/tamper probes. The PostgreSQL 17.2 integration
+harness passed 5/5 files and 39/39 tests. A pre-correction database already in
+an applied-but-unrecorded state still requires reviewed semantic
+reconciliation; backup/restore and production rehearsal remain PROD-03. Current
+evidence: [SEC-M-09 inventory](../05-security/sec-m-09-migration-integrity-inventory.md).
+
 ## Safety and isolated environment
 
 | Item                     | Evidence                                                                  |
@@ -474,5 +485,7 @@ remained healthy with their original IDs. No image or build cache was removed.
 parity, integrity, failure, and safety evidence remains unchanged. The catalog,
 raw/normalized schema, and stable-data byte recipes reproduce their recorded
 values and passed independent re-review. Phase 0 remains **NOT PASSED** and
-`SEC-M-09` remains open. STAB-15 subsequently added the separately documented
-maintained application integration suite.
+The STAB-14 verdict remains accepted with its finding as it existed on that
+date. SEC-M-09 was later closed with findings by the checksum-aware atomic
+runner described in the addendum above. STAB-15 subsequently added the
+separately documented maintained application integration suite.
