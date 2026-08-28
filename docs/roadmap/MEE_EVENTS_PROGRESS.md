@@ -1,20 +1,50 @@
 # Mee Events — Progress Tracker
 
-- **Updated:** 28 August 2026; STAB-20 / SEC-06 DONE WITH FINDINGS (mobile boundary and fail-closed bootstrap)
+- **Updated:** 28 August 2026; STAB-20 / SEC-02 inventory-allocation corrective follow-up complete
 - **Repository:** `/Users/vinaychilagani/Desktop/Mee Event V1`
 - **Baseline application commit:** `master` / `9e2a442d91c137ec97a349d1a55697ae8d79d5df`
 - **STAB-01 snapshot HEAD:** `ca994985a898d42da2a8d717041b93a8f8f0dc4c`
 - **Current phase:** Phase 0 — Stabilization
 - **Phase gate:** **NOT PASSED**
-- **Last completed task:** SEC-06 — DONE WITH FINDINGS (STAB-20 still open)
-- **Current task:** STAB-20 Security baseline (**IN PROGRESS**; SEC-06 closed locally)
-- **Next task:** Independent Phase 0 / STAB-20 gate review (**NOT STARTED**)
-- **Latest application change:** SEC-06 removes the direct Flutter Supabase client/table boundary, validates the complete bootstrap role/surface/assignment/branch structure before routing, sanitizes bootstrap errors, and requires non-loopback HTTPS API URLs in release; use Git history for commit hashes.
+- **Last completed task:** SEC-02 corrective follow-up — DONE WITH FINDINGS (STAB-20 still open)
+- **Current task:** STAB-20 Security baseline (**IN PROGRESS**; inventory allocation branch defect corrected)
+- **Next task:** SEC-M-09 migration ledger integrity and atomic migration application (**NOT STARTED**)
+- **Latest application change:** inventory allocation now locks both the event and item by UUID plus the principal's active branch before any mutation; cross-branch attempts return the existing 404 with no durable side effects; use Git history for commit hashes.
 - **STAB-16 implementation commit:** `999443d5d3ba547de1bb6c0406c34753c8433b00`
 - **STAB-16 closeout:** `1450263caa6a5be2263bf7b9c91827f7cc24ef6c`
 - **STAB-17 commit:** `68894f3bbfa91937a0c7c573a8fc1a0af83ce533`
 - **STAB-18 commit:** `f66cc51a726322eeb604ab84c3d3e195050248f9`
 - **STAB-19 commit:** `e833eb82d690d65e293b9521ce3f24c390fff4f0`
+
+## SEC-02 corrective follow-up — inventory allocation branch isolation (28 August 2026)
+
+The independent Phase 0 review found that inventory `allocate()` locked
+`event_records` and `inventory_items` by UUID without the principal's active
+branch. Because the allocation insert preceded the later branch-scoped item
+update, a cross-branch request could create allocation, movement, timeline,
+outbox, and audit side effects.
+
+Both `FOR UPDATE` reads now include `branch_id = input.branchId` in the same
+transaction. If either row is outside the active branch, the repository returns
+before the first mutation and the service emits the existing stable
+`INVENTORY_ALLOCATE_FAILED` **404**. Existing quantity, availability,
+concurrency, and rollback behavior is unchanged.
+
+Verified this corrective slice: focused transaction-unit **2/2** plus the
+existing inventory foundation **3/3**; focused PostgreSQL **5/5** covering
+same-branch success, cross-branch event/item/pair denial, unchanged allocation,
+stock, movement, event/module history, outbox, and audit state after denial, and
+concurrent quantities; format/lint/typecheck green; backend **239/239**; ERP
+**12/12**; full PostgreSQL integration **37/37**. The backend unit command first
+hit the sandbox's loopback bind restriction and passed unchanged with loopback
+permission; no live host was contacted.
+
+SEC-02 remains **DONE WITH FINDINGS**. Retained findings are vendor/worker
+own-record 403 behavior, create-from-booking 409 behavior, the HTTP-level
+coverage limits recorded in the SEC-02 inventory, and no proven live staging or
+production environment. STAB-20 stays **open** and Phase 0 remains **NOT
+PASSED**. The exact next block is SEC-M-09, **NOT STARTED**; the Android release
+boundary and later blocks were not started.
 
 ## SEC-06 — Mobile fail-closed and boundary cleanup (28 August 2026)
 
@@ -113,6 +143,10 @@ across API instances; HTTP E2E for the new routes remains STAB-17.
 Employee UUID get/update now includes the principal’s active branch. Other-branch
 access returns the same **404** as a missing row. Inventory:
 `docs/05-security/sec-02-branch-bola-inventory.md`.
+
+The independent Phase 0 review later found the inventory-allocation lock gap;
+the 28 August corrective follow-up above now scopes both event and item locks to
+the active branch before any mutation.
 
 STAB-20 stays **open**. SEC-03 is **not started**. Phase 0 is **not passed**.
 This slice does **not** claim production is secure.
@@ -1127,12 +1161,12 @@ Do not ask for these until their dependent block is approaching, unless early pr
 - [x] STAB-17 E2E test foundation — DONE WITH FINDINGS (local live smokes; CI URL guards only; no emulator)
 - [x] STAB-18 Documentation reconciliation — DONE WITH FINDINGS (canonical docs; historical PDFs labeled)
 - [x] STAB-19 Repository cleanup — DONE WITH FINDINGS (manifest; git-deleted only unused dummy Dart; caches/HTML images/stitch/artifacts/PDFs/EMP-\*/leads/`erp_warehouse.read` kept)
-- [ ] STAB-20 Security baseline (**IN PROGRESS**; SEC-06 done with findings; independent gate review next)
+- [ ] STAB-20 Security baseline (**IN PROGRESS**; SEC-02 inventory-allocation corrective follow-up complete; SEC-M-09 next and not started)
 
 ### Phase 0 security packages
 
 - [x] SEC-01 Dependency remediation — closed by STAB-03 (`docs/05-security/dependency-security.md`); remaining work is low-severity follow-up, not unaccepted critical/high
-- [x] SEC-02 Branch and BOLA closure — **DONE WITH FINDINGS** 27 August 2026; employee UUID get/update includes active branch; other-branch denied as 404; inventory `docs/05-security/sec-02-branch-bola-inventory.md`. Findings: vendor/worker own-record 403, create-from-booking 409, HTTP BOLA still STAB-17. Does not claim production is secure.
+- [x] SEC-02 Branch and BOLA closure — **DONE WITH FINDINGS** after inventory-allocation corrective follow-up 28 August 2026; employee UUID get/update includes active branch; inventory allocation locks both event and item by active branch before mutations; cross-branch denial is 404 with no durable side effects; inventory `docs/05-security/sec-02-branch-bola-inventory.md`. Findings retained: vendor/worker own-record 403, create-from-booking 409, HTTP-level coverage limits, no live staging/production proof. STAB-20 remains open; SEC-M-09 is next and **NOT STARTED**. Does not claim production is secure.
 - [x] SEC-03 Authentication atomicity and session control — **DONE WITH FINDINGS** 28 August 2026; OTP consume+user+session+audit one TX; refresh audit in STAB-15 session TX; stable Flutter installation ID; list-sessions and logout-all. Inventory `docs/05-security/sec-03-session-control-inventory.md`. Findings: session UI, 15s principal cache, HTTP E2E still STAB-17. Does not claim production is secure.
 - [x] SEC-04 Outbox and idempotency reliability — **DONE WITH FINDINGS** 28 August 2026; live processors recover expired `processing` via `available_at` lease, dead-letter at 8 attempts, one lead under duplicate/concurrent delivery. Inventory `docs/05-security/sec-04-outbox-reliability-inventory.md`. Findings: unconsumed topics, unused `idempotency_records`, no HTTP Idempotency-Key, no metrics product. Does not claim production is secure.
 - [x] SEC-05 Web/API hardening — **DONE WITH FINDINGS** 28 August 2026; Helmet headers, env-gated HSTS, Swagger off in staging/production config, Pino token/cookie redaction, process-local OTP IP 429, ERP CSP/Permissions-Policy/HSTS. Inventory `docs/05-security/sec-05-web-api-hardening-inventory.md`. Findings: no live staging, process-local IP cap, Next CSP unsafe-inline (`unsafe-eval` development/test only). Does not claim production is secure.

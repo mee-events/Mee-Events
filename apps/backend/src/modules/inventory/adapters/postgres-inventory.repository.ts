@@ -551,8 +551,10 @@ export class PostgresInventoryRepository implements InventoryRepository {
         event_number: string;
       }>(
         `SELECT id, branch_id, version, event_number
-         FROM event_records WHERE id = $1 FOR UPDATE`,
-        [input.body.eventRecordId],
+         FROM event_records
+         WHERE id = $1 AND branch_id = $2
+         FOR UPDATE`,
+        [input.body.eventRecordId, input.branchId],
       );
       const locked = event.rows[0];
       if (locked === undefined) {
@@ -568,8 +570,10 @@ export class PostgresInventoryRepository implements InventoryRepository {
         quantity_on_hand: number;
       }>(
         `SELECT id, name, status, warehouse_id, quantity_on_hand
-         FROM inventory_items WHERE id = $1 FOR UPDATE`,
-        [input.body.itemId],
+         FROM inventory_items
+         WHERE id = $1 AND branch_id = $2
+         FOR UPDATE`,
+        [input.body.itemId, input.branchId],
       );
       const itemRow = item.rows[0];
       if (

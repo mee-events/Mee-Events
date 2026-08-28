@@ -1,8 +1,8 @@
 # SEC-02 — Employee ID-route branch inventory
 
-- **Task:** STAB-20 / SEC-02 only (branch + BOLA closure for employee reads/mutations)
-- **Date:** 27 August 2026
-- **Phase 0:** still **NOT PASSED**. STAB-20 remains **open**. SEC-03 is **not started**.
+- **Task:** STAB-20 / SEC-02 plus the inventory-allocation corrective follow-up
+- **Date:** 27 August 2026; corrective follow-up 28 August 2026
+- **Phase 0:** still **NOT PASSED**. STAB-20 remains **open**. SEC-M-09 is **NOT STARTED**.
 - **Result:** **DONE WITH FINDINGS**
 - **Rule:** other-branch access must look like missing (**404**), never 403 that confirms the record exists.
 
@@ -119,14 +119,26 @@ the event exists to a manager who is not assigned.
 
 ## Inventory
 
-| Route                                         | Files                              | Status                                                |
-| --------------------------------------------- | ---------------------------------- | ----------------------------------------------------- |
-| `GET crm/warehouses/:id`                      | `crm-inventory.controller.ts`      | Fixed                                                 |
-| `GET crm/inventory/:id`                       | same                               | Fixed                                                 |
-| `GET crm/inventory/allocations/:allocationId` | same                               | Fixed                                                 |
-| `GET crm/me/allocations/:allocationId`        | same                               | Fixed                                                 |
-| Warehouse/item update, allocate/return        | `postgres-inventory.repository.ts` | Fixed — GET SQL and allocation lock join event branch |
-| Lists / dashboards                            | already `branchId`                 | Already scoped                                        |
+| Route                                         | Files                              | Status                                                          |
+| --------------------------------------------- | ---------------------------------- | --------------------------------------------------------------- |
+| `GET crm/warehouses/:id`                      | `crm-inventory.controller.ts`      | Fixed                                                           |
+| `GET crm/inventory/:id`                       | same                               | Fixed                                                           |
+| `GET crm/inventory/allocations/:allocationId` | same                               | Fixed                                                           |
+| `GET crm/me/allocations/:allocationId`        | same                               | Fixed                                                           |
+| `POST crm/inventory/allocations`              | `postgres-inventory.repository.ts` | Corrected — event and item locks both include the active branch |
+| Warehouse/item and allocation update/return   | same                               | Fixed — branch-scoped get/update or allocation lock             |
+| Lists / dashboards                            | already `branchId`                 | Already scoped                                                  |
+
+The independent Phase 0 review found that `allocate()` still selected and
+locked `event_records` and `inventory_items` by UUID alone. The later item
+update had a branch predicate, but it occurred after the allocation insert and
+therefore did not prevent cross-branch allocation, movement, timeline, outbox,
+or audit writes.
+
+The 28 August corrective follow-up adds `branch_id = input.branchId` to both
+`FOR UPDATE` reads in the same transaction. A missing event or item now returns
+the existing `INVENTORY_ALLOCATE_FAILED` **404** before the first mutation. No
+inventory redesign, schema change, or quantity/concurrency behavior changed.
 
 ## Vendors
 
@@ -162,11 +174,13 @@ the event exists to a manager who is not assigned.
 2. **Create event from other-branch booking ID returns 409, not 404.**
    File: `event-record.service.ts` `createFromBooking`
    (`EVENT_RECORD_NOT_CREATABLE`). Same code as an ineligible booking.
-3. **HTTP-level BOLA** (Nest pipeline, cookies, ERP pages) remains STAB-17.
-   This slice proves repository/service denial (unit + PostgreSQL
-   `findById(id, otherBranch) → undefined`).
-4. **This does not make production secure** and does not close STAB-20
-   (SEC-03…06 remain).
+3. **HTTP-level BOLA coverage remains limited.** The STAB-17 smokes do not
+   exercise this allocation matrix through the Nest auth pipeline. This
+   corrective follow-up proves repository/service denial with transaction-unit
+   and PostgreSQL tests.
+4. **No live staging or production environment has been proven.** This
+   corrective follow-up does not make production secure, close STAB-20, or pass
+   Phase 0. The exact next block is SEC-M-09, **NOT STARTED**.
 
 ## Tests
 
@@ -182,7 +196,21 @@ Same-branch allow / other-branch **404** (not 403) in:
 - `apps/backend/test/vendor-management-foundation.spec.ts`
 - `apps/backend/test/worker-management-foundation.spec.ts`
 
+The corrective follow-up adds transaction-unit SQL-shape coverage in
+`apps/backend/test/postgres-inventory-allocation-branch.spec.ts`: **2/2** prove
+the event and item locks carry the active branch, return the stable 404, roll
+back, and execute no mutation.
+
 PostgreSQL: `apps/backend/test/integration/connected-workflow.integration.spec.ts`
 asserts `findById(id, HYDERABAD)` is undefined for a second-branch lead,
 quotation, booking, and event record, and `findById(id, secondBranch)` returns
 the row.
+
+Corrective PostgreSQL coverage in
+`apps/backend/test/integration/inventory-allocation-branch.integration.spec.ts`
+is **5/5**: same-branch success, other-branch event 404, other-branch item 404,
+an entirely outside-branch pair 404, no durable allocation/stock/movement/event
+or inventory history/outbox/audit changes on denial, and concurrent requested
+quantities preserved. Full verification after the correction: format, lint,
+and typecheck passed; backend unit **239/239**; ERP unit **12/12**; PostgreSQL
+integration **37/37**.
