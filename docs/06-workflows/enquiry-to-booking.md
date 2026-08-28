@@ -30,7 +30,7 @@ flowchart TD
 
 | Step               | Actor          | API                                       | Effect                                                                                                                                                                            |
 | ------------------ | -------------- | ----------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1. Create enquiry  | Customer       | `POST /api/v1/enquiries`                  | **One TX:** enquiry `received` + `enquiry.submitted` outbox. CRM lead `new` is created later by `EnquirySubmittedOutboxProcessor` (SEC-04 recovery still open)                    |
+| 1. Create enquiry  | Customer       | `POST /api/v1/enquiries`                  | **One TX:** enquiry `received` + `enquiry.submitted` outbox. CRM lead `new` is created later by `EnquirySubmittedOutboxProcessor` (SEC-04 lease/recovery for live processors)     |
 | 2. Claim lead      | CRM            | `POST /api/v1/crm/leads/:id/claim`        | Lead → `claimed`; enquiry → `contact_pending` when previously submitted/received                                                                                                  |
 | 3. Requirements    | CRM            | `POST /api/v1/crm/leads/:id/requirements` | Lead → `contacted` or `qualified`; enquiry → `in_discussion` (lead must be claimed)                                                                                               |
 | 4. Quotation       | CRM / Customer | See [quotation.md](./quotation.md)        | Draft → send → customer approve (or reject / request revision)                                                                                                                    |
@@ -66,7 +66,9 @@ Reject quotation can mark lead `lost` and enquiry `closed` (see quotation flow).
 - Booking before payment — not supported
 - Unused enquiry enum values may exist without writes on this path
 - CRM lead creation is asynchronous (`enquiry.submitted` outbox). Crash/retry
-  recovery remains `SEC-04`. Do not document this as a same-write.
+  recovery for the live processors is in `SEC-04`
+  (`docs/05-security/sec-04-outbox-reliability-inventory.md`). Other outbox
+  topics still have no consumer. Do not document this as a same-write.
 
 ---
 

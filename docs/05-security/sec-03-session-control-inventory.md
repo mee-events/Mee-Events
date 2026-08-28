@@ -2,7 +2,9 @@
 
 - **Task:** STAB-20 / SEC-03 only (OTP one-time consume, refresh audit-in-TX, stable device ID, list/revoke-all)
 - **Date:** 28 August 2026
-- **Phase 0:** still **NOT PASSED**. STAB-20 remains **open**. SEC-04 is **not started**.
+- **Phase 0:** still **NOT PASSED**. STAB-20 remains **open**. SEC-04 later
+  closed with findings; see [sec-04-outbox-reliability-inventory.md](./sec-04-outbox-reliability-inventory.md).
+  This file is the SEC-03 snapshot.
 - **Result:** **DONE WITH FINDINGS**
 - **This slice does not claim production is secure.**
 
@@ -61,7 +63,7 @@ install’s session.
 | Same-device re-login does not invalidate the previous session id in that 15s cache | `auth.service.ts` `verifyOtp`                         | Previous row is revoked in the OTP TX; old access JWT dies on DB re-read. Left as cache residual.                                      |
 | HTTP pipeline / Nest E2E for the new session routes                                | STAB-17                                               | Service + PostgreSQL identity tests cover behavior; no live HTTP BOLA matrix here                                                      |
 | Real SMS vendor                                                                    | `ExternalOtpProvider`                                 | Explicitly out of scope                                                                                                                |
-| Outbox / idempotency                                                               | SEC-04                                                | **Not started**                                                                                                                        |
+| Outbox / idempotency                                                               | SEC-04                                                | Closed with findings in the SEC-04 slice; see [sec-04-outbox-reliability-inventory.md](./sec-04-outbox-reliability-inventory.md)       |
 | Headers / log redaction / Swagger exposure                                         | SEC-05                                                | **Not started**                                                                                                                        |
 | Direct Supabase on mobile                                                          | SEC-06                                                | **Not started**                                                                                                                        |
 

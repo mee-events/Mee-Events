@@ -272,7 +272,8 @@ flowchart TD
 1. **Enquiry and lead** are not created in the same write. `POST /enquiries`
    commits the enquiry plus an `enquiry.submitted` outbox row. The CRM
    `EnquirySubmittedOutboxProcessor` creates the lead later (`SEC-04` outbox
-   recovery remains open). Customers create enquiries; CRM owns lead claim and
+   lease/recovery for live processors; other topics remain unconsumed).
+   Customers create enquiries; CRM owns lead claim and
    requirements.
 2. **Quotation** is produced from a lead. Customers approve, reject, or request
    revision.

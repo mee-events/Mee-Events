@@ -27,6 +27,22 @@ import {
   createSentQuotationFlow,
 } from "./support/workflow";
 
+async function strandExpiredProcessing(
+  pool: Pool,
+  outboxId: string,
+  attempts: number,
+): Promise<void> {
+  await pool.query(
+    `UPDATE outbox_events
+     SET status = 'processing',
+         attempts = $2,
+         available_at = now() - interval '1 second',
+         published_at = NULL
+     WHERE id = $1`,
+    [outboxId, attempts],
+  );
+}
+
 describe("DBINT-05 enquiry transaction and Pattern B", () => {
   let pool: Pool;
 
@@ -225,6 +241,140 @@ describe("DBINT-06 enquiry outbox to CRM lead", () => {
     first.onModuleDestroy();
     second.onModuleDestroy();
   });
+
+  it("retries stranded processing after crash and keeps one lead under two workers", async () => {
+    const flow = await createSyntheticEnquiry(pool, "outbox-crash-before-lead");
+    await strandExpiredProcessing(pool, flow.outboxId, 1);
+    const leads = new PostgresLeadRepository(pool);
+    const first = new EnquirySubmittedOutboxProcessor(pool, leads);
+    const second = new EnquirySubmittedOutboxProcessor(pool, leads);
+    await Promise.all([first.tick(), second.tick()]);
+
+    const leadRows = await pool.query<{ id: string }>(
+      `SELECT id FROM leads WHERE enquiry_id = $1`,
+      [flow.enquiryId],
+    );
+    expect(leadRows.rows).toHaveLength(1);
+    const outbox = await pool.query<{ status: string; attempts: number }>(
+      `SELECT status, attempts FROM outbox_events WHERE id = $1`,
+      [flow.outboxId],
+    );
+    expect(outbox.rows[0]).toMatchObject({
+      status: "published",
+      attempts: 2,
+    });
+    await first.tick();
+    const repeated = await pool.query<{ count: number }>(
+      `SELECT count(*)::int AS count FROM leads WHERE enquiry_id = $1`,
+      [flow.enquiryId],
+    );
+    expect(repeated.rows[0]?.count).toBe(1);
+    first.onModuleDestroy();
+    second.onModuleDestroy();
+  });
+
+  it("publishes after crash when the lead already exists", async () => {
+    const flow = await createSyntheticEnquiry(pool, "outbox-crash-after-lead");
+    const leads = new PostgresLeadRepository(pool);
+    const created = await leads.createFromEnquirySubmitted({
+      enquiryId: flow.enquiryId,
+      branchId: flow.branchId,
+      customerId: flow.customerId,
+      firstResponseDueAt: "2026-08-26T13:00:00.000Z",
+    });
+    expect(created.created).toBe(true);
+    await strandExpiredProcessing(pool, flow.outboxId, 1);
+    const processor = new EnquirySubmittedOutboxProcessor(pool, leads);
+    await processor.tick();
+    const leadRows = await pool.query<{ count: number }>(
+      `SELECT count(*)::int AS count FROM leads WHERE enquiry_id = $1`,
+      [flow.enquiryId],
+    );
+    expect(leadRows.rows[0]?.count).toBe(1);
+    const outbox = await pool.query<{ status: string }>(
+      `SELECT status FROM outbox_events WHERE id = $1`,
+      [flow.outboxId],
+    );
+    expect(outbox.rows[0]?.status).toBe("published");
+    processor.onModuleDestroy();
+  });
+
+  it("does not steal an unexpired processing lease", async () => {
+    const flow = await createSyntheticEnquiry(pool, "outbox-active-lease");
+    await pool.query(
+      `UPDATE outbox_events
+       SET status = 'processing',
+           attempts = 1,
+           available_at = now() + interval '5 minutes'
+       WHERE id = $1`,
+      [flow.outboxId],
+    );
+    const leads = new PostgresLeadRepository(pool);
+    const processor = new EnquirySubmittedOutboxProcessor(pool, leads);
+    await processor.tick();
+    const outbox = await pool.query<{ status: string; attempts: number }>(
+      `SELECT status, attempts FROM outbox_events WHERE id = $1`,
+      [flow.outboxId],
+    );
+    expect(outbox.rows[0]).toEqual({ status: "processing", attempts: 1 });
+    const leadRows = await pool.query<{ count: number }>(
+      `SELECT count(*)::int AS count FROM leads WHERE enquiry_id = $1`,
+      [flow.enquiryId],
+    );
+    expect(leadRows.rows[0]?.count).toBe(0);
+    processor.onModuleDestroy();
+  });
+
+  it("dead-letters a stranded poison payload instead of looping pending", async () => {
+    const malformedId = stableUuid("outbox-poison-stranded-processing");
+    await pool.query(
+      `INSERT INTO outbox_events (
+         id, topic, aggregate_type, aggregate_id, aggregate_version,
+         payload, status, attempts, available_at
+       ) VALUES (
+         $1, 'enquiry.submitted', 'enquiry', $2, 1, $3::jsonb,
+         'processing', 7, now() - interval '1 second'
+       )`,
+      [
+        malformedId,
+        stableUuid("outbox-poison-stranded-enquiry"),
+        JSON.stringify({ enquiryId: 42, branchId: HYDERABAD_BRANCH_ID }),
+      ],
+    );
+    const leads = new PostgresLeadRepository(pool);
+    const processor = new EnquirySubmittedOutboxProcessor(pool, leads);
+    await processor.tick();
+    const malformed = await pool.query<{
+      status: string;
+      attempts: number;
+    }>(`SELECT status, attempts FROM outbox_events WHERE id = $1`, [
+      malformedId,
+    ]);
+    expect(malformed.rows[0]).toEqual({ status: "failed", attempts: 8 });
+    processor.onModuleDestroy();
+  });
+
+  it("inserts one lead when two createFromEnquirySubmitted calls race", async () => {
+    const flow = await createSyntheticEnquiry(pool, "lead-unique-race");
+    const leads = new PostgresLeadRepository(pool);
+    const payload = {
+      enquiryId: flow.enquiryId,
+      branchId: flow.branchId,
+      customerId: flow.customerId,
+      firstResponseDueAt: "2026-08-26T13:00:00.000Z",
+    };
+    const results = await Promise.all([
+      leads.createFromEnquirySubmitted(payload),
+      leads.createFromEnquirySubmitted(payload),
+    ]);
+    expect(new Set(results.map((row) => row.leadId)).size).toBe(1);
+    expect(results.filter((row) => row.created)).toHaveLength(1);
+    const count = await pool.query<{ count: number }>(
+      `SELECT count(*)::int AS count FROM leads WHERE enquiry_id = $1`,
+      [flow.enquiryId],
+    );
+    expect(count.rows[0]?.count).toBe(1);
+  });
 });
 
 describe("DBINT-07 CRM lead update back to enquiry", () => {
@@ -315,6 +465,43 @@ describe("DBINT-07 CRM lead update back to enquiry", () => {
       ).rows[0],
     ).toEqual({ status: "failed", attempts: 8 });
     processor.onModuleDestroy();
+  });
+
+  it("retries stranded crm.lead.updated processing without duplicating enquiry status", async () => {
+    const flow = await createSyntheticLeadFlow(pool, "lead-updated-crash");
+    const pending = await pool.query<{ id: string }>(
+      `SELECT id FROM outbox_events
+       WHERE topic = 'crm.lead.updated' AND aggregate_id = $1 AND status = 'pending'`,
+      [flow.leadId],
+    );
+    expect(pending.rows.length).toBeGreaterThan(0);
+    for (const row of pending.rows) {
+      await strandExpiredProcessing(pool, row.id, 1);
+    }
+    const enquiries = new PostgresEnquiryRepository(pool);
+    const first = new LeadUpdatedOutboxProcessor(pool, enquiries);
+    const second = new LeadUpdatedOutboxProcessor(pool, enquiries);
+    await Promise.all([first.tick(), second.tick()]);
+    expect(
+      (await enquiries.findForCustomerUser(flow.user.id, flow.enquiryId))
+        ?.status,
+    ).toBe("contact_pending");
+    const published = await pool.query<{ count: number }>(
+      `SELECT count(*)::int AS count FROM outbox_events
+       WHERE topic = 'crm.lead.updated' AND aggregate_id = $1 AND status = 'published'`,
+      [flow.leadId],
+    );
+    expect(published.rows[0]?.count).toBe(pending.rows.length);
+    const before = (
+      await enquiries.findForCustomerUser(flow.user.id, flow.enquiryId)
+    )?.status;
+    await first.tick();
+    expect(
+      (await enquiries.findForCustomerUser(flow.user.id, flow.enquiryId))
+        ?.status,
+    ).toBe(before);
+    first.onModuleDestroy();
+    second.onModuleDestroy();
   });
 });
 

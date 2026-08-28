@@ -7,6 +7,11 @@ import {
 } from "@nestjs/common";
 import type { LeadStatus } from "@me-event/api-contracts";
 import type { Pool } from "pg";
+import {
+  claimOutboxBatch,
+  markOutboxAttemptFailed,
+  markOutboxPublished,
+} from "../../../common/outbox/outbox-delivery";
 import { PG_POOL } from "../../../database/database.module";
 import {
   ENQUIRY_REPOSITORY,
@@ -27,12 +32,6 @@ const LEAD_STATUSES = new Set<LeadStatus>([
   "lost",
   "closed",
 ]);
-
-interface OutboxRow {
-  readonly id: string;
-  readonly payload: unknown;
-  readonly attempts: number;
-}
 
 interface LeadUpdatedPayload {
   readonly leadId: string;
@@ -79,9 +78,9 @@ export class LeadUpdatedOutboxProcessor
     }
     this.ticking = true;
     try {
-      const claimed = await this.claimBatch();
+      const claimed = await claimOutboxBatch(this.pool, TOPIC, BATCH_SIZE);
       for (const row of claimed) {
-        await this.processRow(row);
+        await this.processRow(row.id, row.payload, row.attempts);
       }
     } catch (error) {
       this.logger.error(
@@ -93,71 +92,35 @@ export class LeadUpdatedOutboxProcessor
     }
   }
 
-  private async claimBatch(): Promise<readonly OutboxRow[]> {
-    const client = await this.pool.connect();
+  private async processRow(
+    id: string,
+    payload: unknown,
+    attempts: number,
+  ): Promise<void> {
     try {
-      await client.query("BEGIN");
-      const result = await client.query<OutboxRow>(
-        `WITH next_rows AS (
-           SELECT id
-           FROM outbox_events
-           WHERE topic = $1
-             AND status = 'pending'
-             AND available_at <= now()
-           ORDER BY created_at ASC
-           FOR UPDATE SKIP LOCKED
-           LIMIT $2
-         )
-         UPDATE outbox_events o
-         SET status = 'processing',
-             attempts = o.attempts + 1
-         FROM next_rows
-         WHERE o.id = next_rows.id
-         RETURNING o.id, o.payload, o.attempts`,
-        [TOPIC, BATCH_SIZE],
-      );
-      await client.query("COMMIT");
-      return result.rows;
-    } catch (error) {
-      await client.query("ROLLBACK");
-      throw error;
-    } finally {
-      client.release();
-    }
-  }
-
-  private async processRow(row: OutboxRow): Promise<void> {
-    try {
-      const payload = parsePayload(row.payload);
+      const parsed = parsePayload(payload);
       await this.enquiries.syncStatusFromCrmLead(
-        payload.enquiryId,
-        payload.status,
+        parsed.enquiryId,
+        parsed.status,
       );
-      await this.pool.query(
-        `UPDATE outbox_events
-         SET status = 'published',
-             published_at = now(),
-             last_error = NULL
-         WHERE id = $1`,
-        [row.id],
-      );
+      await markOutboxPublished(this.pool, id, attempts);
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Unknown outbox failure";
       this.logger.warn(
-        `Failed to process ${TOPIC} outbox ${row.id}: ${message}`,
+        `Failed to process ${TOPIC} outbox ${id} (attempt ${String(attempts)}): ${message}`,
       );
-      await this.pool.query(
-        `UPDATE outbox_events
-         SET status = CASE
-               WHEN attempts >= 8 THEN 'failed'
-               ELSE 'pending'
-             END,
-             available_at = now() + make_interval(secs => LEAST(300, attempts * 5)),
-             last_error = $2
-         WHERE id = $1`,
-        [row.id, message.slice(0, 2000)],
+      const outcome = await markOutboxAttemptFailed(
+        this.pool,
+        id,
+        attempts,
+        message,
       );
+      if (outcome === "failed") {
+        this.logger.warn(
+          `Dead-lettered ${TOPIC} outbox ${id} after ${String(attempts)} attempts`,
+        );
+      }
     }
   }
 }

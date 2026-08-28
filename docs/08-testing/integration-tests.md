@@ -95,12 +95,13 @@ The three integration files contain 26 cases after SEC-03 (STAB-15 freeze was
 DBINT-01–14, 21 cases). The runner
 uses actual `pg.Pool` connections and production adapters/services for identity,
 audit, enquiries, CRM, quotations, payments, bookings, and Event Records.
-Ordinary unit discovery is 31 files / 208 tests and explicitly excludes
+Ordinary unit discovery is recorded in `MEE_EVENTS_PROGRESS.md` and explicitly excludes
 the integration tree.
 
 The suite does not prove HTTP routing/guards, complete employee branch/BOLA
 enforcement, broader multi-instance session/revocation behavior beyond the
-corrected two-instance refresh race, outbox crash leases, real payment providers,
+corrected two-instance refresh race, publishers for unconsumed outbox topics,
+real payment providers,
 Redis, backup/restore, remote environments, or production readiness. STAB-16
 adds the same harness to a dedicated CI job without a duplicate PostgreSQL
 service; GitHub ran it green on `999443d` (run 33034648786).

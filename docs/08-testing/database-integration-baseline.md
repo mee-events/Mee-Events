@@ -6,7 +6,7 @@
 - **Task:** STAB-15 — PostgreSQL database integration test foundation
 - **Result:** **INDEPENDENTLY ACCEPTED WITH FINDINGS** — four required fresh PostgreSQL 17.2 runs passed 21/21 cases across 3/3 files; no skip, todo, expected-failure, focused case, retry, or conditional pass exists
 - **Boundary:** repository/service integration through real `pg.Pool` connections and all 20 migrations. This is not HTTP, Redis, browser, provider, backup/restore, remote database, or production-readiness proof.
-- **Ordinary unit suite:** **190/190** after this STAB-15 correction (STAB-07 freeze was 188/188). After SEC-03 the live unit suite is **208/208** across 31 files and live PostgreSQL integration is **26/26** across the same 3 files; the 21/21 tables below remain the STAB-15 freeze.
+- **Ordinary unit suite:** **190/190** after this STAB-15 correction (STAB-07 freeze was 188/188). After SEC-04 the live unit suite and PostgreSQL integration counts are in `MEE_EVENTS_PROGRESS.md`; the 21/21 tables below remain the STAB-15 freeze.
 
 ## Toolchain and commands
 
@@ -193,8 +193,10 @@ OTP consume + user + session + audit in one transaction, writes refresh
 rotation/reuse audit in the same `REPEATABLE READ` session TX, persists a
 stable mobile installation ID, and adds list-sessions / logout-all. Remaining
 SEC-03 findings (session UI, 15s process-local principal cache, HTTP E2E) are
-in `docs/05-security/sec-03-session-control-inventory.md`. Outbox (`SEC-04`),
-headers (`SEC-05`), and mobile Supabase (`SEC-06`) are not started.
+in `docs/05-security/sec-03-session-control-inventory.md`. Outbox lease/recovery
+for live processors is `SEC-04`
+(`docs/05-security/sec-04-outbox-reliability-inventory.md`). Headers
+(`SEC-05`) and mobile Supabase (`SEC-06`) are not started.
 
 ## Enquiry, outbox, and CRM results
 
@@ -208,11 +210,19 @@ headers (`SEC-05`), and mobile Supabase (`SEC-06`) are not started.
   the event publishes once and repeated ticks do not duplicate the lead.
 - A malformed enquiry payload reaches its documented failed state at attempt 8
   and creates no lead.
+- SEC-04 adds crash recovery: a stranded `processing` row with an expired
+  `available_at` is reclaimed; two workers still produce one lead; an active
+  lease is not stolen; a stranded poison payload becomes `failed`; concurrent
+  `createFromEnquirySubmitted` inserts one lead.
 - Supported lead transitions publish and synchronize the enquiry to
   `in_discussion`; activity, audit, outbox aggregate/version, and idempotent
   repeat behavior agree. Malformed lead payload does not mutate the enquiry.
+  Stranded `crm.lead.updated` processing retries without duplicating enquiry
+  status.
 
-This does not prove worker-crash recovery or leases. `SEC-04` remains open.
+Live-processor crash/retry is covered for `enquiry.submitted` and
+`crm.lead.updated`. Other outbox topics still have no consumer (`SEC-04`
+findings).
 
 ## Quotation, payment, booking, and Event Record results
 
@@ -261,7 +271,7 @@ companions.
 | ------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
 | Direct employee ID/branch authorization (HTTP pipeline) remains outside STAB-15                                           | Medium — HTTP proof in STAB-17; service/repository covered by SEC-02                   |
 | Session list/revoke-all HTTP E2E, 15s process-local principal cache across API instances, session UI                      | Medium — `SEC-03` findings; see `docs/05-security/sec-03-session-control-inventory.md` |
-| Outbox has no processing lease/crash recovery proof                                                                       | High — `SEC-04`, STAB-20                                                               |
+| Outbox topics without a consumer remain pending; `idempotency_records` unused                                             | Medium — `SEC-04` findings; live processors have lease/dead-letter proof               |
 | Payment is internal/manual; no signed provider request/webhook/reconciliation                                             | High — `INT-02` and later provider work                                                |
 | Migration SQL commit and ledger insert remain non-atomic/checksum-free                                                    | Medium — `SEC-M-09`, STAB-20/PROD-03                                                   |
 | Eight PostgreSQL adapter areas are not exercised here                                                                     | QA/module owners in later integration/module blocks                                    |

@@ -1,20 +1,37 @@
 # Mee Events — Progress Tracker
 
-- **Updated:** 28 August 2026; STAB-20 / SEC-03 DONE WITH FINDINGS (OTP verify atomic, stable device id, list/revoke-all)
+- **Updated:** 28 August 2026; STAB-20 / SEC-04 DONE WITH FINDINGS (outbox lease/recovery/dead-letter)
 - **Repository:** `/Users/vinaychilagani/Desktop/Mee Event V1`
 - **Baseline application commit:** `master` / `9e2a442d91c137ec97a349d1a55697ae8d79d5df`
 - **STAB-01 snapshot HEAD:** `ca994985a898d42da2a8d717041b93a8f8f0dc4c`
 - **Current phase:** Phase 0 — Stabilization
 - **Phase gate:** **NOT PASSED**
-- **Last completed task:** SEC-03 — DONE WITH FINDINGS (STAB-20 still open)
-- **Current task:** STAB-20 Security baseline (**IN PROGRESS**; SEC-03 closed)
-- **Next task:** SEC-04 Outbox and idempotency reliability (**NOT STARTED**)
-- **Latest application change:** SEC-03 makes OTP consume + user + session + audit one transaction, writes refresh rotation/reuse audit in the STAB-15 session lock TX, persists a stable Flutter installation ID, and adds list-sessions / logout-all; use Git history for commit hashes.
+- **Last completed task:** SEC-04 — DONE WITH FINDINGS (STAB-20 still open)
+- **Current task:** STAB-20 Security baseline (**IN PROGRESS**; SEC-04 closed)
+- **Next task:** SEC-05 Web/API hardening (**NOT STARTED**)
+- **Latest application change:** SEC-04 reclaims expired `processing` outbox rows via `available_at` lease, dead-letters after 8 handler failures, and keeps lead create idempotent under duplicate/concurrent delivery; use Git history for commit hashes.
 - **STAB-16 implementation commit:** `999443d5d3ba547de1bb6c0406c34753c8433b00`
 - **STAB-16 closeout:** `1450263caa6a5be2263bf7b9c91827f7cc24ef6c`
 - **STAB-17 commit:** `68894f3bbfa91937a0c7c573a8fc1a0af83ce533`
 - **STAB-18 commit:** `f66cc51a726322eeb604ab84c3d3e195050248f9`
 - **STAB-19 commit:** `e833eb82d690d65e293b9521ce3f24c390fff4f0`
+
+## SEC-04 — Outbox and idempotency reliability (28 August 2026)
+
+Live `enquiry.submitted` and `crm.lead.updated` processors now claim lease-expired
+`processing` rows (`available_at`), complete with an attempts CAS, and
+dead-letter to `failed` after 8 handler failures. Lead create treats a concurrent
+`enquiry_id` unique violation as an idempotent hit. Unconsumed outbox topics and
+unused `idempotency_records` stay findings — no publishers or HTTP idempotency
+middleware were added.
+
+Verified this slice: backend unit **219/219** (34 files), ERP **8/8**,
+PostgreSQL integration **32/32**, format/lint/typecheck green.
+
+Inventory: `docs/05-security/sec-04-outbox-reliability-inventory.md`.
+
+STAB-20 stays **open**. SEC-05 is **not started**. Phase 0 is **not passed**.
+This slice does **not** claim production is secure.
 
 ## SEC-03 — Authentication atomicity and session control (28 August 2026)
 
@@ -29,8 +46,8 @@ PostgreSQL integration **26/26**, Dart format/analyze clean, Flutter **444/444**
 
 Inventory: `docs/05-security/sec-03-session-control-inventory.md`.
 
-STAB-20 stays **open**. SEC-04 is **not started**. Phase 0 is **not passed**.
-This slice does **not** claim production is secure.
+STAB-20 stays **open**. At close of this slice SEC-04 was **not started**.
+Phase 0 is **not passed**. This slice does **not** claim production is secure.
 
 Findings kept: no mobile/ERP session UI; 15s process-local principal cache
 across API instances; HTTP E2E for the new routes remains STAB-17.
@@ -839,8 +856,10 @@ or production proof. SEC-03 later closed OTP consume+user+session+audit into
 one TX, refresh audit-in-TX, stable installation ID, and list/revoke-all
 (findings remain in `docs/05-security/sec-03-session-control-inventory.md`);
 employee UUID branch scoping is closed with findings under
-`SEC-02` (`docs/05-security/sec-02-branch-bola-inventory.md`); outbox lease
-recovery remains `SEC-04`; provider payment authenticity remains `INT-02`; and
+`SEC-02` (`docs/05-security/sec-02-branch-bola-inventory.md`); live-processor
+outbox lease recovery is closed with findings under `SEC-04`
+(`docs/05-security/sec-04-outbox-reliability-inventory.md`); provider payment
+authenticity remains `INT-02`; and
 migration bookkeeping remains `SEC-M-09`. No HTTP/Redis/provider/E2E,
 backup/restore, remote database, or production behavior is claimed. STAB-16
 invokes the suite in CI; GitHub ran it green on `999443d` (CI 33034648786).
@@ -1052,15 +1071,15 @@ Do not ask for these until their dependent block is approaching, unless early pr
 - [x] STAB-17 E2E test foundation — DONE WITH FINDINGS (local live smokes; CI URL guards only; no emulator)
 - [x] STAB-18 Documentation reconciliation — DONE WITH FINDINGS (canonical docs; historical PDFs labeled)
 - [x] STAB-19 Repository cleanup — DONE WITH FINDINGS (manifest; git-deleted only unused dummy Dart; caches/HTML images/stitch/artifacts/PDFs/EMP-\*/leads/`erp_warehouse.read` kept)
-- [ ] STAB-20 Security baseline (**IN PROGRESS**; SEC-03 done with findings)
+- [ ] STAB-20 Security baseline (**IN PROGRESS**; SEC-04 done with findings)
 
 ### Phase 0 security packages
 
 - [x] SEC-01 Dependency remediation — closed by STAB-03 (`docs/05-security/dependency-security.md`); remaining work is low-severity follow-up, not unaccepted critical/high
 - [x] SEC-02 Branch and BOLA closure — **DONE WITH FINDINGS** 27 August 2026; employee UUID get/update includes active branch; other-branch denied as 404; inventory `docs/05-security/sec-02-branch-bola-inventory.md`. Findings: vendor/worker own-record 403, create-from-booking 409, HTTP BOLA still STAB-17. Does not claim production is secure.
 - [x] SEC-03 Authentication atomicity and session control — **DONE WITH FINDINGS** 28 August 2026; OTP consume+user+session+audit one TX; refresh audit in STAB-15 session TX; stable Flutter installation ID; list-sessions and logout-all. Inventory `docs/05-security/sec-03-session-control-inventory.md`. Findings: session UI, 15s principal cache, HTTP E2E still STAB-17. Does not claim production is secure.
-- [ ] SEC-04 Outbox and idempotency reliability — **NOT STARTED**
-- [ ] SEC-05 Web/API hardening
+- [x] SEC-04 Outbox and idempotency reliability — **DONE WITH FINDINGS** 28 August 2026; live processors recover expired `processing` via `available_at` lease, dead-letter at 8 attempts, one lead under duplicate/concurrent delivery. Inventory `docs/05-security/sec-04-outbox-reliability-inventory.md`. Findings: unconsumed topics, unused `idempotency_records`, no HTTP Idempotency-Key, no metrics product. Does not claim production is secure.
+- [ ] SEC-05 Web/API hardening — **NOT STARTED**
 - [ ] SEC-06 Mobile fail-closed and boundary cleanup
 
 ## Phase 1 — Customer

@@ -187,6 +187,16 @@ export class PostgresLeadRepository implements LeadRepository {
       return { leadId: lead.id, created: true };
     } catch (error) {
       await client.query("ROLLBACK");
+      if (isPostgresError(error, "23505")) {
+        const raced = await this.pool.query<{ id: string }>(
+          `SELECT id FROM leads WHERE enquiry_id = $1`,
+          [payload.enquiryId],
+        );
+        const existingLead = raced.rows[0];
+        if (existingLead !== undefined) {
+          return { leadId: existingLead.id, created: false };
+        }
+      }
       throw error;
     } finally {
       client.release();
@@ -521,6 +531,15 @@ function toDetailItem(row: LeadDetailRow): LeadDetailItem {
       ? {}
       : { updatedAt: row.updated_at.toISOString() }),
   };
+}
+
+function isPostgresError(error: unknown, code: string): boolean {
+  return (
+    error !== null &&
+    typeof error === "object" &&
+    "code" in error &&
+    error.code === code
+  );
 }
 
 function parseServiceRequirements(value: unknown): readonly string[] {
