@@ -83,16 +83,15 @@ Templates: `apps/erp-web/.env.example`, `.env.staging.example`,
 
 Canonical reader: `apps/mobile/lib/config/environment.dart`.
 Session/API: `apps/mobile/lib/features/auth/session_provider.dart`.
-Direct dotenv (legacy): `apps/mobile/lib/main.dart` initializes Supabase.
+`apps/mobile/lib/main.dart` loads the public `.env` asset; it no longer
+initializes a direct database client.
 Tests: `apps/mobile/test/environment_test.dart`.
 
-| Variable              | Purpose             | Class             | Dev                                        | Test                       | Staging/release                                 | Production/release    |
-| --------------------- | ------------------- | ----------------- | ------------------------------------------ | -------------------------- | ----------------------------------------------- | --------------------- |
-| `API_BASE_URL`        | Nest API base       | **public**        | dart-define or `.env` or localhost default | localhost default allowed  | required non-loopback via dart-define or `.env` | required non-loopback |
-| `BRANCH_CODE`         | Default branch code | **public**        | default `HYD`                              | default `HYD`              | dart-define or `.env` or `HYD`                  | same                  |
-| `APP_ENV` dart-define | Unused by the app   | n/a               | not supplied by current CI                 | unused                     | unused                                          | unused                |
-| `SUPABASE_URL`        | Dormant client init | **public**        | `.env` asset, empty-string allowed         | not required by unit tests | still initialized                               | still initialized     |
-| `SUPABASE_ANON_KEY`   | Dormant client init | **public** (anon) | `.env` asset                               | same                       | same                                            | same                  |
+| Variable              | Purpose             | Class      | Dev                                        | Test                       | Staging/release                 | Production/release |
+| --------------------- | ------------------- | ---------- | ------------------------------------------ | -------------------------- | ------------------------------- | ------------------ |
+| `API_BASE_URL`        | Nest API base       | **public** | dart-define or `.env` or localhost default | localhost fallback allowed | required non-loopback HTTPS URL | same               |
+| `BRANCH_CODE`         | Default branch code | **public** | default `HYD`                              | default `HYD`              | dart-define or `.env` or `HYD`  | same               |
+| `APP_ENV` dart-define | Unused by the app   | n/a        | not supplied by current CI                 | unused                     | unused                          | unused             |
 
 Release builds reject loopback and Android emulator hosts (`localhost`,
 `127.0.0.1`, `10.0.2.2`, `10.0.3.2`). Debug/profile keep the local fallback.
@@ -101,18 +100,24 @@ Release builds reject loopback and Android emulator hosts (`localhost`,
 **public and possibly bundled**. There is no mobile staging/production env
 file; ADR 0003 supplies API URLs with `--dart-define` per flavour.
 
-Template: `apps/mobile/.env.example` only. Follow-up for dormant Supabase:
-SEC-06.
+Template: `apps/mobile/.env.example` only. It contains only the public Nest API
+base and branch code; SEC-06 removed the mobile Supabase variables.
 
 STAB-13 verified the packaging boundary with a trap-isolated synthetic `.env`.
 The exact synthetic public asset is present in the Android production APK/AAB;
 the ignored local file was restored unchanged and did not enter either
 artifact. The production dart-define wins over the bundled asset, while the
 localhost/emulator fallback strings remain compiled but are rejected when
-selected in release. The resolver still accepts a non-loopback `http://` URL,
-`APP_ENV` remains unused, and Supabase is still initialized unconditionally.
-See [flutter-build-baseline.md](./flutter-build-baseline.md). These are public
-configuration and boundary findings, not secret values or device-runtime proof.
+selected in release. At the STAB-13 snapshot the resolver still accepted
+non-loopback HTTP and Supabase initialized unconditionally. SEC-06 now rejects
+plain HTTP, loopback/emulator, malformed, credential-bearing, fragment-bearing,
+and query-bearing API URLs in release; debug/profile still allow documented
+loopback HTTP. It also removed direct Supabase initialization. `APP_ENV`
+remains unused. See
+[flutter-build-baseline.md](./flutter-build-baseline.md) and the
+[SEC-06 inventory](../05-security/sec-06-mobile-boundary-inventory.md). These
+are public configuration and local build/unit findings, not secret values or
+device-runtime proof.
 No iOS artifact was produced, so the Android asset inspection is not iOS
 environment-packaging proof. The iOS probes stopped after Flutter's
 `xcodebuild -version` invocation found no usable full Xcode, before project

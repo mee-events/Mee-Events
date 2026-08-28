@@ -329,11 +329,11 @@ void main() {
             (ref) async => const PlatformBootstrapResponse(
               surface: ClientSurface.customerMobile,
               activeRole: 'customer',
-              landingModule: 'home',
+              landingModule: 'customer_home',
               branchCode: 'HYD',
               branchName: 'Hyderabad',
               assignedRoles: ['customer', 'worker'],
-              modules: [],
+              modules: ['customer_home'],
               capabilities: [],
             ),
           ),

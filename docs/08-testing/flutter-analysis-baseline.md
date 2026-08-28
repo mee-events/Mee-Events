@@ -103,6 +103,18 @@ hardening.
 | Money/IDs/URL construction | No diagnostic     | Money values are generally retained as strings across JSON models, avoiding implicit floating-point coercion, but are not schema validated. Several server-issued IDs are interpolated into paths; search uses `Uri` query handling while some catalogue query construction is manual.                                                | Existing **Medium** input/integrity debt — feature owners/STAB-20                    |
 | Privacy features           | Not covered       | No device location permission, push payload, clipboard/screenshot control, private file/document transport, or real PDF implementation exists to certify.                                                                                                                                                                             | Unimplemented/not statically provable — CUST-21/22, EMP-11/12/14, STAB-13/20         |
 
+SEC-06 update (28 August 2026): the table preserves the STAB-09 review
+snapshot. The named bootstrap, release-URL, and direct-data-access findings are
+now closed locally: Flutter no longer initializes or depends on Supabase; the
+bootstrap boundary strictly validates contract structures and known
+role/surface/module/capability values; mismatches and unsupported branches are
+denied; and release API URLs require non-loopback HTTPS. The gateway now
+sanitizes bootstrap errors. Other model factories and product-screen raw-error
+paths remain outside SEC-06 and are not claimed fixed. Native transport,
+signing, device behavior, and live deployment remain unproven. Current SEC-06
+evidence is in
+[sec-06-mobile-boundary-inventory.md](../05-security/sec-06-mobile-boundary-inventory.md).
+
 Analyzer success does not close any of these runtime, privacy, authorization,
 provider, or native release items. It found no server credential, private key,
 token literal, signing material, or credential-bearing URL in maintained Dart

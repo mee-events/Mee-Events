@@ -165,8 +165,10 @@ Application authentication and authorization remain backend-owned. Supabase Auth
 and RLS are not the platform authorization layer.
 `docs/references/supabase/schema.sql` is legacy and is not the schema source of
 truth ([ADR 0011](../adr/0011-prd-suite-and-flutter-confirmation.md)). Flutter
-still depends on `supabase_flutter` (`SEC-06` open). Nest still depends on
-`@supabase/supabase-js` for operational scripts, not for login or schema.
+uses the Nest API as its application data/auth boundary; SEC-06 removed its
+direct Supabase initialization, table service, and package. Nest still depends
+on `@supabase/supabase-js` for operational asset scripts, not for login or
+schema.
 
 ### Frontend
 

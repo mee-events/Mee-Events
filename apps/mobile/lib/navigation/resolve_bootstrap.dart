@@ -9,10 +9,10 @@ class BootstrapEntry {
 }
 
 BootstrapEntry resolveBootstrapEntry(PlatformBootstrapResponse response) {
-  if (response.branchCode != 'HYD') {
+  if (!response.hasValidRoutingAgreement || response.branchCode != 'HYD') {
     return const BootstrapEntry(
       route: '/unsupported',
-      roleName: 'Unsupported Branch',
+      roleName: 'Workspace unavailable',
     );
   }
 

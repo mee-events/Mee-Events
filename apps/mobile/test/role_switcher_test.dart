@@ -44,20 +44,28 @@ AuthSession testSession({
 PlatformBootstrapResponse testBootstrap({
   required String activeRole,
   required List<String> assignedRoles,
+  String branchCode = 'HYD',
 }) {
   final surface = switch (activeRole) {
     'vendor_owner' || 'vendor_member' => ClientSurface.vendorMobile,
     'worker' => ClientSurface.workerMobile,
-    _ => ClientSurface.customerMobile,
+    'customer' => ClientSurface.customerMobile,
+    _ => ClientSurface.employeeWeb,
+  };
+  final landingModule = switch (activeRole) {
+    'vendor_owner' || 'vendor_member' => 'vendor_home',
+    'worker' => 'worker_home',
+    'customer' => 'customer_home',
+    _ => 'employee_dashboard',
   };
   return PlatformBootstrapResponse(
     surface: surface,
     activeRole: activeRole,
-    landingModule: 'home',
-    branchCode: 'HYD',
+    landingModule: landingModule,
+    branchCode: branchCode,
     branchName: 'Hyderabad',
     assignedRoles: assignedRoles,
-    modules: const [],
+    modules: [landingModule],
     capabilities: const [],
   );
 }
@@ -169,6 +177,7 @@ Future<void> pumpGateway(
   WidgetTester tester, {
   required SessionNotifier notifier,
   List<String> assignedRoles = const ['customer', 'vendor_owner', 'worker'],
+  Future<PlatformBootstrapResponse?> Function()? loadBootstrap,
   GlobalKey<NavigatorState>? navigatorKey,
 }) async {
   SharedPreferences.setMockInitialValues({});
@@ -186,6 +195,7 @@ Future<void> pumpGateway(
         sessionUserIdProvider.overrideWithValue('user-1'),
         ...catalogOverrides(),
         platformBootstrapProvider.overrideWith((ref) async {
+          if (loadBootstrap != null) return loadBootstrap();
           final role = ref.watch(sessionProvider)?.lastActiveRole ?? 'customer';
           return testBootstrap(activeRole: role, assignedRoles: assignedRoles);
         }),
@@ -646,6 +656,103 @@ void main() {
     await tester.pump();
     await tester.pump();
     expect(find.byType(WorkerOpsDashboardScreen), findsOneWidget);
+  });
+
+  testWidgets('employee and manager roles stay on the ERP-only surface', (
+    tester,
+  ) async {
+    for (final role in const ['employee', 'manager']) {
+      final notifier = sessionNotifier();
+      await notifier.signIn(testSession(role: role));
+      await notifier.restore();
+
+      await pumpGateway(tester, notifier: notifier, assignedRoles: [role]);
+      expect(find.text('Use Mee Events ERP'), findsOneWidget);
+      expect(find.byType(CustomerDashboardScreen), findsNothing);
+      expect(find.byType(VendorOpsDashboardScreen), findsNothing);
+      expect(find.byType(WorkerOpsDashboardScreen), findsNothing);
+    }
+  });
+
+  testWidgets('unsupported branch does not open a product dashboard', (
+    tester,
+  ) async {
+    final notifier = sessionNotifier();
+    await notifier.signIn(testSession());
+    await notifier.restore();
+
+    await pumpGateway(
+      tester,
+      notifier: notifier,
+      loadBootstrap: () async => testBootstrap(
+        activeRole: 'customer',
+        assignedRoles: const ['customer'],
+        branchCode: 'BLR',
+      ),
+    );
+    expect(find.text('Workspace unavailable'), findsOneWidget);
+    expect(find.byType(CustomerDashboardScreen), findsNothing);
+    expect(find.byType(VendorOpsDashboardScreen), findsNothing);
+    expect(find.byType(WorkerOpsDashboardScreen), findsNothing);
+  });
+
+  testWidgets('bootstrap failure is generic and retry recovers', (
+    tester,
+  ) async {
+    final notifier = sessionNotifier();
+    await notifier.signIn(testSession(role: 'worker'));
+    await notifier.restore();
+    var loads = 0;
+    const rawError =
+        'parser failed for https://secret.invalid token=do-not-render';
+
+    await pumpGateway(
+      tester,
+      notifier: notifier,
+      loadBootstrap: () async {
+        loads += 1;
+        if (loads == 1) throw StateError(rawError);
+        return testBootstrap(
+          activeRole: 'worker',
+          assignedRoles: const ['worker'],
+        );
+      },
+    );
+
+    expect(find.text('Could not open your workspace'), findsOneWidget);
+    expect(
+      find.text(
+        'We could not verify this account workspace. Try again or sign out.',
+      ),
+      findsOneWidget,
+    );
+    expect(find.textContaining(rawError), findsNothing);
+    expect(find.text('Retry'), findsOneWidget);
+    expect(find.text('Sign out'), findsOneWidget);
+
+    await tester.tap(find.text('Retry'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 80));
+    expect(loads, 2);
+    expect(find.byType(WorkerOpsDashboardScreen), findsOneWidget);
+  });
+
+  testWidgets('bootstrap failure retains sign-out recovery', (tester) async {
+    final notifier = sessionNotifier();
+    await notifier.signIn(testSession());
+    await notifier.restore();
+
+    await pumpGateway(
+      tester,
+      notifier: notifier,
+      loadBootstrap: () async => throw const BootstrapValidationException(),
+    );
+    expect(find.text('Sign out'), findsOneWidget);
+
+    await tester.tap(find.text('Sign out'));
+    await tester.pump();
+    expect(notifier.state, isNull);
+    expect(find.byType(CustomerDashboardScreen), findsNothing);
   });
 
   testWidgets('navigation stack is cleared when the active role changes', (

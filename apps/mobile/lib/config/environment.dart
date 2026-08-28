@@ -49,10 +49,18 @@ class Environment {
     final resolved =
         _firstNonEmpty(<String?>[dartDefine, dotenvValue]) ??
         developmentApiBaseUrl;
-    if (isRelease && isForbiddenReleaseApiBaseUrl(resolved)) {
-      throw StateError(
-        'Release builds require a non-loopback API_BASE_URL via --dart-define or .env.',
-      );
+    final uri = Uri.tryParse(resolved);
+    final validCommonUrl =
+        uri != null &&
+        uri.isAbsolute &&
+        uri.host.isNotEmpty &&
+        (uri.scheme == 'http' || uri.scheme == 'https') &&
+        uri.userInfo.isEmpty &&
+        !uri.hasFragment &&
+        !uri.hasQuery;
+    if (!validCommonUrl ||
+        (isRelease && isForbiddenReleaseApiBaseUrl(resolved))) {
+      throw StateError('API_BASE_URL is invalid for this build.');
     }
     return resolved;
   }
@@ -67,12 +75,18 @@ class Environment {
 
   static bool isForbiddenReleaseApiBaseUrl(String value) {
     final uri = Uri.tryParse(value);
-    if (uri == null || uri.host.isEmpty) {
+    if (uri == null ||
+        uri.scheme != 'https' ||
+        uri.host.isEmpty ||
+        uri.userInfo.isNotEmpty ||
+        uri.hasFragment ||
+        uri.hasQuery) {
       return true;
     }
-    final host = uri.host.toLowerCase();
+    final host = uri.host.toLowerCase().replaceFirst(RegExp(r'\.$'), '');
     return host == 'localhost' ||
         host == '127.0.0.1' ||
+        host.startsWith('127.') ||
         host == '::1' ||
         host == '0.0.0.0' ||
         host == '10.0.2.2' ||

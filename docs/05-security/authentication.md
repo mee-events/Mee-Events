@@ -159,6 +159,25 @@ SEC-05 closed the in-process IP cap with findings
 
 ---
 
+## Mobile post-auth boundary
+
+After a stored Nest session is restored, Flutter requests
+`GET /api/v1/platform/bootstrap` through `MobileApi`. SEC-06 removed Flutter
+Supabase initialization and direct table access. The bootstrap parser now
+requires the contract metadata plus valid actor, branch, client, access, and
+control structures; validates the role/surface/landing-module catalogs; and
+requires the active role to have an assigned active role for the selected
+branch. Unknown, missing, malformed, mismatched, or non-Hyderabad bootstrap
+data cannot open a mobile product workspace. Employee-class roles remain on
+the existing ERP-only message. Bootstrap failures show a generic retry/sign-out
+state without rendering raw parser, provider, URL, or token details.
+
+This is local parser/widget evidence, not live staging/production or native
+device proof. See
+[sec-06-mobile-boundary-inventory.md](./sec-06-mobile-boundary-inventory.md).
+
+---
+
 ## Related
 
 - [jwt.md](./jwt.md)

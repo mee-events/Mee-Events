@@ -48,7 +48,8 @@ which applies each `migrations/*.sql` file exactly once and records it in
 Do not treat these as the live schema:
 
 - [`docs/references/supabase/schema.sql`](../references/supabase/schema.sql) — legacy prototype
-- Flutter `supabase_flutter` and Nest `@supabase/supabase-js` — remaining
-  packages, not schema or Auth SoT (`SEC-06` / operational scripts)
+- Nest `@supabase/supabase-js` — retained for operational asset scripts, not
+  schema or Auth SoT. Flutter direct Supabase access and its package were
+  removed by SEC-06.
 - Product roadmap table names in PRD 06 that are not present in migrations
   `0001`–`0013`

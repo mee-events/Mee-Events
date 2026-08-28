@@ -25,6 +25,26 @@ They are **NOT STORE-RELEASABLE** because both use the self-signed Android Debug
 certificate. No source or native correction was made in this verification
 block. Phase 0 remains **NOT PASSED**.
 
+## SEC-06 current-state addendum — 28 August 2026
+
+This document otherwise preserves the STAB-13 artifact snapshot below. SEC-06
+subsequently removed `supabase_flutter`, unconditional `Supabase.initialize`,
+the unreferenced direct `event_services` service, and the mobile Supabase env
+fields. Normal resolution pruned 31 Flutter packages in total and updated the
+tracked macOS generated registrant because the removed dependency had supplied
+the `app_links` and `url_launcher` plugins. Flutter now reaches application
+data/auth only through the Nest API.
+
+SEC-06 also made bootstrap parsing/routing deny unknown, malformed, mismatched,
+unassigned, and unsupported-branch data, sanitized gateway errors, and requires
+non-loopback HTTPS in release while retaining debug/profile loopback HTTP.
+Local format/analyze and 481 tests passed. Synthetic dev-debug and production
+release APK compilation passed without inspecting either APK. This does not
+change STAB-13's native findings: production Android `INTERNET`, release
+signing, full Xcode/iOS setup, native transport/device behavior, and live
+staging/production proof remain open. Phase 0 remains **NOT PASSED**. See the
+[SEC-06 inventory](../05-security/sec-06-mobile-boundary-inventory.md).
+
 ## Toolchain
 
 | Item                                              | Verified value                                                                                                                     |
@@ -275,25 +295,27 @@ not treated as functional environment selection.
 
 ## Runtime configuration and Supabase boundary
 
-The environment resolver uses dart-define, then bundled dotenv, then local
-fallback. The 441-test suite includes six environment cases proving define
+At the STAB-13 snapshot, the environment resolver used dart-define, then
+bundled dotenv, then local fallback. The 441-test suite included six environment cases proving define
 precedence, loopback fallback rejection, Android emulator alias rejection,
 valid HTTPS acceptance, and branch defaulting. Static inspection confirms a
 malformed/hostless URL is rejected in release. It also confirms that scheme is
-not checked: a non-loopback `http://` URL is currently accepted in release.
-This is a **High transport-security release blocker** owned by SEC-05/STAB-20.
-No device runtime executed, so this is resolver unit/static evidence, not
-device-network proof.
+not checked: a non-loopback `http://` URL was accepted in release.
 
-`pubspec.yaml` declares `.env` as a Flutter asset. `main.dart` always loads it
-and always calls `Supabase.initialize`, even though the accepted application
+`pubspec.yaml` declared `.env` as a Flutter asset. `main.dart` always loaded it
+and called `Supabase.initialize`, even though the accepted application
 data authority is NestJS/PostgreSQL. Dormant `SupabaseService` code directly
 selects/streams `event_services`; no call site was found. The URL/anon key are
 public client values, never server/service-role secrets. Missing `.env` asset
 loading would prevent startup; empty/invalid Supabase strings are not explicitly
 validated before client construction and may cause unreliable initialization
-or later provider failures. No real Supabase project was used. Removal and
-fail-closed cleanup remain SEC-06/STAB-20.
+or later provider failures. No real Supabase project was used.
+
+SEC-06 closed those two source-level findings: release now requires a valid
+non-loopback HTTPS URL and Flutter has no Supabase client/table boundary. The
+`.env` asset remains public and contains API/branch configuration only. No
+device runtime or live deployment was tested, so this remains resolver/build
+evidence rather than device-network proof.
 
 ## iOS configuration inventory
 
@@ -395,8 +417,8 @@ not cure the permission, signing, iOS toolchain/scheme, or security defects.
 ## CI alignment
 
 CI matches local Flutter 3.44.8 and runs enforced-lockfile pub get, formatting, fatal-infos
-analysis, tests, and only a dev debug APK. It copies `.env.example`, whose
-Supabase strings are public placeholders, and passes emulator HTTP
+analysis, tests, and only a dev debug APK. It copies `.env.example`, which now
+contains only public Nest API/branch configuration, and passes emulator HTTP
 `API_BASE_URL` plus explicit `BRANCH_CODE=HYD`; the unused `APP_ENV` define is
 removed. CI does not build staging/prod APK, build AAB, run iOS, inspect
 merged manifests/certificates/assets, retain/upload/attest artifacts, or prove
@@ -406,18 +428,18 @@ same development-only Flutter job green on canonical `master` at `999443d`
 
 ## Security findings and owners
 
-| Severity      | Finding                                                                                             | Owner                                         |
-| ------------- | --------------------------------------------------------------------------------------------------- | --------------------------------------------- |
-| Critical      | None found in repository/artifact evidence                                                          | —                                             |
-| High          | Production Android packages omit `INTERNET` and cannot support the networked product                | ANDROID-08/13, STAB-20                        |
-| High          | Production Android packages use the Android Debug certificate                                       | ANDROID-04/05/08; founder signing-key custody |
-| High          | No usable full Xcode on host; later iOS release setup remains absent                                | IOS-02–06                                     |
-| High          | Mobile release resolver accepts non-loopback HTTP                                                   | SEC-05, STAB-20                               |
-| High          | Always-on Supabase initialization and dormant direct table access violate the backend-only boundary | SEC-06, STAB-20                               |
-| Medium        | Android backup policy is implicit and secure-storage backup exclusion is absent                     | CUST-03, ANDROID-13/14, STAB-20               |
-| Medium        | No native network-security/pinning, iOS entitlement/privacy, or device validation proof             | STAB-17/20 and platform release phases        |
-| Medium        | iOS plist orientations conflict with Flutter's runtime portrait restriction                         | IOS-05/08, accessibility/device testing       |
-| Informational | APK signing block varies; AAB is byte-identical and package metadata is stable                      | Later release reproducibility/provenance      |
+| Severity                 | Finding                                                                                 | Owner                                                         |
+| ------------------------ | --------------------------------------------------------------------------------------- | ------------------------------------------------------------- |
+| Critical                 | None found in repository/artifact evidence                                              | —                                                             |
+| High                     | Production Android packages omit `INTERNET` and cannot support the networked product    | ANDROID-08/13, STAB-20                                        |
+| High                     | Production Android packages use the Android Debug certificate                           | ANDROID-04/05/08; founder signing-key custody                 |
+| High                     | No usable full Xcode on host; later iOS release setup remains absent                    | IOS-02–06                                                     |
+| Closed locally by SEC-06 | Mobile release resolver accepted non-loopback HTTP                                      | Release now requires non-loopback HTTPS; no native/live proof |
+| Closed locally by SEC-06 | Always-on Supabase initialization and dormant direct table access                       | Flutter client/service/dependency removed                     |
+| Medium                   | Android backup policy is implicit and secure-storage backup exclusion is absent         | CUST-03, ANDROID-13/14, STAB-20                               |
+| Medium                   | No native network-security/pinning, iOS entitlement/privacy, or device validation proof | STAB-17/20 and platform release phases                        |
+| Medium                   | iOS plist orientations conflict with Flutter's runtime portrait restriction             | IOS-05/08, accessibility/device testing                       |
+| Informational            | APK signing block varies; AAB is byte-identical and package metadata is stable          | Later release reproducibility/provenance                      |
 
 ## Verification commands and cleanup
 

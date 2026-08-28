@@ -107,6 +107,14 @@ not claim that Dependabot update monitoring is advisory scanning.
 
 Major Flutter upgrades (Riverpod 2→3, secure storage 10→11, page indicator 1→3) were not applied: they are not required to close a critical/high advisory and would change storage/state APIs. Ownership: later mobile security/support work after Phase 0, not silent currency upgrades.
 
+SEC-06 update (28 August 2026): `supabase_flutter` was removed from the mobile
+manifest after repository-wide usage proof. Normal lockfile regeneration
+removed it and 30 now-unneeded transitive packages; `flutter pub get`, enforced
+lockfile resolution, and `flutter pub deps` passed with no Flutter Supabase
+package. The table above remains the STAB-03 currency snapshot; current direct
+outdated counts must be recalculated in a future dependency-currency review.
+No unrelated direct Flutter package was upgraded.
+
 ## Direct JavaScript inventory (final)
 
 | Workspace                | Direct runtime                                                                                                                                                                                                                                         | Direct development/build                                                                                         |
@@ -208,10 +216,10 @@ Lockfile confirms resolved versions: `next@15.5.23`, `vitest@3.2.7`, `vite@6.4.3
 
 ## Remaining vulnerabilities (low only)
 
-| Advisory                           | Package              | Installed | Path                                                              | Runtime/dev                                                             | Patched                                              | Exploitability                                                                                                                                                       | Ownership                                                                                             |
-| ---------------------------------- | -------------------- | --------- | ----------------------------------------------------------------- | ----------------------------------------------------------------------- | ---------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
-| GHSA-8r88-6cj9-9fh5 CVE-2025-48370 | `@supabase/auth-js`  | 2.64.4    | `apps/backend > @supabase/supabase-js@2.45.0 > @supabase/auth-js` | Runtime library, **admin UUID APIs** (`getUserById` / `deleteUser` / …) | GHSA patched `>=2.69.1`; pnpm audit lists `>=2.70.0` | Backend uses supabase-js from local scripts/adapters, not as the auth source of truth (NestJS owns auth). Malformed UUID path routing in admin helpers. Low severity | Upgrade `@supabase/supabase-js` in a later security slice; mobile direct Supabase path remains SEC-06 |
-| GHSA-xffm-g5w8-qvg7                | `@eslint/plugin-kit` | 0.2.8     | `eslint@9.17.0 > @eslint/plugin-kit` (all TS workspaces)          | Dev                                                                     | `>=0.3.4`                                            | ReDoS in `ConfigCommentParser` if ESLint parses attacker-controlled comment config. ESLint is not a public service                                                   | Later scoped dependency-security update; STAB-16 intentionally changes no dependency                  |
+| Advisory                           | Package              | Installed | Path                                                              | Runtime/dev                                                             | Patched                                              | Exploitability                                                                                                                                                       | Ownership                                                                                                                 |
+| ---------------------------------- | -------------------- | --------- | ----------------------------------------------------------------- | ----------------------------------------------------------------------- | ---------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| GHSA-8r88-6cj9-9fh5 CVE-2025-48370 | `@supabase/auth-js`  | 2.64.4    | `apps/backend > @supabase/supabase-js@2.45.0 > @supabase/auth-js` | Runtime library, **admin UUID APIs** (`getUserById` / `deleteUser` / …) | GHSA patched `>=2.69.1`; pnpm audit lists `>=2.70.0` | Backend uses supabase-js from local scripts/adapters, not as the auth source of truth (NestJS owns auth). Malformed UUID path routing in admin helpers. Low severity | Upgrade backend `@supabase/supabase-js` in a later scoped dependency slice; SEC-06 removed the separate mobile dependency |
+| GHSA-xffm-g5w8-qvg7                | `@eslint/plugin-kit` | 0.2.8     | `eslint@9.17.0 > @eslint/plugin-kit` (all TS workspaces)          | Dev                                                                     | `>=0.3.4`                                            | ReDoS in `ConfigCommentParser` if ESLint parses attacker-controlled comment config. ESLint is not a public service                                                   | Later scoped dependency-security update; STAB-16 intentionally changes no dependency                                      |
 
 No moderate findings remain. Lows are not accepted critical/high risk.
 

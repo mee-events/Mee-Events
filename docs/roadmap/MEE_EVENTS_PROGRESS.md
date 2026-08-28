@@ -1,20 +1,54 @@
 # Mee Events — Progress Tracker
 
-- **Updated:** 28 August 2026; STAB-20 / SEC-05 DONE WITH FINDINGS (headers, Swagger, redaction, OTP IP 429)
+- **Updated:** 28 August 2026; STAB-20 / SEC-06 DONE WITH FINDINGS (mobile boundary and fail-closed bootstrap)
 - **Repository:** `/Users/vinaychilagani/Desktop/Mee Event V1`
 - **Baseline application commit:** `master` / `9e2a442d91c137ec97a349d1a55697ae8d79d5df`
 - **STAB-01 snapshot HEAD:** `ca994985a898d42da2a8d717041b93a8f8f0dc4c`
 - **Current phase:** Phase 0 — Stabilization
 - **Phase gate:** **NOT PASSED**
-- **Last completed task:** SEC-05 — DONE WITH FINDINGS (STAB-20 still open)
-- **Current task:** STAB-20 Security baseline (**IN PROGRESS**; SEC-05 closed)
-- **Next task:** SEC-06 Mobile fail-closed and boundary cleanup (**NOT STARTED**)
-- **Latest application change:** SEC-05 adds API Helmet headers and env-gated HSTS, keeps OpenAPI off in staging/production, expands Pino redaction, adds a process-local IP 429 on public OTP routes, and adds ERP CSP/Permissions-Policy/HSTS; use Git history for commit hashes.
+- **Last completed task:** SEC-06 — DONE WITH FINDINGS (STAB-20 still open)
+- **Current task:** STAB-20 Security baseline (**IN PROGRESS**; SEC-06 closed locally)
+- **Next task:** Independent Phase 0 / STAB-20 gate review (**NOT STARTED**)
+- **Latest application change:** SEC-06 removes the direct Flutter Supabase client/table boundary, validates the complete bootstrap role/surface/assignment/branch structure before routing, sanitizes bootstrap errors, and requires non-loopback HTTPS API URLs in release; use Git history for commit hashes.
 - **STAB-16 implementation commit:** `999443d5d3ba547de1bb6c0406c34753c8433b00`
 - **STAB-16 closeout:** `1450263caa6a5be2263bf7b9c91827f7cc24ef6c`
 - **STAB-17 commit:** `68894f3bbfa91937a0c7c573a8fc1a0af83ce533`
 - **STAB-18 commit:** `f66cc51a726322eeb604ab84c3d3e195050248f9`
 - **STAB-19 commit:** `e833eb82d690d65e293b9521ce3f24c390fff4f0`
+
+## SEC-06 — Mobile fail-closed and boundary cleanup (28 August 2026)
+
+Repository-wide usage proof found no maintained caller for the direct
+`event_services` Supabase service. Flutter no longer imports, initializes, or
+depends on Supabase; the unused service and public mobile Supabase env fields
+are removed, and normal lockfile resolution pruned the client dependency graph.
+Backend `@supabase/supabase-js` remains unchanged for operational asset scripts.
+
+The platform bootstrap parser now requires the authoritative metadata,
+actor/branch/client/access/controls structures, known roles/surfaces/modules/
+capabilities, canonical role/surface/landing agreement, and an active-role
+assignment scoped to the branch. Unsupported branch, malformed/missing values,
+and all mismatches fail closed. Valid Customer, Vendor, and Worker responses
+still route to their existing dashboards; employee-class responses stay on the
+ERP-only message. Gateway errors are generic with Retry and Sign out. Release
+API URLs require non-loopback HTTPS; debug/profile retain documented loopback
+HTTP.
+
+Verified this slice: `flutter pub get` plus enforced lockfile and dependency
+graph; focused SEC-06 **65/65**; Dart format 201 files; Flutter analyze zero
+diagnostics; full Flutter **481/481**; mobile E2E missing/remote URL guards;
+synthetic dev-debug and `.invalid` HTTPS production APK compiles; root
+format/lint/typecheck; backend **237/237**; ERP **12/12**; PostgreSQL integration
+**32/32**; pnpm audit 0 critical/high/moderate and 2 low. No APK was inspected
+or uploaded, and no live application host was contacted.
+
+Inventory: `docs/05-security/sec-06-mobile-boundary-inventory.md`.
+
+SEC-06 is **DONE WITH FINDINGS**. No live staging/production/device proof was
+created; Android/iOS release blockers remain; contract catalogs require
+deliberate synchronization; unrelated product raw-error paths remain outside
+this slice. STAB-20 stays **open** and Phase 0 is **not passed**. The next action
+is an independent Phase 0 / STAB-20 gate review, not Customer implementation.
 
 ## SEC-05 — Web/API hardening (28 August 2026)
 
@@ -35,8 +69,8 @@ login smoke **1/1**.
 
 Inventory: `docs/05-security/sec-05-web-api-hardening-inventory.md`.
 
-STAB-20 stays **open**. SEC-06 is **not started**. Phase 0 is **not passed**.
-This slice does **not** claim production is secure.
+At SEC-05 close, SEC-06 was **not started**. STAB-20 stays **open** and Phase 0
+is **not passed**. This historical slice does **not** claim production is secure.
 
 ## SEC-04 — Outbox and idempotency reliability (28 August 2026)
 
@@ -938,7 +972,7 @@ Named defects vs code:
 | Enquiry→lead same-write                                    | `createEnquiry` writes enquiry + `enquiry.submitted`; `EnquirySubmittedOutboxProcessor` creates the lead | overview, architecture, customer API, enquiry-to-booking                            |
 | Staff-mobile includes Manager as a shipped Flutter product | Bootstrap maps employee/manager roles to `employee_web`; EMP-\* MISSING                                  | overview, architecture                                                              |
 | OTP resend “not enforced”                                  | `auth.service.ts` `OTP_RESEND_COOLDOWN` HTTP 429                                                         | `authentication.md`, `identity-foundation.md`                                       |
-| Supabase as SoT                                            | PostgreSQL migrations; leftover `supabase_flutter` (SEC-06) and script `supabase-js`                     | overview, database README, references/supabase, ADR 0011 residual                   |
+| Supabase as SoT                                            | PostgreSQL migrations; mobile client removed by SEC-06; backend script `supabase-js` retained            | overview, database README, references/supabase, ADR 0011 residual                   |
 | Default branch `main`                                      | GitHub/CI `master`                                                                                       | PRD 10, CONTRIBUTING, SECURITY, AGENTS                                              |
 | Stale test/E2E counts                                      | Unit 190/190; DBINT 21; STAB-17 foundation; no device E2E                                                | README, testing-strategy, unit-tests, verification, baselines (pointers on freezes) |
 | 18 August PDFs as live SoT                                 | Binaries unchanged                                                                                       | `docs/roadmap/README.md`; MASTER_BUILD_ROADMAP banner                               |
@@ -1093,7 +1127,7 @@ Do not ask for these until their dependent block is approaching, unless early pr
 - [x] STAB-17 E2E test foundation — DONE WITH FINDINGS (local live smokes; CI URL guards only; no emulator)
 - [x] STAB-18 Documentation reconciliation — DONE WITH FINDINGS (canonical docs; historical PDFs labeled)
 - [x] STAB-19 Repository cleanup — DONE WITH FINDINGS (manifest; git-deleted only unused dummy Dart; caches/HTML images/stitch/artifacts/PDFs/EMP-\*/leads/`erp_warehouse.read` kept)
-- [ ] STAB-20 Security baseline (**IN PROGRESS**; SEC-05 done with findings)
+- [ ] STAB-20 Security baseline (**IN PROGRESS**; SEC-06 done with findings; independent gate review next)
 
 ### Phase 0 security packages
 
@@ -1102,7 +1136,7 @@ Do not ask for these until their dependent block is approaching, unless early pr
 - [x] SEC-03 Authentication atomicity and session control — **DONE WITH FINDINGS** 28 August 2026; OTP consume+user+session+audit one TX; refresh audit in STAB-15 session TX; stable Flutter installation ID; list-sessions and logout-all. Inventory `docs/05-security/sec-03-session-control-inventory.md`. Findings: session UI, 15s principal cache, HTTP E2E still STAB-17. Does not claim production is secure.
 - [x] SEC-04 Outbox and idempotency reliability — **DONE WITH FINDINGS** 28 August 2026; live processors recover expired `processing` via `available_at` lease, dead-letter at 8 attempts, one lead under duplicate/concurrent delivery. Inventory `docs/05-security/sec-04-outbox-reliability-inventory.md`. Findings: unconsumed topics, unused `idempotency_records`, no HTTP Idempotency-Key, no metrics product. Does not claim production is secure.
 - [x] SEC-05 Web/API hardening — **DONE WITH FINDINGS** 28 August 2026; Helmet headers, env-gated HSTS, Swagger off in staging/production config, Pino token/cookie redaction, process-local OTP IP 429, ERP CSP/Permissions-Policy/HSTS. Inventory `docs/05-security/sec-05-web-api-hardening-inventory.md`. Findings: no live staging, process-local IP cap, Next CSP unsafe-inline (`unsafe-eval` development/test only). Does not claim production is secure.
-- [ ] SEC-06 Mobile fail-closed and boundary cleanup — **NOT STARTED**
+- [x] SEC-06 Mobile fail-closed and boundary cleanup — **DONE WITH FINDINGS** 28 August 2026; direct Flutter Supabase client/service/dependency/env fields removed after usage proof; bootstrap role/surface/assignment/branch structures fail closed; gateway errors generic; release requires non-loopback HTTPS; 481/481 Flutter tests and synthetic debug/release APK compile. Inventory `docs/05-security/sec-06-mobile-boundary-inventory.md`. Findings: no live staging/production/device proof, native release blockers unchanged, manual contract-catalog synchronization, unrelated product raw-error paths outside scope. STAB-20 and Phase 0 remain open; Customer unauthorized.
 
 ## Phase 1 — Customer
 

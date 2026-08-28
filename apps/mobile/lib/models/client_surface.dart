@@ -7,4 +7,12 @@ enum ClientSurface {
   final String value;
 
   const ClientSurface(this.value);
+
+  static ClientSurface? tryParse(Object? value) {
+    if (value is! String) return null;
+    for (final surface in values) {
+      if (surface.value == value) return surface;
+    }
+    return null;
+  }
 }

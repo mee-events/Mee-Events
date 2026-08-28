@@ -81,7 +81,7 @@ class _AppGatewayState extends ConsumerState<AppGateway> {
         final bootstrap = ref.watch(platformBootstrapProvider);
         return bootstrap.when(
           loading: () => const _LaunchScreen(),
-          error: (error, _) => _BootstrapErrorScreen(error: error),
+          error: (_, _) => const _BootstrapErrorScreen(),
           data: (response) {
             if (response == null) return const OnboardingScreen();
             return _surfaceFor(response);
@@ -182,9 +182,7 @@ class _LaunchScreen extends StatelessWidget {
 }
 
 class _BootstrapErrorScreen extends ConsumerWidget {
-  const _BootstrapErrorScreen({required this.error});
-
-  final Object error;
+  const _BootstrapErrorScreen();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -193,7 +191,8 @@ class _BootstrapErrorScreen extends ConsumerWidget {
       appBar: const MeAppBar(title: 'Mee Events'),
       body: MeErrorState(
         title: 'Could not open your workspace',
-        message: error.toString(),
+        message:
+            'We could not verify this account workspace. Try again or sign out.',
         onRetry: () => ref.invalidate(platformBootstrapProvider),
       ),
       bottomNavigationBar: SafeArea(
