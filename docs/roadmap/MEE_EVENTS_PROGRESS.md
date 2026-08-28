@@ -1,20 +1,58 @@
 # Mee Events — Progress Tracker
 
-- **Updated:** 28 August 2026; STAB-20 / SEC-M-09 migration integrity correction complete locally
+- **Updated:** 28 August 2026; STAB-20 Android release boundary corrective work complete locally
 - **Repository:** `/Users/vinaychilagani/Desktop/Mee Event V1`
 - **Baseline application commit:** `master` / `9e2a442d91c137ec97a349d1a55697ae8d79d5df`
 - **STAB-01 snapshot HEAD:** `ca994985a898d42da2a8d717041b93a8f8f0dc4c`
 - **Current phase:** Phase 0 — Stabilization
 - **Phase gate:** **NOT PASSED**
-- **Last completed task:** SEC-M-09 migration ledger integrity and atomic application — DONE WITH FINDINGS locally (STAB-20 still open)
-- **Current task:** none; awaiting authorization for the next STAB-20 corrective block
-- **Next task:** Android release boundary corrective work (**NOT STARTED**)
-- **Latest application change:** the migration runner now commits exact SHA-256 bookkeeping in the same transaction as each migration and fails closed on changed/unknown ledger state; use Git history for commit hashes.
+- **Last completed task:** Android release boundary corrective work — DONE WITH FINDINGS locally (STAB-20 still open)
+- **Current task:** none; awaiting authorization for canonical GitHub verification
+- **Next task:** canonical GitHub verification (**NOT STARTED**)
+- **Latest application change:** Android prod artifacts now include `INTERNET`; release never falls back to debug signing and accepts only a complete external signing set, otherwise producing unsigned/non-store-ready local artifacts; use Git history for commit hashes.
 - **STAB-16 implementation commit:** `999443d5d3ba547de1bb6c0406c34753c8433b00`
 - **STAB-16 closeout:** `1450263caa6a5be2263bf7b9c91827f7cc24ef6c`
 - **STAB-17 commit:** `68894f3bbfa91937a0c7c573a8fc1a0af83ce533`
 - **STAB-18 commit:** `f66cc51a726322eeb604ab84c3d3e195050248f9`
 - **STAB-19 commit:** `e833eb82d690d65e293b9521ce3f24c390fff4f0`
+
+## Android release boundary corrective work (28 August 2026)
+
+Independent inspection reconfirmed that `INTERNET` existed only in the Android
+debug/profile manifests and `release` explicitly selected
+`signingConfigs.debug`. No maintained external release-signing configuration
+existed.
+
+The main manifest now declares only `android.permission.INTERNET`. Gradle no
+longer has a debug-signing fallback: it accepts a complete four-value release
+set from ignored `android/key.properties` or `ANDROID_RELEASE_*` environment
+names, fails generically on partial/missing-file input without printing values,
+and leaves no-input release artifacts unsigned. A three-test maintained guard
+pins the permission, forbids debug release wiring, and rejects tracked signing
+keys or literal signing assignments.
+
+Trap-isolated synthetic builds used only
+`https://mee-events-android-boundary.invalid/api/v1` and `HYD`; any founder
+`.env` was restored without inspection and signing inputs were removed. Flutter
+dependency resolution, 202-file format, fatal-infos analysis, and **484/484**
+tests passed. Dev debug APK, prod release APK, and prod release AAB compiled.
+The prod merged manifest/APK/AAB contain `INTERNET`; release is non-debug; the
+APK/AAB contain no Android Debug certificate and both are **unsigned**. Their
+public `.env` assets contain no loopback/dev API URL. Root format/lint/typecheck,
+backend **239/239**, and ERP **12/12** passed. No backend/database file changed,
+so PostgreSQL integration was not run.
+
+Android release boundary corrective work is **DONE WITH FINDINGS**. The
+unsigned artifacts are not store-ready; company signing-key custody,
+certificate record, recovery/rotation, Play App Signing/store/device proof,
+package ownership, and artifact provenance remain open. No live staging,
+production, API, Play Console, store track, or device was used. iOS remained
+untouched. Inventory:
+`docs/05-security/android-release-boundary-inventory.md`.
+
+STAB-20 remains **open**, Phase 0 remains **NOT PASSED**, and no production
+security or Play readiness is claimed. Canonical GitHub verification is next,
+**NOT STARTED**.
 
 ## SEC-M-09 — Migration ledger integrity and atomic application (28 August 2026)
 
@@ -45,8 +83,9 @@ signed external attestation or production backup/restore rehearsal. Inventory:
 `docs/05-security/sec-m-09-migration-integrity-inventory.md`.
 
 STAB-20 remains **open**, Phase 0 remains **NOT PASSED**, and Customer work is
-unauthorized. The exact next block is the Android release boundary corrective
-work, **NOT STARTED**.
+unauthorized. The Android release boundary corrective work was subsequently
+closed with findings on 28 August 2026; canonical GitHub verification is next
+and **NOT STARTED**.
 
 ## SEC-02 corrective follow-up — inventory allocation branch isolation (28 August 2026)
 
@@ -1157,7 +1196,9 @@ After delete: backend 190/190, ERP 8/8, Dart format 200 files, analyze 0, Flutte
 6. Real OTP, payment, private storage, PDF, push/email, maps, monitoring and crash integrations are absent.
 7. Device/emulator E2E, full HTTP/module integration, and security suites remain incomplete; STAB-17 added a loopback foundation only.
 8. Staging/production infrastructure, secrets, backups/restore, observability, CD and rollback are absent.
-9. Android production artifact lacks network permission and uses debug signing.
+9. Android release network/debug-signing fallback is corrected locally; company
+   signing custody, externally signed artifact, device/store, and Play approval
+   remain unproven.
 10. The verified host lacks usable full Xcode; the later iOS `prod` scheme,
     signing, entitlement, and TestFlight setup also remain absent.
 
@@ -1195,7 +1236,7 @@ Do not ask for these until their dependent block is approaching, unless early pr
 - [x] STAB-17 E2E test foundation — DONE WITH FINDINGS (local live smokes; CI URL guards only; no emulator)
 - [x] STAB-18 Documentation reconciliation — DONE WITH FINDINGS (canonical docs; historical PDFs labeled)
 - [x] STAB-19 Repository cleanup — DONE WITH FINDINGS (manifest; git-deleted only unused dummy Dart; caches/HTML images/stitch/artifacts/PDFs/EMP-\*/leads/`erp_warehouse.read` kept)
-- [ ] STAB-20 Security baseline (**IN PROGRESS**; SEC-M-09 done with findings; Android release boundary next and not started)
+- [ ] STAB-20 Security baseline (**IN PROGRESS**; Android release boundary done with findings; canonical GitHub verification next and not started)
 
 ### Phase 0 security packages
 
@@ -1205,7 +1246,8 @@ Do not ask for these until their dependent block is approaching, unless early pr
 - [x] SEC-04 Outbox and idempotency reliability — **DONE WITH FINDINGS** 28 August 2026; live processors recover expired `processing` via `available_at` lease, dead-letter at 8 attempts, one lead under duplicate/concurrent delivery. Inventory `docs/05-security/sec-04-outbox-reliability-inventory.md`. Findings: unconsumed topics, unused `idempotency_records`, no HTTP Idempotency-Key, no metrics product. Does not claim production is secure.
 - [x] SEC-05 Web/API hardening — **DONE WITH FINDINGS** 28 August 2026; Helmet headers, env-gated HSTS, Swagger off in staging/production config, Pino token/cookie redaction, process-local OTP IP 429, ERP CSP/Permissions-Policy/HSTS. Inventory `docs/05-security/sec-05-web-api-hardening-inventory.md`. Findings: no live staging, process-local IP cap, Next CSP unsafe-inline (`unsafe-eval` development/test only). Does not claim production is secure.
 - [x] SEC-06 Mobile fail-closed and boundary cleanup — **DONE WITH FINDINGS** 28 August 2026; direct Flutter Supabase client/service/dependency/env fields removed after usage proof; bootstrap role/surface/assignment/branch structures fail closed; gateway errors generic; release requires non-loopback HTTPS; 481/481 Flutter tests and synthetic debug/release APK compile. Inventory `docs/05-security/sec-06-mobile-boundary-inventory.md`. Findings: no live staging/production/device proof, native release blockers unchanged, manual contract-catalog synchronization, unrelated product raw-error paths outside scope. STAB-20 and Phase 0 remain open; Customer unauthorized.
-- [x] SEC-M-09 Migration ledger integrity and atomic application — **DONE WITH FINDINGS** 28 August 2026; migration SQL and filename/SHA-256 bookkeeping share one transaction; unknown/mismatched ledger state fails closed; maintained PostgreSQL probes cover legacy backfill, tamper rejection, and terminated-session rollback. Inventory `docs/05-security/sec-m-09-migration-integrity-inventory.md`. Findings: historical backfill cannot attest old bytes; pre-existing applied-but-unrecorded state requires reviewed reconciliation; no signed attestation or production backup/restore rehearsal. STAB-20 and Phase 0 remain open; Android release boundary next and not started.
+- [x] SEC-M-09 Migration ledger integrity and atomic application — **DONE WITH FINDINGS** 28 August 2026; migration SQL and filename/SHA-256 bookkeeping share one transaction; unknown/mismatched ledger state fails closed; maintained PostgreSQL probes cover legacy backfill, tamper rejection, and terminated-session rollback. Inventory `docs/05-security/sec-m-09-migration-integrity-inventory.md`. Findings: historical backfill cannot attest old bytes; pre-existing applied-but-unrecorded state requires reviewed reconciliation; no signed attestation or production backup/restore rehearsal. STAB-20 and Phase 0 remain open; Android release boundary was subsequently closed with findings.
+- [x] Android release boundary corrective work — **DONE WITH FINDINGS** 28 August 2026; main-manifest `INTERNET`, no debug-signing fallback, complete external signing contract, partial-input failure, unsigned no-credential APK/AAB proof, and maintained tracked-secret guard. Inventory `docs/05-security/android-release-boundary-inventory.md`. Findings: no company key/certificate/store/device/live-host proof; unsigned artifacts are not store-ready; iOS untouched. STAB-20 and Phase 0 remain open; canonical GitHub verification next and **NOT STARTED**.
 
 ## Phase 1 — Customer
 

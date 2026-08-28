@@ -11,6 +11,9 @@ is caused first by this host lacking a usable full-Xcode interpreter, not by
 the project's Flutter migration metadata. The missing production scheme and
 signing configuration remain separate later blockers.
 
+Current Android release-boundary state is recorded in the 28 August 2026
+addendum below. The STAB-13 sections remain the historical before-state.
+
 ## Result
 
 **COMPLETED WITH FINDINGS.** Flutter formatting, analysis, and 441/441 tests
@@ -44,6 +47,34 @@ change STAB-13's native findings: production Android `INTERNET`, release
 signing, full Xcode/iOS setup, native transport/device behavior, and live
 staging/production proof remain open. Phase 0 remains **NOT PASSED**. See the
 [SEC-06 inventory](../05-security/sec-06-mobile-boundary-inventory.md).
+
+## STAB-20 Android release-boundary addendum — 28 August 2026
+
+The retained Android native findings were corrected without introducing a
+signing credential. `android.permission.INTERNET` now lives in the main
+manifest and appears in the prod merged manifest, release APK, and release AAB
+base manifest. The release build no longer selects the debug signing config.
+
+Gradle now creates a release signing configuration only when all four values
+are supplied from ignored `android/key.properties` or the documented
+`ANDROID_RELEASE_*` environment names. Partial input and a missing externally
+named keystore fail with generic errors that do not reveal values or paths. No
+input leaves the local release unsigned; there is no fallback to the Android
+Debug key.
+
+Trap-isolated builds used only
+`https://mee-events-android-boundary.invalid/api/v1` and `HYD`. Dev debug, prod
+release APK, and prod release AAB compilation passed. The prod APK/AAB are
+non-debug/contain `INTERNET`, contain the synthetic public configuration, have
+no Android Debug certificate, and are both **unsigned**. They are deliberately
+**not store-ready**. Flutter format/analyze passed and **484/484** tests passed,
+including the maintained manifest/signing/tracked-secret guard.
+
+No founder key, signing value, certificate, live API, device, Play Console, or
+store track was used. Company key custody and externally signed artifact proof
+remain findings. iOS remains untouched. Full evidence and exact commands are
+in the [Android release boundary inventory](../05-security/android-release-boundary-inventory.md).
+STAB-20 remains open and Phase 0 remains **NOT PASSED**.
 
 ## Toolchain
 
