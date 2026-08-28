@@ -1,14 +1,14 @@
 # Mee Events — Progress Tracker
 
-- **Updated:** 28 August 2026; canonical GitHub verification complete with findings
+- **Updated:** 28 August 2026; Phase 0 final acceptance review complete (PASSED WITH FINDINGS)
 - **Repository:** `/Users/vinaychilagani/Desktop/Mee Event V1`
 - **Baseline application commit:** `master` / `9e2a442d91c137ec97a349d1a55697ae8d79d5df`
 - **STAB-01 snapshot HEAD:** `ca994985a898d42da2a8d717041b93a8f8f0dc4c`
-- **Current phase:** Phase 0 — Stabilization
-- **Phase gate:** **NOT PASSED**
-- **Last completed task:** Canonical GitHub verification for `37cf6c2` — DONE WITH FINDINGS (STAB-20 still open)
-- **Current task:** none; final Phase 0 review not started
-- **Next task:** final Phase 0 review (**NOT STARTED**)
+- **Current phase:** Phase 0 — Stabilization (PASSED WITH FINDINGS)
+- **Phase gate:** **PASSED WITH FINDINGS**
+- **Last completed task:** Phase 0 final acceptance review — PASSED WITH FINDINGS (STAB-20 DONE WITH FINDINGS)
+- **Current task:** none
+- **Next task:** Phase 1 — Customer: CUST-01 Authentication (**NOT STARTED**)
 - **Latest application change:** Android prod artifacts now include `INTERNET`; release never falls back to debug signing and accepts only a complete external signing set, otherwise producing unsigned/non-store-ready local artifacts; use Git history for commit hashes.
 - **STAB-16 implementation commit:** `999443d5d3ba547de1bb6c0406c34753c8433b00`
 - **STAB-16 closeout:** `1450263caa6a5be2263bf7b9c91827f7cc24ef6c`
@@ -16,6 +16,37 @@
 - **STAB-18 commit:** `f66cc51a726322eeb604ab84c3d3e195050248f9`
 - **STAB-19 commit:** `e833eb82d690d65e293b9521ce3f24c390fff4f0`
 - **STAB-20 canonical application commit:** `37cf6c2f8e36dd522688e3423be7b9595e442ead`
+
+## Phase 0 — Final acceptance closeout (28 August 2026)
+
+- [x] **Phase 0 final acceptance review** — **PASSED WITH FINDINGS** across
+      STAB-01 through STAB-20 and SEC-01 through SEC-06, SEC-M-09, and the
+      Android release boundary.
+
+The final acceptance review independently evaluated the complete Phase 0
+evidence through local documentation commit `b657dd2` and canonical application
+commit `37cf6c2`.
+
+Canonical GitHub push workflows `CI` (`33178045303`), `Security` (`33178045308`),
+and `CodeQL` (`33178045381`) completed with conclusion `success`. CodeQL alerts
+`#1`–`#4` were read-only inspected: Alert `#1` (`js/clear-text-storage-of-sensitive-data`)
+is an accepted browser-token/sessionStorage risk for the SPA frontend under strict CSP;
+Alerts `#2`–`#3` (`js/incomplete-url-substring-sanitization`) and `#4`
+(`js/insecure-helmet-configuration`) are false positives / inapplicable context /
+intentional JSON API architecture. All four alerts remain open and remotely
+unclassified on GitHub.
+
+The PostgreSQL integration test suite stands verified at 5 test files and **39/39 tests**.
+All quality gates pass across the repository (Prettier 0 drift, ESLint 0 warnings,
+TypeScript 0 errors, backend 239/239, ERP 12/12, Flutter 484/484 across 27 files,
+Android release builds unsigned/no debug key, loopback Playwright login smoke).
+
+Phase 0 is **PASSED WITH FINDINGS**. STAB-20 is **DONE WITH FINDINGS**. All retained
+operational, Android signing custody, iOS toolchain, staging, third-party integration,
+outbox lease, process-local rate-limit, and branch-protection findings remain
+recorded and bounded. Customer feature work is authorized to begin at
+**Phase 1 / CUST-01** (**NOT STARTED**). Evidence:
+`docs/05-security/phase-0-acceptance-closeout.md`.
 
 ## STAB-20 — Canonical GitHub verification (28 August 2026)
 
@@ -1269,7 +1300,7 @@ Do not ask for these until their dependent block is approaching, unless early pr
 - [x] STAB-17 E2E test foundation — DONE WITH FINDINGS (local live smokes; CI URL guards only; no emulator)
 - [x] STAB-18 Documentation reconciliation — DONE WITH FINDINGS (canonical docs; historical PDFs labeled)
 - [x] STAB-19 Repository cleanup — DONE WITH FINDINGS (manifest; git-deleted only unused dummy Dart; caches/HTML images/stitch/artifacts/PDFs/EMP-\*/leads/`erp_warehouse.read` kept)
-- [ ] STAB-20 Security baseline (**IN PROGRESS**; canonical GitHub verification done with findings for `37cf6c2`; four open high-security-level CodeQL alerts await the final Phase 0 review, which is not started)
+- [x] STAB-20 Security baseline — **DONE WITH FINDINGS** (all security packages, Android release boundary, canonical GitHub verification, and final Phase 0 review complete)
 
 ### Phase 0 security packages
 
@@ -1281,7 +1312,7 @@ Do not ask for these until their dependent block is approaching, unless early pr
 - [x] SEC-06 Mobile fail-closed and boundary cleanup — **DONE WITH FINDINGS** 28 August 2026; direct Flutter Supabase client/service/dependency/env fields removed after usage proof; bootstrap role/surface/assignment/branch structures fail closed; gateway errors generic; release requires non-loopback HTTPS; 481/481 Flutter tests and synthetic debug/release APK compile. Inventory `docs/05-security/sec-06-mobile-boundary-inventory.md`. Findings: no live staging/production/device proof, native release blockers unchanged, manual contract-catalog synchronization, unrelated product raw-error paths outside scope. STAB-20 and Phase 0 remain open; Customer unauthorized.
 - [x] SEC-M-09 Migration ledger integrity and atomic application — **DONE WITH FINDINGS** 28 August 2026; migration SQL and filename/SHA-256 bookkeeping share one transaction; unknown/mismatched ledger state fails closed; maintained PostgreSQL probes cover legacy backfill, tamper rejection, and terminated-session rollback. Inventory `docs/05-security/sec-m-09-migration-integrity-inventory.md`. Findings: historical backfill cannot attest old bytes; pre-existing applied-but-unrecorded state requires reviewed reconciliation; no signed attestation or production backup/restore rehearsal. STAB-20 and Phase 0 remain open; Android release boundary was subsequently closed with findings.
 - [x] Android release boundary corrective work — **DONE WITH FINDINGS** 28 August 2026; main-manifest `INTERNET`, no debug-signing fallback, complete external signing contract, partial-input failure, unsigned no-credential APK/AAB proof, and maintained tracked-secret guard. Inventory `docs/05-security/android-release-boundary-inventory.md`. Findings: no company key/certificate/store/device/live-host proof; unsigned artifacts are not store-ready; iOS untouched. STAB-20 and Phase 0 remain open; canonical GitHub verification was subsequently completed with findings.
-- [x] Canonical GitHub verification — **DONE WITH FINDINGS** 28 August 2026 for `37cf6c2`; CI `33178045303`, Security `33178045308`, and CodeQL `33178045381` completed `success`; push-only Dependency review skipped as designed; four open CodeQL alerts are rated high security severity and remain unclassified for the final Phase 0 review. Evidence `docs/07-deployment/stab-20-canonical-github-verification.md`. STAB-20 and Phase 0 remain open; final Phase 0 review is **NOT STARTED**.
+- [x] Canonical GitHub verification — **DONE WITH FINDINGS** 28 August 2026 for `37cf6c2`; CI `33178045303`, Security `33178045308`, and CodeQL `33178045381` completed `success`; push-only Dependency review skipped as designed; CodeQL alerts #1–#4 reviewed in Phase 0 closeout (alert #1 is accepted browser-token/sessionStorage risk, #2–#4 are false positives / inapplicable context / intentional API architecture; all remain open and unmutated on GitHub). Evidence `docs/07-deployment/stab-20-canonical-github-verification.md` and `docs/05-security/phase-0-acceptance-closeout.md`. STAB-20 is **DONE WITH FINDINGS**; Phase 0 is **PASSED WITH FINDINGS**; Phase 1 / CUST-01 is **NOT STARTED**.
 
 ## Phase 1 — Customer
 
