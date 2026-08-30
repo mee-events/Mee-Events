@@ -1,8 +1,8 @@
 # Mee Events — Master TODO and Execution Blocks
 
 - **Baseline:** Complete repository audit dated 25 August 2026
-- **Current phase:** Phase 0 — Stabilization
-- **Next block:** Final Phase 0 review (**NOT STARTED**)
+- **Current phase:** Phase 1 - Customer
+- **Next block:** CUST-02 OTP - NOT STARTED
 - **Rule:** One block → verify → document → commit → stop.
 
 This file is the definitive ordered work inventory. The phase order is mandatory even when a later task has a higher risk priority. Do not start Customer until the Phase 0 gate passes; do not start Vendor until Customer passes; continue one major module at a time.
@@ -76,7 +76,7 @@ Status marks in this file describe execution, not how much scaffold already exis
 
 ### Phase 1 — Customer (start only after Phase 0 gate)
 
-- [ ] **CUST-01 Authentication** — Objective: production-safe customer login entry; State: **PARTIAL**; Scope: mobile auth screens/providers and backend auth; Action: connect approved OTP flow/error policy; Depends/Risk: STAB-20, provider later; Test/Security: normalized mobile, abuse/enum/privacy cases; DoD: authorized customer reaches customer surface with real API; Next: CUST-02.
+- [x] **CUST-01 Authentication** — Objective: production-safe customer login entry; State: **DONE WITH FINDINGS - 30 August 2026**; Scope: mobile auth entry and backend OTP-request boundary; Result: strict Indian mobile validation and E.164 normalization, real OTP-request API contract, safe loading and error handling, duplicate-request protection, enumeration-safe response, mobile-number log redaction, accessibility and large-text support, and preserved existing OTP/AppGateway handoff; Depends/Risk: STAB-20, production provider later; Test/Security: Flutter focused 13/13, AppGateway/Customer-shell 59/59, full Flutter 497/497, focused backend 42/42, full backend 249/249, PostgreSQL integration 39/39, Flutter analysis zero issues, lint zero errors/warnings, typecheck zero errors; DoD: independently approved with retained downstream findings; Evidence: `docs/08-testing/cust-01-authentication-entry-evidence.md`; Next: CUST-02 - **NOT STARTED**.
 - [ ] **CUST-02 OTP** — Objective: reliable request/verify/resend UX; State: **PARTIAL/BLOCKED**; Scope: auth endpoints/UI; Action: timers, retries, accessibility and real-provider adapter when selected; Depends/Risk: CUST-01, SMS decision; Test/Security: expiry, attempts, cooldown, provider failure/race; DoD: sandbox and failure tests pass without code leakage; Next: CUST-03.
 - [ ] **CUST-03 Session** — Objective: secure login persistence/logout/revocation; State: **PARTIAL**; Scope: secure store/API refresh/device sessions; Action: stable device ID, serialized refresh, revoke current/all; Depends/Risk: CUST-02; Test/Security: expiry/reuse/revoked/network races; DoD: session lifecycle passes restart and attack tests; Next: CUST-04.
 - [ ] **CUST-04 Customer bootstrap** — Objective: fail-closed role/branch/module bootstrap; State: **PARTIAL**; Scope: platform bootstrap and AppGateway; Action: validate complete response and handle unavailable roles; Depends/Risk: CUST-03; Test/Security: wrong role/branch/unknown surface denial; DoD: only customer assignment opens customer app; Next: CUST-05.
@@ -287,18 +287,29 @@ Status marks in this file describe execution, not how much scaffold already exis
 - [ ] **POLISH-05 Support and runbooks** — Objective: founder/operator can diagnose and respond; State: **MISSING**; Scope: customer support, incidents, providers, data correction; Action: severity/ownership/escalation/runbooks; Depends/Risk: production topology; Test/Security: tabletop drills and redaction; DoD: named owners and successful drills; Next: POLISH-06.
 - [ ] **POLISH-06 Final launch checklist** — Objective: prove the complete definition of done; State: **MISSING**; Scope: all evidence; Action: verify, never infer; Depends/Risk: IOS-10 and all prior gates; Test/Security: repeat critical journeys/security/restore/rollback; DoD: every required item checked with artifact/owner/date; Next: maintain/operate.
 
-## Current acceptance block — Phase 0 Final Acceptance Closeout
+## Current acceptance block — CUST-01 Authentication Entry Closeout
 
 ### TASK ID
 
-`Phase 0 Final Acceptance Closeout`
+`CUST-01 Authentication Entry Closeout`
 
 ### RESULT
 
-**PASSED WITH FINDINGS.** STAB-01 through STAB-20 are all **DONE / DONE WITH FINDINGS**. All twenty stabilization milestones are closed. Phase 0 is formally **PASSED WITH FINDINGS** 28 August 2026. Canonical GitHub CI (`33178045303`), Security (`33178045308`), and CodeQL (`33178045381`) workflows for commit `37cf6c2` completed with conclusion `success`. CodeQL alerts #1–#4 have been independently reviewed: alert #1 is an accepted browser-token/sessionStorage risk for the SPA frontend; alerts #2–#4 are false positives / inapplicable context / intentional API architecture; all four alerts remain open and unmutated on GitHub. Backend PostgreSQL integration test suite stands verified at 5 files / 39 tests. All repository quality gates pass (Prettier 0 drift, lint 0 warnings, typecheck 0 errors, backend unit 239/239, ERP unit 12/12, PostgreSQL integration 39/39, Flutter 484/484, Android release compile unsigned/no debug key, loopback Playwright login smoke). Phase 0 stabilization is complete; Customer work is authorized to begin at Phase 1 / CUST-01.
+**DONE WITH FINDINGS - 30 August 2026.** CUST-01 provides strict Indian
+mobile validation and E.164 normalization, the real OTP-request API contract,
+safe loading/error behavior, client and process-local backend duplicate guards,
+enumeration-safe responses, structured-log mobile-number redaction, and
+accessible large-text behavior while preserving the existing OTP and
+AppGateway handoff.
 
-Evidence: `docs/05-security/phase-0-acceptance-closeout.md`, `docs/07-deployment/stab-20-canonical-github-verification.md`, `docs/05-security/android-release-boundary-inventory.md`, `docs/05-security/sec-m-09-migration-integrity-inventory.md`, `docs/05-security/sec-02-branch-bola-inventory.md`, `docs/05-security/sec-05-web-api-hardening-inventory.md`, `docs/05-security/sec-06-mobile-boundary-inventory.md`.
-There is **no live staging host**.
+Independent verdict: **APPROVE WITH FINDINGS**, with no blocking findings and
+no reviewer source changes. Verified results: Flutter focused 13/13,
+AppGateway/Customer-shell 59/59, full Flutter 497/497, focused backend 42/42,
+full backend 249/249, PostgreSQL integration 39/39, Flutter analysis zero
+issues, lint zero errors/warnings, and typecheck zero errors. Production SMS,
+device, provider-sandbox, staging, and production proof remain unclaimed.
+
+Evidence: `docs/08-testing/cust-01-authentication-entry-evidence.md`.
 
 ### CURRENT WORK
 
@@ -306,4 +317,4 @@ None.
 
 ### NEXT TASK
 
-Phase 1 — Customer: `CUST-01 Authentication` — **NOT STARTED**.
+`CUST-02 OTP - NOT STARTED`

@@ -41,6 +41,8 @@ const SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 
 @Injectable()
 export class AuthService {
+  private readonly otpRequestsInFlight = new Set<string>();
+
   private readonly refreshDigestsInFlight = new Set<string>();
 
   public constructor(
@@ -58,6 +60,24 @@ export class AuthService {
       request.mobileNumber,
       request.countryCode,
     );
+    if (this.otpRequestsInFlight.has(mobileNumber)) {
+      throw new DomainError(
+        "OTP_REQUEST_IN_PROGRESS",
+        "An OTP request is already in progress. Try again shortly",
+        429,
+      );
+    }
+    this.otpRequestsInFlight.add(mobileNumber);
+    try {
+      return await this.createOtpChallenge(mobileNumber);
+    } finally {
+      this.otpRequestsInFlight.delete(mobileNumber);
+    }
+  }
+
+  private async createOtpChallenge(
+    mobileNumber: string,
+  ): Promise<RequestOtpResponse> {
     const now = Date.now();
     const existing =
       await this.repository.findLatestOpenChallengeByMobile(mobileNumber);
@@ -98,7 +118,15 @@ export class AuthService {
       resendAfter: new Date(now + RESEND_AFTER_SECONDS * 1000),
       attemptsRemaining: MAX_ATTEMPTS,
     });
-    await this.otpProvider.sendCode(mobileNumber, code);
+    try {
+      await this.otpProvider.sendCode(mobileNumber, code);
+    } catch {
+      throw new DomainError(
+        "OTP_DELIVERY_UNAVAILABLE",
+        "We could not send a code right now. Try again later",
+        503,
+      );
+    }
 
     const isLocalDev =
       this.config.getOrThrow<string>("APP_ENV") === "development" &&

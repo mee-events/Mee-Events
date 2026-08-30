@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mee_events/design_system/design_system.dart';
+import 'package:mee_events/features/auth/indian_mobile_number.dart';
 import 'package:mee_events/features/auth/installation_id.dart';
 import 'package:mee_events/features/auth/session_provider.dart';
 import 'package:mee_events/models/api_error.dart';
@@ -33,11 +34,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   Future<void> _requestOtp() async {
-    final phone = _normalizeIndianMobile(_phoneController.text);
+    if (_busy) return;
+
+    final phone = normalizeIndianMobileNumber(_phoneController.text);
     if (phone == null) {
-      setState(() => _error = 'Enter a valid 10-digit mobile number');
+      setState(() => _error = 'Enter a valid 10-digit Indian mobile number.');
       return;
     }
+    FocusScope.of(context).unfocus();
     setState(() {
       _busy = true;
       _error = null;
@@ -49,6 +53,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       if (challenge.debugCode != null) {
         _otpController.text = challenge.debugCode!;
       }
+      _phoneController.clear();
       setState(() => _challenge = challenge);
       if (challenge.debugCode != null) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -60,12 +65,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           ),
         );
       }
-    } on ApiRequestException catch (e) {
+    } on ApiRequestException catch (error) {
       if (!mounted) return;
-      setState(() => _error = e.error.message);
-    } catch (e) {
+      setState(() => _error = _requestOtpErrorMessage(error.error));
+    } catch (_) {
       if (!mounted) return;
-      setState(() => _error = 'Could not send the code: $e');
+      setState(() => _error = _genericOtpRequestError);
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -114,72 +119,114 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     return Scaffold(
       backgroundColor: AppColors.canvas,
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.xxl),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: AppSpacing.xxxl),
-              Text('Welcome to Mee Events', style: AppTypography.displayXl),
-              const SizedBox(height: AppSpacing.sm),
-              Text(
-                awaitingOtp
-                    ? 'Enter the 6-digit code sent to your phone.'
-                    : 'Log in with your mobile number to plan events and track enquiries.',
-                style: AppTypography.bodyMd.copyWith(color: AppColors.muted),
-              ),
-              const SizedBox(height: AppSpacing.xxl),
-              if (!awaitingOtp) ...[
-                MeTextField(
-                  controller: _phoneController,
-                  label: 'Mobile number',
-                  hint: '10-digit Indian mobile',
-                  keyboardType: TextInputType.phone,
+        child: AutofillGroup(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(AppSpacing.xxl),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: AppSpacing.xl),
+                Semantics(
+                  header: true,
+                  child: Text('Mee Events', style: AppTypography.titleMd),
                 ),
-                if (_error != null) ...[
-                  const SizedBox(height: AppSpacing.md),
+                const SizedBox(height: AppSpacing.xl),
+                Text('Welcome to Mee Events', style: AppTypography.displayXl),
+                const SizedBox(height: AppSpacing.sm),
+                Text(
+                  awaitingOtp
+                      ? 'Enter the 6-digit code sent to your phone.'
+                      : 'Use your mobile number to securely start planning and track your events.',
+                  style: AppTypography.bodyMd.copyWith(color: AppColors.muted),
+                ),
+                const SizedBox(height: AppSpacing.xxl),
+                if (!awaitingOtp) ...[
                   Text(
-                    _error!,
-                    style: AppTypography.bodySm.copyWith(
-                      color: AppColors.error,
+                    '10-digit mobile number - India (+91)',
+                    style: AppTypography.caption,
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                  Semantics(
+                    label: '10-digit mobile number, India country code plus 91',
+                    child: MePhoneField(
+                      key: const ValueKey('customer-mobile-field'),
+                      controller: _phoneController,
+                      label: null,
+                      errorText: _error,
+                      enabled: !_busy,
+                      textInputAction: TextInputAction.done,
+                      onSubmitted: (_) => _requestOtp(),
+                    ),
+                  ),
+                  if (_error != null)
+                    Semantics(
+                      key: const ValueKey('customer-auth-error'),
+                      container: true,
+                      liveRegion: true,
+                      label: _error,
+                      child: const SizedBox.shrink(),
+                    ),
+                  const SizedBox(height: AppSpacing.lg),
+                  Text(
+                    'We use this number to send a one-time sign-in code and secure your Mee Events account. Standard SMS charges may apply.',
+                    style: AppTypography.captionSm.copyWith(
+                      color: AppColors.muted,
+                    ),
+                  ),
+                ] else ...[
+                  MeTextField(
+                    controller: _otpController,
+                    label: 'One-time code',
+                    hint: '6 digits',
+                    keyboardType: TextInputType.number,
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                  MeButton.text(
+                    label: 'Use a different number',
+                    onPressed: _busy
+                        ? null
+                        : () {
+                            setState(() {
+                              _challenge = null;
+                              _otpController.clear();
+                              _error = null;
+                            });
+                          },
+                  ),
+                ],
+                if (_error != null && awaitingOtp) ...[
+                  const SizedBox(height: AppSpacing.md),
+                  _LiveErrorMessage(message: _error!),
+                ],
+                const SizedBox(height: AppSpacing.xxl),
+                Semantics(
+                  liveRegion: _busy,
+                  label: _busy && !awaitingOtp ? 'Requesting code' : null,
+                  child: MeButton.primary(
+                    key: const ValueKey('customer-auth-continue'),
+                    label: awaitingOtp ? 'Verify and continue' : 'Continue',
+                    busy: _busy,
+                    onPressed: _busy
+                        ? null
+                        : awaitingOtp
+                        ? _verifyOtp
+                        : _requestOtp,
+                  ),
+                ),
+                if (_busy && !awaitingOtp) ...[
+                  const SizedBox(height: AppSpacing.sm),
+                  Semantics(
+                    liveRegion: true,
+                    child: Text(
+                      'Requesting your secure code…',
+                      style: AppTypography.bodySm.copyWith(
+                        color: AppColors.muted,
+                      ),
                     ),
                   ),
                 ],
-              ] else ...[
-                MeTextField(
-                  controller: _otpController,
-                  label: 'One-time code',
-                  hint: '6 digits',
-                  keyboardType: TextInputType.number,
-                ),
-                const SizedBox(height: AppSpacing.sm),
-                MeButton.text(
-                  label: 'Use a different number',
-                  onPressed: _busy
-                      ? null
-                      : () {
-                          setState(() {
-                            _challenge = null;
-                            _otpController.clear();
-                            _error = null;
-                          });
-                        },
-                ),
               ],
-              if (_error != null && awaitingOtp) ...[
-                const SizedBox(height: AppSpacing.md),
-                Text(
-                  _error!,
-                  style: AppTypography.bodySm.copyWith(color: AppColors.error),
-                ),
-              ],
-              const SizedBox(height: AppSpacing.xxl),
-              MeButton.primary(
-                label: awaitingOtp ? 'Verify and continue' : 'Send code',
-                busy: _busy,
-                onPressed: awaitingOtp ? _verifyOtp : _requestOtp,
-              ),
-            ],
+            ),
           ),
         ),
       ),
@@ -187,19 +234,44 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 }
 
-String? _normalizeIndianMobile(String raw) {
-  final digits = raw.replaceAll(RegExp(r'\D'), '');
-  if (digits.length == 10) {
-    return digits;
+const _genericOtpRequestError =
+    'We couldn’t send a code right now. Please try again later.';
+
+String _requestOtpErrorMessage(ApiError error) {
+  if (error.statusCode == 0 || error.code == 'NETWORK_ERROR') {
+    return 'You appear to be offline. Check your connection and try again.';
   }
-  if (digits.length == 11 && digits.startsWith('0')) {
-    return digits.substring(1);
+  if (error.statusCode == 429 ||
+      error.code == 'OTP_RESEND_COOLDOWN' ||
+      error.code == 'OTP_REQUEST_IN_PROGRESS' ||
+      error.code == 'OTP_REQUEST_LIMIT' ||
+      error.code == 'AUTH_IP_RATE_LIMIT') {
+    return 'Too many attempts. Please wait a moment before trying again.';
   }
-  if (digits.length == 12 && digits.startsWith('91')) {
-    return digits.substring(2);
+  if (error.code == 'INVALID_MOBILE_NUMBER' || error.statusCode == 400) {
+    return 'Enter a valid 10-digit Indian mobile number.';
   }
-  if (digits.length == 13 && digits.startsWith('91')) {
-    return digits.substring(2);
+  return _genericOtpRequestError;
+}
+
+class _LiveErrorMessage extends StatelessWidget {
+  const _LiveErrorMessage({required this.message});
+
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      key: const ValueKey('customer-auth-error'),
+      container: true,
+      liveRegion: true,
+      label: message,
+      child: ExcludeSemantics(
+        child: Text(
+          message,
+          style: AppTypography.bodySm.copyWith(color: AppColors.error),
+        ),
+      ),
+    );
   }
-  return null;
 }

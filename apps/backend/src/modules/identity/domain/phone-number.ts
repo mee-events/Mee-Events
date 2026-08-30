@@ -9,7 +9,8 @@ export function normalizeMobileNumber(
   if (
     phone === undefined ||
     !phone.isValid() ||
-    phone.getType() === "FIXED_LINE"
+    phone.getType() === "FIXED_LINE" ||
+    (phone.country === "IN" && !/^\+91[6-9]\d{9}$/u.test(phone.number))
   ) {
     throw new DomainError(
       "INVALID_MOBILE_NUMBER",

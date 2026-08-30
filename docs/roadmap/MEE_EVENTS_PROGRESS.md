@@ -1,21 +1,60 @@
 # Mee Events — Progress Tracker
 
-- **Updated:** 28 August 2026; Phase 0 final acceptance review complete (PASSED WITH FINDINGS)
+- **Updated:** 30 August 2026; CUST-01 closeout complete (DONE WITH FINDINGS)
 - **Repository:** `/Users/vinaychilagani/Desktop/Mee Event V1`
 - **Baseline application commit:** `master` / `9e2a442d91c137ec97a349d1a55697ae8d79d5df`
 - **STAB-01 snapshot HEAD:** `ca994985a898d42da2a8d717041b93a8f8f0dc4c`
-- **Current phase:** Phase 0 — Stabilization (PASSED WITH FINDINGS)
-- **Phase gate:** **PASSED WITH FINDINGS**
-- **Last completed task:** Phase 0 final acceptance review — PASSED WITH FINDINGS (STAB-20 DONE WITH FINDINGS)
+- **Current phase:** Phase 1 - Customer
+- **Phase state:** **IN PROGRESS**
+- **Last completed task:** CUST-01 Authentication Entry - DONE WITH FINDINGS
 - **Current task:** none
-- **Next task:** Phase 1 — Customer: CUST-01 Authentication (**NOT STARTED**)
-- **Latest application change:** Android prod artifacts now include `INTERNET`; release never falls back to debug signing and accepts only a complete external signing set, otherwise producing unsigned/non-store-ready local artifacts; use Git history for commit hashes.
+- **Next task:** CUST-02 OTP - NOT STARTED
+- **Latest application change:** CUST-01 customer authentication entry is independently approved with findings; strict India mobile normalization, safe OTP-request handling, duplicate guards, privacy redaction, and accessible large-text behavior are verified.
 - **STAB-16 implementation commit:** `999443d5d3ba547de1bb6c0406c34753c8433b00`
 - **STAB-16 closeout:** `1450263caa6a5be2263bf7b9c91827f7cc24ef6c`
 - **STAB-17 commit:** `68894f3bbfa91937a0c7c573a8fc1a0af83ce533`
 - **STAB-18 commit:** `f66cc51a726322eeb604ab84c3d3e195050248f9`
 - **STAB-19 commit:** `e833eb82d690d65e293b9521ce3f24c390fff4f0`
 - **STAB-20 canonical application commit:** `37cf6c2f8e36dd522688e3423be7b9595e442ead`
+
+## CUST-01 Authentication Entry Closeout - 30 August 2026
+
+- [x] **CUST-01 Authentication Entry** — **DONE WITH FINDINGS** after an
+      independent `APPROVE WITH FINDINGS` verdict with no blocking findings.
+
+The Customer mobile entry now enforces supported Indian mobile formats and
+sends canonical E.164 to the existing real backend OTP-request API. The entry
+uses Mee Events design-system components, exposes clear loading, offline,
+rate-limit, invalid-input, and generic server states, prevents repeated rapid
+submissions, and preserves the existing successful OTP and AppGateway handoff.
+NestJS independently validates the number, keeps the request enumeration-safe,
+guards same-process in-flight duplicates, sanitizes provider failures, and
+redacts mobile numbers alongside existing authentication secrets.
+
+Independent verification passed: Flutter focused **13/13**;
+AppGateway/Customer-shell regression **59/59**; full Flutter **497/497**;
+focused backend **42/42**; full backend **249/249**; PostgreSQL integration
+**39/39**; Flutter analysis **zero issues**; lint **zero errors and zero
+warnings**; typecheck **zero errors**. The reviewer made no source changes.
+
+Security is acceptable for the CUST-01 boundary: backend validation remains
+authoritative, request results do not disclose account existence, duplicate
+submissions are bounded, provider/runtime errors are not exposed, mobile
+numbers and authentication secrets are redacted, and public/guarded route and
+role boundaries remain unchanged. UX/accessibility review accepted the fixed
+`+91` treatment, accessible field/error/busy semantics, minimum touch targets,
+mobile autofill/keyboard behavior, and 2x large-text rendering.
+
+Retained non-blocking findings are: provider-delivery failure retains the
+challenge cooldown (CUST-02/production SMS policy); in-flight deduplication is
+process-local (future multi-replica hardening); OTP verification can still show
+raw messages (CUST-02); production SMS/DLT remains unavailable; consent wording
+awaits final legal approval; and no physical-device, provider-sandbox, staging,
+or production proof was performed.
+
+No real SMS delivery, device, staging, or production claim is made. CUST-02
+remains **NOT STARTED**. Evidence:
+`docs/08-testing/cust-01-authentication-entry-evidence.md`.
 
 ## Phase 0 — Final acceptance closeout (28 August 2026)
 
@@ -1316,7 +1355,8 @@ Do not ask for these until their dependent block is approaching, unless early pr
 
 ## Phase 1 — Customer
 
-- [ ] CUST-01 Authentication
+- [x] CUST-01 Authentication — **DONE WITH FINDINGS** 30 August 2026; evidence:
+      `docs/08-testing/cust-01-authentication-entry-evidence.md`
 - [ ] CUST-02 OTP
 - [ ] CUST-03 Session
 - [ ] CUST-04 Customer bootstrap

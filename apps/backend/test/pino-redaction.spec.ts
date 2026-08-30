@@ -26,6 +26,7 @@ describe("Pino redaction paths", () => {
       authorization: "Bearer authorization-secret",
       cookie: "refresh=cookie-secret",
       code: "otp-code-secret",
+      mobileNumber: "+919000000000",
       refreshToken: "refresh-token-secret",
       accessToken: "access-token-secret",
       password: "password-secret",
@@ -42,6 +43,7 @@ describe("Pino redaction paths", () => {
         },
         body: {
           code: secrets.code,
+          mobileNumber: secrets.mobileNumber,
           refreshToken: secrets.refreshToken,
           accessToken: secrets.accessToken,
           password: secrets.password,
@@ -70,6 +72,7 @@ describe("Pino redaction paths", () => {
     expect(line.req.headers.authorization).toBe("[REDACTED]");
     expect(line.req.headers.cookie).toBe("[REDACTED]");
     expect(line.req.body.code).toBe("[REDACTED]");
+    expect(line.req.body.mobileNumber).toBe("[REDACTED]");
     expect(line.req.body.refreshToken).toBe("[REDACTED]");
     expect(line.req.body.accessToken).toBe("[REDACTED]");
     expect(line.req.body.password).toBe("[REDACTED]");

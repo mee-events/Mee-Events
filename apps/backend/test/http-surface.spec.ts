@@ -67,6 +67,7 @@ describe("HTTP surface helpers", () => {
         "req.headers.cookie",
         "res.headers['set-cookie']",
         "req.body.code",
+        "req.body.mobileNumber",
         "req.body.refreshToken",
         "req.body.accessToken",
         "*.refreshToken",

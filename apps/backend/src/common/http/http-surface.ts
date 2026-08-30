@@ -23,6 +23,7 @@ const PINO_SECRET_FIELD_NAMES = [
   "refreshTokenHmacSecret",
   "smsOtpApiKey",
   "debugCode",
+  "mobileNumber",
 ] as const;
 
 const PINO_SECRET_ENV_NAMES = [

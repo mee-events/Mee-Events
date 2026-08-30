@@ -122,7 +122,7 @@ class MeButton extends StatelessWidget {
                 Icon(icon, size: AppIconSize.md),
                 const SizedBox(width: AppSpacing.sm),
               ],
-              Text(label),
+              Flexible(child: Text(label, textAlign: TextAlign.center)),
             ],
           );
 

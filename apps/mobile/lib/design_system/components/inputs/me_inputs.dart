@@ -156,28 +156,46 @@ class MePhoneField extends StatelessWidget {
     super.key,
     this.controller,
     this.label = 'Mobile number',
+    this.hint,
     this.errorText,
     this.onChanged,
+    this.onSubmitted,
     this.countryPrefix = '+91',
+    this.enabled = true,
+    this.textInputAction,
   });
 
   final TextEditingController? controller;
-  final String label;
+  final String? label;
+  final String? hint;
   final String? errorText;
   final ValueChanged<String>? onChanged;
+  final ValueChanged<String>? onSubmitted;
   final String countryPrefix;
+  final bool enabled;
+  final TextInputAction? textInputAction;
 
   @override
   Widget build(BuildContext context) {
     return TextField(
       controller: controller,
       keyboardType: TextInputType.phone,
-      autofillHints: const [AutofillHints.telephoneNumber],
+      autofillHints: const [AutofillHints.telephoneNumberNational],
       onChanged: onChanged,
+      onSubmitted: onSubmitted,
+      enabled: enabled,
+      textInputAction: textInputAction,
       style: AppTypography.bodyMd,
-      inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[\d\s+]'))],
+      inputFormatters: [
+        TextInputFormatter.withFunction((oldValue, newValue) {
+          return RegExp(r'^\+?[\d\s]*$').hasMatch(newValue.text)
+              ? newValue
+              : oldValue;
+        }),
+      ],
       decoration: meInputDecoration(
         label: label,
+        hint: hint,
         prefixText: '$countryPrefix ',
         errorText: errorText,
       ),
