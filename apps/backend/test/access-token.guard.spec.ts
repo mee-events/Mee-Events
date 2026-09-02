@@ -1,5 +1,4 @@
 import type { ExecutionContext } from "@nestjs/common";
-import { UnauthorizedException } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import type { DeviceSession } from "@me-event/shared-types";
 import { beforeEach, describe, expect, it } from "vitest";
@@ -67,9 +66,9 @@ describe("AccessTokenGuard", () => {
   it("rejects requests without a bearer token", async () => {
     const request = requestWithAuthorization(undefined);
 
-    await expect(guard.canActivate(contextFor(request))).rejects.toBeInstanceOf(
-      UnauthorizedException,
-    );
+    await expect(guard.canActivate(contextFor(request))).rejects.toMatchObject({
+      message: "Authentication is required",
+    });
   });
 
   it("rejects an expired device session even when the JWT signature is valid", async () => {
@@ -89,7 +88,7 @@ describe("AccessTokenGuard", () => {
       guard.canActivate(
         contextFor(requestWithAuthorization(`Bearer ${token}`)),
       ),
-    ).rejects.toThrow("session is not active");
+    ).rejects.toThrow("Your session has ended. Please sign in again.");
   });
 
   it("skips authentication for public endpoints", async () => {

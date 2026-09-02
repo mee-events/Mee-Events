@@ -39,15 +39,12 @@ class AppGateway extends ConsumerStatefulWidget {
 }
 
 class _AppGatewayState extends ConsumerState<AppGateway> {
-  late final Future<void> _launchReady;
+  late final Future<void> _launchDelay;
 
   @override
   void initState() {
     super.initState();
-    _launchReady = Future.wait<void>([
-      ref.read(sessionProvider.notifier).restored,
-      Future<void>.delayed(widget.launchDelay),
-    ]);
+    _launchDelay = Future<void>.delayed(widget.launchDelay);
   }
 
   @override
@@ -66,25 +63,37 @@ class _AppGatewayState extends ConsumerState<AppGateway> {
       }
     });
 
+    final restoration = ref.watch(sessionRestoreProvider);
     return FutureBuilder<void>(
-      future: _launchReady,
+      future: _launchDelay,
       builder: (context, snapshot) {
         if (snapshot.connectionState != ConnectionState.done) {
           return const _LaunchScreen();
         }
-
-        final session = ref.watch(sessionProvider);
-        if (session == null) {
-          return const OnboardingScreen();
-        }
-
-        final bootstrap = ref.watch(platformBootstrapProvider);
-        return bootstrap.when(
+        return restoration.when(
           loading: () => const _LaunchScreen(),
-          error: (_, _) => const _BootstrapErrorScreen(),
-          data: (response) {
-            if (response == null) return const OnboardingScreen();
-            return _surfaceFor(response);
+          error: (_, _) => const _SessionRestoreErrorScreen(),
+          data: (outcome) {
+            final session = ref.watch(sessionProvider);
+            final notice = ref.watch(sessionNoticeProvider);
+            if (notice == SessionNotice.ended) {
+              return const _SessionEndedScreen();
+            }
+            if (outcome == SessionRestoreOutcome.temporarilyUnavailable &&
+                session == null) {
+              return const _SessionRestoreErrorScreen();
+            }
+            if (session == null) return const OnboardingScreen();
+
+            final bootstrap = ref.watch(platformBootstrapProvider);
+            return bootstrap.when(
+              loading: () => const _LaunchScreen(),
+              error: (_, _) => const _BootstrapErrorScreen(),
+              data: (response) {
+                if (response == null) return const OnboardingScreen();
+                return _surfaceFor(response);
+              },
+            );
           },
         );
       },
@@ -116,6 +125,54 @@ class _AppGatewayState extends ConsumerState<AppGateway> {
               'This account is not available for the Hyderabad mobile experience.',
         );
     }
+  }
+}
+
+class _SessionEndedScreen extends ConsumerWidget {
+  const _SessionEndedScreen();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Scaffold(
+      backgroundColor: AppColors.canvas,
+      appBar: const MeAppBar(title: 'Mee Events'),
+      body: MeErrorState(
+        title: 'Your session has ended.',
+        message: 'Please sign in again to continue.',
+        retryLabel: 'Sign in',
+        onRetry: () {
+          ref.read(sessionNoticeProvider.notifier).state = null;
+        },
+      ),
+    );
+  }
+}
+
+class _SessionRestoreErrorScreen extends ConsumerWidget {
+  const _SessionRestoreErrorScreen();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Scaffold(
+      backgroundColor: AppColors.canvas,
+      appBar: const MeAppBar(title: 'Mee Events'),
+      body: MeErrorState(
+        kind: MeErrorKind.network,
+        title: 'We couldn’t check your session.',
+        message: 'Check your connection and try again.',
+        onRetry: () => ref.invalidate(sessionRestoreProvider),
+      ),
+      bottomNavigationBar: SafeArea(
+        minimum: const EdgeInsets.all(AppSpacing.lg),
+        child: MeButton.text(
+          label: 'Sign out on this device',
+          onPressed: () async {
+            await ref.read(sessionProvider.notifier).signOutLocally();
+            ref.invalidate(sessionRestoreProvider);
+          },
+        ),
+      ),
+    );
   }
 }
 
@@ -198,8 +255,8 @@ class _BootstrapErrorScreen extends ConsumerWidget {
       bottomNavigationBar: SafeArea(
         minimum: const EdgeInsets.all(AppSpacing.lg),
         child: MeButton.text(
-          label: 'Sign out',
-          onPressed: () => ref.read(sessionProvider.notifier).signOut(),
+          label: 'Log out from this device',
+          onPressed: () => _requestCurrentDeviceLogout(context, ref),
         ),
       ),
     );
@@ -221,9 +278,42 @@ class _UnavailableSurfaceScreen extends ConsumerWidget {
         kind: MeEmptyKind.events,
         title: title,
         message: message,
-        actionLabel: 'Sign out',
-        onAction: () => ref.read(sessionProvider.notifier).signOut(),
+        actionLabel: 'Log out from this device',
+        onAction: () => _requestCurrentDeviceLogout(context, ref),
       ),
     );
+  }
+}
+
+Future<void> _requestCurrentDeviceLogout(
+  BuildContext context,
+  WidgetRef ref,
+) async {
+  final outcome = await ref
+      .read(sessionProvider.notifier)
+      .logoutCurrent(ref.read(mobileApiProvider));
+  if (!context.mounted || outcome == SessionLogoutOutcome.serverRevoked) {
+    return;
+  }
+  if (outcome == SessionLogoutOutcome.localCleanupFailed) {
+    await showMeErrorDialog(
+      context,
+      title: 'Device cleanup incomplete',
+      message:
+          'The server session ended, but this device could not clear all local session data. Close Mee Events before signing in again.',
+    );
+    return;
+  }
+  final localOnly = await showMeConfirmDialog(
+    context,
+    title: 'Could not confirm server logout',
+    message:
+        'Mee Events could not be reached. Keep this session and try again, or remove it only from this device.',
+    confirmLabel: 'Sign out on this device',
+    cancelLabel: 'Keep me signed in',
+    destructive: true,
+  );
+  if (localOnly == true) {
+    await ref.read(sessionProvider.notifier).signOutLocally();
   }
 }

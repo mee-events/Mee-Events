@@ -74,12 +74,13 @@ void main() {
     serviceCode: 'decoration',
   );
 
-  const mockSession = AuthSession(
+  final mockSession = AuthSession(
     accessToken: 'access-token',
-    refreshToken: 'refresh-token',
+    refreshToken: 'refresh-token-value-at-least-32-chars',
     accessTokenExpiresInSeconds: 900,
+    accessTokenExpiresAt: DateTime.utc(2099),
     userId: testUserId,
-    mobileNumber: '9876543210',
+    mobileNumber: '+919876543210',
     lastActiveRole: 'customer',
   );
 
@@ -94,7 +95,7 @@ void main() {
     List<EventPlanItem>? initialItems,
     bool hangLoad = false,
     Object? loadError,
-    AuthSession? session = mockSession,
+    bool signedOut = false,
     ValueChanged<CustomerTab>? onNavigate,
     List<Override> extraOverrides = const [],
   }) async {
@@ -122,7 +123,9 @@ void main() {
     final widget = ProviderScope(
       overrides: [
         sessionUserIdProvider.overrideWithValue(testUserId),
-        sessionProvider.overrideWith((ref) => _MockSessionNotifier(session)),
+        sessionProvider.overrideWith(
+          (ref) => _MockSessionNotifier(signedOut ? null : mockSession),
+        ),
         eventPlanStoreProvider.overrideWithValue(store),
         ...extraOverrides,
       ],
@@ -367,7 +370,7 @@ void main() {
   testWidgets(
     'Continue to enquiry opens EnquiryCheckoutScreen when logged in',
     (tester) async {
-      await pumpPlan(tester, initialItems: const [itemA], session: mockSession);
+      await pumpPlan(tester, initialItems: const [itemA]);
 
       await tester.tap(find.text('Continue to enquiry'));
       await tester.pump();
@@ -382,7 +385,7 @@ void main() {
   testWidgets('Continue to enquiry opens LoginScreen when logged out', (
     tester,
   ) async {
-    await pumpPlan(tester, initialItems: const [itemA], session: null);
+    await pumpPlan(tester, initialItems: const [itemA], signedOut: true);
 
     await tester.tap(find.text('Continue to enquiry'));
     await tester.pump();

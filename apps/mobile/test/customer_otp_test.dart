@@ -19,10 +19,11 @@ const _firstChallenge = OtpChallenge(
   resendAfterSeconds: 60,
 );
 
-const _session = AuthSession(
+final _session = AuthSession(
   accessToken: 'synthetic-access-token',
-  refreshToken: 'synthetic-refresh-token',
+  refreshToken: 'synthetic-refresh-token-value-32-chars',
   accessTokenExpiresInSeconds: 900,
+  accessTokenExpiresAt: DateTime.utc(2099),
   userId: '00000000-0000-4000-8000-000000000201',
   mobileNumber: '+919876543210',
   lastActiveRole: 'customer',

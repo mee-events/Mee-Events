@@ -214,6 +214,7 @@ describe("AuthService sessions", () => {
     const request = { refreshToken: "x".repeat(64) };
     await expect(service.refreshSession(request)).rejects.toMatchObject({
       code: "SESSION_REFRESH_INVALID",
+      message: "Your session has ended. Please sign in again.",
       status: 401,
     });
     await expect(service.refreshSession(request)).rejects.toMatchObject({
@@ -258,7 +259,7 @@ describe("AuthService sessions", () => {
 
     await expect(
       service.refreshSession({ refreshToken: result.refreshToken }),
-    ).rejects.toThrow("not active");
+    ).rejects.toThrow("Your session has ended. Please sign in again.");
     expect(
       repository.identityAudits.some(
         (event) =>
@@ -266,6 +267,54 @@ describe("AuthService sessions", () => {
           event.reason === "logout",
       ),
     ).toBe(true);
+  });
+
+  it("makes repeated current-session logout idempotent", async () => {
+    const result = await login();
+    const match = await repository.findSessionByRefreshDigest(
+      digestOf(result.refreshToken),
+    );
+    const sessionId = match?.record.session.id ?? "";
+
+    await expect(
+      service.logout(result.user.id, sessionId, "customer"),
+    ).resolves.toEqual({ revoked: true });
+    await expect(
+      service.logout(result.user.id, sessionId, "customer"),
+    ).resolves.toEqual({ revoked: true });
+
+    expect(
+      repository.identityAudits.filter(
+        (event) =>
+          event.action === "identity.session.revoked" &&
+          event.entityId === sessionId,
+      ),
+    ).toHaveLength(1);
+  });
+
+  it("cannot revoke a session owned by a different authenticated user", async () => {
+    const owner = await login();
+    const ownerMatch = await repository.findSessionByRefreshDigest(
+      digestOf(owner.refreshToken),
+    );
+    const otherChallenge = await service.requestOtp({
+      mobileNumber: "+919876543219",
+    });
+    const other = await service.verifyOtp({
+      challengeId: otherChallenge.challengeId,
+      code: otpProvider.lastCode ?? "",
+      deviceId: "device-other-user",
+    });
+
+    await service.logout(
+      other.user.id,
+      ownerMatch?.record.session.id ?? "",
+      "customer",
+    );
+
+    await expect(
+      service.refreshSession({ refreshToken: owner.refreshToken }),
+    ).resolves.toMatchObject({ activeRole: "customer" });
   });
 
   it("allows exactly one concurrent OTP verification from one challenge", async () => {

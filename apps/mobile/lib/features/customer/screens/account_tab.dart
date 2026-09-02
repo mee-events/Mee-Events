@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mee_events/design_system/design_system.dart';
 import 'package:mee_events/features/auth/screens/login_screen.dart';
 import 'package:mee_events/features/auth/session_provider.dart';
+import 'package:mee_events/features/auth/widgets/session_actions.dart';
 import 'package:mee_events/features/finance/screens/customer_finance_screen.dart';
 import 'package:mee_events/theme/app_colors.dart';
 import 'package:mee_events/theme/app_icon_size.dart';
@@ -168,10 +169,7 @@ class AccountTab extends ConsumerWidget {
                 },
               )
             else
-              MeButton.outline(
-                label: 'Log out',
-                onPressed: () => _logout(context, ref),
-              ),
+              const SessionActions(),
             const SizedBox(height: AppSpacing.xxl),
             Center(
               child: Text(
@@ -191,18 +189,6 @@ class AccountTab extends ConsumerWidget {
         ),
       ),
     );
-  }
-
-  Future<void> _logout(BuildContext context, WidgetRef ref) async {
-    final api = ref.read(mobileApiProvider);
-    try {
-      await api.logout();
-    } catch (_) {
-      // Session is cleared locally even if the server call fails.
-    }
-    await ref.read(sessionProvider.notifier).signOut();
-    if (!context.mounted) return;
-    Navigator.of(context).popUntil((route) => route.isFirst);
   }
 }
 

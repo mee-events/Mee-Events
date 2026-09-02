@@ -318,7 +318,7 @@ describe("AuthService switch-role", () => {
           requestWithAuthorization(`Bearer ${loginResult.accessToken}`),
         ),
       ),
-    ).rejects.toThrow("session is not active");
+    ).rejects.toThrow("Your session has ended. Please sign in again.");
     await expect(
       guard.canActivate(
         contextFor(requestWithAuthorization(`Bearer ${switched.accessToken}`)),

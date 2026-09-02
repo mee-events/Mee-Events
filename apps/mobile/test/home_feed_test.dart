@@ -86,12 +86,13 @@ void main() {
     displayOrder: 1,
   );
 
-  const session = AuthSession(
+  final session = AuthSession(
     accessToken: 'token',
-    refreshToken: 'refresh',
+    refreshToken: 'refresh-token-value-at-least-32-chars',
     accessTokenExpiresInSeconds: 900,
+    accessTokenExpiresAt: DateTime.utc(2099),
     userId: 'home-feed-user',
-    mobileNumber: '9876543210',
+    mobileNumber: '+919876543210',
     lastActiveRole: 'customer',
   );
 

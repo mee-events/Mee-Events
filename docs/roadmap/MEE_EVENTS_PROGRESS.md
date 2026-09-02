@@ -1,25 +1,87 @@
 # Mee Events — Progress Tracker
 
-- **Updated:** 1 September 2026; CUST-02 deferred checkpoint prepared
+- **Updated:** 2 September 2026; CUST-03 Session closed with retained findings
 - **Repository:** `/Users/vinaychilagani/Desktop/Mee Event V1`
 - **Baseline application commit:** `master` / `9e2a442d91c137ec97a349d1a55697ae8d79d5df`
 - **STAB-01 snapshot HEAD:** `ca994985a898d42da2a8d717041b93a8f8f0dc4c`
 - **Current phase:** Phase 1 - Customer
 - **Phase state:** **IN PROGRESS**
-- **Last completed task:** CUST-01 Authentication Entry - DONE WITH FINDINGS
-- **Current task:** CUST-02 OTP - PARTIAL; offline approved, external Exotel
-  evidence pending
-- **Next task after independent checkpoint review and commit:** CUST-03 Session
-  using development/test-only local OTP
-- **Latest application change:** CUST-02's offline OTP lifecycle and Exotel
-  delivery adapter are independently approved; this checkpoint changes only
-  documentation and does not authorize live or production SMS.
+- **Last completed task:** CUST-03 Session - DONE WITH FINDINGS
+- **Current task:** CUST-03 Session - closed 2 September 2026
+- **Next authorized task:** CUST-04 Customer Bootstrap - **NOT STARTED**
+- **Latest application change:** CUST-03 adds validated secure restoration,
+  single-flight refresh, safe replay boundaries, current/all-device logout,
+  terminal-session UX, and Customer cache cleanup. It does not authorize live
+  or production SMS.
 - **STAB-16 implementation commit:** `999443d5d3ba547de1bb6c0406c34753c8433b00`
 - **STAB-16 closeout:** `1450263caa6a5be2263bf7b9c91827f7cc24ef6c`
 - **STAB-17 commit:** `68894f3bbfa91937a0c7c573a8fc1a0af83ce533`
 - **STAB-18 commit:** `f66cc51a726322eeb604ab84c3d3e195050248f9`
 - **STAB-19 commit:** `e833eb82d690d65e293b9521ce3f24c390fff4f0`
 - **STAB-20 canonical application commit:** `37cf6c2f8e36dd522688e3423be7b9595e442ead`
+
+## CUST-03 Session - 2 September 2026
+
+- [x] **CUST-03 Session** — **DONE WITH FINDINGS - 2 September 2026**.
+
+Independent review returned `APPROVE CUST-03 SESSION`: 0 P0 blocking, 0 P1
+blocking, 0 P2 blocking, 2 accepted P2 non-blocking, and 0 P3 findings. No
+correction was required, and the independent reviewer made no source changes.
+
+The mobile client now persists only a versioned refresh credential and minimum
+identity metadata in platform-secure storage; access tokens remain in memory
+with an absolute expiry. Startup waits for validation and one refresh before
+opening a private surface, rejects malformed/partial stored state, keeps a
+temporarily unreachable session available for retry, and clears terminally
+invalid, reused, revoked, or expired sessions without flashing Customer data.
+
+Concurrent 401 responses share one refresh operation. GET requests and the two
+idempotent logout contracts may replay once after rotation; other mutations are
+not replayed automatically. A rejected replay ends the local session without a
+second refresh loop. Current-device logout distinguishes confirmed server
+revocation from local-only offline removal. Logout-all requires confirmation,
+uses the authenticated user from the existing backend principal, and supports
+cancel without change.
+
+Logout, terminal revocation, and identity change clear account-scoped
+Favorites, recent searches, and Event Plan data while preserving safe
+non-user-specific preferences and the existing stable installation ID. The
+existing PostgreSQL session creation, HMAC refresh-token storage, rotation,
+reuse detection, current/all-session revocation, audit, row-lock/CAS, and
+rollback implementation was retained. No migration was needed. Backend public
+session errors now use generic customer-safe wording.
+
+Focused mobile session/replay tests pass **28/28** across 2 files. Focused
+backend service/guard tests pass **23/23** across 2 files. The full backend unit
+suite passes **293/293** across 43 files, isolated PostgreSQL integration passes
+**42/42** across 5 files, and the full Flutter suite passes **544/544**. The
+first full-backend attempt had five sandbox-only loopback bind failures and one
+stale expected-message assertion; the assertion was corrected and the unchanged
+suite passed with loopback permission. The first PostgreSQL attempt was also
+blocked from binding loopback and passed unchanged with local Docker/loopback
+permission. No external provider endpoint was contacted.
+
+The two accepted findings are process-local backend in-flight refresh
+de-duplication, with PostgreSQL transaction/locking/digest/rotation controls
+authoritative across instances, and the existing maximum 15-second
+cross-instance principal-cache revocation-observation window. Both are
+non-blocking for the current phase. CUST-03 is not production-proven.
+
+Closeout verification repeated Dart and Prettier formatting checks, diff check,
+Flutter analysis, root lint and typecheck, backend build, focused and full
+backend tests, PostgreSQL integration, focused and regression Flutter groups,
+and the full Flutter suite. The scoped commit contains exactly the approved 23
+paths with message `feat(customer): complete CUST-03 session`; no push is part
+of this closeout.
+
+Physical iOS Keychain, physical Android Keystore, backup/restore,
+rooted/jailbroken device, staging, production, real Exotel sandbox SMS, DLT,
+and physical-device SMS autofill proof remain pending release-stage limits.
+
+CUST-03 evidence: `docs/08-testing/cust-03-session-evidence.md`. CUST-04 has not
+started. CUST-02 remains **PARTIAL - OFFLINE APPROVED, EXTERNAL EXOTEL EVIDENCE
+PENDING** and must reopen and fully close before the final Customer release
+gate.
 
 ## CUST-02 Deferred Checkpoint - 1 September 2026
 
@@ -1402,9 +1464,10 @@ Do not ask for these until their dependent block is approaching, unless early pr
       `docs/08-testing/cust-01-authentication-entry-evidence.md`
 - [ ] CUST-02 OTP — **PARTIAL - OFFLINE APPROVED, EXTERNAL EXOTEL EVIDENCE
       PENDING**; reopen and fully close before the final Customer release gate
-- [ ] CUST-03 Session — next only after independent deferred-checkpoint review
-      and commit; development/test-only local OTP
-- [ ] CUST-04 Customer bootstrap
+- [x] CUST-03 Session — **DONE WITH FINDINGS** 2 September 2026;
+      development/test-only local OTP; evidence:
+      `docs/08-testing/cust-03-session-evidence.md`
+- [ ] CUST-04 Customer bootstrap — **NOT STARTED**
 - [ ] CUST-05 Home
 - [ ] CUST-06 Explore
 - [ ] CUST-07 Event categories

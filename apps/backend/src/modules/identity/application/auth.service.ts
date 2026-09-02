@@ -254,7 +254,7 @@ export class AuthService {
     if (this.refreshDigestsInFlight.has(presentedDigest)) {
       throw new DomainError(
         "SESSION_REFRESH_CONFLICT",
-        "Refresh token is already being rotated",
+        "We couldn't check your session. Please try again.",
         409,
       );
     }
@@ -272,7 +272,7 @@ export class AuthService {
       if (result.outcome === "invalid") {
         throw new DomainError(
           "SESSION_REFRESH_INVALID",
-          "Refresh token is invalid",
+          "Your session has ended. Please sign in again.",
           401,
         );
       }
@@ -282,21 +282,21 @@ export class AuthService {
         authPrincipalCache.invalidateSession(session.id);
         throw new DomainError(
           "SESSION_REFRESH_REUSED",
-          "Refresh token reuse detected; session revoked",
+          "Your session has ended. Please sign in again.",
           401,
         );
       }
       if (result.outcome === "inactive") {
         throw new DomainError(
           "SESSION_NOT_ACTIVE",
-          "Session is not active",
+          "Your session has ended. Please sign in again.",
           401,
         );
       }
       if (result.outcome === "conflict") {
         throw new DomainError(
           "SESSION_REFRESH_CONFLICT",
-          "Refresh token was rotated concurrently; retry authentication",
+          "We couldn't check your session. Please try again.",
           409,
         );
       }
@@ -342,7 +342,11 @@ export class AuthService {
       session.revokedAt !== undefined ||
       Date.parse(session.expiresAt) <= Date.now()
     ) {
-      throw new DomainError("SESSION_NOT_ACTIVE", "Session is not active", 401);
+      throw new DomainError(
+        "SESSION_NOT_ACTIVE",
+        "Your session has ended. Please sign in again.",
+        401,
+      );
     }
     assertActiveAssignment(user, role);
     if (user.lastActiveRole === role) {

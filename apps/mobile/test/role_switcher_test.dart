@@ -35,6 +35,7 @@ AuthSession testSession({
     accessToken: accessToken,
     refreshToken: refreshToken,
     accessTokenExpiresInSeconds: 900,
+    accessTokenExpiresAt: DateTime.utc(2099),
     userId: 'user-1',
     mobileNumber: '+919876543210',
     lastActiveRole: role,
@@ -121,6 +122,18 @@ class ScriptedMobileApi extends MobileApi {
   }
 }
 
+class _LogoutMobileApi extends MobileApi {
+  _LogoutMobileApi()
+    : super(apiClient: ApiClient(baseUrl: 'http://127.0.0.1.invalid'));
+
+  int logoutCalls = 0;
+
+  @override
+  Future<void> logout() async {
+    logoutCalls += 1;
+  }
+}
+
 List<Override> catalogOverrides() => [
   eventTypesProvider.overrideWith(
     (ref) async => const [
@@ -179,6 +192,7 @@ Future<void> pumpGateway(
   List<String> assignedRoles = const ['customer', 'vendor_owner', 'worker'],
   Future<PlatformBootstrapResponse?> Function()? loadBootstrap,
   GlobalKey<NavigatorState>? navigatorKey,
+  MobileApi? mobileApi,
 }) async {
   SharedPreferences.setMockInitialValues({});
   tester.view.physicalSize = const Size(1170, 2532);
@@ -193,6 +207,7 @@ Future<void> pumpGateway(
       overrides: [
         sessionProvider.overrideWith((ref) => notifier),
         sessionUserIdProvider.overrideWithValue('user-1'),
+        if (mobileApi != null) mobileApiProvider.overrideWithValue(mobileApi),
         ...catalogOverrides(),
         platformBootstrapProvider.overrideWith((ref) async {
           if (loadBootstrap != null) return loadBootstrap();
@@ -446,10 +461,13 @@ void main() {
     expect(notifier.state?.userId, 'user-1');
     expect(notifier.state?.mobileNumber, '+919876543210');
     expect(notifier.state?.refreshToken, 'refresh-token-value-32chars-long');
-    final stored = AuthSession.fromJson(
+    final stored = StoredAuthSession.fromJson(
       jsonDecode(store.value!) as Map<String, dynamic>,
     );
-    expect(stored.accessToken, 'switched-access');
+    expect(
+      jsonDecode(store.value!) as Map<String, dynamic>,
+      isNot(contains('accessToken')),
+    );
     expect(stored.lastActiveRole, 'worker');
     expect(stored.refreshToken, 'refresh-token-value-32chars-long');
   });
@@ -533,10 +551,13 @@ void main() {
       expect(notifier.state?.accessToken, 'access-1');
       expect(notifier.state?.refreshToken, 'refresh-token-value-32chars-long');
       expect(notifier.state?.lastActiveRole, 'customer');
-      final stored = AuthSession.fromJson(
+      final stored = StoredAuthSession.fromJson(
         jsonDecode(store.value!) as Map<String, dynamic>,
       );
-      expect(stored.accessToken, 'access-1');
+      expect(
+        jsonDecode(store.value!) as Map<String, dynamic>,
+        isNot(contains('accessToken')),
+      );
       expect(stored.lastActiveRole, 'customer');
     },
   );
@@ -728,7 +749,7 @@ void main() {
     );
     expect(find.textContaining(rawError), findsNothing);
     expect(find.text('Retry'), findsOneWidget);
-    expect(find.text('Sign out'), findsOneWidget);
+    expect(find.text('Log out from this device'), findsOneWidget);
 
     await tester.tap(find.text('Retry'));
     await tester.pump();
@@ -741,16 +762,19 @@ void main() {
     final notifier = sessionNotifier();
     await notifier.signIn(testSession());
     await notifier.restore();
+    final api = _LogoutMobileApi();
 
     await pumpGateway(
       tester,
       notifier: notifier,
+      mobileApi: api,
       loadBootstrap: () async => throw const BootstrapValidationException(),
     );
-    expect(find.text('Sign out'), findsOneWidget);
+    expect(find.text('Log out from this device'), findsOneWidget);
 
-    await tester.tap(find.text('Sign out'));
+    await tester.tap(find.text('Log out from this device'));
     await tester.pump();
+    expect(api.logoutCalls, 1);
     expect(notifier.state, isNull);
     expect(find.byType(CustomerDashboardScreen), findsNothing);
   });

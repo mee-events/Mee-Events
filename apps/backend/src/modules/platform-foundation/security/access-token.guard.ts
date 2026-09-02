@@ -72,14 +72,18 @@ export class AccessTokenGuard implements CanActivate {
       Date.parse(session.expiresAt) <= Date.now() ||
       user.lastActiveRole !== claims.role
     ) {
-      throw new UnauthorizedException("Access token session is not active");
+      throw new UnauthorizedException(
+        "Your session has ended. Please sign in again.",
+      );
     }
 
     const roleIsAssigned = user.roles.some(
       (assignment) => assignment.active && assignment.role === claims.role,
     );
     if (!roleIsAssigned) {
-      throw new UnauthorizedException("Access token role is not active");
+      throw new UnauthorizedException(
+        "Your session has ended. Please sign in again.",
+      );
     }
 
     const principal: AuthenticatedPrincipal = {
@@ -112,7 +116,7 @@ export class AccessTokenGuard implements CanActivate {
         : /^Bearer\s+(\S+)$/i.exec(authorization);
     const token = match?.[1];
     if (token === undefined) {
-      throw new UnauthorizedException("Bearer access token is required");
+      throw new UnauthorizedException("Authentication is required");
     }
     return token;
   }
@@ -122,7 +126,9 @@ export class AccessTokenGuard implements CanActivate {
     try {
       payload = await this.jwt.verifyAsync<Record<string, unknown>>(token);
     } catch {
-      throw new UnauthorizedException("Access token is invalid or expired");
+      throw new UnauthorizedException(
+        "Your session has ended. Please sign in again.",
+      );
     }
 
     const { sub, sid, role } = payload;
@@ -131,7 +137,9 @@ export class AccessTokenGuard implements CanActivate {
       typeof sid !== "string" ||
       !isPlatformRole(role)
     ) {
-      throw new UnauthorizedException("Access token claims are invalid");
+      throw new UnauthorizedException(
+        "Your session has ended. Please sign in again.",
+      );
     }
     return { sub, sid, role };
   }

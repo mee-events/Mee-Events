@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
@@ -12,6 +13,7 @@ class ApiClient {
   final String baseUrl;
   final String? accessToken;
   final Future<String?> Function()? refreshAccessToken;
+  final Future<void> Function()? onAccessTokenRejected;
   final http.Client Function() _clientFactory;
 
   static const Duration _timeout = Duration(seconds: 15);
@@ -20,6 +22,7 @@ class ApiClient {
     required this.baseUrl,
     this.accessToken,
     this.refreshAccessToken,
+    this.onAccessTokenRejected,
     http.Client Function()? clientFactory,
   }) : _clientFactory = clientFactory ?? http.Client.new {
     if (baseUrl.isEmpty) {
@@ -32,6 +35,7 @@ class ApiClient {
     String method = 'GET',
     Map<String, dynamic>? body,
     T Function(Map<String, dynamic>)? fromJson,
+    bool? allowRetryAfterRefresh,
   }) async {
     final uri = Uri.parse('$baseUrl$path');
     final client = _clientFactory();
@@ -39,17 +43,41 @@ class ApiClient {
     try {
       final encodedBody = body == null ? null : jsonEncode(body);
 
-      var response = await _send(client, uri, method, encodedBody, accessToken);
+      final normalizedMethod = method.toUpperCase();
+      final mayReplay = allowRetryAfterRefresh ?? normalizedMethod == 'GET';
+      var response = await _send(
+        client,
+        uri,
+        normalizedMethod,
+        encodedBody,
+        accessToken,
+      );
       if (response.statusCode == 401 && refreshAccessToken != null) {
         final refreshedToken = await refreshAccessToken!();
-        if (refreshedToken != null) {
-          response = await _send(
-            client,
-            uri,
-            method,
-            encodedBody,
-            refreshedToken,
+        if (refreshedToken == null) {
+          await onAccessTokenRejected?.call();
+          throw _sessionEndedException();
+        }
+        if (!mayReplay) {
+          throw const ApiRequestException(
+            ApiError(
+              statusCode: 409,
+              code: 'REQUEST_NOT_REPLAYED',
+              message:
+                  'Your session was refreshed. Please try this action again.',
+            ),
           );
+        }
+        response = await _send(
+          client,
+          uri,
+          normalizedMethod,
+          encodedBody,
+          refreshedToken,
+        );
+        if (response.statusCode == 401) {
+          await onAccessTokenRejected?.call();
+          throw _sessionEndedException();
         }
       }
 
@@ -89,12 +117,30 @@ class ApiClient {
       throw ApiRequestException(ApiError.fromJson(errorBody));
     } on ApiRequestException {
       rethrow;
-    } catch (error) {
-      throw ApiRequestException(
+    } on FormatException {
+      throw const ApiRequestException(
+        ApiError(
+          statusCode: 0,
+          code: 'INVALID_RESPONSE',
+          message: 'Mee Events returned an invalid response. Please try again.',
+        ),
+      );
+    } on TimeoutException {
+      throw const ApiRequestException(
         ApiError(
           statusCode: 0,
           code: 'NETWORK_ERROR',
-          message: _networkMessage(error),
+          message:
+              'We could not reach Mee Events. Check your connection and try again.',
+        ),
+      );
+    } catch (_) {
+      throw const ApiRequestException(
+        ApiError(
+          statusCode: 0,
+          code: 'NETWORK_ERROR',
+          message:
+              'We could not reach Mee Events. Check your connection and try again.',
         ),
       );
     } finally {
@@ -131,14 +177,14 @@ class ApiClient {
     };
     return request.timeout(_timeout);
   }
+}
 
-  /// Network failures surface as low-level socket/XHR errors that mean nothing
-  /// to a customer, so the most common cause is named explicitly.
-  String _networkMessage(Object error) {
-    if (error is http.ClientException || error is FormatException) {
-      return 'Could not reach Mee Events at $baseUrl. '
-          'Check your connection and try again.';
-    }
-    return error.toString();
-  }
+ApiRequestException _sessionEndedException() {
+  return const ApiRequestException(
+    ApiError(
+      statusCode: 401,
+      code: 'SESSION_ENDED',
+      message: 'Your session has ended. Please sign in again to continue.',
+    ),
+  );
 }

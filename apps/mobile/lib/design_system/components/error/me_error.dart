@@ -14,12 +14,14 @@ class MeErrorState extends StatelessWidget {
     this.title,
     this.message,
     this.onRetry,
+    this.retryLabel = 'Retry',
   });
 
   final MeErrorKind kind;
   final String? title;
   final String? message;
   final VoidCallback? onRetry;
+  final String retryLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +51,7 @@ class MeErrorState extends StatelessWidget {
             ),
             if (onRetry != null) ...[
               const SizedBox(height: AppSpacing.xl),
-              MeRetry(onRetry: onRetry!),
+              MeRetry(onRetry: onRetry!, label: retryLabel),
             ],
           ],
         ),

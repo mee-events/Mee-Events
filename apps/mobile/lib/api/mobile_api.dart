@@ -76,6 +76,16 @@ class MobileApi {
       '/auth/logout',
       method: 'POST',
       body: {},
+      allowRetryAfterRefresh: true,
+    );
+  }
+
+  Future<void> logoutAll() async {
+    await apiClient.request<Map<String, dynamic>>(
+      '/auth/logout-all',
+      method: 'POST',
+      body: {},
+      allowRetryAfterRefresh: true,
     );
   }
 
