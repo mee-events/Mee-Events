@@ -2,6 +2,22 @@ import { z } from "zod";
 
 const appEnvSchema = z.enum(["development", "test", "staging", "production"]);
 
+export const EXOTEL_INDIA_API_BASE_URL = "https://api.in.exotel.com";
+export const EXOTEL_OTP_PLACEHOLDER = "{{OTP}}";
+export const EXOTEL_REQUEST_TIMEOUT_MIN_MS = 1_000;
+export const EXOTEL_REQUEST_TIMEOUT_MAX_MS = 10_000;
+
+const exotelStringKeys = [
+  "EXOTEL_API_BASE_URL",
+  "EXOTEL_API_KEY",
+  "EXOTEL_API_TOKEN",
+  "EXOTEL_ACCOUNT_SID",
+  "EXOTEL_SMS_SENDER_ID",
+  "EXOTEL_DLT_ENTITY_ID",
+  "EXOTEL_DLT_TEMPLATE_ID",
+  "EXOTEL_OTP_BODY_TEMPLATE",
+] as const;
+
 const schema = z
   .object({
     APP_ENV: appEnvSchema,
@@ -10,14 +26,21 @@ const schema = z
       .enum(["fatal", "error", "warn", "info", "debug", "trace"])
       .default("info"),
     DATABASE_URL: z.string().url(),
-    OTP_PROVIDER: z.enum(["local", "external"]),
+    OTP_PROVIDER: z.enum(["local", "exotel"]),
     OTP_HMAC_SECRET: z.string().min(32),
     JWT_ACCESS_SECRET: z.string().min(32),
     REFRESH_TOKEN_HMAC_SECRET: z.string().min(32),
     ALLOWED_ORIGINS: z.string().min(1),
     ENABLE_OPENAPI: z.enum(["true", "false"]).optional(),
-    SMS_OTP_ENDPOINT: z.string().optional(),
-    SMS_OTP_API_KEY: z.string().optional(),
+    EXOTEL_API_BASE_URL: z.string().optional(),
+    EXOTEL_API_KEY: z.string().optional(),
+    EXOTEL_API_TOKEN: z.string().optional(),
+    EXOTEL_ACCOUNT_SID: z.string().optional(),
+    EXOTEL_SMS_SENDER_ID: z.string().optional(),
+    EXOTEL_DLT_ENTITY_ID: z.string().optional(),
+    EXOTEL_DLT_TEMPLATE_ID: z.string().optional(),
+    EXOTEL_OTP_BODY_TEMPLATE: z.string().optional(),
+    EXOTEL_REQUEST_TIMEOUT_MS: z.coerce.number().int().optional(),
   })
   .superRefine((value, context) => {
     if (
@@ -32,45 +55,138 @@ const schema = z
       });
     }
 
-    if (value.OTP_PROVIDER === "external") {
-      const endpoint = trimToUndefined(value.SMS_OTP_ENDPOINT);
-      const apiKey = trimToUndefined(value.SMS_OTP_API_KEY);
-      if (endpoint === undefined) {
+    if (value.OTP_PROVIDER === "exotel") {
+      for (const key of exotelStringKeys) {
+        if (trimToUndefined(value[key]) === undefined) {
+          context.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: [key],
+            message: `${key} is required when OTP_PROVIDER is exotel`,
+          });
+        }
+      }
+
+      const baseUrl = trimToUndefined(value.EXOTEL_API_BASE_URL);
+      if (baseUrl !== undefined && baseUrl !== EXOTEL_INDIA_API_BASE_URL) {
         context.addIssue({
           code: z.ZodIssueCode.custom,
-          path: ["SMS_OTP_ENDPOINT"],
-          message: "SMS_OTP_ENDPOINT is required when OTP_PROVIDER is external",
-        });
-      } else if (!isHttpUrl(endpoint)) {
-        context.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ["SMS_OTP_ENDPOINT"],
-          message: "SMS_OTP_ENDPOINT must be an http or https URL",
-        });
-      } else if (
-        isDeployedEnv(value.APP_ENV) &&
-        !endpoint.toLowerCase().startsWith("https://")
-      ) {
-        context.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ["SMS_OTP_ENDPOINT"],
-          message: "SMS_OTP_ENDPOINT must use https in staging and production",
+          path: ["EXOTEL_API_BASE_URL"],
+          message: `EXOTEL_API_BASE_URL must be the approved India origin ${EXOTEL_INDIA_API_BASE_URL}`,
         });
       }
 
-      if (apiKey === undefined) {
+      const apiKey = trimToUndefined(value.EXOTEL_API_KEY);
+      if (apiKey !== undefined && !/^[A-Za-z0-9._-]{1,128}$/u.test(apiKey)) {
         context.addIssue({
           code: z.ZodIssueCode.custom,
-          path: ["SMS_OTP_API_KEY"],
-          message: "SMS_OTP_API_KEY is required when OTP_PROVIDER is external",
+          path: ["EXOTEL_API_KEY"],
+          message: "EXOTEL_API_KEY has an invalid format",
         });
-      } else if (isPlaceholderSecret(apiKey) && isDeployedEnv(value.APP_ENV)) {
+      }
+
+      const apiToken = trimToUndefined(value.EXOTEL_API_TOKEN);
+      if (
+        apiToken !== undefined &&
+        (apiToken !== value.EXOTEL_API_TOKEN ||
+          apiToken.length > 512 ||
+          hasControlCharacters(apiToken))
+      ) {
         context.addIssue({
           code: z.ZodIssueCode.custom,
-          path: ["SMS_OTP_API_KEY"],
+          path: ["EXOTEL_API_TOKEN"],
+          message: "EXOTEL_API_TOKEN has an invalid format",
+        });
+      }
+
+      const accountSid = trimToUndefined(value.EXOTEL_ACCOUNT_SID);
+      if (
+        accountSid !== undefined &&
+        !/^[A-Za-z0-9_-]{1,128}$/u.test(accountSid)
+      ) {
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["EXOTEL_ACCOUNT_SID"],
+          message: "EXOTEL_ACCOUNT_SID must be a single safe URL segment",
+        });
+      }
+
+      const senderId = trimToUndefined(value.EXOTEL_SMS_SENDER_ID);
+      if (senderId !== undefined && !/^[A-Za-z0-9]{1,11}$/u.test(senderId)) {
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["EXOTEL_SMS_SENDER_ID"],
           message:
-            "SMS_OTP_API_KEY must not use an example or secret-manager placeholder in staging or production",
+            "EXOTEL_SMS_SENDER_ID must contain 1 to 11 letters or digits",
         });
+      }
+
+      for (const key of [
+        "EXOTEL_DLT_ENTITY_ID",
+        "EXOTEL_DLT_TEMPLATE_ID",
+      ] as const) {
+        const dltId = trimToUndefined(value[key]);
+        if (dltId !== undefined && !/^[0-9]{1,32}$/u.test(dltId)) {
+          context.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: [key],
+            message: `${key} must contain 1 to 32 digits`,
+          });
+        }
+      }
+
+      const template = trimToUndefined(value.EXOTEL_OTP_BODY_TEMPLATE);
+      if (template !== undefined) {
+        const placeholderCount =
+          template.split(EXOTEL_OTP_PLACEHOLDER).length - 1;
+        const fixedCopy = template.replace(EXOTEL_OTP_PLACEHOLDER, "");
+        if (
+          placeholderCount !== 1 ||
+          template !== value.EXOTEL_OTP_BODY_TEMPLATE ||
+          template.length > 480 ||
+          hasControlCharacters(template) ||
+          /[\r\n\u2028\u2029]/u.test(template) ||
+          /(?:https?:\/\/|www\.)/iu.test(template) ||
+          /[{}]/u.test(fixedCopy)
+        ) {
+          context.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ["EXOTEL_OTP_BODY_TEMPLATE"],
+            message:
+              "EXOTEL_OTP_BODY_TEMPLATE must be one line, contain exactly one {{OTP}} placeholder, contain no URL or extra template marker, and be at most 480 characters",
+          });
+        }
+      }
+
+      const timeout = value.EXOTEL_REQUEST_TIMEOUT_MS;
+      if (timeout === undefined) {
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["EXOTEL_REQUEST_TIMEOUT_MS"],
+          message:
+            "EXOTEL_REQUEST_TIMEOUT_MS is required when OTP_PROVIDER is exotel",
+        });
+      } else if (
+        timeout < EXOTEL_REQUEST_TIMEOUT_MIN_MS ||
+        timeout > EXOTEL_REQUEST_TIMEOUT_MAX_MS
+      ) {
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["EXOTEL_REQUEST_TIMEOUT_MS"],
+          message: `EXOTEL_REQUEST_TIMEOUT_MS must be between ${String(EXOTEL_REQUEST_TIMEOUT_MIN_MS)} and ${String(EXOTEL_REQUEST_TIMEOUT_MAX_MS)}`,
+        });
+      }
+
+      if (isDeployedEnv(value.APP_ENV)) {
+        for (const key of exotelStringKeys) {
+          const setting = trimToUndefined(value[key]);
+          if (setting !== undefined && isPlaceholderValue(setting)) {
+            context.addIssue({
+              code: z.ZodIssueCode.custom,
+              path: [key],
+              message: `${key} must not use an example or secret-manager placeholder in staging or production`,
+            });
+          }
+        }
       }
     }
 
@@ -180,15 +296,6 @@ function trimToUndefined(value: string | undefined): string | undefined {
   return trimmed.length === 0 ? undefined : trimmed;
 }
 
-function isHttpUrl(value: string): boolean {
-  try {
-    const url = new URL(value);
-    return url.protocol === "http:" || url.protocol === "https:";
-  } catch {
-    return false;
-  }
-}
-
 function isPlaceholderSecret(value: string): boolean {
   const normalized = value.trim().toUpperCase();
   return (
@@ -201,6 +308,30 @@ function isPlaceholderSecret(value: string): boolean {
     normalized === "SECRET" ||
     normalized === "PASSWORD"
   );
+}
+
+function isPlaceholderValue(value: string): boolean {
+  const normalized = value.trim().toUpperCase();
+  return (
+    isPlaceholderSecret(value) ||
+    normalized === "PENDING" ||
+    normalized === "TBD" ||
+    normalized.includes("INJECT_APPROVED_") ||
+    normalized.includes("YOUR_API_") ||
+    normalized.includes("YOUR_ACCOUNT_") ||
+    normalized.includes("YOUR_DLT_") ||
+    normalized.includes("YOUR_SENDER_") ||
+    normalized.includes("REPLACE_ME") ||
+    normalized.includes("CHANGE_ME") ||
+    /<[^>]+>/u.test(value)
+  );
+}
+
+function hasControlCharacters(value: string): boolean {
+  return [...value].some((character) => {
+    const codePoint = character.codePointAt(0) ?? 0;
+    return codePoint <= 31 || codePoint === 127;
+  });
 }
 
 function isPlaceholderDatabaseUrl(value: string): boolean {

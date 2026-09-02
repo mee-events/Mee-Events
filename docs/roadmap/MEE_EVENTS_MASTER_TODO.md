@@ -2,7 +2,8 @@
 
 - **Baseline:** Complete repository audit dated 25 August 2026
 - **Current phase:** Phase 1 - Customer
-- **Next block:** CUST-02 OTP - NOT STARTED
+- **Next block after independent deferred-checkpoint review and commit:** CUST-03
+  Session - development/test-only local OTP
 - **Rule:** One block → verify → document → commit → stop.
 
 This file is the definitive ordered work inventory. The phase order is mandatory even when a later task has a higher risk priority. Do not start Customer until the Phase 0 gate passes; do not start Vendor until Customer passes; continue one major module at a time.
@@ -77,8 +78,8 @@ Status marks in this file describe execution, not how much scaffold already exis
 ### Phase 1 — Customer (start only after Phase 0 gate)
 
 - [x] **CUST-01 Authentication** — Objective: production-safe customer login entry; State: **DONE WITH FINDINGS - 30 August 2026**; Scope: mobile auth entry and backend OTP-request boundary; Result: strict Indian mobile validation and E.164 normalization, real OTP-request API contract, safe loading and error handling, duplicate-request protection, enumeration-safe response, mobile-number log redaction, accessibility and large-text support, and preserved existing OTP/AppGateway handoff; Depends/Risk: STAB-20, production provider later; Test/Security: Flutter focused 13/13, AppGateway/Customer-shell 59/59, full Flutter 497/497, focused backend 42/42, full backend 249/249, PostgreSQL integration 39/39, Flutter analysis zero issues, lint zero errors/warnings, typecheck zero errors; DoD: independently approved with retained downstream findings; Evidence: `docs/08-testing/cust-01-authentication-entry-evidence.md`; Next: CUST-02 - **NOT STARTED**.
-- [ ] **CUST-02 OTP** — Objective: reliable request/verify/resend UX; State: **PARTIAL/BLOCKED**; Scope: auth endpoints/UI; Action: timers, retries, accessibility and real-provider adapter when selected; Depends/Risk: CUST-01, SMS decision; Test/Security: expiry, attempts, cooldown, provider failure/race; DoD: sandbox and failure tests pass without code leakage; Next: CUST-03.
-- [ ] **CUST-03 Session** — Objective: secure login persistence/logout/revocation; State: **PARTIAL**; Scope: secure store/API refresh/device sessions; Action: stable device ID, serialized refresh, revoke current/all; Depends/Risk: CUST-02; Test/Security: expiry/reuse/revoked/network races; DoD: session lifecycle passes restart and attack tests; Next: CUST-04.
+- [ ] **CUST-02 OTP** — Objective: reliable request/verify/resend UX; State: **PARTIAL - OFFLINE APPROVED, EXTERNAL EXOTEL EVIDENCE PENDING**; Scope: auth endpoints/UI; Result: the offline OTP lifecycle and Exotel delivery adapter are independently approved, while the live Exotel sandbox, DLT, physical-device SMS, and autofill evidence remain pending and Vinay (Developer) made the 1 September 2026 development scheduling decision to continue Customer-interface development using the existing development/test-only local OTP boundary; Action: reopen and fully close the pending external evidence before the final Customer release gate; Depends/Risk: CUST-01, Exotel procurement/DLT/device evidence; Test/Security: expiry, attempts, cooldown, provider failure/race, then separately authorized sandbox/device proof without code leakage; DoD: offline approval is retained but CUST-02 remains incomplete until the pending sandbox and device evidence passes; Next: CUST-03 may proceed only after the independent deferred-checkpoint review is complete and this checkpoint is committed, using development/test-only local OTP.
+- [ ] **CUST-03 Session** — Objective: secure login persistence/logout/revocation; State: **PARTIAL**; Scope: secure store/API refresh/device sessions; Action: stable device ID, serialized refresh, revoke current/all; Depends/Risk: independently reviewed and committed CUST-02 deferred checkpoint; development and automated tests must use the existing development/test-only local OTP boundary only; Test/Security: expiry/reuse/revoked/network races; DoD: session lifecycle passes restart and attack tests; Next: CUST-04. CUST-03 does not approve production SMS, and CUST-02 must reopen before the final Customer release gate.
 - [ ] **CUST-04 Customer bootstrap** — Objective: fail-closed role/branch/module bootstrap; State: **PARTIAL**; Scope: platform bootstrap and AppGateway; Action: validate complete response and handle unavailable roles; Depends/Risk: CUST-03; Test/Security: wrong role/branch/unknown surface denial; DoD: only customer assignment opens customer app; Next: CUST-05.
 - [ ] **CUST-05 Home** — Objective: real, useful customer home; State: **PARTIAL**; Scope: Home widgets/catalog API; Action: live approved content, active journey state, honest fallbacks; Depends/Risk: CUST-04 and media approval; Test/Security: no fixture PII/false availability; DoD: empty/new/active/completed real-data states pass; Next: CUST-06.
 - [ ] **CUST-06 Explore** — Objective: browse live categories/services/products; State: **PARTIAL**; Scope: Explore/catalog screens/API; Action: pagination/filter/detail consistency; Depends/Risk: CUST-05; Test/Security: unpublished media hidden and safe URLs; DoD: live catalog browse works with zero fake production claims; Next: CUST-07.
@@ -287,34 +288,39 @@ Status marks in this file describe execution, not how much scaffold already exis
 - [ ] **POLISH-05 Support and runbooks** — Objective: founder/operator can diagnose and respond; State: **MISSING**; Scope: customer support, incidents, providers, data correction; Action: severity/ownership/escalation/runbooks; Depends/Risk: production topology; Test/Security: tabletop drills and redaction; DoD: named owners and successful drills; Next: POLISH-06.
 - [ ] **POLISH-06 Final launch checklist** — Objective: prove the complete definition of done; State: **MISSING**; Scope: all evidence; Action: verify, never infer; Depends/Risk: IOS-10 and all prior gates; Test/Security: repeat critical journeys/security/restore/rollback; DoD: every required item checked with artifact/owner/date; Next: maintain/operate.
 
-## Current acceptance block — CUST-01 Authentication Entry Closeout
+## Current acceptance block — CUST-02 Deferred Checkpoint
 
 ### TASK ID
 
-`CUST-01 Authentication Entry Closeout`
+`CUST-02 Deferred Checkpoint`
 
 ### RESULT
 
-**DONE WITH FINDINGS - 30 August 2026.** CUST-01 provides strict Indian
-mobile validation and E.164 normalization, the real OTP-request API contract,
-safe loading/error behavior, client and process-local backend duplicate guards,
-enumeration-safe responses, structured-log mobile-number redaction, and
-accessible large-text behavior while preserving the existing OTP and
-AppGateway handoff.
+**PARTIAL - OFFLINE APPROVED, EXTERNAL EXOTEL EVIDENCE PENDING - 1 September 2026.** The independently reviewed offline OTP lifecycle and Exotel delivery
+adapter retain the verdict **APPROVE EXOTEL ADAPTER SLICE - SANDBOX EXECUTION
+PENDING**. No real provider network call or SMS occurred.
 
-Independent verdict: **APPROVE WITH FINDINGS**, with no blocking findings and
-no reviewer source changes. Verified results: Flutter focused 13/13,
-AppGateway/Customer-shell 59/59, full Flutter 497/497, focused backend 42/42,
-full backend 249/249, PostgreSQL integration 39/39, Flutter analysis zero
-issues, lint zero errors/warnings, and typecheck zero errors. Production SMS,
-device, provider-sandbox, staging, and production proof remain unclaimed.
+Vinay (Developer) made the development scheduling decision on 1 September 2026
+to continue Customer-interface development using the existing
+development/test-only local OTP boundary while external Exotel work remains
+pending. This scheduling decision does not approve production SMS and does not
+complete CUST-02. Staging and production remain fail-closed. CUST-02 must reopen
+and fully close before the final Customer release gate.
 
-Evidence: `docs/08-testing/cust-01-authentication-entry-evidence.md`.
+Harinath remains the Owner and intended Exotel account owner. He is responsible
+for the private Exotel account/trial, written quotation, budget and procurement,
+legal entity/GST decisions, DLT Principal Entity registration, sender/header
+approval, exact SMS template approval and mapping, and company-owned-device
+sandbox authorization.
+
+Evidence: `docs/08-testing/cust-02-otp-evidence.md`.
 
 ### CURRENT WORK
 
-None.
+CUST-02 deferred checkpoint preparation only. No CUST-03 source work has
+started.
 
 ### NEXT TASK
 
-`CUST-02 OTP - NOT STARTED`
+After independent checkpoint review and commit: `CUST-03 Session`, using
+development/test-only local OTP.

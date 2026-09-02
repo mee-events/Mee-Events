@@ -13,6 +13,8 @@ import type {
   CoordinatedRefreshResult,
   IdentityRepository,
   OtpChallengeRecord,
+  ReplaceOtpChallengeInput,
+  ReplaceOtpChallengeResult,
   RefreshDigestMatch,
   RevokeAllSessionsInput,
   RevokeCurrentSessionInput,
@@ -83,6 +85,92 @@ export class PostgresIdentityRepository implements IdentityRepository {
         challenge.createdAt,
       ],
     );
+  }
+
+  public async replaceOtpChallenge(
+    input: ReplaceOtpChallengeInput,
+  ): Promise<ReplaceOtpChallengeResult> {
+    return this.withTransaction(async (client) => {
+      const { challenge, now, requestWindowStartsAt, maxRequests } = input;
+      await client.query(
+        `SELECT pg_advisory_xact_lock(hashtextextended($1, 0))`,
+        [challenge.mobileNumber],
+      );
+
+      const latestResult = await client.query<ChallengeRow>(
+        `SELECT * FROM otp_challenges
+         WHERE mobile_e164 = $1
+           AND consumed_at IS NULL
+           AND expires_at > $2
+         ORDER BY created_at DESC
+         LIMIT 1`,
+        [challenge.mobileNumber, now],
+      );
+      const latest = latestResult.rows[0];
+      if (
+        latest !== undefined &&
+        latest.resend_after.getTime() > now.getTime()
+      ) {
+        return {
+          outcome: "cooldown",
+          retryAfterSeconds: Math.max(
+            1,
+            Math.ceil((latest.resend_after.getTime() - now.getTime()) / 1000),
+          ),
+        };
+      }
+
+      const countResult = await client.query<{ readonly count: number }>(
+        `SELECT COUNT(*)::int AS count
+         FROM otp_challenges
+         WHERE mobile_e164 = $1 AND created_at >= $2`,
+        [challenge.mobileNumber, requestWindowStartsAt],
+      );
+      if ((countResult.rows[0]?.count ?? 0) >= maxRequests) {
+        return { outcome: "request-limit" };
+      }
+
+      await client.query(
+        `UPDATE otp_challenges
+         SET consumed_at = $2
+         WHERE mobile_e164 = $1
+           AND consumed_at IS NULL
+           AND id <> $3`,
+        [challenge.mobileNumber, now, challenge.id],
+      );
+      await client.query(
+        `INSERT INTO otp_challenges (
+           id, mobile_e164, code_digest, expires_at, resend_after,
+           attempts_remaining, consumed_at, created_at
+         )
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+        [
+          challenge.id,
+          challenge.mobileNumber,
+          challenge.codeDigest,
+          challenge.expiresAt,
+          challenge.resendAfter,
+          challenge.attemptsRemaining,
+          challenge.consumedAt ?? null,
+          challenge.createdAt,
+        ],
+      );
+      return { outcome: "created" };
+    });
+  }
+
+  public async invalidateChallenge(
+    challengeId: string,
+    invalidatedAt: Date,
+  ): Promise<boolean> {
+    const result = await this.pool.query<{ readonly id: string }>(
+      `UPDATE otp_challenges
+       SET consumed_at = $2
+       WHERE id = $1 AND consumed_at IS NULL
+       RETURNING id`,
+      [challengeId, invalidatedAt],
+    );
+    return result.rows[0] !== undefined;
   }
 
   public async findChallenge(

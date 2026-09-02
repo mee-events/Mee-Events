@@ -74,6 +74,12 @@ describe("HTTP surface helpers", () => {
         "*.accessToken",
         "*.password",
         "*.apiKey",
+        "*.exotelApiKey",
+        "*.exotelApiToken",
+        "*.exotelAccountSid",
+        "*.EXOTEL_API_KEY",
+        "*.EXOTEL_API_TOKEN",
+        "*.EXOTEL_ACCOUNT_SID",
       ]),
     );
   });

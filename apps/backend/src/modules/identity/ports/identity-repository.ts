@@ -12,6 +12,18 @@ export interface OtpChallengeRecord {
   readonly consumedAt?: Date;
 }
 
+export interface ReplaceOtpChallengeInput {
+  readonly challenge: OtpChallengeRecord;
+  readonly now: Date;
+  readonly requestWindowStartsAt: Date;
+  readonly maxRequests: number;
+}
+
+export type ReplaceOtpChallengeResult =
+  | { readonly outcome: "created" }
+  | { readonly outcome: "cooldown"; readonly retryAfterSeconds: number }
+  | { readonly outcome: "request-limit" };
+
 export interface DeviceSessionRecord {
   readonly session: DeviceSession;
   readonly refreshTokenDigest: string;
@@ -83,6 +95,13 @@ export interface RevokeAllSessionsInput {
 
 export interface IdentityRepository {
   saveChallenge(challenge: OtpChallengeRecord): Promise<void>;
+  replaceOtpChallenge(
+    input: ReplaceOtpChallengeInput,
+  ): Promise<ReplaceOtpChallengeResult>;
+  invalidateChallenge(
+    challengeId: string,
+    invalidatedAt: Date,
+  ): Promise<boolean>;
   findChallenge(id: string): Promise<OtpChallengeRecord | undefined>;
   findLatestOpenChallengeByMobile(
     mobileNumber: string,

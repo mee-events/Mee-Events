@@ -28,3 +28,11 @@ String? normalizeIndianMobileNumber(String raw) {
   }
   return '+91$nationalNumber';
 }
+
+/// Returns the minimum destination detail needed on the OTP screen.
+String maskIndianMobileNumber(String mobileNumber) {
+  if (!RegExp(r'^\+91[6-9]\d{9}$').hasMatch(mobileNumber)) {
+    return '+91 ******';
+  }
+  return '+91 ******${mobileNumber.substring(mobileNumber.length - 4)}';
+}

@@ -21,7 +21,9 @@ const PINO_SECRET_FIELD_NAMES = [
   "otpHmacSecret",
   "jwtAccessSecret",
   "refreshTokenHmacSecret",
-  "smsOtpApiKey",
+  "exotelApiKey",
+  "exotelApiToken",
+  "exotelAccountSid",
   "debugCode",
   "mobileNumber",
 ] as const;
@@ -30,7 +32,9 @@ const PINO_SECRET_ENV_NAMES = [
   "OTP_HMAC_SECRET",
   "JWT_ACCESS_SECRET",
   "REFRESH_TOKEN_HMAC_SECRET",
-  "SMS_OTP_API_KEY",
+  "EXOTEL_API_KEY",
+  "EXOTEL_API_TOKEN",
+  "EXOTEL_ACCOUNT_SID",
   "SUPABASE_SERVICE_KEY",
   "DATABASE_URL",
 ] as const;

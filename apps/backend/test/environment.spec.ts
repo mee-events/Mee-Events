@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { validateEnvironment } from "../src/config/environment";
+import {
+  EXOTEL_INDIA_API_BASE_URL,
+  validateEnvironment,
+} from "../src/config/environment";
 
 const development = {
   APP_ENV: "development",
@@ -15,12 +18,20 @@ const development = {
 const production = {
   ...development,
   APP_ENV: "production",
-  OTP_PROVIDER: "external",
+  OTP_PROVIDER: "exotel",
   DATABASE_URL:
     "postgresql://app:synthetic-db-secret@db.internal.test:5432/me_event",
   ALLOWED_ORIGINS: "https://erp.internal.test",
-  SMS_OTP_ENDPOINT: "https://sms.internal.test/otp",
-  SMS_OTP_API_KEY: "k".repeat(32),
+  EXOTEL_API_BASE_URL: EXOTEL_INDIA_API_BASE_URL,
+  EXOTEL_API_KEY: "synthetic-api-key",
+  EXOTEL_API_TOKEN: "synthetic-api-token",
+  EXOTEL_ACCOUNT_SID: "synthetic_account",
+  EXOTEL_SMS_SENDER_ID: "MEEEVT",
+  EXOTEL_DLT_ENTITY_ID: "100000000000000001",
+  EXOTEL_DLT_TEMPLATE_ID: "200000000000000002",
+  EXOTEL_OTP_BODY_TEMPLATE:
+    "Your Mee Events sign-in code is {{OTP}}. It expires in five minutes.",
+  EXOTEL_REQUEST_TIMEOUT_MS: "5000",
 };
 
 describe("environment validation", () => {
@@ -34,11 +45,12 @@ describe("environment validation", () => {
     ).toBe("test");
   });
 
-  it("accepts production configuration with external OTP and https origins", () => {
+  it("accepts production configuration with Exotel and https origins", () => {
     const env = validateEnvironment(production);
     expect(env.APP_ENV).toBe("production");
-    expect(env.OTP_PROVIDER).toBe("external");
-    expect(env.SMS_OTP_ENDPOINT).toBe(production.SMS_OTP_ENDPOINT);
+    expect(env.OTP_PROVIDER).toBe("exotel");
+    expect(env.EXOTEL_API_BASE_URL).toBe(EXOTEL_INDIA_API_BASE_URL);
+    expect(env.EXOTEL_REQUEST_TIMEOUT_MS).toBe(5000);
   });
 
   it("rejects the local OTP provider in production", () => {
@@ -46,8 +58,9 @@ describe("environment validation", () => {
       validateEnvironment({
         ...production,
         OTP_PROVIDER: "local",
-        SMS_OTP_ENDPOINT: undefined,
-        SMS_OTP_API_KEY: undefined,
+        EXOTEL_API_BASE_URL: undefined,
+        EXOTEL_API_KEY: undefined,
+        EXOTEL_API_TOKEN: undefined,
       }),
     ).toThrow("local OTP provider is forbidden");
   });
@@ -58,8 +71,9 @@ describe("environment validation", () => {
         ...production,
         APP_ENV: "staging",
         OTP_PROVIDER: "local",
-        SMS_OTP_ENDPOINT: undefined,
-        SMS_OTP_API_KEY: undefined,
+        EXOTEL_API_BASE_URL: undefined,
+        EXOTEL_API_KEY: undefined,
+        EXOTEL_API_TOKEN: undefined,
       }),
     ).toThrow("local OTP provider is forbidden");
   });
@@ -167,22 +181,135 @@ describe("environment validation", () => {
     ).toThrow("ENABLE_OPENAPI");
   });
 
-  it("rejects missing SMS configuration when OTP_PROVIDER is external", () => {
-    expect(() =>
-      validateEnvironment({
-        ...production,
-        SMS_OTP_ENDPOINT: undefined,
-        SMS_OTP_API_KEY: undefined,
-      }),
-    ).toThrow("SMS_OTP_ENDPOINT");
+  it("allows local mode without any Exotel configuration", () => {
+    const env = validateEnvironment(development);
+    expect(env.OTP_PROVIDER).toBe("local");
+    expect(env.EXOTEL_API_KEY).toBeUndefined();
   });
 
-  it("rejects http SMS endpoints in production", () => {
+  it("rejects the retired ambiguous external provider value", () => {
+    expect(() =>
+      validateEnvironment({ ...development, OTP_PROVIDER: "external" }),
+    ).toThrow("OTP_PROVIDER");
+  });
+
+  it("rejects missing Exotel configuration when OTP_PROVIDER is exotel", () => {
     expect(() =>
       validateEnvironment({
         ...production,
-        SMS_OTP_ENDPOINT: "http://sms.internal.test/otp",
+        EXOTEL_API_BASE_URL: undefined,
+        EXOTEL_API_KEY: undefined,
+        EXOTEL_API_TOKEN: undefined,
+        EXOTEL_ACCOUNT_SID: undefined,
+        EXOTEL_SMS_SENDER_ID: undefined,
+        EXOTEL_DLT_ENTITY_ID: undefined,
+        EXOTEL_DLT_TEMPLATE_ID: undefined,
+        EXOTEL_OTP_BODY_TEMPLATE: undefined,
+        EXOTEL_REQUEST_TIMEOUT_MS: undefined,
       }),
-    ).toThrow("https");
+    ).toThrow("EXOTEL_API_BASE_URL");
+  });
+
+  it("rejects blank Exotel fields", () => {
+    expect(() =>
+      validateEnvironment({
+        ...production,
+        APP_ENV: "test",
+        EXOTEL_API_TOKEN: "   ",
+      }),
+    ).toThrow("EXOTEL_API_TOKEN");
+  });
+
+  it("rejects HTTP, credential-bearing, and unapproved Exotel hosts", () => {
+    for (const baseUrl of [
+      "http://api.in.exotel.com",
+      "https://synthetic:key@api.in.exotel.com",
+      "https://api.exotel.com",
+      "https://sms.internal.test",
+    ]) {
+      expect(() =>
+        validateEnvironment({
+          ...production,
+          EXOTEL_API_BASE_URL: baseUrl,
+        }),
+      ).toThrow("approved India origin");
+    }
+  });
+
+  it("rejects account SID path injection", () => {
+    expect(() =>
+      validateEnvironment({
+        ...production,
+        EXOTEL_ACCOUNT_SID: "synthetic/../../other-account",
+      }),
+    ).toThrow("single safe URL segment");
+  });
+
+  it("rejects unsafe sender and DLT identifier formats", () => {
+    expect(() =>
+      validateEnvironment({
+        ...production,
+        EXOTEL_SMS_SENDER_ID: "MEE EVENTS",
+      }),
+    ).toThrow("EXOTEL_SMS_SENDER_ID");
+    expect(() =>
+      validateEnvironment({
+        ...production,
+        EXOTEL_DLT_ENTITY_ID: "not-numeric",
+      }),
+    ).toThrow("EXOTEL_DLT_ENTITY_ID");
+    expect(() =>
+      validateEnvironment({
+        ...production,
+        EXOTEL_DLT_TEMPLATE_ID: "123/456",
+      }),
+    ).toThrow("EXOTEL_DLT_TEMPLATE_ID");
+  });
+
+  it("requires exactly one safe OTP placeholder in one-line copy", () => {
+    for (const bodyTemplate of [
+      "Mee Events code has no variable.",
+      "Codes {{OTP}} and {{OTP}} are invalid.",
+      "Mee Events code: {{CODE}}",
+      "Mee Events code: {{OTP}}\nVisit us.",
+      "Mee Events code: {{OTP}} https://example.invalid",
+    ]) {
+      expect(() =>
+        validateEnvironment({
+          ...production,
+          EXOTEL_OTP_BODY_TEMPLATE: bodyTemplate,
+        }),
+      ).toThrow("EXOTEL_OTP_BODY_TEMPLATE");
+    }
+  });
+
+  it("requires a bounded positive Exotel timeout", () => {
+    for (const timeout of ["0", "999", "10001"]) {
+      expect(() =>
+        validateEnvironment({
+          ...production,
+          EXOTEL_REQUEST_TIMEOUT_MS: timeout,
+        }),
+      ).toThrow("EXOTEL_REQUEST_TIMEOUT_MS");
+    }
+  });
+
+  it("rejects Exotel example placeholders in staging and production", () => {
+    for (const APP_ENV of ["staging", "production"] as const) {
+      expect(() =>
+        validateEnvironment({
+          ...production,
+          APP_ENV,
+          EXOTEL_API_TOKEN: "INJECT_FROM_SECRET_MANAGER",
+        }),
+      ).toThrow("placeholder");
+      expect(() =>
+        validateEnvironment({
+          ...production,
+          APP_ENV,
+          EXOTEL_DLT_TEMPLATE_ID: "PENDING",
+        }),
+      ).toThrow("placeholder");
+    }
   });
 });

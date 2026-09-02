@@ -78,26 +78,32 @@ export class AuthService {
   private async createOtpChallenge(
     mobileNumber: string,
   ): Promise<RequestOtpResponse> {
-    const now = Date.now();
-    const existing =
-      await this.repository.findLatestOpenChallengeByMobile(mobileNumber);
-    if (existing !== undefined && existing.resendAfter.getTime() > now) {
-      const retryAfterSeconds = Math.max(
-        1,
-        Math.ceil((existing.resendAfter.getTime() - now) / 1000),
-      );
+    const now = new Date();
+    const nowMs = now.getTime();
+    const code = randomInt(100000, 1000000).toString();
+    const challengeId = randomUUID();
+    const replacement = await this.repository.replaceOtpChallenge({
+      challenge: {
+        id: challengeId,
+        mobileNumber,
+        codeDigest: this.digest(`${challengeId}:${code}`, "OTP_HMAC_SECRET"),
+        createdAt: now,
+        expiresAt: new Date(nowMs + OTP_TTL_SECONDS * 1000),
+        resendAfter: new Date(nowMs + RESEND_AFTER_SECONDS * 1000),
+        attemptsRemaining: MAX_ATTEMPTS,
+      },
+      now,
+      requestWindowStartsAt: new Date(nowMs - OTP_REQUEST_WINDOW_MS),
+      maxRequests: MAX_OTP_REQUESTS_PER_WINDOW,
+    });
+    if (replacement.outcome === "cooldown") {
       throw new DomainError(
         "OTP_RESEND_COOLDOWN",
-        `Wait ${String(retryAfterSeconds)} seconds before requesting another OTP`,
+        `Wait ${String(replacement.retryAfterSeconds)} seconds before requesting another OTP`,
         429,
       );
     }
-
-    const recentChallengeCount = await this.repository.countChallengesSince(
-      mobileNumber,
-      new Date(now - OTP_REQUEST_WINDOW_MS),
-    );
-    if (recentChallengeCount >= MAX_OTP_REQUESTS_PER_WINDOW) {
+    if (replacement.outcome === "request-limit") {
       throw new DomainError(
         "OTP_REQUEST_LIMIT",
         "Too many OTP requests. Try again later",
@@ -105,22 +111,15 @@ export class AuthService {
       );
     }
 
-    const code = randomInt(100000, 1000000).toString();
-    const challengeId = randomUUID();
-    const codeDigest = this.digest(`${challengeId}:${code}`, "OTP_HMAC_SECRET");
-
-    await this.repository.saveChallenge({
-      id: challengeId,
-      mobileNumber,
-      codeDigest,
-      createdAt: new Date(now),
-      expiresAt: new Date(now + OTP_TTL_SECONDS * 1000),
-      resendAfter: new Date(now + RESEND_AFTER_SECONDS * 1000),
-      attemptsRemaining: MAX_ATTEMPTS,
-    });
     try {
       await this.otpProvider.sendCode(mobileNumber, code);
     } catch {
+      try {
+        await this.repository.invalidateChallenge(challengeId, new Date());
+      } catch {
+        // Preserve the privacy-safe provider error if exact cleanup is
+        // unavailable. The failed request still counts toward abuse limits.
+      }
       throw new DomainError(
         "OTP_DELIVERY_UNAVAILABLE",
         "We could not send a code right now. Try again later",
@@ -173,7 +172,31 @@ export class AuthService {
       expected.length !== actual.length ||
       !timingSafeEqual(expected, actual)
     ) {
-      await this.repository.recordFailedChallengeAttempt(challenge.id);
+      const updated = await this.repository.recordFailedChallengeAttempt(
+        challenge.id,
+      );
+      if (updated === undefined) {
+        const current = await this.repository.findChallenge(challenge.id);
+        if (current?.attemptsRemaining === 0) {
+          throw new DomainError(
+            "OTP_ATTEMPTS_EXHAUSTED",
+            "OTP attempts exhausted",
+            429,
+          );
+        }
+        throw new DomainError(
+          "OTP_CHALLENGE_INVALID",
+          "OTP challenge is invalid",
+          401,
+        );
+      }
+      if (updated.attemptsRemaining === 0) {
+        throw new DomainError(
+          "OTP_ATTEMPTS_EXHAUSTED",
+          "OTP attempts exhausted",
+          429,
+        );
+      }
       throw new DomainError("OTP_INCORRECT", "OTP is incorrect", 401);
     }
 

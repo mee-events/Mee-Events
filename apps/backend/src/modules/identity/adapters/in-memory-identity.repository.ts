@@ -9,6 +9,8 @@ import type {
   DeviceSessionRecord,
   IdentityRepository,
   OtpChallengeRecord,
+  ReplaceOtpChallengeInput,
+  ReplaceOtpChallengeResult,
   RefreshDigestMatch,
   RevokeAllSessionsInput,
   RevokeCurrentSessionInput,
@@ -35,6 +37,70 @@ export class InMemoryIdentityRepository implements IdentityRepository {
 
   public async saveChallenge(challenge: OtpChallengeRecord): Promise<void> {
     this.challenges.set(challenge.id, challenge);
+  }
+
+  public async replaceOtpChallenge(
+    input: ReplaceOtpChallengeInput,
+  ): Promise<ReplaceOtpChallengeResult> {
+    return this.enqueueMutation(async () => {
+      const { challenge, now, requestWindowStartsAt, maxRequests } = input;
+      const openChallenges = [...this.challenges.values()].filter(
+        (candidate) =>
+          candidate.mobileNumber === challenge.mobileNumber &&
+          candidate.consumedAt === undefined &&
+          candidate.expiresAt.getTime() > now.getTime(),
+      );
+      const latest = openChallenges.sort(
+        (left, right) => right.createdAt.getTime() - left.createdAt.getTime(),
+      )[0];
+      if (
+        latest !== undefined &&
+        latest.resendAfter.getTime() > now.getTime()
+      ) {
+        return {
+          outcome: "cooldown",
+          retryAfterSeconds: Math.max(
+            1,
+            Math.ceil((latest.resendAfter.getTime() - now.getTime()) / 1000),
+          ),
+        };
+      }
+
+      const requestCount = [...this.challenges.values()].filter(
+        (candidate) =>
+          candidate.mobileNumber === challenge.mobileNumber &&
+          candidate.createdAt.getTime() >= requestWindowStartsAt.getTime(),
+      ).length;
+      if (requestCount >= maxRequests) {
+        return { outcome: "request-limit" };
+      }
+
+      for (const candidate of openChallenges) {
+        this.challenges.set(candidate.id, {
+          ...candidate,
+          consumedAt: now,
+        });
+      }
+      this.challenges.set(challenge.id, challenge);
+      return { outcome: "created" };
+    });
+  }
+
+  public async invalidateChallenge(
+    challengeId: string,
+    invalidatedAt: Date,
+  ): Promise<boolean> {
+    return this.enqueueMutation(async () => {
+      const challenge = this.challenges.get(challengeId);
+      if (challenge === undefined || challenge.consumedAt !== undefined) {
+        return false;
+      }
+      this.challenges.set(challengeId, {
+        ...challenge,
+        consumedAt: invalidatedAt,
+      });
+      return true;
+    });
   }
 
   public async findChallenge(

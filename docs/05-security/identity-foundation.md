@@ -36,9 +36,10 @@ affecting other devices. Access tokens are short-lived authorization artifacts.
   request limit** are already enforced in PostgreSQL (`OTP_RESEND_COOLDOWN` /
   `OTP_REQUEST_LIMIT`, HTTP 429) across API instances that share the database.
   Redis/CDN/WAF-backed abuse controls remain a production hardening item.
-- External SMS vendor HTTP adapter behind `ExternalOtpProvider` (fail-closed
-  until `SMS_OTP_ENDPOINT` / `SMS_OTP_API_KEY` and vendor wiring are complete).
-- Approved SMS provider, templates, delivery callbacks, and regional compliance.
+- Exotel adapter is implemented behind `ExotelOtpProvider` with a fail-closed
+  India-host allowlist and offline fake-transport tests. Real trial credentials,
+  DLT/header/template mapping, and company-device sandbox proof remain blocked.
+- Approved delivery callbacks, monitoring, and regional/compliance operations.
 - Refresh rotation/reuse detection, logout, revocation, and access-token guard.
 - Audit sink with append-only retention and redaction.
 - Mobile number change/recovery and recycled-number risk workflow.

@@ -118,14 +118,27 @@ reason `logout-all` (count only; no tokens).
 
 ## OTP providers
 
-| Setting                 | Behavior                                                                                                                                                   |
-| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `OTP_PROVIDER=local`    | `LocalOtpProvider` (development/tests). Staging and production startup **reject** the local provider                                                       |
-| `OTP_PROVIDER=external` | `ExternalOtpProvider` — boot validation requires `SMS_OTP_ENDPOINT` + `SMS_OTP_API_KEY`; send still fail-closed until the SMS vendor HTTP adapter is wired |
+| Setting               | Behavior                                                                                                                                                                                                                        |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `OTP_PROVIDER=local`  | `LocalOtpProvider` (development/tests). Staging and production startup **reject** the local provider                                                                                                                            |
+| `OTP_PROVIDER=exotel` | `ExotelOtpProvider` sends the Mee-generated code through Exotel Programmable SMS. Every provider-specific setting is boot-validated; the India origin is allowlisted; missing/invalid values fail closed with no local fallback |
 
 In development with local provider, a debug code may be returned for testing
 (mobile auto-fills; ERP login surfaces it). Never log OTPs or tokens in
 production logs.
+
+The Exotel adapter makes one form-encoded provider attempt, places Basic
+credentials only in the `Authorization` header, and treats HTTP 200 plus a
+non-empty `SMSMessage.Sid` as accepted rather than delivered. It does not retry
+timeouts, connection failures, or 5xx responses because acceptance can be
+ambiguous. Provider errors and malformed responses are discarded before the
+existing `AuthService` cleanup returns `OTP_DELIVERY_UNAVAILABLE` to the
+customer. See [ADR 0012](../adr/0012-exotel-otp-delivery.md) and the
+[sandbox runbook](../07-deployment/exotel-otp-sandbox-runbook.md).
+
+Delivery callbacks are not implemented here and cannot verify an OTP, create a
+session, or reopen a challenge. Callback security, delivery telemetry,
+reconciliation, and alerting remain INT-01.
 
 ---
 
@@ -150,7 +163,8 @@ enforcement.
 **Still open for production:**
 
 - Shared edge/IP throttling (CDN/WAF or Redis) across replicas.
-- Vendor SMS delivery + delivery callbacks.
+- Approved Exotel account/trial, DLT/sender/template mapping, real sandbox
+  delivery evidence, and delivery callbacks/monitoring.
 
 Treat a real edge limiter as remaining production hardening
 ([identity-foundation.md](./identity-foundation.md)).

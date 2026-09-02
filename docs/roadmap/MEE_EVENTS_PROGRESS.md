@@ -1,21 +1,58 @@
 # Mee Events — Progress Tracker
 
-- **Updated:** 30 August 2026; CUST-01 closeout complete (DONE WITH FINDINGS)
+- **Updated:** 1 September 2026; CUST-02 deferred checkpoint prepared
 - **Repository:** `/Users/vinaychilagani/Desktop/Mee Event V1`
 - **Baseline application commit:** `master` / `9e2a442d91c137ec97a349d1a55697ae8d79d5df`
 - **STAB-01 snapshot HEAD:** `ca994985a898d42da2a8d717041b93a8f8f0dc4c`
 - **Current phase:** Phase 1 - Customer
 - **Phase state:** **IN PROGRESS**
 - **Last completed task:** CUST-01 Authentication Entry - DONE WITH FINDINGS
-- **Current task:** none
-- **Next task:** CUST-02 OTP - NOT STARTED
-- **Latest application change:** CUST-01 customer authentication entry is independently approved with findings; strict India mobile normalization, safe OTP-request handling, duplicate guards, privacy redaction, and accessible large-text behavior are verified.
+- **Current task:** CUST-02 OTP - PARTIAL; offline approved, external Exotel
+  evidence pending
+- **Next task after independent checkpoint review and commit:** CUST-03 Session
+  using development/test-only local OTP
+- **Latest application change:** CUST-02's offline OTP lifecycle and Exotel
+  delivery adapter are independently approved; this checkpoint changes only
+  documentation and does not authorize live or production SMS.
 - **STAB-16 implementation commit:** `999443d5d3ba547de1bb6c0406c34753c8433b00`
 - **STAB-16 closeout:** `1450263caa6a5be2263bf7b9c91827f7cc24ef6c`
 - **STAB-17 commit:** `68894f3bbfa91937a0c7c573a8fc1a0af83ce533`
 - **STAB-18 commit:** `f66cc51a726322eeb604ab84c3d3e195050248f9`
 - **STAB-19 commit:** `e833eb82d690d65e293b9521ce3f24c390fff4f0`
 - **STAB-20 canonical application commit:** `37cf6c2f8e36dd522688e3423be7b9595e442ead`
+
+## CUST-02 Deferred Checkpoint - 1 September 2026
+
+- [ ] **CUST-02 OTP** — **PARTIAL - OFFLINE APPROVED, EXTERNAL EXOTEL EVIDENCE
+      PENDING**.
+
+Independent review returned **APPROVE EXOTEL ADAPTER SLICE - SANDBOX EXECUTION
+PENDING** for the offline OTP lifecycle and Exotel delivery adapter. The
+provider-independent request, verification, resend, expiry, attempt exhaustion,
+challenge replacement, provider-failure recovery, accessibility, privacy, and
+fail-closed Exotel configuration/test boundaries are complete within that
+offline scope.
+
+Vinay (Developer) made the development scheduling decision on 1 September 2026
+to continue Customer-interface development using the existing
+development/test-only local OTP boundary while external Exotel work remains
+pending. No Exotel network execution was performed, no real SMS was sent, and
+production SMS is not approved. Staging and production remain fail-closed.
+External procurement, credentials, DLT, provider/device, callback, monitoring,
+staging, and production evidence remain missing.
+
+Harinath remains the Owner and intended Exotel account owner. He is responsible
+for the private Exotel account/trial, written quotation, budget and procurement,
+legal entity/GST decisions, DLT Principal Entity registration, sender/header
+approval, exact SMS template approval and mapping, and company-owned-device
+sandbox authorization.
+
+CUST-03 has not started. It is the next planned development module only after
+this checkpoint is independently reviewed and committed and may use only the
+existing development/test-only local OTP boundary in development and automated
+tests. CUST-02 remains incomplete and must be reopened and fully closed before
+the final Customer release gate. Evidence:
+`docs/08-testing/cust-02-otp-evidence.md`.
 
 ## CUST-01 Authentication Entry Closeout - 30 August 2026
 
@@ -1310,7 +1347,13 @@ After delete: backend 190/190, ERP 8/8, Dart format 200 files, analyze 0, Flutte
 Do not ask for these until their dependent block is approaching, unless early procurement lead time requires it.
 
 - [!] Production hosting and managed PostgreSQL/storage topology.
-- [!] India-compliant SMS/OTP provider and sender/DLT ownership.
+- [x] India pilot OTP provider architecture: Exotel Programmable SMS primary,
+      MSG91 runner-up; adapter/offline contract independently approved.
+- [!] Harinath remains the Owner and intended Exotel account owner, responsible
+  for the private Exotel account/trial, written quotation, budget and
+  procurement, legal entity/GST decisions, DLT Principal Entity
+  registration, sender/header approval, exact SMS template approval and
+  mapping, and company-owned-device sandbox authorization.
 - [!] Payment gateway plus advance/final/refund/cancellation/reconciliation policies.
 - [!] Object storage/CDN, push, email, maps/location, analytics, monitoring and crash providers.
 - [!] Privacy/terms/refund/location/retention wording and legal review.
@@ -1357,8 +1400,10 @@ Do not ask for these until their dependent block is approaching, unless early pr
 
 - [x] CUST-01 Authentication — **DONE WITH FINDINGS** 30 August 2026; evidence:
       `docs/08-testing/cust-01-authentication-entry-evidence.md`
-- [ ] CUST-02 OTP
-- [ ] CUST-03 Session
+- [ ] CUST-02 OTP — **PARTIAL - OFFLINE APPROVED, EXTERNAL EXOTEL EVIDENCE
+      PENDING**; reopen and fully close before the final Customer release gate
+- [ ] CUST-03 Session — next only after independent deferred-checkpoint review
+      and commit; development/test-only local OTP
 - [ ] CUST-04 Customer bootstrap
 - [ ] CUST-05 Home
 - [ ] CUST-06 Explore

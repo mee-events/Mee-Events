@@ -31,6 +31,9 @@ describe("Pino redaction paths", () => {
       accessToken: "access-token-secret",
       password: "password-secret",
       apiKey: "api-key-secret",
+      exotelApiKey: "exotel-api-key-secret",
+      exotelApiToken: "exotel-api-token-secret",
+      exotelAccountSid: "exotel-account-sensitive",
       clientSecret: "client-secret-value",
       hmacSecret: "hmac-secret-value",
       databaseUrl: "postgresql://user:database-secret@db.invalid/app",
@@ -48,6 +51,9 @@ describe("Pino redaction paths", () => {
           accessToken: secrets.accessToken,
           password: secrets.password,
           apiKey: secrets.apiKey,
+          exotelApiKey: secrets.exotelApiKey,
+          exotelApiToken: secrets.exotelApiToken,
+          exotelAccountSid: secrets.exotelAccountSid,
           nested: { clientSecret: secrets.clientSecret },
         },
       },
@@ -55,7 +61,12 @@ describe("Pino redaction paths", () => {
         headers: { "set-cookie": secrets.cookie },
         body: { hmacSecret: secrets.hmacSecret },
       },
-      environment: { DATABASE_URL: secrets.databaseUrl },
+      environment: {
+        DATABASE_URL: secrets.databaseUrl,
+        EXOTEL_API_KEY: secrets.exotelApiKey,
+        EXOTEL_API_TOKEN: secrets.exotelApiToken,
+        EXOTEL_ACCOUNT_SID: secrets.exotelAccountSid,
+      },
     });
     const serialized = Buffer.concat(chunks).toString();
     const line = JSON.parse(serialized) as {
@@ -77,10 +88,16 @@ describe("Pino redaction paths", () => {
     expect(line.req.body.accessToken).toBe("[REDACTED]");
     expect(line.req.body.password).toBe("[REDACTED]");
     expect(line.req.body.apiKey).toBe("[REDACTED]");
+    expect(line.req.body.exotelApiKey).toBe("[REDACTED]");
+    expect(line.req.body.exotelApiToken).toBe("[REDACTED]");
+    expect(line.req.body.exotelAccountSid).toBe("[REDACTED]");
     expect(line.res.headers["set-cookie"]).toBe("[REDACTED]");
     expect(line.req.body.nested).toEqual({ clientSecret: "[REDACTED]" });
     expect(line.res.body.hmacSecret).toBe("[REDACTED]");
     expect(line.environment.DATABASE_URL).toBe("[REDACTED]");
+    expect(line.environment.EXOTEL_API_KEY).toBe("[REDACTED]");
+    expect(line.environment.EXOTEL_API_TOKEN).toBe("[REDACTED]");
+    expect(line.environment.EXOTEL_ACCOUNT_SID).toBe("[REDACTED]");
     for (const secret of Object.values(secrets)) {
       expect(serialized).not.toContain(secret);
     }

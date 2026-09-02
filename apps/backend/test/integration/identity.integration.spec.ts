@@ -23,13 +23,30 @@ const HYDERABAD_BRANCH_ID = "00000000-0000-4000-8000-000000000001";
 
 class CapturingOtpProvider implements OtpProvider {
   public lastCode: string | undefined;
+  public deliveryCount = 0;
 
   public async sendCode(
     _mobileNumber: string,
     code: string,
   ): Promise<OtpDelivery> {
     this.lastCode = code;
+    this.deliveryCount += 1;
     return { providerMessageId: "synthetic-dbint-delivery" };
+  }
+}
+
+class FailOnceOtpProvider extends CapturingOtpProvider {
+  private failNext = true;
+
+  public override async sendCode(
+    mobileNumber: string,
+    code: string,
+  ): Promise<OtpDelivery> {
+    if (this.failNext) {
+      this.failNext = false;
+      throw new Error("synthetic raw provider failure detail");
+    }
+    return super.sendCode(mobileNumber, code);
   }
 }
 
@@ -335,6 +352,125 @@ describe("DBINT-03 OTP one-time concurrency and negatives", () => {
       audits: 2,
       consumed: true,
     });
+  });
+});
+
+describe("CUST-02 PostgreSQL OTP replacement and delivery recovery", () => {
+  let pool: Pool;
+
+  beforeAll(() => {
+    pool = createIntegrationPool();
+  });
+
+  afterAll(async () => {
+    await pool.end();
+  });
+
+  it("atomically supersedes the old code before accepting the replacement", async () => {
+    const { repository, provider, service } = createAuthHarness(pool);
+    const mobileNumber = syntheticMobile("cust02-resend-replacement");
+    const oldChallengeId = stableUuid("challenge:cust02-resend-replacement");
+    const oldCode = "123456";
+    const now = Date.now();
+    await repository.saveChallenge({
+      id: oldChallengeId,
+      mobileNumber,
+      codeDigest: digestOtp(oldChallengeId, oldCode),
+      createdAt: new Date(now - 61_000),
+      expiresAt: new Date(now + 120_000),
+      resendAfter: new Date(now - 1_000),
+      attemptsRemaining: 5,
+    });
+
+    const replacement = await service.requestOtp({ mobileNumber });
+    const replacementCode = provider.lastCode;
+    if (replacementCode === undefined) {
+      throw new Error("Synthetic OTP capture is missing");
+    }
+
+    expect(
+      (await repository.findChallenge(oldChallengeId))?.consumedAt,
+    ).toBeDefined();
+    await expect(
+      service.verifyOtp({
+        challengeId: oldChallengeId,
+        code: oldCode,
+        deviceId: "synthetic-cust02-old-code",
+      }),
+    ).rejects.toMatchObject({ code: "OTP_CHALLENGE_INVALID", status: 401 });
+    await expect(
+      service.verifyOtp({
+        challengeId: replacement.challengeId,
+        code: replacementCode,
+        deviceId: "synthetic-cust02-new-code",
+      }),
+    ).resolves.toMatchObject({ user: { lastActiveRole: "customer" } });
+  });
+
+  it("serializes same-mobile requests across two pools", async () => {
+    const secondPool = createIntegrationPool();
+    try {
+      const first = createAuthHarness(pool);
+      const second = createAuthHarness(secondPool);
+      const mobileNumber = syntheticMobile("cust02-request-serialization");
+
+      const results = await Promise.allSettled([
+        first.service.requestOtp({ mobileNumber }),
+        second.service.requestOtp({ mobileNumber }),
+      ]);
+
+      expect(
+        results.filter((result) => result.status === "fulfilled"),
+      ).toHaveLength(1);
+      expect(
+        results
+          .filter((result) => result.status === "rejected")
+          .map((result) => errorCode(result.reason)),
+      ).toEqual(["OTP_RESEND_COOLDOWN"]);
+      expect(first.provider.deliveryCount + second.provider.deliveryCount).toBe(
+        1,
+      );
+      const challenges = await pool.query<{
+        readonly total: number;
+        readonly open: number;
+      }>(
+        `SELECT count(*)::int AS total,
+                count(*) FILTER (WHERE consumed_at IS NULL)::int AS open
+         FROM otp_challenges WHERE mobile_e164 = $1`,
+        [mobileNumber],
+      );
+      expect(challenges.rows[0]).toEqual({ total: 1, open: 1 });
+    } finally {
+      await secondPool.end();
+    }
+  });
+
+  it("invalidates failed delivery state and permits an immediate retry", async () => {
+    const repository = new PostgresIdentityRepository(pool);
+    const provider = new FailOnceOtpProvider();
+    const service = createAuthService(repository, provider);
+    const mobileNumber = syntheticMobile("cust02-provider-recovery");
+
+    await expect(service.requestOtp({ mobileNumber })).rejects.toMatchObject({
+      code: "OTP_DELIVERY_UNAVAILABLE",
+      message: "We could not send a code right now. Try again later",
+      status: 503,
+    });
+    await expect(service.requestOtp({ mobileNumber })).resolves.toMatchObject({
+      expiresInSeconds: 300,
+      resendAfterSeconds: 60,
+    });
+    const challenges = await pool.query<{
+      readonly total: number;
+      readonly open: number;
+    }>(
+      `SELECT count(*)::int AS total,
+              count(*) FILTER (WHERE consumed_at IS NULL)::int AS open
+       FROM otp_challenges WHERE mobile_e164 = $1`,
+      [mobileNumber],
+    );
+    expect(challenges.rows[0]).toEqual({ total: 2, open: 1 });
+    expect(provider.deliveryCount).toBe(1);
   });
 });
 
@@ -700,6 +836,17 @@ function createAuthHarness(pool: Pool): {
 } {
   const repository = new PostgresIdentityRepository(pool);
   const provider = new CapturingOtpProvider();
+  return {
+    repository,
+    provider,
+    service: createAuthService(repository, provider),
+  };
+}
+
+function createAuthService(
+  repository: PostgresIdentityRepository,
+  provider: OtpProvider,
+): AuthService {
   const values: Readonly<Record<string, string>> = {
     APP_ENV: "development",
     OTP_PROVIDER: "local",
@@ -716,16 +863,12 @@ function createAuthHarness(pool: Pool): {
       return value;
     },
   } as unknown as ConfigService;
-  return {
+  return new AuthService(
     repository,
     provider,
-    service: new AuthService(
-      repository,
-      provider,
-      config,
-      new JwtService({ secret: JWT_ACCESS_SECRET }),
-    ),
-  };
+    config,
+    new JwtService({ secret: JWT_ACCESS_SECRET }),
+  );
 }
 
 async function loginWithOtp(

@@ -7,7 +7,11 @@ import {
   MemoryWindowCounter,
 } from "../../common/http/memory-window-counter";
 import { AccessTokenGuard } from "../platform-foundation/security/access-token.guard";
-import { ExternalOtpProvider } from "./adapters/external-otp.provider";
+import {
+  EXOTEL_HTTP_TRANSPORT,
+  FetchExotelHttpTransport,
+} from "./adapters/exotel-http.transport";
+import { ExotelOtpProvider } from "./adapters/exotel-otp.provider";
 import { LocalOtpProvider } from "./adapters/local-otp.provider";
 import { PostgresIdentityRepository } from "./adapters/postgres-identity.repository";
 import { AuthIpRateLimitGuard } from "./application/auth-ip-rate-limit.guard";
@@ -39,22 +43,38 @@ import { AuthController } from "./presentation/auth.controller";
         ),
     },
     LocalOtpProvider,
-    ExternalOtpProvider,
+    ExotelOtpProvider,
+    {
+      provide: EXOTEL_HTTP_TRANSPORT,
+      useClass: FetchExotelHttpTransport,
+    },
     { provide: IDENTITY_REPOSITORY, useClass: PostgresIdentityRepository },
     {
       provide: OTP_PROVIDER,
-      inject: [ConfigService, LocalOtpProvider, ExternalOtpProvider],
+      inject: [ConfigService, LocalOtpProvider, ExotelOtpProvider],
       useFactory: (
         config: ConfigService,
         local: LocalOtpProvider,
-        external: ExternalOtpProvider,
+        exotel: ExotelOtpProvider,
       ): OtpProvider => {
-        return config.getOrThrow<string>("OTP_PROVIDER") === "external"
-          ? external
-          : local;
+        return selectOtpProvider(
+          config.getOrThrow<string>("OTP_PROVIDER"),
+          local,
+          exotel,
+        );
       },
     },
   ],
   exports: [JwtModule, IDENTITY_REPOSITORY],
 })
 export class IdentityModule {}
+
+export function selectOtpProvider(
+  selection: string,
+  local: OtpProvider,
+  exotel: OtpProvider,
+): OtpProvider {
+  if (selection === "local") return local;
+  if (selection === "exotel") return exotel;
+  throw new Error("Unsupported OTP provider selection");
+}

@@ -160,6 +160,7 @@ class MePhoneField extends StatelessWidget {
     this.errorText,
     this.onChanged,
     this.onSubmitted,
+    this.focusNode,
     this.countryPrefix = '+91',
     this.enabled = true,
     this.textInputAction,
@@ -171,6 +172,7 @@ class MePhoneField extends StatelessWidget {
   final String? errorText;
   final ValueChanged<String>? onChanged;
   final ValueChanged<String>? onSubmitted;
+  final FocusNode? focusNode;
   final String countryPrefix;
   final bool enabled;
   final TextInputAction? textInputAction;
@@ -179,6 +181,7 @@ class MePhoneField extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextField(
       controller: controller,
+      focusNode: focusNode,
       keyboardType: TextInputType.phone,
       autofillHints: const [AutofillHints.telephoneNumberNational],
       onChanged: onChanged,
@@ -210,6 +213,10 @@ class MeOtpField extends StatelessWidget {
     this.label = 'One-time code',
     this.errorText,
     this.onChanged,
+    this.onSubmitted,
+    this.focusNode,
+    this.enabled = true,
+    this.textInputAction,
     this.length = 6,
   });
 
@@ -217,18 +224,29 @@ class MeOtpField extends StatelessWidget {
   final String label;
   final String? errorText;
   final ValueChanged<String>? onChanged;
+  final ValueChanged<String>? onSubmitted;
+  final FocusNode? focusNode;
+  final bool enabled;
+  final TextInputAction? textInputAction;
   final int length;
 
   @override
   Widget build(BuildContext context) {
     return TextField(
       controller: controller,
+      focusNode: focusNode,
       keyboardType: TextInputType.number,
       maxLength: length,
       autofillHints: const [AutofillHints.oneTimeCode],
       onChanged: onChanged,
+      onSubmitted: onSubmitted,
+      enabled: enabled,
+      textInputAction: textInputAction,
       style: AppTypography.titleMd.copyWith(letterSpacing: 4),
-      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+      inputFormatters: [
+        FilteringTextInputFormatter.digitsOnly,
+        LengthLimitingTextInputFormatter(length),
+      ],
       decoration: meInputDecoration(label: label, errorText: errorText),
     );
   }

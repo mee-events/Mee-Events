@@ -8,7 +8,9 @@ Employee web and Flutter release builds fail closed on localhost API fallbacks.
 Ops secret handling: [docs/05-security/secrets.md](../05-security/secrets.md).
 Auth TTLs and OTP rules: [docs/05-security/authentication.md](../05-security/authentication.md).
 
-STAB-02 verified this matrix on 25 August 2026. Secret **values were not
+STAB-02 verified the platform matrix on 25 August 2026. The Exotel additions
+were implemented and offline-tested on 30 August 2026 under
+[ADR 0012](../adr/0012-exotel-otp-delivery.md). Secret **values were not
 inspected**. Local ignored files may exist; only names and ignore status are
 recorded.
 
@@ -22,27 +24,42 @@ means it may appear in a browser bundle, Flutter asset, or dart-define.
 Validated by `apps/backend/src/config/environment.ts` at process start.
 Tests: `apps/backend/test/environment.spec.ts`.
 
-| Variable                    | Purpose                       | Class               | Dev                                     | Test                  | Staging                           | Production                                | Default / notes                                                                       |
-| --------------------------- | ----------------------------- | ------------------- | --------------------------------------- | --------------------- | --------------------------------- | ----------------------------------------- | ------------------------------------------------------------------------------------- |
-| `APP_ENV`                   | Environment selector          | public-ish (server) | required `development`                  | required `test`       | required `staging`                | required `production`                     | No default                                                                            |
-| `PORT`                      | Listen port                   | public              | optional                                | optional              | optional                          | optional                                  | `3002`. Staging/production examples use `3000` as a host-specific placeholder         |
-| `LOG_LEVEL`                 | Pino level                    | public              | optional                                | optional              | optional                          | optional                                  | `info`. LoggerModule also reads `process.env.LOG_LEVEL` at module load                |
-| `DATABASE_URL`              | PostgreSQL URL                | **secret**          | required                                | required              | required                          | required                                  | Must be a URL. Staging/production reject `USER:PASSWORD@HOST` and `example.com` hosts |
-| `OTP_PROVIDER`              | OTP adapter                   | public-ish          | `local` allowed                         | `local` allowed       | **must be `external`**            | **must be `external`**                    | Local provider forbidden in staging and production                                    |
-| `OTP_HMAC_SECRET`           | OTP digest HMAC               | **secret**          | required, min 32                        | required, min 32      | required, min 32, no placeholders | required, min 32, no placeholders         | Example placeholder is allowed only in development/test                               |
-| `JWT_ACCESS_SECRET`         | Access JWT signing            | **secret**          | required, min 32                        | required, min 32      | required, min 32, no placeholders | required, min 32, no placeholders         | Never put in Flutter or `NEXT_PUBLIC_*`                                               |
-| `REFRESH_TOKEN_HMAC_SECRET` | Refresh-token digest          | **secret**          | required, min 32                        | required, min 32      | required, min 32, no placeholders | required, min 32, no placeholders         | Same                                                                                  |
-| `ALLOWED_ORIGINS`           | Browser CORS allowlist        | public              | required, non-empty                     | required              | required; no `*`                  | required; no `*`; https only; no loopback | Development also allows any localhost origin in HTTP surface helper                   |
-| `ENABLE_OPENAPI`            | Serve `/api/docs` UI + JSON   | public              | optional; docs always on in development | optional; default off | ignored; always off               | ignored; always off                       | `true` enables the rare test-only debug case                                          |
-| `SMS_OTP_ENDPOINT`          | External SMS HTTP endpoint    | public-ish URL      | required **if** `OTP_PROVIDER=external` | same                  | required; https                   | required; https                           | Conditional. Founder must still select a vendor (INT-01)                              |
-| `SMS_OTP_API_KEY`           | External SMS credential       | **secret**          | required **if** external                | same                  | required; no placeholders         | required; no placeholders                 | Boot validation added in STAB-02. Adapter still fail-closed until wired               |
-| `SUPABASE_URL`              | Offline catalog-media scripts | public URL          | optional, scripts only                  | unused                | unused by Nest                    | unused by Nest                            | **Not** Zod-validated. Do not treat as runtime API config                             |
-| `SUPABASE_SERVICE_KEY`      | Offline catalog-media scripts | **secret**          | optional, scripts only                  | unused                | unused by Nest                    | unused by Nest                            | Read only by `apps/backend/scripts/*`. Must never go to clients                       |
+| Variable                    | Purpose                       | Class                | Dev                                     | Test                  | Staging                           | Production                                | Default / notes                                                                         |
+| --------------------------- | ----------------------------- | -------------------- | --------------------------------------- | --------------------- | --------------------------------- | ----------------------------------------- | --------------------------------------------------------------------------------------- |
+| `APP_ENV`                   | Environment selector          | public-ish (server)  | required `development`                  | required `test`       | required `staging`                | required `production`                     | No default                                                                              |
+| `PORT`                      | Listen port                   | public               | optional                                | optional              | optional                          | optional                                  | `3002`. Staging/production examples use `3000` as a host-specific placeholder           |
+| `LOG_LEVEL`                 | Pino level                    | public               | optional                                | optional              | optional                          | optional                                  | `info`. LoggerModule also reads `process.env.LOG_LEVEL` at module load                  |
+| `DATABASE_URL`              | PostgreSQL URL                | **secret**           | required                                | required              | required                          | required                                  | Must be a URL. Staging/production reject `USER:PASSWORD@HOST` and `example.com` hosts   |
+| `OTP_PROVIDER`              | OTP adapter                   | public-ish           | `local` allowed                         | `local` allowed       | **must be `exotel`**              | **must be `exotel`**                      | Only `local` or `exotel`; local forbidden in staging/production                         |
+| `OTP_HMAC_SECRET`           | OTP digest HMAC               | **secret**           | required, min 32                        | required, min 32      | required, min 32, no placeholders | required, min 32, no placeholders         | Example placeholder is allowed only in development/test                                 |
+| `JWT_ACCESS_SECRET`         | Access JWT signing            | **secret**           | required, min 32                        | required, min 32      | required, min 32, no placeholders | required, min 32, no placeholders         | Never put in Flutter or `NEXT_PUBLIC_*`                                                 |
+| `REFRESH_TOKEN_HMAC_SECRET` | Refresh-token digest          | **secret**           | required, min 32                        | required, min 32      | required, min 32, no placeholders | required, min 32, no placeholders         | Same                                                                                    |
+| `ALLOWED_ORIGINS`           | Browser CORS allowlist        | public               | required, non-empty                     | required              | required; no `*`                  | required; no `*`; https only; no loopback | Development also allows any localhost origin in HTTP surface helper                     |
+| `ENABLE_OPENAPI`            | Serve `/api/docs` UI + JSON   | public               | optional; docs always on in development | optional; default off | ignored; always off               | ignored; always off                       | `true` enables the rare test-only debug case                                            |
+| `EXOTEL_API_BASE_URL`       | Exotel API origin             | public               | required only for `exotel`              | same                  | required                          | required                                  | Exact `https://api.in.exotel.com`; no path, credentials, or alternate host              |
+| `EXOTEL_API_KEY`            | Exotel Basic-auth username    | **secret**           | required only for `exotel`              | same                  | required; no placeholders         | required; no placeholders                 | Server-side secret; never log or embed in a URL                                         |
+| `EXOTEL_API_TOKEN`          | Exotel Basic-auth password    | **secret**           | required only for `exotel`              | same                  | required; no placeholders         | required; no placeholders                 | Server-side secret; rotate separately per environment                                   |
+| `EXOTEL_ACCOUNT_SID`        | Exotel account path ID        | sensitive config     | required only for `exotel`              | same                  | required; no placeholders         | required; no placeholders                 | Safe single path segment; never expose to clients                                       |
+| `EXOTEL_SMS_SENDER_ID`      | Approved SMS sender/header    | operational config   | required only for `exotel`              | same                  | required; no placeholders         | required; no placeholders                 | 1-11 letters/digits; exact approved value required                                      |
+| `EXOTEL_DLT_ENTITY_ID`      | DLT Principal Entity ID       | operational config   | required only for `exotel`              | same                  | required; no placeholders         | required; no placeholders                 | 1-32 digits; DLT approval still pending                                                 |
+| `EXOTEL_DLT_TEMPLATE_ID`    | DLT content template ID       | operational config   | required only for `exotel`              | same                  | required; no placeholders         | required; no placeholders                 | 1-32 digits; DLT approval still pending                                                 |
+| `EXOTEL_OTP_BODY_TEMPLATE`  | Approved OTP message copy     | approved public copy | required only for `exotel`              | same                  | required; no placeholders         | required; no placeholders                 | One line, no URL, exactly one `{{OTP}}`; rendered body is sensitive and never logged    |
+| `EXOTEL_REQUEST_TIMEOUT_MS` | Exotel request timeout        | public               | required only for `exotel`              | same                  | required                          | required                                  | Integer 1,000-10,000; initial sandbox value 5,000, production value needs latency proof |
+| `SUPABASE_URL`              | Offline catalog-media scripts | public URL           | optional, scripts only                  | unused                | unused by Nest                    | unused by Nest                            | **Not** Zod-validated. Do not treat as runtime API config                               |
+| `SUPABASE_SERVICE_KEY`      | Offline catalog-media scripts | **secret**           | optional, scripts only                  | unused                | unused by Nest                    | unused by Nest                            | Read only by `apps/backend/scripts/*`. Must never go to clients                         |
 
 **Fail closed (tested with synthetic values):** missing/invalid database URL;
 short or missing JWT/HMAC/refresh secrets; local OTP in staging/production;
-missing SMS keys when `OTP_PROVIDER=external`; placeholder secrets in
-staging/production; wildcard or loopback production CORS; invalid PORT.
+missing/blank Exotel settings when `OTP_PROVIDER=exotel`; unsafe or arbitrary
+Exotel origins; path-injecting account IDs; unsafe sender/DLT/template/timeout
+values; deployed example placeholders; wildcard or loopback production CORS;
+invalid PORT. Local mode does not require Exotel settings.
+
+The Exotel adapter uses one form-encoded request with Basic authentication only
+in the `Authorization` header. It does not retry ambiguous failures and treats
+HTTP 200 plus `SMSMessage.Sid` as accepted, not delivered. See the
+[sandbox runbook](./exotel-otp-sandbox-runbook.md). Offline tests inject a fake
+transport and never relax the production host allowlist.
 
 **Direct-access exception:** `apps/backend/src/app.module.ts` LoggerModule reads
 `process.env.LOG_LEVEL` before ConfigService. Invalid levels still fail Zod
@@ -170,10 +187,10 @@ read.
 
 ## Provider decisions (not STAB-02 blockers)
 
-| Decision                                                   | Why required                                                                             | Recommended option                                 | Alternative                                 | Impact                                             |
-| ---------------------------------------------------------- | ---------------------------------------------------------------------------------------- | -------------------------------------------------- | ------------------------------------------- | -------------------------------------------------- |
-| India-compliant SMS/OTP vendor                             | `OTP_PROVIDER=external` can boot only after keys exist; adapter still throws until wired | Provider with DLT/TRAI, sandbox, delivery webhooks | Managed identity provider only after an ADR | Blocks production login (INT-01)                   |
-| Payment, storage, push, email, maps, analytics, monitoring | No application env keys exist yet                                                        | Defer until INT-\*                                 | Do not invent unused keys                   | Honest absence; do not add fake provider variables |
+| Decision                                                   | Why required                                                                                                                                               | Recommended option                                  | Alternative                                       | Impact                                             |
+| ---------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------- | ------------------------------------------------- | -------------------------------------------------- |
+| Exotel production activation                               | Adapter and offline contract tests exist; account/trial, quote, legal/GST, DLT, sender/header, approved template, and real sandbox evidence remain pending | Complete approved Exotel sandbox and DLT onboarding | MSG91 remains runner-up; no first-launch fallback | Blocks production SMS and remains INT-01 work      |
+| Payment, storage, push, email, maps, analytics, monitoring | No application env keys exist yet                                                                                                                          | Defer until INT-\*                                  | Do not invent unused keys                         | Honest absence; do not add fake provider variables |
 
 ---
 
@@ -184,6 +201,8 @@ read.
 3. Distinct keys per environment.
 4. Redact authorization headers, OTP codes, and tokens from logs.
 5. Backend validation errors report issue paths and messages only; they must not echo secret values.
+6. Follow [exotel-otp-sandbox-runbook.md](./exotel-otp-sandbox-runbook.md) for
+   private trial setup, rotation, offline tests, evidence, and emergency disable.
 
 ---
 
