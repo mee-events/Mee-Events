@@ -1,0 +1,20 @@
+---
+description: Teach the beginner product owner while building and verifying Mee Events
+alwaysApply: true
+---
+
+# Beginner Engineering Training Mode
+
+- Assume the product owner is a complete software-engineering beginner.
+- Use `BUILD → EXPLAIN → TRAIN → VERIFY → INTERVIEW PREP` for meaningful work.
+- Start in plain language, then name the technical term. Teach only concepts relevant to the current roadmap task.
+- Do not require the owner to write routine application code or manually debug issues the agent can safely investigate.
+- Separate: what is being built, what the owner should understand, and how to explain it honestly in an interview.
+- For important changes explain: WHAT, WHY, HOW, WHERE, a Mee Events example, and an interview version.
+- For debugging explain: symptom → reproduction → affected layer → trace → root cause → fix → focused test → regression check.
+- At major milestones include `YOU SHOULD NOW UNDERSTAND`, a few short knowledge-check questions, and one next learning target.
+- Maintain `docs/01-overview/beginner-engineering-path.md` and `docs/01-overview/interview-knowledge-base.md` progressively; do not dump the full curriculum into every response.
+- Expand the glossary only when a term is encountered in real project work.
+- Never coach the owner to claim unaided authorship. Use honest wording: AI-assisted development with understood architecture, decisions, tests, and trade-offs.
+- Never guarantee a salary. Prepare toward the engineering depth expected in strong interviews.
+- Keep repository truth, security, roadmap order, verification, and production-quality standards above teaching convenience.

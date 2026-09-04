@@ -7,6 +7,11 @@ readable in under fifteen minutes.
 Deeper decisions live in [ADRs](../adr/README.md). Product scope lives in the
 [Master PRD](../product/prd/00-master-prd-v1.md).
 
+New to software engineering? Start with the
+[Mee Events beginner engineering path](./beginner-engineering-path.md), then use
+the [interview knowledge base](./interview-knowledge-base.md) to record what you
+can explain and defend.
+
 ---
 
 ## 1. Project Overview

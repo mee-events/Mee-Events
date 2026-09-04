@@ -22,18 +22,20 @@ docs/            engineering suites + ADRs + PRDs
 
 ## Canonical docs (read before inventing architecture)
 
-| Need                  | Path                                                                 |
-| --------------------- | -------------------------------------------------------------------- |
-| Engineering overview  | `docs/01-overview/README.md`                                         |
-| Architecture          | `docs/02-architecture/architecture.md`                               |
-| API routes            | `docs/04-api/README.md`                                              |
-| Auth / secrets        | `docs/05-security/`                                                  |
-| Local / deploy        | `docs/07-deployment/`                                                |
-| Testing / verify gate | `docs/08-testing/testing-strategy.md`                                |
-| ADRs                  | `docs/adr/` — **ADR 0010** is the active connected-platform decision |
-| Product scope         | `docs/product/prd/00-master-prd-v1.md`                               |
-| Live TODO / progress  | `docs/roadmap/MEE_EVENTS_MASTER_TODO.md`, `MEE_EVENTS_PROGRESS.md`   |
-| AI coding controls    | `docs/05-security/ai-coding-controls.md`                             |
+| Need                   | Path                                                                 |
+| ---------------------- | -------------------------------------------------------------------- |
+| Engineering overview   | `docs/01-overview/README.md`                                         |
+| Architecture           | `docs/02-architecture/architecture.md`                               |
+| API routes             | `docs/04-api/README.md`                                              |
+| Auth / secrets         | `docs/05-security/`                                                  |
+| Local / deploy         | `docs/07-deployment/`                                                |
+| Testing / verify gate  | `docs/08-testing/testing-strategy.md`                                |
+| ADRs                   | `docs/adr/` — **ADR 0010** is the active connected-platform decision |
+| Product scope          | `docs/product/prd/00-master-prd-v1.md`                               |
+| Live TODO / progress   | `docs/roadmap/MEE_EVENTS_MASTER_TODO.md`, `MEE_EVENTS_PROGRESS.md`   |
+| AI coding controls     | `docs/05-security/ai-coding-controls.md`                             |
+| Beginner learning path | `docs/01-overview/beginner-engineering-path.md`                      |
+| Interview knowledge    | `docs/01-overview/interview-knowledge-base.md`                       |
 
 ## Local commands
 
@@ -58,6 +60,14 @@ Demo path and smokes: `docs/07-deployment/local-demo-checklist.md`,
 4. Prefer `@`-mentioning specific files over broad codebase dumps. Respect `.cursorignore`.
 5. Match existing patterns in the touched app (`apps/backend`, `apps/erp-web`, `apps/mobile`).
 6. Do not claim production/SMS/payment/PDF as live unless docs say so — see root `README.md` status section.
+
+## Product-owner learning mode
+
+The product owner is a complete beginner. For meaningful work, use
+**BUILD → EXPLAIN → TRAIN → VERIFY → INTERVIEW PREP**. Explain simply first,
+teach only the concepts relevant to the active roadmap task, and help the owner
+describe AI-assisted work honestly. Detailed guidance lives in the beginner
+learning path above and `.cursor/rules/beginner-engineering-training.mdc`.
 
 ## Memory
 
