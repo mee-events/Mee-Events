@@ -2,9 +2,11 @@
 
 - **Baseline:** Complete repository audit dated 25 August 2026
 - **Current phase:** Phase 1 - Customer
-- **Last closed block:** CUST-03 Session - **DONE WITH FINDINGS - 2 September
-  2026**
-- **Next authorized block:** CUST-04 Customer bootstrap - **NOT STARTED**
+- **Last closed block:** CUST-04 Customer bootstrap - **INDEPENDENTLY REVIEWED
+  AND CLOSED - 4 SEPTEMBER 2026**
+- **Current block:** None; CUST-04 is closed and CUST-05 implementation has not
+  started
+- **Next authorized action:** CUST-05 discovery and requirements verification
 - **Rule:** One block → verify → document → commit → stop.
 
 This file is the definitive ordered work inventory. The phase order is mandatory even when a later task has a higher risk priority. Do not start Customer until the Phase 0 gate passes; do not start Vendor until Customer passes; continue one major module at a time.
@@ -81,8 +83,8 @@ Status marks in this file describe execution, not how much scaffold already exis
 - [x] **CUST-01 Authentication** — Objective: production-safe customer login entry; State: **DONE WITH FINDINGS - 30 August 2026**; Scope: mobile auth entry and backend OTP-request boundary; Result: strict Indian mobile validation and E.164 normalization, real OTP-request API contract, safe loading and error handling, duplicate-request protection, enumeration-safe response, mobile-number log redaction, accessibility and large-text support, and preserved existing OTP/AppGateway handoff; Depends/Risk: STAB-20, production provider later; Test/Security: Flutter focused 13/13, AppGateway/Customer-shell 59/59, full Flutter 497/497, focused backend 42/42, full backend 249/249, PostgreSQL integration 39/39, Flutter analysis zero issues, lint zero errors/warnings, typecheck zero errors; DoD: independently approved with retained downstream findings; Evidence: `docs/08-testing/cust-01-authentication-entry-evidence.md`; Next: CUST-02 - **NOT STARTED**.
 - [ ] **CUST-02 OTP** — Objective: reliable request/verify/resend UX; State: **PARTIAL - OFFLINE APPROVED, EXTERNAL EXOTEL EVIDENCE PENDING**; Scope: auth endpoints/UI; Result: the offline OTP lifecycle and Exotel delivery adapter are independently approved, while the live Exotel sandbox, DLT, physical-device SMS, and autofill evidence remain pending and Vinay (Developer) made the 1 September 2026 development scheduling decision to continue Customer-interface development using the existing development/test-only local OTP boundary; Action: reopen and fully close the pending external evidence before the final Customer release gate; Depends/Risk: CUST-01, Exotel procurement/DLT/device evidence; Test/Security: expiry, attempts, cooldown, provider failure/race, then separately authorized sandbox/device proof without code leakage; DoD: offline approval is retained but CUST-02 remains incomplete until the pending sandbox and device evidence passes; Next: CUST-03 may proceed only after the independent deferred-checkpoint review is complete and this checkpoint is committed, using development/test-only local OTP.
 - [x] **CUST-03 Session** — Objective: secure login persistence/logout/revocation; State: **DONE WITH FINDINGS - 2 September 2026**; Scope: secure store/API refresh/device sessions; Result: independently approved with no reviewer source changes and zero blocking findings; access tokens are memory-first, the minimum refresh session is versioned in platform-secure storage, startup restoration validates and rotates once, refresh is single-flight, unsafe mutations are not blindly replayed, revoked/reused/invalid sessions fail closed, current/all-device logout use the existing authenticated contracts, and Customer-private caches are cleared on logout or identity change; Depends/Risk: independently reviewed and committed CUST-02 deferred checkpoint; development and automated tests use the existing development/test-only local OTP boundary only; Test/Security: focused backend 23/23, full backend 293/293, PostgreSQL integration 42/42, focused Flutter 28/28, Flutter regression groups 79/79 and 59/59, full Flutter 544/544, analysis/lint/typecheck/build/format/diff checks pass; DoD: independently approved and closed with two accepted P2 non-blocking findings: refresh de-duplication is process-local with PostgreSQL authoritative across instances, and cross-instance principal-cache revocation observation may take at most 15 seconds; Evidence: `docs/08-testing/cust-03-session-evidence.md`; Next: CUST-04 - **NOT STARTED**. CUST-03 is not production-proven, does not approve production SMS, and CUST-02 must reopen before the final Customer release gate.
-- [ ] **CUST-04 Customer bootstrap** — Objective: fail-closed role/branch/module bootstrap; State: **NOT STARTED**; Scope: platform bootstrap and AppGateway; Action: validate complete response and handle unavailable roles; Depends/Risk: CUST-03; Test/Security: wrong role/branch/unknown surface denial; DoD: only customer assignment opens customer app; Next: CUST-05.
-- [ ] **CUST-05 Home** — Objective: real, useful customer home; State: **PARTIAL**; Scope: Home widgets/catalog API; Action: live approved content, active journey state, honest fallbacks; Depends/Risk: CUST-04 and media approval; Test/Security: no fixture PII/false availability; DoD: empty/new/active/completed real-data states pass; Next: CUST-06.
+- [x] **CUST-04 Customer bootstrap** — Objective: fail-closed role/branch/module bootstrap; State: **INDEPENDENTLY REVIEWED AND CLOSED - 4 SEPTEMBER 2026**; Scope: bootstrap compatibility and authorization, PostgreSQL/shared/principal role scopes, AppGateway/session freshness, refresh/role-switch concurrency, vendor-note relationship integrity, multi-vendor selection, vendor-self note classification, vendor-summary output filtering, and tests; Result: strict structural/minimum-client validation accepts safe additive policy while preserving required baselines, TypeScript and Flutter require UTC `generatedAt`, typed global/branch/vendor grants never confuse vendor UUIDs with operational Hyderabad branch, vendor self-resources intersect a qualifying active grant with same-vendor membership, ambiguous multi-vendor note requests require explicit selection, authenticated memory clears before logout cleanup awaits, stable server session identity plus local generations/revisions reject stale or conflicting responses, CRM/self note paths validate branch/vendor/assignment/event linkage transactionally, vendor-self notes strictly enforce noteType 'vendor', dashboard output uses a runtime summary allowlist, mixed-case and trailing-slash sensitive paths retain no-store, generated Next declarations are ignored/untracked and regenerated before ERP typecheck, and authorization remains server-authoritative; Depends/Risk: CUST-03; Test/Security: backend 343/343, PostgreSQL 52/52, Flutter 581/581, real Nest HTTP/guard/OpenAPI/no-store/serialization coverage, clean-like ERP type generation, two consecutive complete root verify runs, and mobile analysis pass; DoD: Claude's final independent review returned **READY TO CLOSE** with no blocking findings; locally verified and closed without claiming staging, production, physical-device, Exotel, DLT, or store proof; Evidence: `docs/08-testing/cust-04-customer-bootstrap-evidence.md`; Next: CUST-05 discovery and requirements verification; CUST-05 implementation remains **NOT STARTED**.
+- [ ] **CUST-05 Home** — Objective: real, useful customer home; State: **PARTIAL SCAFFOLD / EXECUTION NOT STARTED**; Scope: Home widgets/catalog API; Action: live approved content, active journey state, honest fallbacks; Depends/Risk: CUST-04 and media approval; Test/Security: no fixture PII/false availability; DoD: empty/new/active/completed real-data states pass; Next: CUST-06.
 - [ ] **CUST-06 Explore** — Objective: browse live categories/services/products; State: **PARTIAL**; Scope: Explore/catalog screens/API; Action: pagination/filter/detail consistency; Depends/Risk: CUST-05; Test/Security: unpublished media hidden and safe URLs; DoD: live catalog browse works with zero fake production claims; Next: CUST-07.
 - [ ] **CUST-07 Event categories** — Objective: complete approved occasion taxonomy; State: **PARTIAL**; Scope: catalog migrations/admin data/mobile; Action: validate enabled/order/media/mappings; Depends/Risk: CUST-06, founder content approval; Test/Security: disabled/unapproved entries excluded; DoD: approved taxonomy matches DB/API/UI; Next: CUST-08.
 - [ ] **CUST-08 Services** — Objective: complete services and detail information; State: **PARTIAL**; Scope: catalog service/subcategory/product APIs/UI; Action: connect real descriptions/ranges/media/availability wording; Depends/Risk: CUST-07; Test/Security: no invented vendors/prices; DoD: each enabled service has valid live detail and enquiry path; Next: CUST-09.
@@ -289,33 +291,73 @@ Status marks in this file describe execution, not how much scaffold already exis
 - [ ] **POLISH-05 Support and runbooks** — Objective: founder/operator can diagnose and respond; State: **MISSING**; Scope: customer support, incidents, providers, data correction; Action: severity/ownership/escalation/runbooks; Depends/Risk: production topology; Test/Security: tabletop drills and redaction; DoD: named owners and successful drills; Next: POLISH-06.
 - [ ] **POLISH-06 Final launch checklist** — Objective: prove the complete definition of done; State: **MISSING**; Scope: all evidence; Action: verify, never infer; Depends/Risk: IOS-10 and all prior gates; Test/Security: repeat critical journeys/security/restore/rollback; DoD: every required item checked with artifact/owner/date; Next: maintain/operate.
 
-## Current acceptance block — CUST-03 Session
+## Closed acceptance block — CUST-04 Customer Bootstrap
 
 ### TASK ID
 
-`CUST-03 Session`
+`CUST-04 Customer Bootstrap`
 
 ### RESULT
 
-**DONE WITH FINDINGS - 2 September 2026.** Independent review returned
-`APPROVE CUST-03 SESSION` with zero blocking findings, two accepted P2
-non-blocking findings, no required corrections, and no reviewer source changes.
-The mobile session now restores through a validated, versioned secure-storage record,
-keeps the access token memory-first, serializes refresh, avoids unsafe automatic
-mutation replay, handles terminal and temporary failures separately, revokes
-the current or all authenticated-user sessions through existing backend
-contracts, and removes Customer-private local caches on logout or identity
-change. Existing PostgreSQL rotation, reuse detection, user-scoped revocation,
-transaction, rollback, and audit controls remain authoritative; no migration
-was required.
+**INDEPENDENTLY REVIEWED AND CLOSED - 4 SEPTEMBER 2026.**
+The authenticated multi-role endpoint now separates strict structural and
+minimum-client compatibility from additive policy revisions. Required Customer
+baselines remain fail-closed; safe future modules/capabilities no longer break
+compatible installed clients, and known privileged contradictions are denied.
 
-The retained findings are that backend in-flight refresh de-duplication is
-process-local while PostgreSQL remains authoritative across instances, and the
-existing access-principal cache permits a maximum 15-second cross-instance
-revocation-observation window. CUST-03 is not production-proven. Physical
-Keychain/Keystore, backup/restore, rooted/jailbroken device, staging,
-production, real Exotel sandbox SMS, DLT, and physical-device SMS autofill
-proof remain pending.
+PostgreSQL `global`, `branch`, and `vendor` scope types reach the authenticated
+principal and bootstrap intact. Operational Hyderabad `branchId` stays
+separate, unsupported combinations fail closed, and distinct legitimate grants
+are retained. Vendor self-resources require the active vendor role, a matching
+exact-vendor or Hyderabad-branch grant, and active membership for the same
+vendor; cross-vendor grant/membership combinations fail closed.
+
+Stable server session IDs plus local session generations and token/role
+revisions replace object-identity races. Refresh/bootstrap overlap is safe;
+logout, account/session replacement, conflicting role changes, and wrong-device
+responses fail closed; refresh/switch overlap is reconciled without unsafe
+mutation replay. Logout clears authenticated memory before asynchronous local
+cleanup. Mixed-case auth/bootstrap routes retain no-store protection, and the
+HTTP bootstrap success test traverses the real access-token guard with a signed
+JWT and active device session.
+
+The fresh Security Review's one High and three Medium findings are remediated.
+CRM and vendor-self notes now use explicit capability-protected service paths;
+both converge on a branch-scoped transaction that validates any supplied
+assignment/event IDs as one vendor relationship before writing. Invalid links
+produce no note, history, timeline/activity, audit, or outbox side effects.
+Vendor-self notes created through `/api/v1/vendors/me/notes` strictly enforce
+`noteType: "vendor"` at the request schema level (`addVendorSelfNoteSchema`), at
+the service boundary (`VendorService.addOwnNote`), and in database storage,
+rejecting attempted `internal`/`progress` classifications while CRM employees
+retain full support for all note classifications. Vendor-self dashboards
+serialize only an explicit `VendorSummary` allowlist, and mixed-case bootstrap
+URLs with or without a trailing slash receive `Cache-Control: no-store`.
+
+The final correction pass makes vendor selection explicit without changing the
+CRM contract: one authorized vendor may be inferred, multiple authorized
+vendors require `vendorId`, and any supplied ID passes the existing branch,
+grant, membership, and relationship checks. The production capability guard
+again requires injected `Reflector`; test-only Nest metadata supplies test
+dependencies. TypeScript now matches Flutter by rejecting non-UTC
+`generatedAt` offsets. Next's generated `next-env.d.ts` is ignored and removed
+from Git tracking while remaining local, and ERP typecheck generates Next route
+types before `tsc`.
+
+Verification passes backend **343/343**, PostgreSQL **52/52**, and Flutter
+**581/581**, plus real Nest HTTP/guard/OpenAPI/no-store checks, analysis, lint,
+typecheck, formatting, all production builds, a clean-like ERP typecheck, two
+consecutive root verify runs without tracked-file mutation, and a local
+authenticated PostgreSQL-backed bootstrap/logout smoke. Claude's final
+independent review returned **READY TO CLOSE** with no blocking findings.
+CUST-04 is locally verified and closed, but is not staging, production, or
+physical-device proven.
+
+Claude's non-blocking P3 observations retain their existing owners: future
+Phase 2 unsupported-role-row handling maps to VEND-01/VEND-20; force-update UX
+maps to CUST-24 and the platform release gates; unused vendor repository methods
+remain under STAB-19 cleanup discipline; and distributed-cache limitations
+remain accepted CUST-03 findings. None is a CUST-04 production blocker.
 
 CUST-02 remains **PARTIAL - OFFLINE APPROVED, EXTERNAL EXOTEL EVIDENCE
 PENDING**. Development and automated tests used only the existing
@@ -323,16 +365,21 @@ development/test-only local OTP boundary. No provider call or SMS occurred,
 production SMS is not approved, and staging/production remain fail-closed.
 CUST-02 must reopen and fully close before the final Customer release gate.
 
-Evidence: `docs/08-testing/cust-03-session-evidence.md` and
+Evidence: `docs/08-testing/cust-04-customer-bootstrap-evidence.md`,
+`docs/08-testing/cust-03-session-evidence.md`, and
 `docs/08-testing/cust-02-otp-evidence.md`.
 
 ### CURRENT WORK
 
-CUST-03 is closed in the authorized scoped 23-path commit with message
-`feat(customer): complete CUST-03 session`. CUST-04 has not started.
+The CUST-04 closure packages implementation, contracts, tests, security/API
+documentation, and evidence separately from the beginner-training document
+package. Generated `apps/erp-web/next-env.d.ts` is untracked, ignored, and
+regenerated by `next typegen` or a Next build. CUST-03 remains closed in commit
+`b7b2569`. CUST-05 has not started.
 
 ### NEXT TASK
 
-Prepare and implement `CUST-04 Customer Bootstrap`; it remains **NOT STARTED**
-during this closeout. CUST-02 remains deferred and must reopen before the final
-Customer release gate.
+CUST-05 discovery and requirements verification; do not begin UI
+implementation until that review is complete.
+CUST-02 remains deferred and must reopen before the final Customer release
+gate.

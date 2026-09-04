@@ -26,6 +26,7 @@ import 'package:mee_events/features/customer/widgets/home/home_planning_hero.dar
 import 'package:mee_events/features/customer/search/customer_search_screen.dart';
 import 'package:mee_events/features/customer/search/search_provider.dart';
 import 'package:mee_events/models/bootstrap_response.dart';
+import 'package:mee_events/models/auth_session.dart';
 import 'package:mee_events/models/catalog_item.dart';
 import 'package:mee_events/models/catalog_service.dart';
 import 'package:mee_events/models/client_surface.dart';
@@ -321,20 +322,73 @@ void main() {
   ) async {
     final semantics = tester.ensureSemantics();
     try {
+      final notifier = SessionNotifier(
+        (refreshToken) async => SessionTokens(
+          accessToken: 'refreshed-shell-access',
+          refreshToken: refreshToken,
+          accessTokenExpiresInSeconds: 900,
+          sessionId: '00000000-0000-4000-8000-000000000201',
+          activeRole: 'customer',
+        ),
+        store: MemoryAuthSessionStore(),
+      );
+      await notifier.signIn(
+        AuthSession(
+          accessToken: 'customer-shell-access',
+          refreshToken: 'customer-shell-refresh-token-value-32chars',
+          accessTokenExpiresInSeconds: 900,
+          accessTokenExpiresAt: DateTime.utc(2099),
+          sessionId: '00000000-0000-4000-8000-000000000201',
+          userId: 'customer-shell-user',
+          mobileNumber: '+919876543210',
+          lastActiveRole: 'customer',
+        ),
+      );
       await pumpDashboard(
         tester,
         hostBootstrap: true,
         extraOverrides: [
+          sessionProvider.overrideWith((ref) => notifier),
           platformBootstrapProvider.overrideWith(
             (ref) async => const PlatformBootstrapResponse(
+              schemaVersion: platformBootstrapSchemaVersion,
+              minimumClientBootstrapVersion: platformBootstrapClientVersion,
+              policyVersion: platformBootstrapPolicyVersion,
+              generatedAt: '2026-09-02T10:00:00.000Z',
+              requestId: 'request-customer-shell',
+              actorUserId: 'customer-shell-user',
+              actorSessionId: '00000000-0000-4000-8000-000000000201',
               surface: ClientSurface.customerMobile,
               activeRole: 'customer',
               landingModule: 'customer_home',
+              branchId: hyderabadBranchId,
               branchCode: 'HYD',
               branchName: 'Hyderabad',
               assignedRoles: ['customer', 'worker'],
-              modules: ['customer_home'],
-              capabilities: [],
+              modules: [
+                'customer_home',
+                'customer_enquiries',
+                'customer_quotations',
+                'customer_bookings',
+                'customer_payments',
+                'customer_event_tracking',
+                'customer_changes',
+                'customer_support',
+              ],
+              capabilities: [
+                'enquiry.create_own',
+                'enquiry.read_own',
+                'quotation.read_own',
+                'quotation.approve_own',
+                'quotation.reject_own',
+                'quotation.request_revision_own',
+                'booking.read_own',
+                'payment.submit_own',
+                'payment.read_own',
+                'event.track_own',
+                'change_request.create_own',
+                'support.contact_assigned_manager',
+              ],
             ),
           ),
         ],

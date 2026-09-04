@@ -1,7 +1,16 @@
 import { Injectable } from "@nestjs/common";
+import { platformBootstrapResponseSchema } from "@me-event/api-contracts";
+import {
+  activeSupportedAssignments,
+  hasSupportedActiveRoleAssignment,
+} from "../../../common/branch/role-scope-policy";
+import { DomainError } from "../../../common/errors/domain.error";
 import {
   HYDERABAD_BRANCH,
   MODULE_DEFINITIONS,
+  PLATFORM_BOOTSTRAP_MINIMUM_CLIENT_VERSION,
+  PLATFORM_BOOTSTRAP_POLICY_VERSION,
+  PLATFORM_BOOTSTRAP_SCHEMA_VERSION,
   ROLE_CAPABILITIES,
   ROLE_LANDING_MODULES,
   ROLE_MODULES,
@@ -17,20 +26,49 @@ export class PlatformFoundationService {
     requestId: string,
     now: Date = new Date(),
   ): PlatformBootstrap {
-    const activeAssignments = principal.roleAssignments
-      .filter((assignment) => assignment.active)
-      .map((assignment) => ({
+    const normalizedRequestId = requestId.trim();
+    if (
+      normalizedRequestId.length === 0 ||
+      normalizedRequestId === "undefined" ||
+      Number.isNaN(now.getTime())
+    ) {
+      requestContextUnavailable();
+    }
+    if (
+      principal.userId.trim().length === 0 ||
+      principal.sessionId.trim().length === 0
+    ) {
+      bootstrapUnavailable();
+    }
+
+    const supportedAssignments = activeSupportedAssignments(
+      principal.roleAssignments,
+    );
+    const activeRole = principal.activeRole;
+    if (
+      supportedAssignments === undefined ||
+      !hasSupportedActiveRoleAssignment(supportedAssignments, activeRole) ||
+      (principal.branchId !== undefined &&
+        principal.branchId !== HYDERABAD_BRANCH.id)
+    ) {
+      bootstrapUnavailable();
+    }
+    const activeAssignments: PlatformBootstrap["access"]["assignedActiveRoles"] =
+      supportedAssignments.map((assignment) => ({
         role: assignment.role,
         surface: ROLE_SURFACES[assignment.role],
-        scopeId: assignment.scopeId ?? HYDERABAD_BRANCH.id,
+        scopeType: assignment.scopeType,
+        ...(assignment.scopeId === undefined
+          ? {}
+          : { scopeId: assignment.scopeId }),
       }));
-    const activeRole = principal.activeRole;
 
-    return {
-      schemaVersion: "2026-07-29",
-      policyVersion: "hyd-v1",
+    return platformBootstrapResponseSchema.parse({
+      schemaVersion: PLATFORM_BOOTSTRAP_SCHEMA_VERSION,
+      minimumClientBootstrapVersion: PLATFORM_BOOTSTRAP_MINIMUM_CLIENT_VERSION,
+      policyVersion: PLATFORM_BOOTSTRAP_POLICY_VERSION,
       generatedAt: now.toISOString(),
-      requestId,
+      requestId: normalizedRequestId,
       actor: {
         userId: principal.userId,
         sessionId: principal.sessionId,
@@ -54,6 +92,22 @@ export class PlatformFoundationService {
         mutationAudit: "required",
         serverAuthorization: "required",
       },
-    };
+    });
   }
+}
+
+function bootstrapUnavailable(): never {
+  throw new DomainError(
+    "PLATFORM_BOOTSTRAP_UNAVAILABLE",
+    "This account setup is not available.",
+    403,
+  );
+}
+
+function requestContextUnavailable(): never {
+  throw new DomainError(
+    "REQUEST_CONTEXT_UNAVAILABLE",
+    "Request context is unavailable.",
+    500,
+  );
 }

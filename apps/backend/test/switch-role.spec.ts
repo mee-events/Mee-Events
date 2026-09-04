@@ -95,13 +95,20 @@ describe("AuthService switch-role", () => {
 
   async function assignRoles(
     userId: string,
-    roles: readonly RoleAssignment[],
+    roles: readonly Pick<RoleAssignment, "role" | "active">[],
   ): Promise<void> {
     const user = await repository.findUserById(userId);
     if (user === undefined) {
       throw new Error("user missing");
     }
-    repository.replaceUser({ ...user, roles });
+    repository.replaceUser({
+      ...user,
+      roles: roles.map((assignment) => ({
+        ...assignment,
+        scopeType: "branch",
+        scopeId: "00000000-0000-4000-8000-000000000001",
+      })),
+    });
   }
 
   it("lets a customer switch to an active worker assignment", async () => {

@@ -75,6 +75,22 @@ Policy map lives in
 Clients may hide UI from bootstrap capabilities; **server checks are
 authoritative**.
 
+Bootstrap is descriptive, not an authorization token. Its capability list can
+never grant an API action: each protected route re-evaluates the authenticated
+principal and its server-side capability, branch, ownership, or active vendor
+membership rules. Role grants preserve their `global`, `branch`, or `vendor`
+scope type; supported Phase 1 pairings are documented in
+[branch-context.md](./branch-context.md).
+
+Vendor self-resource routes use one reusable service rule. The caller must have
+an active `vendor_owner` or `vendor_member` role, an active assignment for that
+role whose vendor scope equals the requested vendor (or whose branch scope is
+Hyderabad), and an active `vendor_members` relationship for the same vendor.
+Membership narrows a branch grant; it never replaces the role grant. A grant
+for Vendor A plus membership in Vendor B cannot authorize Vendor B. Dashboard,
+assignment list/detail, accept/reject/progress, and note paths all use this
+intersection.
+
 ---
 
 ## RolesGuard

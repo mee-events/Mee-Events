@@ -7,6 +7,11 @@ class BootstrapValidationException implements Exception {
   String toString() => 'BootstrapValidationException';
 }
 
+const platformBootstrapSchemaVersion = '2026-07-29';
+const platformBootstrapClientVersion = 1;
+const platformBootstrapPolicyVersion = 'hyd-v1';
+const hyderabadBranchId = '00000000-0000-4000-8000-000000000001';
+
 const platformRoles = <String>{
   'customer',
   'vendor_owner',
@@ -180,16 +185,48 @@ const _capabilityIds = <String>{
   'catalog_review.update',
 };
 
-const _platformAreas = <String>{'self_service', 'crm', 'erp', 'governance'};
+const _customerModules = <String>{
+  'customer_home',
+  'customer_enquiries',
+  'customer_quotations',
+  'customer_bookings',
+  'customer_payments',
+  'customer_event_tracking',
+  'customer_changes',
+  'customer_support',
+};
+
+const _customerCapabilities = <String>{
+  'enquiry.create_own',
+  'enquiry.read_own',
+  'quotation.read_own',
+  'quotation.approve_own',
+  'quotation.reject_own',
+  'quotation.request_revision_own',
+  'booking.read_own',
+  'payment.submit_own',
+  'payment.read_own',
+  'event.track_own',
+  'change_request.create_own',
+  'support.contact_assigned_manager',
+};
 
 ClientSurface? surfaceForPlatformRole(String role) => _roleSurfaces[role];
 
 String? landingModuleForPlatformRole(String role) => _roleLandingModules[role];
 
 class PlatformBootstrapResponse {
+  final String schemaVersion;
+  final int minimumClientBootstrapVersion;
+  final String policyVersion;
+  final String generatedAt;
+  final String requestId;
+  final String actorUserId;
+  final String actorSessionId;
   final ClientSurface surface;
   final String activeRole;
   final String landingModule;
+  final String branchId;
   final String branchCode;
   final String branchName;
   final List<String> assignedRoles;
@@ -197,9 +234,17 @@ class PlatformBootstrapResponse {
   final List<String> capabilities;
 
   const PlatformBootstrapResponse({
+    required this.schemaVersion,
+    required this.minimumClientBootstrapVersion,
+    required this.policyVersion,
+    required this.generatedAt,
+    required this.requestId,
+    required this.actorUserId,
+    required this.actorSessionId,
     required this.surface,
     required this.activeRole,
     required this.landingModule,
+    required this.branchId,
     required this.branchCode,
     required this.branchName,
     required this.assignedRoles,
@@ -208,15 +253,28 @@ class PlatformBootstrapResponse {
   });
 
   factory PlatformBootstrapResponse.fromJson(Map<String, dynamic> json) {
-    _requiredText(json, 'schemaVersion');
-    _requiredText(json, 'policyVersion');
+    final schemaVersion = _requiredText(json, 'schemaVersion');
+    final policyVersion = _requiredText(json, 'policyVersion');
+    final minimumClientVersion = json['minimumClientBootstrapVersion'];
+    if (schemaVersion != platformBootstrapSchemaVersion ||
+        minimumClientVersion is! int ||
+        minimumClientVersion < 1 ||
+        minimumClientVersion > platformBootstrapClientVersion ||
+        !_policyVersionPattern.hasMatch(policyVersion)) {
+      _invalid();
+    }
     final generatedAt = _requiredText(json, 'generatedAt');
-    if (DateTime.tryParse(generatedAt) == null) _invalid();
-    _requiredText(json, 'requestId');
+    final generated = DateTime.tryParse(generatedAt);
+    if (generated == null || !generated.isUtc) _invalid();
+    final requestId = _requiredText(json, 'requestId');
 
     final actor = _requiredMap(json, 'actor');
-    _requiredText(actor, 'userId');
-    _requiredText(actor, 'sessionId');
+    final actorUserId = _requiredText(actor, 'userId');
+    final actorSessionId = _requiredText(actor, 'sessionId');
+    if (!_uuidPattern.hasMatch(actorUserId) ||
+        !_uuidPattern.hasMatch(actorSessionId)) {
+      _invalid();
+    }
     final activeRole = _requiredKnownText(actor, 'activeRole', platformRoles);
 
     final branch = _requiredMap(json, 'branch');
@@ -229,14 +287,14 @@ class PlatformBootstrapResponse {
     final branchTimezone = _requiredText(branch, 'timezone');
     final branchCurrencyCode = _requiredText(branch, 'currencyCode');
     if (_requiredText(branch, 'status') != 'active') _invalid();
-    if (branchCode == 'HYD' &&
-        (branchId != '00000000-0000-4000-8000-000000000001' ||
-            branchName != 'Hyderabad' ||
-            branchCity != 'Hyderabad' ||
-            branchState != 'Telangana' ||
-            branchCountryCode != 'IN' ||
-            branchTimezone != 'Asia/Kolkata' ||
-            branchCurrencyCode != 'INR')) {
+    if (branchId != hyderabadBranchId ||
+        branchCode != 'HYD' ||
+        branchName != 'Hyderabad' ||
+        branchCity != 'Hyderabad' ||
+        branchState != 'Telangana' ||
+        branchCountryCode != 'IN' ||
+        branchTimezone != 'Asia/Kolkata' ||
+        branchCurrencyCode != 'INR') {
       _invalid();
     }
 
@@ -259,12 +317,24 @@ class PlatformBootstrapResponse {
       activeSurface: surface,
       branchId: branchId,
     );
-    final capabilities = _knownStringList(
-      access['capabilities'],
-      _capabilityIds,
-    );
+    final capabilities = _capabilities(access['capabilities']);
     final modules = _modules(access['modules']);
     if (!modules.contains(landingModule)) _invalid();
+    if (activeRole == 'customer' &&
+        (!_containsRequiredValues(modules, _customerModules) ||
+            !_containsRequiredValues(capabilities, _customerCapabilities) ||
+            modules.any(
+              (module) =>
+                  _platformModuleIds.contains(module) &&
+                  !_customerModules.contains(module),
+            ) ||
+            capabilities.any(
+              (capability) =>
+                  _capabilityIds.contains(capability) &&
+                  !_customerCapabilities.contains(capability),
+            ))) {
+      _invalid();
+    }
 
     final controls = _requiredMap(json, 'controls');
     _requireExact(controls, 'roleVisibility', 'assigned-active-only');
@@ -273,9 +343,17 @@ class PlatformBootstrapResponse {
     _requireExact(controls, 'serverAuthorization', 'required');
 
     return PlatformBootstrapResponse(
+      schemaVersion: schemaVersion,
+      minimumClientBootstrapVersion: minimumClientVersion,
+      policyVersion: policyVersion,
+      generatedAt: generatedAt,
+      requestId: requestId,
+      actorUserId: actorUserId,
+      actorSessionId: actorSessionId,
       surface: surface,
       activeRole: activeRole,
       landingModule: landingModule,
+      branchId: branchId,
       branchCode: branchCode,
       branchName: branchName,
       assignedRoles: assignments,
@@ -285,12 +363,42 @@ class PlatformBootstrapResponse {
   }
 
   bool get hasValidRoutingAgreement {
-    return branchCode.trim().isNotEmpty &&
-        branchName.trim().isNotEmpty &&
+    return schemaVersion == platformBootstrapSchemaVersion &&
+        minimumClientBootstrapVersion >= 1 &&
+        minimumClientBootstrapVersion <= platformBootstrapClientVersion &&
+        _policyVersionPattern.hasMatch(policyVersion) &&
+        actorUserId.trim().isNotEmpty &&
+        actorSessionId.trim().isNotEmpty &&
+        branchId == hyderabadBranchId &&
+        branchCode == 'HYD' &&
+        branchName == 'Hyderabad' &&
         surfaceForPlatformRole(activeRole) == surface &&
         landingModuleForPlatformRole(activeRole) == landingModule &&
         assignedRoles.contains(activeRole) &&
-        modules.contains(landingModule);
+        modules.contains(landingModule) &&
+        (activeRole != 'customer' ||
+            (_containsRequiredValues(modules, _customerModules) &&
+                _containsRequiredValues(capabilities, _customerCapabilities) &&
+                modules.every(
+                  (module) =>
+                      !_platformModuleIds.contains(module) ||
+                      _customerModules.contains(module),
+                ) &&
+                capabilities.every(
+                  (capability) =>
+                      !_capabilityIds.contains(capability) ||
+                      _customerCapabilities.contains(capability),
+                )));
+  }
+
+  bool agreesWithSession({
+    required String userId,
+    required String sessionId,
+    required String activeRole,
+  }) {
+    return actorUserId == userId &&
+        actorSessionId == sessionId &&
+        this.activeRole == activeRole;
   }
 }
 
@@ -307,7 +415,12 @@ Map<String, dynamic> _requiredMap(Map<String, dynamic> parent, String key) {
 
 String _requiredText(Map<String, dynamic> parent, String key) {
   final value = parent[key];
-  if (value is! String || value.trim().isEmpty) _invalid();
+  if (value is! String ||
+      value.trim().isEmpty ||
+      value.length > 512 ||
+      value.contains(RegExp(r'[\u0000-\u001f]'))) {
+    _invalid();
+  }
   return value.trim();
 }
 
@@ -333,6 +446,7 @@ List<String> _assignedRoles(
 }) {
   if (value is! List) _invalid();
   final roles = <String>[];
+  final assignmentKeys = <String>{};
   var hasActiveAssignment = false;
   for (final item in value) {
     if (item is! Map) _invalid();
@@ -344,10 +458,34 @@ List<String> _assignedRoles(
     final role = _requiredKnownText(assignment, 'role', platformRoles);
     final surface = ClientSurface.tryParse(assignment['surface']);
     if (surface == null || surface != surfaceForPlatformRole(role)) _invalid();
-    final scopeId = _requiredText(assignment, 'scopeId');
+    final scopeType = _requiredKnownText(assignment, 'scopeType', const {
+      'global',
+      'branch',
+      'vendor',
+    });
+    final scopeId = _optionalText(assignment, 'scopeId');
+    final active = assignment['active'];
+    if (active != null && active != true) _invalid();
+    switch (scopeType) {
+      case 'global':
+        if (role != 'administrator' || scopeId != null) _invalid();
+        break;
+      case 'branch':
+        if (scopeId != branchId) _invalid();
+        break;
+      case 'vendor':
+        if (!const {'vendor_owner', 'vendor_member'}.contains(role) ||
+            scopeId == null ||
+            !_uuidPattern.hasMatch(scopeId)) {
+          _invalid();
+        }
+        break;
+    }
+    final assignmentKey = '$role|$scopeType|${scopeId ?? ''}';
+    if (!assignmentKeys.add(assignmentKey)) _invalid();
     if (!roles.contains(role)) roles.add(role);
     if (role == activeRole) {
-      if (surface != activeSurface || scopeId != branchId) _invalid();
+      if (surface != activeSurface) _invalid();
       hasActiveAssignment = true;
     }
   }
@@ -355,13 +493,23 @@ List<String> _assignedRoles(
   return List.unmodifiable(roles);
 }
 
-List<String> _knownStringList(Object? value, Set<String> allowed) {
+String? _optionalText(Map<String, dynamic> parent, String key) {
+  if (!parent.containsKey(key) || parent[key] == null) return null;
+  return _requiredText(parent, key);
+}
+
+bool _containsRequiredValues(Iterable<String> actual, Set<String> expected) {
+  return expected.every(actual.contains);
+}
+
+List<String> _capabilities(Object? value) {
   if (value is! List) _invalid();
   final result = <String>[];
   for (final item in value) {
     if (item is! String || item.trim().isEmpty) _invalid();
     final normalized = item.trim();
-    if (!allowed.contains(normalized) || result.contains(normalized)) {
+    if (!_capabilityPattern.hasMatch(normalized) ||
+        result.contains(normalized)) {
       _invalid();
     }
     result.add(normalized);
@@ -379,9 +527,13 @@ List<String> _modules(Object? value) {
       if (entry.key is! String) _invalid();
       module[entry.key as String] = entry.value;
     }
-    final id = _requiredKnownText(module, 'id', _platformModuleIds);
+    final id = _requiredText(module, 'id');
+    final area = _requiredText(module, 'area');
+    if (!_catalogTokenPattern.hasMatch(id) ||
+        !_catalogTokenPattern.hasMatch(area)) {
+      _invalid();
+    }
     _requiredText(module, 'label');
-    _requiredKnownText(module, 'area', _platformAreas);
     if (result.contains(id)) _invalid();
     result.add(id);
   }
@@ -389,3 +541,13 @@ List<String> _modules(Object? value) {
 }
 
 Never _invalid() => throw const BootstrapValidationException();
+
+final _policyVersionPattern = RegExp(r'^[a-z0-9][a-z0-9._-]{0,63}$');
+final _catalogTokenPattern = RegExp(r'^[a-z][a-z0-9_]{0,63}$');
+final _capabilityPattern = RegExp(
+  r'^[a-z][a-z0-9_]{0,63}\.[a-z][a-z0-9_]{0,63}$',
+);
+final _uuidPattern = RegExp(
+  r'^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$',
+  caseSensitive: false,
+);

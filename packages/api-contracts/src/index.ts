@@ -1,5 +1,10 @@
 import { z } from "zod";
-import type { AuthenticatedUser, PlatformRole } from "@me-event/shared-types";
+import {
+  platformRoles,
+  roleScopeTypes,
+  type AuthenticatedUser,
+  type PlatformRole,
+} from "@me-event/shared-types";
 
 export const requestOtpSchema = z.object({
   mobileNumber: z.string().trim().min(7).max(32),
@@ -30,6 +35,7 @@ export interface VerifyOtpResponse {
   readonly accessToken: string;
   readonly refreshToken: string;
   readonly accessTokenExpiresInSeconds: number;
+  readonly sessionId: string;
   readonly user: AuthenticatedUser;
 }
 
@@ -42,6 +48,7 @@ export interface RefreshSessionResponse {
   readonly accessToken: string;
   readonly refreshToken: string;
   readonly accessTokenExpiresInSeconds: number;
+  readonly sessionId: string;
   readonly activeRole: PlatformRole;
 }
 
@@ -61,6 +68,7 @@ export type SwitchRoleRequest = z.infer<typeof switchRoleSchema>;
 export interface SwitchRoleResponse {
   readonly accessToken: string;
   readonly accessTokenExpiresInSeconds: number;
+  readonly sessionId: string;
   readonly activeRole: MobileSwitchableRole;
 }
 
@@ -1277,6 +1285,15 @@ export const addVendorNoteSchema = z.object({
   eventRecordId: z.string().uuid().optional(),
 });
 export type AddVendorNoteRequest = z.infer<typeof addVendorNoteSchema>;
+
+export const addVendorSelfNoteSchema = z.object({
+  vendorId: z.string().uuid().optional(),
+  content: z.string().trim().min(1).max(8000),
+  noteType: z.literal("vendor").optional().default("vendor"),
+  assignmentId: z.string().uuid().optional(),
+  eventRecordId: z.string().uuid().optional(),
+});
+export type AddVendorSelfNoteRequest = z.infer<typeof addVendorSelfNoteSchema>;
 
 export interface VendorCategorySummary {
   readonly id: string;
@@ -3383,44 +3400,71 @@ export interface PlatformModuleDefinition {
   readonly area: PlatformArea;
 }
 
-export interface PlatformBootstrapResponse {
-  readonly schemaVersion: string;
-  readonly policyVersion: string;
-  readonly generatedAt: string;
-  readonly requestId: string;
-  readonly actor: {
-    readonly userId: string;
-    readonly sessionId: string;
-    readonly activeRole: PlatformRole;
-  };
-  readonly branch: {
-    readonly id: string;
-    readonly code: string;
-    readonly name: string;
-    readonly city: string;
-    readonly state: string;
-    readonly countryCode: string;
-    readonly timezone: string;
-    readonly currencyCode: string;
-    readonly status: "active";
-  };
-  readonly client: {
-    readonly surface: ClientSurface;
-    readonly landingModule: PlatformModuleId;
-  };
-  readonly access: {
-    readonly assignedActiveRoles: readonly {
-      readonly role: PlatformRole;
-      readonly surface: ClientSurface;
-      readonly scopeId: string;
-    }[];
-    readonly capabilities: readonly CapabilityId[];
-    readonly modules: readonly PlatformModuleDefinition[];
-  };
-  readonly controls: {
-    readonly roleVisibility: "assigned-active-only";
-    readonly dataScope: "hyderabad-branch-and-assignment";
-    readonly mutationAudit: "required";
-    readonly serverAuthorization: "required";
-  };
-}
+export const platformBootstrapSchemaVersion = "2026-07-29";
+export const platformBootstrapMinimumClientVersion = 1;
+export const platformBootstrapPolicyVersion = "hyd-v1";
+
+const platformBootstrapPolicyVersionSchema = z
+  .string()
+  .trim()
+  .regex(/^[a-z0-9][a-z0-9._-]{0,63}$/u);
+
+export const platformBootstrapResponseSchema = z.object({
+  schemaVersion: z.literal(platformBootstrapSchemaVersion),
+  minimumClientBootstrapVersion: z
+    .number()
+    .int()
+    .positive()
+    .max(platformBootstrapMinimumClientVersion),
+  policyVersion: platformBootstrapPolicyVersionSchema,
+  generatedAt: z.string().datetime({ offset: false }),
+  requestId: z.string().trim().min(1).max(200),
+  actor: z.object({
+    userId: z.string().uuid(),
+    sessionId: z.string().uuid(),
+    activeRole: z.enum(platformRoles),
+  }),
+  branch: z.object({
+    id: z.string().uuid(),
+    code: z.string().trim().min(1).max(32),
+    name: z.string().trim().min(1).max(100),
+    city: z.string().trim().min(1).max(100),
+    state: z.string().trim().min(1).max(100),
+    countryCode: z.string().regex(/^[A-Z]{2}$/u),
+    timezone: z.string().trim().min(1).max(100),
+    currencyCode: z.string().regex(/^[A-Z]{3}$/u),
+    status: z.literal("active"),
+  }),
+  client: z.object({
+    surface: z.enum(clientSurfaces),
+    landingModule: z.enum(platformModuleIds),
+  }),
+  access: z.object({
+    assignedActiveRoles: z.array(
+      z.object({
+        role: z.enum(platformRoles),
+        surface: z.enum(clientSurfaces),
+        scopeType: z.enum(roleScopeTypes),
+        scopeId: z.string().uuid().optional(),
+      }),
+    ),
+    capabilities: z.array(z.enum(capabilityIds)),
+    modules: z.array(
+      z.object({
+        id: z.enum(platformModuleIds),
+        label: z.string().trim().min(1).max(100),
+        area: z.enum(platformAreas),
+      }),
+    ),
+  }),
+  controls: z.object({
+    roleVisibility: z.literal("assigned-active-only"),
+    dataScope: z.literal("hyderabad-branch-and-assignment"),
+    mutationAudit: z.literal("required"),
+    serverAuthorization: z.literal("required"),
+  }),
+});
+
+export type PlatformBootstrapResponse = z.infer<
+  typeof platformBootstrapResponseSchema
+>;

@@ -75,7 +75,9 @@ export async function insertSyntheticUser(
       userId: id,
       sessionId: stableUuid(`session-principal:${label}`),
       activeRole: role,
-      roleAssignments: [{ role, active: true, scopeId: branchId }],
+      roleAssignments: [
+        { role, active: true, scopeType: "branch", scopeId: branchId },
+      ],
       branchId,
     },
   };

@@ -25,12 +25,15 @@ Identity model: [Identity foundation](../05-security/identity-foundation.md),
 
 `POST /api/v1/auth/switch-role` accepts `{ "role": "customer" | "vendor_owner" | "vendor_member" | "worker" }`.
 The target must already be an active assignment. Success returns
-`accessToken`, `accessTokenExpiresInSeconds`, and `activeRole`. The current
-refresh token is unchanged. Unassigned or inactive roles return `403`
+`accessToken`, `accessTokenExpiresInSeconds`, `sessionId`, and `activeRole`. The
+current refresh token is unchanged. Unassigned or inactive roles return `403`
 `ROLE_NOT_ASSIGNED`. Concurrent `last_active_role` updates return `409`
 `VERSION_CONFLICT`. Employee roles are rejected by the request schema.
 
-`POST /api/v1/auth/refresh` also returns server-authoritative `activeRole`.
+OTP verification and refresh also return the stable server `sessionId`; refresh
+returns the server-authoritative `activeRole`. The mobile client requires this
+ID to agree across authentication, refresh, role switch, and bootstrap before
+applying a response.
 
 `GET /api/v1/auth/sessions` returns `{ "sessions": [{ "id", "deviceId",
 "createdAt", "lastSeenAt", "expiresAt", "current" }] }`. Refresh tokens and
@@ -52,6 +55,42 @@ payloads).
 No `@RequireCapability` on bootstrap; any authenticated principal may call it.
 Clients use the capability list for UI gating; **server enforcement** remains on
 each protected route.
+
+The response contains structural `schemaVersion`,
+`minimumClientBootstrapVersion`, an opaque `policyVersion`, server
+`generatedAt`, request and actor/session identities, Hyderabad operational
+branch metadata, typed active role grants, modules, capabilities, and security
+controls. Authentication and bootstrap responses use `Cache-Control: no-store`.
+
+Compatibility rules:
+
+- required identity, session, branch, routing, control, baseline module, and
+  baseline capability fields are strict;
+- a client accepts a well-formed later policy revision and safe unknown
+  additive modules/capabilities while continuing to require its baseline;
+- missing baseline privileges, malformed data, or known cross-role privileged
+  entries fail closed;
+- `minimumClientBootstrapVersion` rejects clients that cannot safely interpret
+  the response; and
+- a breaking structural contract uses a new `/api/v2` route under ADR 0004,
+  rather than silently changing the `/api/v1` schema.
+
+`generatedAt` is server provenance, not a device-clock authorization decision.
+The shared TypeScript schema and Flutter client both require its RFC 3339 UTC
+form ending in `Z`; non-UTC offsets are rejected. Session/generation agreement,
+not wall-clock comparison, rejects stale in-flight responses. An unexpected
+server bootstrap-schema failure reaches the existing safe generic
+`500 INTERNAL_ERROR` boundary and is not mapped to the account-authorization
+403 response; a more specialized public schema-failure code remains part of
+the broader CUST-24 error-contract work.
+
+Operational `branchId` is distinct from a grant's `scopeType`/`scopeId`.
+Phase 1 supports Hyderabad branch grants, a no-ID global administrator grant,
+and vendor-owner/member grants for a vendor UUID. Vendor APIs independently
+require an active vendor role, a qualifying assignment for the requested vendor
+(exact vendor scope or Hyderabad branch scope), and active `vendor_members`
+ownership/membership for that same vendor. Membership cannot combine with a
+grant for a different vendor.
 
 ---
 

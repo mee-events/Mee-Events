@@ -215,7 +215,14 @@ function employeePrincipal(
     userId: randomUUID(),
     sessionId: randomUUID(),
     activeRole: "employee",
-    roleAssignments: [{ role: "employee", active: true, scopeId: branchId }],
+    roleAssignments: [
+      {
+        role: "employee",
+        active: true,
+        scopeType: "branch",
+        scopeId: branchId,
+      },
+    ],
     branchId,
   };
 }

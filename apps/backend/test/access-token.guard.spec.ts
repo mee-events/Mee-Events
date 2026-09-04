@@ -91,6 +91,34 @@ describe("AccessTokenGuard", () => {
     ).rejects.toThrow("Your session has ended. Please sign in again.");
   });
 
+  it("rejects a principal that also carries an unsupported scope combination", async () => {
+    const user = await repository.createUser("+919876543210", "customer");
+    repository.replaceUser({
+      ...user,
+      roles: [
+        ...user.roles,
+        {
+          role: "customer",
+          active: true,
+          scopeType: "global",
+        },
+      ],
+    });
+    const session = activeSession(user.id);
+    await repository.saveSession(session, "not-used-by-access-token-check");
+    const token = await jwt.signAsync({
+      sub: user.id,
+      sid: session.id,
+      role: "customer",
+    });
+
+    await expect(
+      guard.canActivate(
+        contextFor(requestWithAuthorization(`Bearer ${token}`)),
+      ),
+    ).rejects.toThrow("Your session has ended. Please sign in again.");
+  });
+
   it("skips authentication for public endpoints", async () => {
     const reflector = {
       getAllAndOverride: () => true,

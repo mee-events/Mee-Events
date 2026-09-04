@@ -183,7 +183,7 @@ export class CrmVendorController {
     body: AddVendorNoteRequest,
     @Req() request: AuthenticatedPlatformRequest,
   ): Promise<VendorNoteSummary> {
-    return this.vendors.addNote(
+    return this.vendors.addCrmNote(
       principalOf(request),
       id,
       body,

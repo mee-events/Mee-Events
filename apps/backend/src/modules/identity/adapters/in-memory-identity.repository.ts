@@ -288,7 +288,13 @@ export class InMemoryIdentityRepository implements IdentityRepository {
       id: randomUUID(),
       mobileNumber,
       roles: [
-        { role: defaultRole, active: true, verifiedAt: now.toISOString() },
+        {
+          role: defaultRole,
+          scopeType: "branch",
+          scopeId: "00000000-0000-4000-8000-000000000001",
+          active: true,
+          verifiedAt: now.toISOString(),
+        },
       ],
       lastActiveRole: defaultRole,
       createdAt: now,

@@ -91,6 +91,7 @@ void main() {
     refreshToken: 'refresh-token-value-at-least-32-chars',
     accessTokenExpiresInSeconds: 900,
     accessTokenExpiresAt: DateTime.utc(2099),
+    sessionId: '00000000-0000-4000-8000-000000000201',
     userId: 'home-feed-user',
     mobileNumber: '+919876543210',
     lastActiveRole: 'customer',

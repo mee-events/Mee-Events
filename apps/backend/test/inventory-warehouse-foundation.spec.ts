@@ -549,7 +549,14 @@ const manager: AuthenticatedPrincipal = {
   userId: "manager-1",
   sessionId: "s1",
   activeRole: "manager",
-  roleAssignments: [{ role: "manager", active: true }],
+  roleAssignments: [
+    {
+      role: "manager",
+      active: true,
+      scopeType: "branch",
+      scopeId: "00000000-0000-4000-8000-000000000001",
+    },
+  ],
 };
 
 describe("Inventory & Warehouse Foundation", () => {

@@ -521,14 +521,28 @@ const employee: AuthenticatedPrincipal = {
   userId: "employee-1",
   sessionId: "s1",
   activeRole: "employee",
-  roleAssignments: [{ role: "employee", active: true }],
+  roleAssignments: [
+    {
+      role: "employee",
+      active: true,
+      scopeType: "branch",
+      scopeId: "00000000-0000-4000-8000-000000000001",
+    },
+  ],
 };
 
 const workerUser: AuthenticatedPrincipal = {
   userId: "worker-user-1",
   sessionId: "s2",
   activeRole: "worker",
-  roleAssignments: [{ role: "worker", active: true }],
+  roleAssignments: [
+    {
+      role: "worker",
+      active: true,
+      scopeType: "branch",
+      scopeId: "00000000-0000-4000-8000-000000000001",
+    },
+  ],
 };
 
 describe("Worker Management Foundation", () => {

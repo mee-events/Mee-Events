@@ -245,7 +245,14 @@ function customerPrincipal(): AuthenticatedPrincipal {
     userId: randomUUID(),
     sessionId: randomUUID(),
     activeRole: "customer",
-    roleAssignments: [{ role: "customer", active: true }],
+    roleAssignments: [
+      {
+        role: "customer",
+        active: true,
+        scopeType: "branch",
+        scopeId: "00000000-0000-4000-8000-000000000001",
+      },
+    ],
   };
 }
 

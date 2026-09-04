@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:mee_events/design_system/design_system.dart';
 import 'package:mee_events/features/auth/role_switcher/mobile_roles.dart';
-import 'package:mee_events/models/api_error.dart';
 import 'package:mee_events/models/auth_session.dart';
 import 'package:mee_events/models/bootstrap_response.dart';
 import 'package:mee_events/theme/app_colors.dart';
 import 'package:mee_events/theme/app_radius.dart';
 import 'package:mee_events/theme/app_spacing.dart';
 import 'package:mee_events/theme/app_typography.dart';
+
+const roleSwitchUnavailableMessage =
+    'We couldn’t switch roles. Please try again.';
 
 class RoleSwitcherSheet extends StatefulWidget {
   const RoleSwitcherSheet({
@@ -52,15 +54,19 @@ class RoleSwitcherSheetState extends State<RoleSwitcherSheet> {
     });
     try {
       final result = await widget.onSwitch(option.backendRole);
+      if (result.activeRole != option.backendRole ||
+          result.sessionId != widget.bootstrap.actorSessionId) {
+        throw const FormatException('Role switch response did not agree');
+      }
       await widget.onApplied?.call(result);
       if (!mounted) return;
       Navigator.of(context).pop(result);
-    } catch (error) {
+    } catch (_) {
       if (!mounted) return;
       setState(() {
         _busy = false;
         _submittingRole = null;
-        _error = _messageFor(error);
+        _error = roleSwitchUnavailableMessage;
       });
     }
   }
@@ -73,13 +79,6 @@ class RoleSwitcherSheetState extends State<RoleSwitcherSheet> {
         return;
       }
     }
-  }
-
-  String _messageFor(Object error) {
-    if (error is ApiRequestException) {
-      return error.error.message;
-    }
-    return error.toString();
   }
 
   @override

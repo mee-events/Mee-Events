@@ -36,6 +36,7 @@ import {
   VENDOR_NOTIFICATION_TOPICS,
 } from "../application/notification-intents";
 import { generateVendorCode } from "../application/vendor-code";
+import { toVendorSummary } from "../application/vendor-summary";
 import type {
   VendorListOptions,
   VendorMutationContext,
@@ -808,12 +809,44 @@ export class PostgresVendorRepository implements VendorRepository {
     try {
       await client.query("BEGIN");
       const vendor = await client.query(
-        `SELECT id FROM vendors WHERE id = $1 AND branch_id = $2`,
+        `SELECT id FROM vendors
+         WHERE id = $1 AND branch_id = $2
+         FOR SHARE`,
         [input.vendorId, input.branchId],
       );
       if ((vendor.rowCount ?? 0) === 0) {
         await client.query("ROLLBACK");
         return undefined;
+      }
+
+      if (
+        input.body.assignmentId !== undefined ||
+        input.body.eventRecordId !== undefined
+      ) {
+        const relationship = await client.query(
+          `SELECT a.id
+           FROM vendor_assignments a
+           INNER JOIN vendors v ON v.id = a.vendor_id
+           INNER JOIN event_records e ON e.id = a.event_record_id
+           WHERE a.vendor_id = $1
+             AND v.branch_id = $2
+             AND e.branch_id = $2
+             AND ($3::uuid IS NULL OR a.id = $3)
+             AND ($4::uuid IS NULL OR a.event_record_id = $4)
+           ORDER BY a.assigned_at DESC
+           LIMIT 1
+           FOR SHARE OF a, v, e`,
+          [
+            input.vendorId,
+            input.branchId,
+            input.body.assignmentId ?? null,
+            input.body.eventRecordId ?? null,
+          ],
+        );
+        if ((relationship.rowCount ?? 0) === 0) {
+          await client.query("ROLLBACK");
+          return undefined;
+        }
       }
 
       const inserted = await client.query<NoteRow>(
@@ -957,7 +990,7 @@ export class PostgresVendorRepository implements VendorRepository {
     const detail = await this.getVendor(vendorId);
     const assignments = await this.listAssignments({ vendorId });
     return buildDashboard(
-      detail === undefined ? [] : [toSummary(detail)],
+      detail === undefined ? [] : [toVendorSummary(detail)],
       assignments,
     );
   }
@@ -965,14 +998,19 @@ export class PostgresVendorRepository implements VendorRepository {
   public async findVendorIdForUser(
     userId: string,
   ): Promise<string | undefined> {
+    return (await this.findVendorIdsForUser(userId))[0];
+  }
+
+  public async findVendorIdsForUser(
+    userId: string,
+  ): Promise<readonly string[]> {
     const result = await this.pool.query<{ vendor_id: string }>(
       `SELECT vendor_id FROM vendor_members
        WHERE user_id = $1 AND status = 'active'
-       ORDER BY CASE member_role WHEN 'owner' THEN 0 ELSE 1 END
-       LIMIT 1`,
+       ORDER BY CASE member_role WHEN 'owner' THEN 0 ELSE 1 END, vendor_id`,
       [userId],
     );
-    return result.rows[0]?.vendor_id;
+    return result.rows.map((row) => row.vendor_id);
   }
 
   public async isVendorMember(
@@ -1288,22 +1326,6 @@ function mapVendorRow(
     ...(row.upi_id === null ? {} : { upiId: row.upi_id }),
     ...(row.notes === null ? {} : { notes: row.notes }),
   };
-}
-
-function toSummary(detail: VendorDetailResponse): VendorSummary {
-  const {
-    bankAccounts: _b,
-    contacts: _c,
-    documents: _d,
-    gstNumber: _g,
-    panNumber: _p,
-    addressLine: _a,
-    pincode: _pin,
-    upiId: _u,
-    notes: _n,
-    ...summary
-  } = detail;
-  return summary;
 }
 
 function toCategory(row: {

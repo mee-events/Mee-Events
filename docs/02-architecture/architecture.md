@@ -487,9 +487,19 @@ server-side.
 
 ### Branch context
 
-Phase 1 is Hyderabad-only. `resolveBranchId` sets branch on the principal from
-role scope when present, otherwise the seeded Hyderabad branch. Branch remains
-in the model for later multi-branch expansion ([ADR 0010](../adr/0010-connected-hyderabad-platform-phase-one.md)).
+Phase 1 is Hyderabad-only. `resolveBranchId` uses an explicit operational
+branch or a branch-typed grant, otherwise the seeded Hyderabad branch. The
+PostgreSQL grant's `scopeType` and `scopeId` remain intact for resource
+authorization: global and vendor scopes never become branch IDs. Branch remains
+in the model for later multi-branch expansion
+([ADR 0010](../adr/0010-connected-hyderabad-platform-phase-one.md)).
+
+Vendor self-resource authorization intersects role, grant scope, and
+membership. Exact vendor grants match only that vendor; a Hyderabad
+branch-scoped vendor grant can cover vendors in the branch, but active
+`vendor_members` membership still narrows access to the caller's vendor or
+vendors. The vendor application service applies this reusable rule before
+dashboards, assignment reads/mutations, and notes.
 
 ### Authorization request flow
 

@@ -1,24 +1,133 @@
 # Mee Events — Progress Tracker
 
-- **Updated:** 2 September 2026; CUST-03 Session closed with retained findings
+- **Updated:** 4 September 2026; CUST-04 Customer Bootstrap independently
+  reviewed and closed
 - **Repository:** `/Users/vinaychilagani/Desktop/Mee Event V1`
 - **Baseline application commit:** `master` / `9e2a442d91c137ec97a349d1a55697ae8d79d5df`
 - **STAB-01 snapshot HEAD:** `ca994985a898d42da2a8d717041b93a8f8f0dc4c`
 - **Current phase:** Phase 1 - Customer
 - **Phase state:** **IN PROGRESS**
-- **Last completed task:** CUST-03 Session - DONE WITH FINDINGS
-- **Current task:** CUST-03 Session - closed 2 September 2026
-- **Next authorized task:** CUST-04 Customer Bootstrap - **NOT STARTED**
-- **Latest application change:** CUST-03 adds validated secure restoration,
-  single-flight refresh, safe replay boundaries, current/all-device logout,
-  terminal-session UX, and Customer cache cleanup. It does not authorize live
-  or production SMS.
+- **Last completed task:** CUST-04 Customer Bootstrap - **INDEPENDENTLY REVIEWED
+  AND CLOSED - 4 SEPTEMBER 2026**
+- **Current task:** None; CUST-05 implementation is **NOT STARTED**
+- **Next authorized task:** CUST-05 discovery and requirements verification
+- **Latest application change:** CUST-04 now separates structural compatibility
+  from additive bootstrap policy, intersects vendor role scope with same-vendor
+  membership, clears authenticated memory before logout cleanup awaits, applies
+  no-store case-insensitively including trailing slashes, validates vendor note
+  assignment/event links inside one transaction, separates CRM and vendor-self
+  note trust paths, makes multi-vendor note selection explicit, filters vendor
+  dashboards through a runtime summary allowlist, aligns TypeScript/Flutter UTC
+  timestamps, fixes the Next generated declaration lifecycle, and tests
+  bootstrap through the real access-token guard. It does not implement CUST-05
+  Home or authorize production SMS.
 - **STAB-16 implementation commit:** `999443d5d3ba547de1bb6c0406c34753c8433b00`
 - **STAB-16 closeout:** `1450263caa6a5be2263bf7b9c91827f7cc24ef6c`
 - **STAB-17 commit:** `68894f3bbfa91937a0c7c573a8fc1a0af83ce533`
 - **STAB-18 commit:** `f66cc51a726322eeb604ab84c3d3e195050248f9`
 - **STAB-19 commit:** `e833eb82d690d65e293b9521ce3f24c390fff4f0`
 - **STAB-20 canonical application commit:** `37cf6c2f8e36dd522688e3423be7b9595e442ead`
+
+## CUST-04 Customer Bootstrap - 4 September 2026
+
+- [x] **CUST-04 Customer Bootstrap** — **INDEPENDENTLY REVIEWED AND CLOSED - 4
+      SEPTEMBER 2026**.
+
+Remediation began on `master` at
+`b7b25691ddcfa82cba18ff23923fcdbc765a9e5b` with existing unstaged and untracked
+CUST-04 implementation and beginner-training documentation. The branch, HEAD,
+recent commits, staged index, status, and complete existing diff were inspected;
+all prior work was protected.
+
+The shared runtime contract now uses a strict structural schema and explicit
+minimum-client number while treating policy version as an additive revision.
+Flutter requires its security and Customer baselines, accepts well-formed safe
+unknown additions, and rejects missing baselines, known cross-role privileges,
+malformed responses, and incompatible structural/minimum-client versions.
+`generatedAt` is validated as server UTC provenance, not compared with the
+device clock. Backend authorization remains authoritative.
+
+PostgreSQL `scope_type` now survives repository mapping into shared role
+assignments, authenticated principals, authorization, and bootstrap. Global,
+branch, and vendor combinations are explicitly validated; operational
+Hyderabad branch stays separate, vendor UUIDs never become branch UUIDs,
+distinct grants are supported, and duplicate/inactive/wrong-branch cases fail
+closed. Every vendor self-resource requires an active vendor role, a qualifying
+exact-vendor or Hyderabad-branch assignment, and active membership for that
+same vendor. A grant for Vendor A cannot combine with Vendor B membership;
+multiple legitimate grants remain supported.
+
+Authentication, refresh, switch, and bootstrap agree on the stable server
+session ID. Flutter session generation, token revision, and role revision
+replace object identity. Tests cover refresh/bootstrap overlap, both
+refresh/switch completion orders, logout, account/device-session replacement,
+conflicting role change, stale token rejection, and server-switch/local-storage
+reconciliation without replaying unsafe mutations.
+Logout drops authenticated memory before awaiting secure-storage or
+private-cache cleanup, so delayed or failed cleanup cannot render a private
+surface. Sensitive auth/bootstrap paths receive no-store headers after
+lowercase normalization, matching Express routing. Real HTTP success now uses a
+signed JWT and active device session through `AccessTokenGuard`; missing,
+invalid, revoked, and expired sessions are denied.
+
+The subsequent Security Review's one High and three Medium findings are
+remediated without adding vendor features. CRM and vendor-self notes now enter
+through distinct capability-protected service methods and share one
+branch-aware PostgreSQL transaction. Any supplied assignment/event IDs must
+prove one vendor-assignment-event relationship before the first mutation, so
+cross-vendor, mismatched, nonexistent, and wrong-branch inputs leave no note,
+history, timeline/activity, audit, or outbox side effect. Vendor-level notes
+remain valid with neither optional ID; event-linked notes require an existing
+assignment. Vendor-self notes created through `/api/v1/vendors/me/notes` strictly
+enforce `noteType: "vendor"` across schemas (`addVendorSelfNoteSchema`), service
+boundaries (`VendorService.addOwnNote`), and database persistence, rejecting
+attempted `internal` or `progress` classifications while CRM employees retain
+full support for all note classifications. Vendor-self dashboard responses now
+use an explicit `VendorSummary` field allowlist, and routed bootstrap variants
+with a trailing slash receive the same no-store protection.
+
+Claude's final correction review also identified ambiguous self-note selection,
+test-driven production DI defaults, incomplete HTTP membership identity, UTC
+schema drift, and a tracked generated Next declaration. The self-note request
+now accepts optional `vendorId`: exactly one authorized vendor may be inferred,
+multiple authorized vendors require explicit selection, and supplied IDs use
+the existing branch/grant/membership/link checks. `CapabilityGuard` again
+requires its injected `Reflector`, with Vitest-only constructor tokens replacing
+production workarounds. Real HTTP coverage denies employees and grant-only
+users. TypeScript rejects non-UTC `generatedAt` offsets like Flutter.
+`next-env.d.ts` is ignored and removed from Git tracking while preserved
+locally; ERP typecheck now generates Next route types before `tsc`.
+
+Verification passes backend **343/343** across 45 files, PostgreSQL **52/52**
+across 6 files, and Flutter **581/581** across 33 test files. Flutter analysis,
+two consecutive complete root verify/build runs, a clean-like ERP typecheck,
+focused Nest HTTP/OpenAPI/no-store, scope, policy, gateway, session, vendor
+selection/relationship, note classification enforcement, and serialized-output
+groups pass. The maintained authenticated loopback smoke also passes against
+the local PostgreSQL-backed app and revokes its synthetic session.
+Claude's fresh final independent review returned **READY TO CLOSE** with no
+blocking findings.
+Local Docker/loopback and Flutter SDK cache access were authorized only for
+these tests; no external provider, SMS, staging, production, or migration action
+occurred.
+
+CUST-04 evidence:
+`docs/08-testing/cust-04-customer-bootstrap-evidence.md`. CUST-04 is locally
+verified and closed but is not staging, production, or physical-device proven.
+CUST-05 was not started. The next task is CUST-05 discovery and requirements
+verification, not immediate UI implementation. CUST-02 remains **PARTIAL - OFFLINE
+APPROVED, EXTERNAL EXOTEL EVIDENCE PENDING** and must reopen before the final
+Customer release gate. CUST-03 remains **DONE WITH FINDINGS**, including its
+process-local refresh de-duplication and maximum 15-second cross-instance
+principal-cache revocation-observation findings. The existing SEC-06 manual
+TypeScript/Dart bootstrap baseline synchronization finding is retained and
+test-guarded.
+
+Claude's non-blocking P3 observations retain their existing roadmap owners:
+future Phase 2 unsupported-role-row handling is VEND-01/VEND-20; force-update
+UX is CUST-24 plus the platform release gates; unused vendor repository methods
+remain under STAB-19 cleanup discipline; and distributed-cache limitations
+remain accepted CUST-03 findings. They are not CUST-04 production blockers.
 
 ## CUST-03 Session - 2 September 2026
 
@@ -614,7 +723,7 @@ Backend lint previously targeted only `{src,test}/**/*.ts`. Active operational s
 | ------------------------------------- | -------------------------------------------------------------------------- |
 | `apps/backend/eslint.config.mjs`      | ESLint config; type-aware TS project rules are inappropriate               |
 | `packages/*/eslint.config.mjs`        | Same; package lint is `eslint src`                                         |
-| `apps/erp-web/next-env.d.ts`          | Generated Next types reference; still linted by `eslint .` (PASS)          |
+| `apps/erp-web/next-env.d.ts`          | Generated by Next.js; Git-ignored and explicitly excluded from ERP ESLint  |
 | `scripts/scaffold_image_library.js`   | Root CJS media scaffold, not in a pnpm workspace; no root ESLint toolchain |
 | `design/stitch-screens/**/*.js`       | Raw Stitch evidence, not a pnpm workspace (STAB-04)                        |
 | Flutter/Dart, SQL, native Android/iOS | Not ESLint-owned                                                           |
@@ -646,14 +755,14 @@ Independent re-verification after STAB-05 began on clean `master` at `52c751674b
 
 ### Project inventory and actual file coverage
 
-| Workspace / project                       | Compiler                  | Configuration / inheritance                                                                                     | Command                                                                                      | Intended and actual root-file scope                                                                                                                                     | Important exclusions                                                                                                 | Errors / result                             |
-| ----------------------------------------- | ------------------------- | --------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- | ------------------------------------------- |
-| `@me-event/backend` development/typecheck | 5.7.2                     | `apps/backend/tsconfig.json`; no base config                                                                    | `corepack pnpm --filter @me-event/backend typecheck` → `tsc -p tsconfig.json --noEmit`       | 163/163 tracked roots: 129 `src/**/*.ts`, 32 `test/**/*.ts`, 2 `scripts/**/*.ts`                                                                                        | `node_modules`; `dist` is compiler output and therefore excluded automatically                                       | 0 / **PASS**                                |
-| Backend production build                  | 5.7.2                     | `apps/backend/tsconfig.build.json` extends `tsconfig.json`; Nest CLI uses it with `sourceRoot: src`             | `nest build` (scope inspection only; STAB-11 not started)                                    | 129/129 production `src/**/*.ts` roots                                                                                                                                  | `test`, `scripts`, `**/*.spec.ts`, `node_modules`, `dist`; operational scripts are typechecked above but not emitted | 0 configuration/coverage defects / **PASS** |
-| `@me-event/erp-web`                       | 5.7.2                     | `apps/erp-web/tsconfig.json`; Next plugin; no base config                                                       | `corepack pnpm --filter @me-event/erp-web typecheck` → `tsc --noEmit`                        | 64/64 maintained roots (62 `src` TS/TSX including tests, `next.config.ts`, `next-env.d.ts`) plus 49 currently generated ignored `.next/types` roots = 113 current roots | `node_modules`; `.next/types/**/*.ts` is optional generated input; no `rootDir`/`outDir`                             | 0 / **PASS**                                |
-| `@me-event/shared-types`                  | 5.7.2                     | `packages/shared-types/tsconfig.json`; no base config                                                           | `corepack pnpm --filter @me-event/shared-types typecheck` → `tsc -p tsconfig.json --noEmit`  | 1/1 maintained root: `src/index.ts`                                                                                                                                     | `dist`; `rootDir: src`, `outDir: dist`, declarations enabled                                                         | 0 / **PASS**                                |
-| `@me-event/api-contracts`                 | 5.7.2                     | `packages/api-contracts/tsconfig.json` extends `../shared-types/tsconfig.json` and overrides `rootDir`/`outDir` | `corepack pnpm --filter @me-event/api-contracts typecheck` → `tsc -p tsconfig.json --noEmit` | 1/1 maintained root: `src/index.ts`; imports shared workspace declarations                                                                                              | `dist`; inherited declaration/strictness settings retained                                                           | 0 / **PASS**                                |
-| Root workspace orchestration              | workspace compilers above | No root `tsconfig*.json` and no project references                                                              | `corepack pnpm typecheck` → recursive `--if-present typecheck`                               | All four TypeScript workspaces; 229 maintained TS/TSX/declaration roots in repository coverage                                                                          | Flutter/Dart, raw design JS and root utility JS are not TypeScript workspace source                                  | 0 / **PASS**                                |
+| Workspace / project                       | Compiler                  | Configuration / inheritance                                                                                     | Command                                                                                      | Intended and actual root-file scope                                                                                                                      | Important exclusions                                                                                                 | Errors / result                             |
+| ----------------------------------------- | ------------------------- | --------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- | ------------------------------------------- |
+| `@me-event/backend` development/typecheck | 5.7.2                     | `apps/backend/tsconfig.json`; no base config                                                                    | `corepack pnpm --filter @me-event/backend typecheck` → `tsc -p tsconfig.json --noEmit`       | 163/163 tracked roots: 129 `src/**/*.ts`, 32 `test/**/*.ts`, 2 `scripts/**/*.ts`                                                                         | `node_modules`; `dist` is compiler output and therefore excluded automatically                                       | 0 / **PASS**                                |
+| Backend production build                  | 5.7.2                     | `apps/backend/tsconfig.build.json` extends `tsconfig.json`; Nest CLI uses it with `sourceRoot: src`             | `nest build` (scope inspection only; STAB-11 not started)                                    | 129/129 production `src/**/*.ts` roots                                                                                                                   | `test`, `scripts`, `**/*.spec.ts`, `node_modules`, `dist`; operational scripts are typechecked above but not emitted | 0 configuration/coverage defects / **PASS** |
+| `@me-event/erp-web`                       | 5.7.2                     | `apps/erp-web/tsconfig.json`; Next plugin; no base config                                                       | `corepack pnpm --filter @me-event/erp-web typecheck` → `next typegen && tsc --noEmit`        | 63/63 maintained tracked roots (62 `src` TS/TSX including tests plus `next.config.ts`); ignored `next-env.d.ts` and `.next/types` are regenerated inputs | `node_modules`; generated declarations are reproducible and are not maintained source                                | 0 / **PASS**                                |
+| `@me-event/shared-types`                  | 5.7.2                     | `packages/shared-types/tsconfig.json`; no base config                                                           | `corepack pnpm --filter @me-event/shared-types typecheck` → `tsc -p tsconfig.json --noEmit`  | 1/1 maintained root: `src/index.ts`                                                                                                                      | `dist`; `rootDir: src`, `outDir: dist`, declarations enabled                                                         | 0 / **PASS**                                |
+| `@me-event/api-contracts`                 | 5.7.2                     | `packages/api-contracts/tsconfig.json` extends `../shared-types/tsconfig.json` and overrides `rootDir`/`outDir` | `corepack pnpm --filter @me-event/api-contracts typecheck` → `tsc -p tsconfig.json --noEmit` | 1/1 maintained root: `src/index.ts`; imports shared workspace declarations                                                                               | `dist`; inherited declaration/strictness settings retained                                                           | 0 / **PASS**                                |
+| Root workspace orchestration              | workspace compilers above | No root `tsconfig*.json` and no project references                                                              | `corepack pnpm typecheck` → recursive `--if-present typecheck`                               | All four TypeScript workspaces; 228 maintained tracked TS/TSX/declaration roots in repository coverage                                                   | Flutter/Dart, raw design JS and root utility JS are not TypeScript workspace source                                  | 0 / **PASS**                                |
 
 The maintained-file inventory and `tsc --showConfig` root lists match exactly. No active owned `.ts`/`.tsx` file is outside an intended project. STAB-05 changed only backend include/build-exclude scope; it did not weaken a compiler option.
 
@@ -1031,10 +1140,12 @@ values also remain. These are classified findings owned by CRM-04/06/12/24/26,
 ERP-13–16/20/22, STAB-18, and STAB-20; they were not hidden or replaced with
 invented feature behavior in this build task.
 
-Next rewrites tracked `next-env.d.ts` to reference generated route types; the
-exact pre-build content was restored, generated types still passed through the
-tsconfig include, and clean-checkout typechecking also passed after removing
-`.next`. ERP lint, generated-state typecheck, 3-file/8-test suite,
+Next.js owns `next-env.d.ts`; CUST-04 removed it from Git tracking, added it to
+`.gitignore`, and retained its explicit ERP ESLint exclusion. The untracked,
+ignored declaration is regenerated by `next typegen` or a Next build, and ERP
+typecheck now runs `next typegen && tsc --noEmit`. Clean-like typechecking also
+passed with neither `.next` nor `next-env.d.ts` initially present. ERP lint,
+generated-state typecheck, 3-file/8-test suite,
 clean-checkout typecheck, and root formatting all passed. No ERP source,
 configuration, test, dependency, generated artifact, or real environment file
 changed. CI reaches the same build command but currently uses development
@@ -1467,8 +1578,10 @@ Do not ask for these until their dependent block is approaching, unless early pr
 - [x] CUST-03 Session — **DONE WITH FINDINGS** 2 September 2026;
       development/test-only local OTP; evidence:
       `docs/08-testing/cust-03-session-evidence.md`
-- [ ] CUST-04 Customer bootstrap — **NOT STARTED**
-- [ ] CUST-05 Home
+- [x] CUST-04 Customer bootstrap — **INDEPENDENTLY REVIEWED AND CLOSED - 4
+      SEPTEMBER 2026**; evidence:
+      `docs/08-testing/cust-04-customer-bootstrap-evidence.md`
+- [ ] CUST-05 Home — **NOT STARTED** (existing partial scaffold retained)
 - [ ] CUST-06 Explore
 - [ ] CUST-07 Event categories
 - [ ] CUST-08 Services

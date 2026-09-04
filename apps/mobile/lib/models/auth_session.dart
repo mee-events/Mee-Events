@@ -4,18 +4,26 @@ class AuthSession {
   final String refreshToken;
   final int accessTokenExpiresInSeconds;
   final DateTime accessTokenExpiresAt;
+  final String sessionId;
   final String userId;
   final String mobileNumber;
   final String lastActiveRole;
+  final int sessionGeneration;
+  final int tokenRevision;
+  final int roleRevision;
 
   AuthSession({
     required this.accessToken,
     required this.refreshToken,
     required this.accessTokenExpiresInSeconds,
     required this.accessTokenExpiresAt,
+    required this.sessionId,
     required this.userId,
     required this.mobileNumber,
     required this.lastActiveRole,
+    this.sessionGeneration = 0,
+    this.tokenRevision = 0,
+    this.roleRevision = 0,
   });
 
   factory AuthSession.fromJson(Map<String, dynamic> json, {DateTime? now}) {
@@ -27,6 +35,7 @@ class AuthSession {
       refreshToken: _requiredString(json, 'refreshToken', minLength: 32),
       accessTokenExpiresInSeconds: expiresInSeconds,
       accessTokenExpiresAt: issuedAt.add(Duration(seconds: expiresInSeconds)),
+      sessionId: _requiredUuid(json, 'sessionId'),
       userId: _requiredValue(user?['id'] ?? json['userId'], 'userId'),
       mobileNumber: _requiredValue(
         user?['mobileNumber'] ?? json['mobileNumber'],
@@ -36,7 +45,7 @@ class AuthSession {
         user?['lastActiveRole'] ?? json['lastActiveRole'],
         'lastActiveRole',
       ),
-    );
+    ).._validateRole();
   }
 
   bool hasUsableAccessToken(
@@ -49,6 +58,7 @@ class AuthSession {
 
   StoredAuthSession toStoredSession() => StoredAuthSession(
     refreshToken: refreshToken,
+    sessionId: sessionId,
     userId: userId,
     mobileNumber: mobileNumber,
     lastActiveRole: lastActiveRole,
@@ -66,9 +76,30 @@ class AuthSession {
       accessTokenExpiresAt: issuedAt.add(
         Duration(seconds: tokens.accessTokenExpiresInSeconds),
       ),
+      sessionId: tokens.sessionId,
       userId: userId,
       mobileNumber: mobileNumber,
       lastActiveRole: tokens.activeRole,
+      sessionGeneration: sessionGeneration,
+      tokenRevision: tokenRevision + 1,
+      roleRevision:
+          roleRevision + (tokens.activeRole == lastActiveRole ? 0 : 1),
+    );
+  }
+
+  AuthSession withRotatedRefreshToken(String nextRefreshToken) {
+    return AuthSession(
+      accessToken: accessToken,
+      refreshToken: nextRefreshToken,
+      accessTokenExpiresInSeconds: accessTokenExpiresInSeconds,
+      accessTokenExpiresAt: accessTokenExpiresAt,
+      sessionId: sessionId,
+      userId: userId,
+      mobileNumber: mobileNumber,
+      lastActiveRole: lastActiveRole,
+      sessionGeneration: sessionGeneration,
+      tokenRevision: tokenRevision + 1,
+      roleRevision: roleRevision,
     );
   }
 
@@ -81,32 +112,95 @@ class AuthSession {
       accessTokenExpiresAt: issuedAt.add(
         Duration(seconds: result.accessTokenExpiresInSeconds),
       ),
+      sessionId: result.sessionId,
       userId: userId,
       mobileNumber: mobileNumber,
       lastActiveRole: result.activeRole,
+      sessionGeneration: sessionGeneration,
+      tokenRevision: tokenRevision + 1,
+      roleRevision:
+          roleRevision + (result.activeRole == lastActiveRole ? 0 : 1),
     );
+  }
+
+  AuthSession withSessionGeneration(int nextGeneration) {
+    return AuthSession(
+      accessToken: accessToken,
+      refreshToken: refreshToken,
+      accessTokenExpiresInSeconds: accessTokenExpiresInSeconds,
+      accessTokenExpiresAt: accessTokenExpiresAt,
+      sessionId: sessionId,
+      userId: userId,
+      mobileNumber: mobileNumber,
+      lastActiveRole: lastActiveRole,
+      sessionGeneration: nextGeneration,
+      tokenRevision: 0,
+      roleRevision: 0,
+    );
+  }
+
+  AuthSessionSnapshot get snapshot => AuthSessionSnapshot(
+    sessionId: sessionId,
+    userId: userId,
+    activeRole: lastActiveRole,
+    sessionGeneration: sessionGeneration,
+    tokenRevision: tokenRevision,
+    roleRevision: roleRevision,
+  );
+}
+
+class AuthSessionSnapshot {
+  const AuthSessionSnapshot({
+    required this.sessionId,
+    required this.userId,
+    required this.activeRole,
+    required this.sessionGeneration,
+    required this.tokenRevision,
+    required this.roleRevision,
+  });
+
+  final String sessionId;
+  final String userId;
+  final String activeRole;
+  final int sessionGeneration;
+  final int tokenRevision;
+  final int roleRevision;
+
+  bool hasSameSession(AuthSession? current) {
+    return current != null &&
+        current.sessionId == sessionId &&
+        current.userId == userId &&
+        current.sessionGeneration == sessionGeneration;
+  }
+
+  bool hasSameRole(AuthSession? current) {
+    return hasSameSession(current) &&
+        current!.lastActiveRole == activeRole &&
+        current.roleRevision == roleRevision;
   }
 }
 
 /// The minimum durable data required to rotate and restore a device session.
 class StoredAuthSession {
-  static const int currentVersion = 2;
+  static const int currentVersion = 3;
 
   const StoredAuthSession({
     required this.refreshToken,
+    required this.sessionId,
     required this.userId,
     required this.mobileNumber,
     required this.lastActiveRole,
   });
 
   final String refreshToken;
+  final String? sessionId;
   final String userId;
   final String mobileNumber;
   final String lastActiveRole;
 
   factory StoredAuthSession.fromJson(Map<String, dynamic> json) {
     final version = json['version'];
-    if (version != null && version != currentVersion) {
+    if (version != null && version != 2 && version != currentVersion) {
       throw const FormatException('Unsupported stored session version');
     }
     final role = _requiredString(json, 'lastActiveRole');
@@ -119,6 +213,9 @@ class StoredAuthSession {
     }
     return StoredAuthSession(
       refreshToken: _requiredString(json, 'refreshToken', minLength: 32),
+      sessionId: version == currentVersion
+          ? _requiredUuid(json, 'sessionId')
+          : _optionalString(json['sessionId'], 'sessionId'),
       userId: _requiredString(json, 'userId'),
       mobileNumber: mobileNumber,
       lastActiveRole: role,
@@ -128,12 +225,16 @@ class StoredAuthSession {
   Map<String, dynamic> toJson() => {
     'version': currentVersion,
     'refreshToken': refreshToken,
+    'sessionId': sessionId,
     'userId': userId,
     'mobileNumber': mobileNumber,
     'lastActiveRole': lastActiveRole,
   };
 
   AuthSession withTokens(SessionTokens tokens, DateTime now) {
+    if (sessionId != null && sessionId != tokens.sessionId) {
+      throw const FormatException('Stored session identity changed');
+    }
     return AuthSession(
       accessToken: tokens.accessToken,
       refreshToken: tokens.refreshToken,
@@ -141,6 +242,7 @@ class StoredAuthSession {
       accessTokenExpiresAt: now.add(
         Duration(seconds: tokens.accessTokenExpiresInSeconds),
       ),
+      sessionId: tokens.sessionId,
       userId: userId,
       mobileNumber: mobileNumber,
       lastActiveRole: tokens.activeRole,
@@ -153,12 +255,14 @@ class SessionTokens {
   final String accessToken;
   final String refreshToken;
   final int accessTokenExpiresInSeconds;
+  final String sessionId;
   final String activeRole;
 
   const SessionTokens({
     required this.accessToken,
     required this.refreshToken,
     required this.accessTokenExpiresInSeconds,
+    required this.sessionId,
     required this.activeRole,
   });
 
@@ -173,8 +277,9 @@ class SessionTokens {
       accessToken: _requiredString(json, 'accessToken'),
       refreshToken: _requiredString(json, 'refreshToken', minLength: 32),
       accessTokenExpiresInSeconds: _requiredExpiry(json),
+      sessionId: _requiredUuid(json, 'sessionId'),
       activeRole: activeRole,
-    );
+    ).._validateRole();
   }
 }
 
@@ -182,20 +287,43 @@ class SessionTokens {
 class SwitchRoleResult {
   final String accessToken;
   final int accessTokenExpiresInSeconds;
+  final String sessionId;
   final String activeRole;
 
   const SwitchRoleResult({
     required this.accessToken,
     required this.accessTokenExpiresInSeconds,
+    required this.sessionId,
     required this.activeRole,
   });
 
   factory SwitchRoleResult.fromJson(Map<String, dynamic> json) {
-    return SwitchRoleResult(
+    final result = SwitchRoleResult(
       accessToken: _requiredString(json, 'accessToken'),
       accessTokenExpiresInSeconds: _requiredExpiry(json),
+      sessionId: _requiredUuid(json, 'sessionId'),
       activeRole: _requiredString(json, 'activeRole'),
     );
+    if (!_mobileSessionRoles.contains(result.activeRole)) {
+      throw const FormatException('Role-switch response role is invalid');
+    }
+    return result;
+  }
+}
+
+extension on AuthSession {
+  void _validateRole() {
+    if (!_knownSessionRoles.contains(lastActiveRole)) {
+      throw const FormatException('Session role is invalid');
+    }
+  }
+}
+
+extension on SessionTokens {
+  void _validateRole() {
+    if (!_knownSessionRoles.contains(activeRole)) {
+      throw const FormatException('Refresh-session role is invalid');
+    }
   }
 }
 
@@ -210,6 +338,13 @@ const _knownSessionRoles = {
   'manager',
   'administrator',
   'auditor',
+};
+
+const _mobileSessionRoles = {
+  'customer',
+  'vendor_owner',
+  'vendor_member',
+  'worker',
 };
 
 String _requiredString(
@@ -228,6 +363,24 @@ String _requiredValue(Object? value, String key, {int minLength = 1}) {
   }
   return value;
 }
+
+String? _optionalString(Object? value, String key) {
+  if (value == null) return null;
+  return _requiredValue(value, key);
+}
+
+String _requiredUuid(Map<String, dynamic> json, String key) {
+  final value = _requiredString(json, key);
+  if (!_uuidPattern.hasMatch(value)) {
+    throw FormatException('$key is invalid');
+  }
+  return value;
+}
+
+final _uuidPattern = RegExp(
+  r'^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$',
+  caseSensitive: false,
+);
 
 int _requiredExpiry(Map<String, dynamic> json) {
   final value = json['accessTokenExpiresInSeconds'];

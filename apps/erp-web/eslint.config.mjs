@@ -10,6 +10,7 @@ const config = [
       "playwright.config.ts",
       "playwright-report/**",
       "test-results/**",
+      "next-env.d.ts",
     ],
   },
   ...compat.extends("next/core-web-vitals", "next/typescript"),

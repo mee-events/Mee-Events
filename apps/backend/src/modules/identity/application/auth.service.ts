@@ -233,6 +233,7 @@ export class AuthService {
       accessToken,
       refreshToken,
       accessTokenExpiresInSeconds: ACCESS_TOKEN_TTL_SECONDS,
+      sessionId: session.id,
       user: {
         id: user.id,
         mobileNumber: user.mobileNumber,
@@ -311,6 +312,7 @@ export class AuthService {
         accessToken,
         refreshToken: nextRefreshToken,
         accessTokenExpiresInSeconds: ACCESS_TOKEN_TTL_SECONDS,
+        sessionId: session.id,
         activeRole: user.lastActiveRole,
       };
     } finally {
@@ -354,6 +356,7 @@ export class AuthService {
       return {
         accessToken,
         accessTokenExpiresInSeconds: ACCESS_TOKEN_TTL_SECONDS,
+        sessionId: session.id,
         activeRole: role,
       };
     }
@@ -380,6 +383,7 @@ export class AuthService {
     return {
       accessToken,
       accessTokenExpiresInSeconds: ACCESS_TOKEN_TTL_SECONDS,
+      sessionId: session.id,
       activeRole: role,
     };
   }

@@ -1,8 +1,14 @@
-import type { PlatformBootstrapResponse } from "@me-event/api-contracts";
+import {
+  platformBootstrapMinimumClientVersion,
+  platformBootstrapPolicyVersion,
+  platformBootstrapSchemaVersion,
+  type PlatformBootstrapResponse,
+} from "@me-event/api-contracts";
 import type { PlatformRole, RoleAssignment } from "@me-event/shared-types";
+import { PHASE_ONE_BRANCH_ID } from "../../../common/branch/role-scope-policy";
 
 export const HYDERABAD_BRANCH = Object.freeze({
-  id: "00000000-0000-4000-8000-000000000001",
+  id: PHASE_ONE_BRANCH_ID,
   code: "HYD",
   name: "Hyderabad",
   city: "Hyderabad",
@@ -12,6 +18,11 @@ export const HYDERABAD_BRANCH = Object.freeze({
   currencyCode: "INR",
   status: "active",
 } as const);
+
+export const PLATFORM_BOOTSTRAP_SCHEMA_VERSION = platformBootstrapSchemaVersion;
+export const PLATFORM_BOOTSTRAP_MINIMUM_CLIENT_VERSION =
+  platformBootstrapMinimumClientVersion;
+export const PLATFORM_BOOTSTRAP_POLICY_VERSION = platformBootstrapPolicyVersion;
 
 export const capabilityIds = [
   "enquiry.create_own",
@@ -170,7 +181,7 @@ export interface AuthenticatedPrincipal {
   readonly sessionId: string;
   readonly activeRole: PlatformRole;
   readonly roleAssignments: readonly RoleAssignment[];
-  /** Active branch resolved from role assignment scope (or platform default). */
+  /** Operational branch; deliberately separate from role/resource scope. */
   readonly branchId?: string;
 }
 

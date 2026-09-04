@@ -1,6 +1,7 @@
 import { Inject, Injectable } from "@nestjs/common";
 import type {
   AddVendorNoteRequest,
+  AddVendorSelfNoteRequest,
   AssignVendorRequest,
   CreateVendorRequest,
   RejectVendorAssignmentRequest,
@@ -18,6 +19,7 @@ import type {
 } from "@me-event/api-contracts";
 import { randomUUID } from "node:crypto";
 import { resolveBranchId } from "../../../common/branch/branch-context";
+import { hasActiveVendorResourceGrant } from "../../../common/branch/role-scope-policy";
 import { DomainError } from "../../../common/errors/domain.error";
 import {
   buildPaginationMeta,
@@ -26,6 +28,7 @@ import {
   type PaginationParams,
 } from "../../../common/pagination/pagination";
 import type { AuthenticatedPrincipal } from "../../platform-foundation/domain/platform-foundation";
+import { toVendorSummary } from "./vendor-summary";
 import {
   VENDOR_REPOSITORY,
   type VendorRepository,
@@ -278,20 +281,84 @@ export class VendorService {
   public async listOwnAssignments(
     principal: AuthenticatedPrincipal,
   ): Promise<VendorAssignmentListResponse> {
-    const vendorId = await this.vendors.findVendorIdForUser(principal.userId);
-    if (vendorId === undefined) {
-      return { assignments: [] };
-    }
+    const authorized = await this.loadAuthorizedVendorResources(principal);
     return {
-      assignments: await this.vendors.listAssignments({ vendorId }),
+      assignments: (
+        await Promise.all(
+          authorized.map(({ vendor }) =>
+            this.vendors.listAssignments({
+              vendorId: vendor.id,
+              branchId: resolveBranchId(principal),
+            }),
+          ),
+        )
+      ).flat(),
     };
   }
 
-  public async addNote(
+  public addCrmNote(
     principal: AuthenticatedPrincipal,
     vendorId: string,
     body: AddVendorNoteRequest,
     requestId: string = randomUUID(),
+  ): Promise<VendorNoteSummary> {
+    return this.persistNote(principal, vendorId, body, requestId);
+  }
+
+  public async addOwnNote(
+    principal: AuthenticatedPrincipal,
+    body:
+      | AddVendorSelfNoteRequest
+      | {
+          readonly vendorId?: string;
+          readonly content: string;
+          readonly noteType?: string;
+          readonly assignmentId?: string;
+          readonly eventRecordId?: string;
+        },
+    requestId: string = randomUUID(),
+  ): Promise<VendorNoteSummary> {
+    const { vendorId: requestedVendorId, ...noteBody } = body;
+    const vendorId =
+      requestedVendorId === undefined
+        ? await this.inferOwnNoteVendorId(principal)
+        : requestedVendorId;
+    if (requestedVendorId !== undefined) {
+      await this.assertVendorResourceAccess(principal, requestedVendorId);
+    }
+    if (body.noteType !== undefined && body.noteType !== "vendor") {
+      throw new DomainError(
+        "INVALID_VENDOR_NOTE_TYPE",
+        "Vendor-originated notes must have noteType 'vendor'",
+        400,
+      );
+    }
+    const safeBody: AddVendorNoteRequest = {
+      ...noteBody,
+      noteType: "vendor",
+    };
+    return this.persistNote(principal, vendorId, safeBody, requestId);
+  }
+
+  private async inferOwnNoteVendorId(
+    principal: AuthenticatedPrincipal,
+  ): Promise<string> {
+    const authorized = await this.loadAuthorizedVendorResources(principal);
+    if (authorized.length !== 1) {
+      throw new DomainError(
+        "VENDOR_SELECTION_REQUIRED",
+        "vendorId is required when more than one vendor is authorized",
+        400,
+      );
+    }
+    return authorized[0]!.vendor.id;
+  }
+
+  private async persistNote(
+    principal: AuthenticatedPrincipal,
+    vendorId: string,
+    body: AddVendorNoteRequest,
+    requestId: string,
   ): Promise<VendorNoteSummary> {
     const note = await this.vendors.addNote({
       vendorId,
@@ -302,7 +369,11 @@ export class VendorService {
       branchId: resolveBranchId(principal),
     });
     if (note === undefined) {
-      throw new DomainError("VENDOR_NOT_FOUND", "Vendor not found", 404);
+      throw new DomainError(
+        "VENDOR_NOTE_TARGET_NOT_FOUND",
+        "Vendor note target not found",
+        404,
+      );
     }
     return note;
   }
@@ -313,10 +384,37 @@ export class VendorService {
     return this.vendors.getCrmDashboard(resolveBranchId(principal));
   }
 
-  public getOwnDashboard(
+  public async getOwnDashboard(
     principal: AuthenticatedPrincipal,
   ): Promise<VendorDashboardResponse> {
-    return this.vendors.getVendorDashboard(principal.userId);
+    const authorized = await this.loadAuthorizedVendorResources(principal);
+    const assignments = (
+      await Promise.all(
+        authorized.map(({ vendor }) =>
+          this.vendors.listAssignments({
+            vendorId: vendor.id,
+            branchId: resolveBranchId(principal),
+          }),
+        ),
+      )
+    ).flat();
+    const openAssignments = assignments.filter(
+      (assignment) =>
+        !["rejected", "cancelled", "completed"].includes(assignment.status),
+    );
+    return {
+      totalVendors: authorized.length,
+      activeAssignments: openAssignments.length,
+      pendingAcceptances: assignments.filter(
+        (assignment) =>
+          assignment.status === "assigned" || assignment.status === "invited",
+      ).length,
+      completedAssignments: assignments.filter(
+        (assignment) => assignment.status === "completed",
+      ).length,
+      vendors: authorized.map(({ vendor }) => toVendorSummary(vendor)),
+      openAssignments: openAssignments.slice(0, 50),
+    };
   }
 
   private async loadAssignmentById(
@@ -345,16 +443,68 @@ export class VendorService {
         404,
       );
     }
-    const allowed = await this.vendors.isVendorMember(
-      assignment.vendorId,
-      principal.userId,
+    await this.assertVendorResourceAccess(principal, assignment.vendorId);
+  }
+
+  private async assertVendorResourceAccess(
+    principal: AuthenticatedPrincipal,
+    vendorId: string,
+  ): Promise<void> {
+    const branchId = resolveBranchId(principal);
+    const [vendor, member] = await Promise.all([
+      this.vendors.getVendor(vendorId, branchId),
+      this.vendors.isVendorMember(vendorId, principal.userId),
+    ]);
+    const granted = hasActiveVendorResourceGrant(
+      principal.roleAssignments,
+      principal.activeRole,
+      vendorId,
+      branchId,
     );
-    if (!allowed) {
+    if (vendor === undefined || !member || !granted) {
       throw new DomainError(
-        "VENDOR_ASSIGNMENT_FORBIDDEN",
-        "You are not a member of this vendor",
+        "VENDOR_RESOURCE_FORBIDDEN",
+        "You are not authorized for this vendor",
         403,
       );
     }
+  }
+
+  private async loadAuthorizedVendorResources(
+    principal: AuthenticatedPrincipal,
+  ): Promise<readonly { readonly vendor: VendorDetailResponse }[]> {
+    const branchId = resolveBranchId(principal);
+    const vendorIds = await this.vendors.findVendorIdsForUser(principal.userId);
+    const candidates = await Promise.all(
+      vendorIds.map(async (vendorId) => ({
+        vendorId,
+        vendor: await this.vendors.getVendor(vendorId, branchId),
+      })),
+    );
+    const authorized = candidates
+      .filter(
+        (
+          candidate,
+        ): candidate is {
+          readonly vendorId: string;
+          readonly vendor: VendorDetailResponse;
+        } =>
+          candidate.vendor !== undefined &&
+          hasActiveVendorResourceGrant(
+            principal.roleAssignments,
+            principal.activeRole,
+            candidate.vendorId,
+            branchId,
+          ),
+      )
+      .map(({ vendor }) => ({ vendor }));
+    if (authorized.length === 0) {
+      throw new DomainError(
+        "VENDOR_RESOURCE_FORBIDDEN",
+        "You are not authorized for this vendor",
+        403,
+      );
+    }
+    return authorized;
   }
 }

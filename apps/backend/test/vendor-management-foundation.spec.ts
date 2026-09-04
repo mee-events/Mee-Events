@@ -1,7 +1,16 @@
+import {
+  Controller,
+  Get,
+  Module,
+  VersioningType,
+  type INestApplication,
+} from "@nestjs/common";
+import { NestFactory, Reflector } from "@nestjs/core";
 import { randomUUID } from "node:crypto";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import type {
   AddVendorNoteRequest,
+  AddVendorSelfNoteRequest,
   AssignVendorRequest,
   CreateVendorRequest,
   EventActivitySummary,
@@ -10,6 +19,7 @@ import type {
   UpdateVendorAssignmentRequest,
   UpdateVendorRequest,
   VendorAssignmentDetailResponse,
+  VendorAssignmentHistoryEntry,
   VendorAssignmentSummary,
   VendorDashboardResponse,
   VendorDetailResponse,
@@ -17,18 +27,23 @@ import type {
   VendorProgressUpdateRequest,
   VendorSummary,
 } from "@me-event/api-contracts";
+import { REQUIRED_CAPABILITY_KEY } from "../src/modules/authorization/capability.decorator";
 import type { AuthenticatedPrincipal } from "../src/modules/platform-foundation/domain/platform-foundation";
+import type { AuthenticatedPlatformRequest } from "../src/modules/platform-foundation/security/access-token.guard";
 import { VendorService } from "../src/modules/vendors/application/vendor.service";
-import type {
-  VendorMutationContext,
-  VendorRepository,
+import { CrmVendorController } from "../src/modules/vendors/presentation/crm-vendor.controller";
+import { VendorController } from "../src/modules/vendors/presentation/vendor.controller";
+import {
+  type VendorMutationContext,
+  type VendorRepository,
 } from "../src/modules/vendors/ports/vendor-repository";
 import { PatternBSideEffects } from "./helpers/pattern-b-side-effects";
 
 class FakeVendorRepository implements VendorRepository {
   public vendors = new Map<string, VendorDetailResponse>();
   public assignments = new Map<string, VendorAssignmentDetailResponse>();
-  public members = new Map<string, string>(); // userId -> vendorId
+  public notes = new Map<string, VendorNoteSummary>();
+  public members = new Map<string, Set<string>>(); // userId -> vendorIds
   public patternB = new PatternBSideEffects();
 
   private mutateAssignment(
@@ -163,7 +178,7 @@ class FakeVendorRepository implements VendorRepository {
     };
     this.vendors.set(id, vendor);
     if (input.body.ownerUserId !== undefined) {
-      this.members.set(input.body.ownerUserId, id);
+      this.addMember(input.body.ownerUserId, id);
     }
     this.patternB.appendModuleTimelineAndActivity("vendor", id, {
       entryType: "created",
@@ -432,15 +447,100 @@ class FakeVendorRepository implements VendorRepository {
       readonly body: AddVendorNoteRequest;
     },
   ): Promise<VendorNoteSummary | undefined> {
-    if (!this.vendors.has(input.vendorId)) return undefined;
-    return {
+    if (
+      input.branchId !== "00000000-0000-4000-8000-000000000001" ||
+      !this.vendors.has(input.vendorId)
+    ) {
+      return undefined;
+    }
+    const assignment =
+      input.body.assignmentId === undefined
+        ? undefined
+        : this.assignments.get(input.body.assignmentId);
+    const relationship =
+      assignment ??
+      (input.body.eventRecordId === undefined
+        ? undefined
+        : [...this.assignments.values()].find(
+            (candidate) =>
+              candidate.vendorId === input.vendorId &&
+              candidate.eventRecordId === input.body.eventRecordId,
+          ));
+    if (
+      (input.body.assignmentId !== undefined &&
+        (assignment === undefined || assignment.vendorId !== input.vendorId)) ||
+      (input.body.eventRecordId !== undefined &&
+        (relationship === undefined ||
+          relationship.vendorId !== input.vendorId ||
+          relationship.eventRecordId !== input.body.eventRecordId))
+    ) {
+      return undefined;
+    }
+
+    const note: VendorNoteSummary = {
       id: randomUUID(),
       vendorId: input.vendorId,
       noteType: input.body.noteType,
       content: input.body.content,
       createdAt: new Date().toISOString(),
       createdByUserId: input.actorUserId,
+      ...(input.body.assignmentId === undefined
+        ? {}
+        : { assignmentId: input.body.assignmentId }),
+      ...(input.body.eventRecordId === undefined
+        ? {}
+        : { eventRecordId: input.body.eventRecordId }),
     };
+    this.notes.set(note.id, note);
+
+    if (assignment !== undefined) {
+      const history: VendorAssignmentHistoryEntry = {
+        id: randomUUID(),
+        assignmentId: assignment.id,
+        changeType: "note_added",
+        summary: input.body.content.slice(0, 200),
+        actorUserId: input.actorUserId,
+        occurredAt: new Date().toISOString(),
+      };
+      this.assignments.set(assignment.id, {
+        ...assignment,
+        history: [history, ...assignment.history],
+        notes: [note, ...assignment.notes],
+      });
+    }
+    if (input.body.eventRecordId !== undefined) {
+      this.patternB.appendTimeline(input.body.eventRecordId, {
+        entryType: "vendor_note_added",
+        title: "Vendor note added",
+        content: input.body.content,
+        customerVisible: false,
+        actorUserId: input.actorUserId,
+      });
+      this.patternB.appendActivity(input.body.eventRecordId, {
+        activityType: "vendor_note",
+        content: input.body.content,
+        customerVisible: false,
+        actorUserId: input.actorUserId,
+      });
+      this.patternB.appendModuleTimelineAndActivity("vendor", input.vendorId, {
+        entryType: "vendor_note_added",
+        title: "Vendor note added",
+        activityType: "vendor_note",
+        content: input.body.content,
+        customerVisible: false,
+        actorUserId: input.actorUserId,
+      });
+    }
+    this.patternB.writeAuditOutbox({
+      requestId: input.requestId,
+      actorUserId: input.actorUserId,
+      actorRole: input.actorRole,
+      entityType: "vendor",
+      entityId: input.vendorId,
+      action: "vendor.note_added",
+      outboxTopic: "vendor.note_added",
+    });
+    return note;
   }
 
   public async getCrmDashboard(
@@ -465,8 +565,8 @@ class FakeVendorRepository implements VendorRepository {
   public async getVendorDashboard(
     userId: string,
   ): Promise<VendorDashboardResponse> {
-    const vendorId = this.members.get(userId);
-    if (vendorId === undefined) {
+    const vendorIds = await this.findVendorIdsForUser(userId);
+    if (vendorIds.length === 0) {
       return {
         totalVendors: 0,
         activeAssignments: 0,
@@ -476,22 +576,71 @@ class FakeVendorRepository implements VendorRepository {
         openAssignments: [],
       };
     }
-    return this.getCrmDashboard("branch-1");
+    const vendors = vendorIds
+      .map((vendorId) => this.vendors.get(vendorId))
+      .filter((vendor): vendor is VendorDetailResponse => vendor !== undefined);
+    const assignments = [...this.assignments.values()].filter((assignment) =>
+      vendorIds.includes(assignment.vendorId),
+    );
+    return {
+      totalVendors: vendors.length,
+      activeAssignments: assignments.filter(
+        (assignment) =>
+          !["completed", "cancelled", "rejected"].includes(assignment.status),
+      ).length,
+      pendingAcceptances: assignments.filter(
+        (assignment) =>
+          assignment.status === "assigned" || assignment.status === "invited",
+      ).length,
+      completedAssignments: assignments.filter(
+        (assignment) => assignment.status === "completed",
+      ).length,
+      vendors,
+      openAssignments: assignments,
+    };
+  }
+
+  public async findVendorIdsForUser(
+    userId: string,
+  ): Promise<readonly string[]> {
+    return [...(this.members.get(userId) ?? [])];
   }
 
   public async findVendorIdForUser(
     userId: string,
   ): Promise<string | undefined> {
-    return this.members.get(userId);
+    return (await this.findVendorIdsForUser(userId))[0];
   }
 
   public async isVendorMember(
     vendorId: string,
     userId: string,
   ): Promise<boolean> {
-    return this.members.get(userId) === vendorId;
+    return this.members.get(userId)?.has(vendorId) === true;
+  }
+
+  public addMember(userId: string, vendorId: string): void {
+    const vendorIds = this.members.get(userId) ?? new Set<string>();
+    vendorIds.add(vendorId);
+    this.members.set(userId, vendorIds);
   }
 }
+
+let vendorHttpService: VendorService;
+let vendorHttpPrincipal: AuthenticatedPrincipal;
+
+@Controller("vendors")
+class VendorDashboardHttpController {
+  @Get("me/dashboard")
+  public dashboard(): Promise<VendorDashboardResponse> {
+    return vendorHttpService.getOwnDashboard(vendorHttpPrincipal);
+  }
+}
+
+@Module({
+  controllers: [VendorDashboardHttpController],
+})
+class VendorHttpTestModule {}
 
 function toSummary(detail: VendorDetailResponse): VendorSummary {
   return {
@@ -517,14 +666,28 @@ const employee: AuthenticatedPrincipal = {
   userId: "employee-1",
   sessionId: "s1",
   activeRole: "employee",
-  roleAssignments: [{ role: "employee", active: true }],
+  roleAssignments: [
+    {
+      role: "employee",
+      active: true,
+      scopeType: "branch",
+      scopeId: "00000000-0000-4000-8000-000000000001",
+    },
+  ],
 };
 
 const vendorOwner: AuthenticatedPrincipal = {
   userId: "vendor-owner-1",
   sessionId: "s2",
   activeRole: "vendor_owner",
-  roleAssignments: [{ role: "vendor_owner", active: true }],
+  roleAssignments: [
+    {
+      role: "vendor_owner",
+      active: true,
+      scopeType: "branch",
+      scopeId: "00000000-0000-4000-8000-000000000001",
+    },
+  ],
 };
 
 describe("Vendor Management Foundation", () => {
@@ -643,6 +806,180 @@ describe("Vendor Management Foundation", () => {
     expect(dashboard.pendingAcceptances).toBe(1);
   });
 
+  it("serializes the vendor-self dashboard with only VendorSummary fields", async () => {
+    const userId = "summary-owner";
+    const created = await service.create(employee, {
+      businessName: "Summary Safe Vendor",
+      ownerName: "Summary Owner",
+      phoneE164: "+919000000020",
+      categoryCodes: ["decoration"],
+      city: "Hyderabad",
+      state: "Telangana",
+      ownerUserId: userId,
+    });
+    repo.vendors.set(created.id, {
+      ...created,
+      email: "owner@example.test",
+      gstNumber: "36ABCDE1234F1Z5",
+      panNumber: "ABCDE1234F",
+      upiId: "private@upi",
+      notes: "Internal CRM note",
+      addressLine: "Private address",
+      pincode: "500001",
+      bankAccounts: [
+        {
+          id: randomUUID(),
+          accountHolderName: "Private Account",
+          bankName: "Private Bank",
+          accountNumberMasked: "XXXX1234",
+          ifscCode: "TEST0000001",
+          isPrimary: true,
+        },
+      ],
+      contacts: [
+        {
+          id: randomUUID(),
+          contactName: "Private Contact",
+          phoneE164: "+919000000021",
+          isPrimary: true,
+        },
+      ],
+      documents: [
+        {
+          id: randomUUID(),
+          docType: "gst",
+          status: "verified",
+          fileName: "private.pdf",
+          createdAt: new Date().toISOString(),
+        },
+      ],
+    });
+    const principal = vendorPrincipal(userId, [created.id]);
+    vendorHttpService = service;
+    vendorHttpPrincipal = principal;
+    let app: INestApplication | undefined;
+    try {
+      app = await NestFactory.create(VendorHttpTestModule, { logger: false });
+      app.enableVersioning({
+        type: VersioningType.URI,
+        defaultVersion: "1",
+      });
+      app.setGlobalPrefix("api");
+      await app.listen(0, "127.0.0.1");
+
+      const response = await fetch(
+        `${await app.getUrl()}/api/v1/vendors/me/dashboard`,
+      );
+      const body = (await response.json()) as {
+        readonly vendors?: readonly Record<string, unknown>[];
+      };
+      expect(response.status).toBe(200);
+      expect(Object.keys(body.vendors?.[0] ?? {}).sort()).toEqual(
+        [
+          "activeStatus",
+          "businessName",
+          "categories",
+          "city",
+          "createdAt",
+          "email",
+          "id",
+          "ownerName",
+          "phoneE164",
+          "ratingAverage",
+          "ratingCount",
+          "state",
+          "updatedAt",
+          "vendorCode",
+          "verificationStatus",
+        ].sort(),
+      );
+      for (const privateField of [
+        "gstNumber",
+        "panNumber",
+        "upiId",
+        "notes",
+        "bankAccounts",
+        "contacts",
+        "documents",
+        "addressLine",
+        "pincode",
+      ]) {
+        expect(body.vendors?.[0]).not.toHaveProperty(privateField);
+      }
+    } finally {
+      await app?.close();
+    }
+  });
+
+  it("keeps CRM and vendor-self note trust paths capability-protected", () => {
+    const reflector = new Reflector();
+    expect(
+      reflector.get(
+        REQUIRED_CAPABILITY_KEY,
+        CrmVendorController.prototype.addNote,
+      ),
+    ).toBe("crm_vendor.manage");
+    expect(
+      reflector.get(
+        REQUIRED_CAPABILITY_KEY,
+        VendorController.prototype.addNote,
+      ),
+    ).toBe("vendor_own.update");
+  });
+
+  it("routes CRM and vendor-self controllers to their explicit trust paths", async () => {
+    const userId = "controller-note-owner";
+    const vendor = await service.create(employee, {
+      businessName: "Controller Note Vendor",
+      ownerName: "Controller Owner",
+      phoneE164: "+919000000026",
+      categoryCodes: ["decoration"],
+      city: "Hyderabad",
+      state: "Telangana",
+      ownerUserId: userId,
+    });
+    const crmBody: AddVendorNoteRequest = {
+      noteType: "internal",
+      content: "CRM controller note",
+    };
+    const crmRequest = {
+      user: employee,
+      id: "crm-controller-note-request",
+    } as AuthenticatedPlatformRequest;
+    const crmSpy = vi.spyOn(service, "addCrmNote");
+    await new CrmVendorController(service).addNote(
+      vendor.id,
+      crmBody,
+      crmRequest,
+    );
+    expect(crmSpy).toHaveBeenCalledWith(
+      employee,
+      vendor.id,
+      crmBody,
+      "crm-controller-note-request",
+    );
+
+    const owner = vendorPrincipal(userId, [vendor.id]);
+    const selfBody: AddVendorSelfNoteRequest = {
+      vendorId: vendor.id,
+      noteType: "vendor",
+      content: "Vendor controller note",
+    };
+    const selfRequest = {
+      user: owner,
+      id: "self-controller-note-request",
+    } as AuthenticatedPlatformRequest;
+    const selfSpy = vi.spyOn(service, "addOwnNote");
+    const dashboardSpy = vi.spyOn(service, "getOwnDashboard");
+    await new VendorController(service).addNote(selfBody, selfRequest);
+    expect(selfSpy).toHaveBeenCalledWith(
+      owner,
+      selfBody,
+      "self-controller-note-request",
+    );
+    expect(dashboardSpy).not.toHaveBeenCalled();
+  });
+
   it("denies other-branch vendor assignment detail as 404", async () => {
     const vendor = await service.create(employee, {
       businessName: "Decor Co",
@@ -676,4 +1013,763 @@ describe("Vendor Management Foundation", () => {
       status: 404,
     });
   });
+
+  it("keeps vendor membership authoritative across vendor resources", async () => {
+    const ownVendor = await service.create(employee, {
+      businessName: "Owned Decor Co",
+      ownerName: "Owner",
+      phoneE164: "+919000000003",
+      categoryCodes: ["decoration"],
+      city: "Hyderabad",
+      state: "Telangana",
+      ownerUserId: vendorOwner.userId,
+    });
+    const otherVendor = await service.create(employee, {
+      businessName: "Other Decor Co",
+      ownerName: "Other Owner",
+      phoneE164: "+919000000004",
+      categoryCodes: ["decoration"],
+      city: "Hyderabad",
+      state: "Telangana",
+    });
+    const ownAssignment = await service.assign(employee, {
+      vendorId: ownVendor.id,
+      eventRecordId: randomUUID(),
+      status: "assigned",
+    });
+    const otherAssignment = await service.assign(employee, {
+      vendorId: otherVendor.id,
+      eventRecordId: randomUUID(),
+      status: "assigned",
+    });
+
+    await expect(
+      service.getOwnAssignment(vendorOwner, ownAssignment.id),
+    ).resolves.toMatchObject({ id: ownAssignment.id });
+    await expect(
+      service.getOwnAssignment(vendorOwner, otherAssignment.id),
+    ).rejects.toMatchObject({
+      code: "VENDOR_RESOURCE_FORBIDDEN",
+      status: 403,
+    });
+  });
+
+  it("separates CRM and vendor-self note authorization without weakening either", async () => {
+    const ownerUserId = "note-owner";
+    const vendorA = await service.create(employee, {
+      businessName: "Note Vendor A",
+      ownerName: "Owner A",
+      phoneE164: "+919000000022",
+      categoryCodes: ["decoration"],
+      city: "Hyderabad",
+      state: "Telangana",
+      ownerUserId,
+    });
+    const vendorB = await service.create(employee, {
+      businessName: "Note Vendor B",
+      ownerName: "Owner B",
+      phoneE164: "+919000000023",
+      categoryCodes: ["catering"],
+      city: "Hyderabad",
+      state: "Telangana",
+    });
+    const eventA = randomUUID();
+    const eventB = randomUUID();
+    const assignmentA = await service.assign(employee, {
+      vendorId: vendorA.id,
+      eventRecordId: eventA,
+      status: "assigned",
+    });
+    const assignmentB = await service.assign(employee, {
+      vendorId: vendorB.id,
+      eventRecordId: eventB,
+      status: "assigned",
+    });
+    const owner = vendorPrincipal(ownerUserId, [vendorA.id]);
+
+    await expect(
+      service.addCrmNote(employee, vendorA.id, {
+        noteType: "internal",
+        content: "CRM relationship is valid",
+        assignmentId: assignmentA.id,
+        eventRecordId: eventA,
+      }),
+    ).resolves.toMatchObject({ vendorId: vendorA.id });
+    await expect(
+      service.addCrmNote(
+        {
+          ...employee,
+          userId: "other-branch-employee",
+          branchId: "00000000-0000-4000-8000-000000000002",
+        },
+        vendorA.id,
+        { noteType: "internal", content: "Wrong branch" },
+      ),
+    ).rejects.toMatchObject({
+      code: "VENDOR_NOTE_TARGET_NOT_FOUND",
+      status: 404,
+    });
+    await expect(
+      service.addOwnNote(owner, {
+        vendorId: vendorA.id,
+        noteType: "vendor",
+        content: "Vendor relationship is valid",
+        assignmentId: assignmentA.id,
+        eventRecordId: eventA,
+      }),
+    ).resolves.toMatchObject({ vendorId: vendorA.id });
+    await expect(
+      service.addOwnNote(owner, {
+        vendorId: vendorB.id,
+        noteType: "vendor",
+        content: "Other vendor denied",
+      }),
+    ).rejects.toMatchObject({
+      code: "VENDOR_RESOURCE_FORBIDDEN",
+      status: 403,
+    });
+
+    await expect(
+      service.addCrmNote(employee, vendorA.id, {
+        noteType: "internal",
+        content: "CRM cross-vendor link denied",
+        assignmentId: assignmentB.id,
+      }),
+    ).rejects.toMatchObject({ code: "VENDOR_NOTE_TARGET_NOT_FOUND" });
+    await expect(
+      service.addOwnNote(owner, {
+        vendorId: vendorA.id,
+        noteType: "vendor",
+        content: "Self cross-event link denied",
+        eventRecordId: eventB,
+      }),
+    ).rejects.toMatchObject({ code: "VENDOR_NOTE_TARGET_NOT_FOUND" });
+  });
+
+  it("validates assignment, event, and vendor as one relationship before side effects", async () => {
+    const ownerUserId = "link-owner";
+    const vendorA = await service.create(employee, {
+      businessName: "Link Vendor A",
+      ownerName: "Owner A",
+      phoneE164: "+919000000024",
+      categoryCodes: ["decoration"],
+      city: "Hyderabad",
+      state: "Telangana",
+      ownerUserId,
+    });
+    const vendorB = await service.create(employee, {
+      businessName: "Link Vendor B",
+      ownerName: "Owner B",
+      phoneE164: "+919000000025",
+      categoryCodes: ["catering"],
+      city: "Hyderabad",
+      state: "Telangana",
+    });
+    const eventA = randomUUID();
+    const eventB = randomUUID();
+    const assignmentA = await service.assign(employee, {
+      vendorId: vendorA.id,
+      eventRecordId: eventA,
+      status: "assigned",
+    });
+    const assignmentB = await service.assign(employee, {
+      vendorId: vendorB.id,
+      eventRecordId: eventB,
+      status: "assigned",
+    });
+
+    await expect(
+      service.addCrmNote(employee, vendorA.id, {
+        noteType: "internal",
+        content: "Valid linked note",
+        assignmentId: assignmentA.id,
+        eventRecordId: eventA,
+      }),
+    ).resolves.toMatchObject({
+      vendorId: vendorA.id,
+      assignmentId: assignmentA.id,
+      eventRecordId: eventA,
+    });
+    await expect(
+      service.addCrmNote(employee, vendorA.id, {
+        noteType: "internal",
+        content: "Valid event-only link",
+        eventRecordId: eventA,
+      }),
+    ).resolves.toMatchObject({ vendorId: vendorA.id, eventRecordId: eventA });
+
+    const invalidBodies: readonly AddVendorNoteRequest[] = [
+      {
+        noteType: "internal",
+        content: "Vendor B assignment",
+        assignmentId: assignmentB.id,
+      },
+      {
+        noteType: "internal",
+        content: "Vendor B event",
+        eventRecordId: eventB,
+      },
+      {
+        noteType: "internal",
+        content: "Mismatched assignment and event",
+        assignmentId: assignmentA.id,
+        eventRecordId: eventB,
+      },
+      {
+        noteType: "internal",
+        content: "Missing assignment",
+        assignmentId: randomUUID(),
+      },
+      {
+        noteType: "internal",
+        content: "Missing event",
+        eventRecordId: randomUUID(),
+      },
+    ];
+    for (const body of invalidBodies) {
+      const before = noteSideEffectSnapshot(repo);
+      await expect(
+        service.addCrmNote(employee, vendorA.id, body),
+      ).rejects.toMatchObject({
+        code: "VENDOR_NOTE_TARGET_NOT_FOUND",
+        status: 404,
+      });
+      expect(noteSideEffectSnapshot(repo)).toEqual(before);
+    }
+  });
+
+  it("requires a matching vendor grant and membership on every self path", async () => {
+    const ownerUserId = "vendor-intersection-owner";
+    const owned = await service.create(employee, {
+      businessName: "Intersection Decor",
+      ownerName: "Owner",
+      phoneE164: "+919000000011",
+      categoryCodes: ["decoration"],
+      city: "Hyderabad",
+      state: "Telangana",
+      ownerUserId,
+    });
+    const principal = vendorPrincipal(ownerUserId, [owned.id]);
+    const acceptedAssignment = await service.assign(employee, {
+      vendorId: owned.id,
+      eventRecordId: randomUUID(),
+      status: "assigned",
+    });
+    const rejectedAssignment = await service.assign(employee, {
+      vendorId: owned.id,
+      eventRecordId: randomUUID(),
+      status: "assigned",
+    });
+
+    await expect(service.getOwnDashboard(principal)).resolves.toMatchObject({
+      totalVendors: 1,
+    });
+    const ownAssignments = await service.listOwnAssignments(principal);
+    expect(ownAssignments.assignments.map(({ id }) => id)).toContain(
+      acceptedAssignment.id,
+    );
+    await expect(
+      service.getOwnAssignment(principal, acceptedAssignment.id),
+    ).resolves.toMatchObject({ id: acceptedAssignment.id });
+    await expect(
+      service.accept(principal, acceptedAssignment.id),
+    ).resolves.toMatchObject({ status: "accepted" });
+    await expect(
+      service.progress(principal, acceptedAssignment.id, {
+        summary: "Authorized progress",
+        status: "working",
+      }),
+    ).resolves.toMatchObject({ status: "working" });
+    await expect(
+      service.reject(principal, rejectedAssignment.id, {
+        reason: "Authorized rejection",
+      }),
+    ).resolves.toMatchObject({ status: "rejected" });
+    await expect(
+      service.addOwnNote(principal, {
+        vendorId: owned.id,
+        noteType: "vendor",
+        content: "Authorized note",
+      }),
+    ).resolves.toMatchObject({ vendorId: owned.id });
+  });
+
+  it("never combines a Vendor A grant with Vendor B membership", async () => {
+    const vendorA = await service.create(employee, {
+      businessName: "Grant A",
+      ownerName: "Owner A",
+      phoneE164: "+919000000012",
+      categoryCodes: ["decoration"],
+      city: "Hyderabad",
+      state: "Telangana",
+    });
+    const userId = "cross-vendor-user";
+    const vendorB = await service.create(employee, {
+      businessName: "Member B",
+      ownerName: "Owner B",
+      phoneE164: "+919000000013",
+      categoryCodes: ["catering"],
+      city: "Hyderabad",
+      state: "Telangana",
+      ownerUserId: userId,
+    });
+    const assignmentB = await service.assign(employee, {
+      vendorId: vendorB.id,
+      eventRecordId: randomUUID(),
+      status: "assigned",
+    });
+    const grantA = vendorPrincipal(userId, [vendorA.id]);
+
+    await expect(service.getOwnDashboard(grantA)).rejects.toMatchObject({
+      code: "VENDOR_RESOURCE_FORBIDDEN",
+      status: 403,
+    });
+    await expect(service.listOwnAssignments(grantA)).rejects.toMatchObject({
+      code: "VENDOR_RESOURCE_FORBIDDEN",
+      status: 403,
+    });
+    await expect(
+      service.getOwnAssignment(grantA, assignmentB.id),
+    ).rejects.toMatchObject({ code: "VENDOR_RESOURCE_FORBIDDEN", status: 403 });
+    await expect(service.accept(grantA, assignmentB.id)).rejects.toMatchObject({
+      code: "VENDOR_RESOURCE_FORBIDDEN",
+      status: 403,
+    });
+    await expect(
+      service.reject(grantA, assignmentB.id, { reason: "must fail" }),
+    ).rejects.toMatchObject({ code: "VENDOR_RESOURCE_FORBIDDEN", status: 403 });
+    await expect(
+      service.progress(grantA, assignmentB.id, {
+        summary: "must fail",
+        status: "working",
+      }),
+    ).rejects.toMatchObject({ code: "VENDOR_RESOURCE_FORBIDDEN", status: 403 });
+    await expect(
+      service.addOwnNote(grantA, {
+        vendorId: vendorB.id,
+        noteType: "vendor",
+        content: "must fail",
+      }),
+    ).rejects.toMatchObject({ code: "VENDOR_RESOURCE_FORBIDDEN", status: 403 });
+  });
+
+  it("rejects a matching grant without membership and membership without a grant", async () => {
+    const vendor = await service.create(employee, {
+      businessName: "Two Factors",
+      ownerName: "Owner",
+      phoneE164: "+919000000014",
+      categoryCodes: ["decoration"],
+      city: "Hyderabad",
+      state: "Telangana",
+    });
+    const assignment = await service.assign(employee, {
+      vendorId: vendor.id,
+      eventRecordId: randomUUID(),
+      status: "assigned",
+    });
+    const grantOnly = vendorPrincipal("grant-only", [vendor.id]);
+    const membershipOnly: AuthenticatedPrincipal = {
+      userId: "membership-only",
+      sessionId: "membership-only-session",
+      activeRole: "customer",
+      roleAssignments: [
+        {
+          role: "customer",
+          active: true,
+          scopeType: "branch",
+          scopeId: "00000000-0000-4000-8000-000000000001",
+        },
+      ],
+    };
+    repo.addMember(membershipOnly.userId, vendor.id);
+
+    await expect(
+      service.getOwnAssignment(grantOnly, assignment.id),
+    ).rejects.toMatchObject({ code: "VENDOR_RESOURCE_FORBIDDEN", status: 403 });
+    await expect(
+      service.getOwnAssignment(membershipOnly, assignment.id),
+    ).rejects.toMatchObject({ code: "VENDOR_RESOURCE_FORBIDDEN", status: 403 });
+  });
+
+  it("supports multiple legitimate vendor grants without widening either one", async () => {
+    const userId = "multi-vendor-owner";
+    const vendorA = await service.create(employee, {
+      businessName: "Multi A",
+      ownerName: "Owner",
+      phoneE164: "+919000000015",
+      categoryCodes: ["decoration"],
+      city: "Hyderabad",
+      state: "Telangana",
+      ownerUserId: userId,
+    });
+    const vendorB = await service.create(employee, {
+      businessName: "Multi B",
+      ownerName: "Owner",
+      phoneE164: "+919000000016",
+      categoryCodes: ["catering"],
+      city: "Hyderabad",
+      state: "Telangana",
+      ownerUserId: userId,
+    });
+    const assignmentA = await service.assign(employee, {
+      vendorId: vendorA.id,
+      eventRecordId: randomUUID(),
+      status: "assigned",
+    });
+    const assignmentB = await service.assign(employee, {
+      vendorId: vendorB.id,
+      eventRecordId: randomUUID(),
+      status: "assigned",
+    });
+    const principal = vendorPrincipal(userId, [vendorA.id, vendorB.id]);
+
+    await expect(service.getOwnDashboard(principal)).resolves.toMatchObject({
+      totalVendors: 2,
+    });
+    const listed = await service.listOwnAssignments(principal);
+    expect(listed.assignments.map(({ id }) => id).sort()).toEqual(
+      [assignmentA.id, assignmentB.id].sort(),
+    );
+    await expect(
+      service.getOwnAssignment(principal, assignmentB.id),
+    ).resolves.toMatchObject({ id: assignmentB.id });
+  });
+
+  describe("vendor-self note selection", () => {
+    it("infers the vendor only when exactly one authorized vendor exists", async () => {
+      const userId = "single-note-vendor-owner";
+      const vendor = await service.create(employee, {
+        businessName: "Single Note Vendor",
+        ownerName: "Owner",
+        phoneE164: "+919000000076",
+        categoryCodes: ["decoration"],
+        city: "Hyderabad",
+        state: "Telangana",
+        ownerUserId: userId,
+      });
+      const principal = vendorPrincipal(userId, [vendor.id]);
+
+      await expect(
+        service.addOwnNote(principal, { content: "Safely inferred vendor" }),
+      ).resolves.toMatchObject({
+        vendorId: vendor.id,
+        noteType: "vendor",
+      });
+    });
+
+    it("requires vendorId when more than one authorized vendor exists without writing a note", async () => {
+      const userId = "ambiguous-note-vendor-owner";
+      const vendorA = await service.create(employee, {
+        businessName: "Ambiguous Note Vendor A",
+        ownerName: "Owner",
+        phoneE164: "+919000000077",
+        categoryCodes: ["decoration"],
+        city: "Hyderabad",
+        state: "Telangana",
+        ownerUserId: userId,
+      });
+      const vendorB = await service.create(employee, {
+        businessName: "Ambiguous Note Vendor B",
+        ownerName: "Owner",
+        phoneE164: "+919000000078",
+        categoryCodes: ["catering"],
+        city: "Hyderabad",
+        state: "Telangana",
+        ownerUserId: userId,
+      });
+      const principal = vendorPrincipal(userId, [vendorA.id, vendorB.id]);
+      const notesBefore = repo.notes.size;
+
+      await expect(
+        service.addOwnNote(principal, { content: "Ambiguous vendor note" }),
+      ).rejects.toMatchObject({
+        code: "VENDOR_SELECTION_REQUIRED",
+        status: 400,
+      });
+      expect(repo.notes.size).toBe(notesBefore);
+    });
+
+    it("supports explicit selection of each authorized vendor", async () => {
+      const userId = "explicit-note-vendor-owner";
+      const vendorA = await service.create(employee, {
+        businessName: "Explicit Note Vendor A",
+        ownerName: "Owner",
+        phoneE164: "+919000000079",
+        categoryCodes: ["decoration"],
+        city: "Hyderabad",
+        state: "Telangana",
+        ownerUserId: userId,
+      });
+      const vendorB = await service.create(employee, {
+        businessName: "Explicit Note Vendor B",
+        ownerName: "Owner",
+        phoneE164: "+919000000080",
+        categoryCodes: ["catering"],
+        city: "Hyderabad",
+        state: "Telangana",
+        ownerUserId: userId,
+      });
+      const principal = vendorPrincipal(userId, [vendorA.id, vendorB.id]);
+
+      const noteA = await service.addOwnNote(principal, {
+        vendorId: vendorA.id,
+        content: "Explicit vendor A note",
+      });
+      const noteB = await service.addOwnNote(principal, {
+        vendorId: vendorB.id,
+        content: "Explicit vendor B note",
+      });
+
+      expect(noteA.vendorId).toBe(vendorA.id);
+      expect(noteB.vendorId).toBe(vendorB.id);
+    });
+
+    it("rejects unauthorized explicit selection without writing a note", async () => {
+      const userId = "unauthorized-note-vendor-owner";
+      const authorized = await service.create(employee, {
+        businessName: "Authorized Note Vendor",
+        ownerName: "Owner",
+        phoneE164: "+919000000081",
+        categoryCodes: ["decoration"],
+        city: "Hyderabad",
+        state: "Telangana",
+        ownerUserId: userId,
+      });
+      const unauthorized = await service.create(employee, {
+        businessName: "Unauthorized Note Vendor",
+        ownerName: "Owner",
+        phoneE164: "+919000000082",
+        categoryCodes: ["catering"],
+        city: "Hyderabad",
+        state: "Telangana",
+        ownerUserId: userId,
+      });
+      const principal = vendorPrincipal(userId, [authorized.id]);
+      const notesBefore = repo.notes.size;
+
+      await expect(
+        service.addOwnNote(principal, {
+          vendorId: unauthorized.id,
+          content: "Unauthorized explicit vendor note",
+        }),
+      ).rejects.toMatchObject({
+        code: "VENDOR_RESOURCE_FORBIDDEN",
+        status: 403,
+      });
+      expect(repo.notes.size).toBe(notesBefore);
+    });
+  });
+
+  it("keeps Phase 1 branch-scoped vendor access narrowed by membership", async () => {
+    const owned = await service.create(employee, {
+      businessName: "Branch Owned",
+      ownerName: "Owner",
+      phoneE164: "+919000000017",
+      categoryCodes: ["decoration"],
+      city: "Hyderabad",
+      state: "Telangana",
+      ownerUserId: vendorOwner.userId,
+    });
+    const unrelated = await service.create(employee, {
+      businessName: "Branch Unrelated",
+      ownerName: "Other",
+      phoneE164: "+919000000018",
+      categoryCodes: ["catering"],
+      city: "Hyderabad",
+      state: "Telangana",
+    });
+    const ownAssignment = await service.assign(employee, {
+      vendorId: owned.id,
+      eventRecordId: randomUUID(),
+      status: "assigned",
+    });
+    const unrelatedAssignment = await service.assign(employee, {
+      vendorId: unrelated.id,
+      eventRecordId: randomUUID(),
+      status: "assigned",
+    });
+
+    await expect(
+      service.getOwnAssignment(vendorOwner, ownAssignment.id),
+    ).resolves.toMatchObject({ id: ownAssignment.id });
+    await expect(
+      service.getOwnAssignment(vendorOwner, unrelatedAssignment.id),
+    ).rejects.toMatchObject({ code: "VENDOR_RESOURCE_FORBIDDEN", status: 403 });
+  });
+
+  describe("vendor note classification enforcement", () => {
+    it("forces omitted noteType to 'vendor' for vendor-self notes", async () => {
+      const ownerUserId = "self-note-omitted-owner";
+      const vendor = await service.create(employee, {
+        businessName: "Self Note Omitted Vendor",
+        ownerName: "Owner",
+        phoneE164: "+919000000071",
+        categoryCodes: ["decoration"],
+        city: "Hyderabad",
+        state: "Telangana",
+        ownerUserId,
+      });
+      const owner = vendorPrincipal(ownerUserId, [vendor.id]);
+
+      const note = await service.addOwnNote(owner, {
+        vendorId: vendor.id,
+        content: "Vendor note with omitted noteType",
+      });
+
+      expect(note.noteType).toBe("vendor");
+      expect(note.content).toBe("Vendor note with omitted noteType");
+      expect(note.vendorId).toBe(vendor.id);
+    });
+
+    it("accepts explicit noteType 'vendor' for vendor-self notes", async () => {
+      const ownerUserId = "self-note-explicit-owner";
+      const vendor = await service.create(employee, {
+        businessName: "Self Note Explicit Vendor",
+        ownerName: "Owner",
+        phoneE164: "+919000000072",
+        categoryCodes: ["decoration"],
+        city: "Hyderabad",
+        state: "Telangana",
+        ownerUserId,
+      });
+      const owner = vendorPrincipal(ownerUserId, [vendor.id]);
+
+      const note = await service.addOwnNote(owner, {
+        vendorId: vendor.id,
+        noteType: "vendor",
+        content: "Vendor note with explicit vendor noteType",
+      });
+
+      expect(note.noteType).toBe("vendor");
+      expect(note.content).toBe("Vendor note with explicit vendor noteType");
+    });
+
+    it("rejects attempted 'internal' classification at the service boundary for vendor-self notes", async () => {
+      const ownerUserId = "self-note-internal-owner";
+      const vendor = await service.create(employee, {
+        businessName: "Self Note Internal Vendor",
+        ownerName: "Owner",
+        phoneE164: "+919000000073",
+        categoryCodes: ["decoration"],
+        city: "Hyderabad",
+        state: "Telangana",
+        ownerUserId,
+      });
+      const owner = vendorPrincipal(ownerUserId, [vendor.id]);
+
+      await expect(
+        service.addOwnNote(owner, {
+          vendorId: vendor.id,
+          noteType: "internal",
+          content: "Attempted internal note",
+        }),
+      ).rejects.toMatchObject({
+        code: "INVALID_VENDOR_NOTE_TYPE",
+        status: 400,
+      });
+    });
+
+    it("rejects attempted 'progress' classification at the service boundary for vendor-self notes", async () => {
+      const ownerUserId = "self-note-progress-owner";
+      const vendor = await service.create(employee, {
+        businessName: "Self Note Progress Vendor",
+        ownerName: "Owner",
+        phoneE164: "+919000000074",
+        categoryCodes: ["decoration"],
+        city: "Hyderabad",
+        state: "Telangana",
+        ownerUserId,
+      });
+      const owner = vendorPrincipal(ownerUserId, [vendor.id]);
+
+      await expect(
+        service.addOwnNote(owner, {
+          vendorId: vendor.id,
+          noteType: "progress",
+          content: "Attempted progress note",
+        }),
+      ).rejects.toMatchObject({
+        code: "INVALID_VENDOR_NOTE_TYPE",
+        status: 400,
+      });
+    });
+
+    it("allows CRM employees to create all supported note types ('internal', 'progress', 'vendor')", async () => {
+      const vendor = await service.create(employee, {
+        businessName: "CRM Note Types Vendor",
+        ownerName: "Owner",
+        phoneE164: "+919000000075",
+        categoryCodes: ["catering"],
+        city: "Hyderabad",
+        state: "Telangana",
+      });
+
+      const internalNote = await service.addCrmNote(employee, vendor.id, {
+        noteType: "internal",
+        content: "CRM internal note",
+      });
+      expect(internalNote.noteType).toBe("internal");
+
+      const progressNote = await service.addCrmNote(employee, vendor.id, {
+        noteType: "progress",
+        content: "CRM progress note",
+      });
+      expect(progressNote.noteType).toBe("progress");
+
+      const vendorTypeNote = await service.addCrmNote(employee, vendor.id, {
+        noteType: "vendor",
+        content: "CRM note typed as vendor",
+      });
+      expect(vendorTypeNote.noteType).toBe("vendor");
+    });
+  });
 });
+
+function vendorPrincipal(
+  userId: string,
+  vendorIds: readonly string[],
+): AuthenticatedPrincipal {
+  return {
+    userId,
+    sessionId: `session-${userId}`,
+    activeRole: "vendor_owner",
+    roleAssignments: vendorIds.map((scopeId) => ({
+      role: "vendor_owner" as const,
+      active: true,
+      scopeType: "vendor" as const,
+      scopeId,
+    })),
+  };
+}
+
+function noteSideEffectSnapshot(repo: FakeVendorRepository): {
+  readonly notes: number;
+  readonly assignmentHistory: number;
+  readonly eventTimelines: number;
+  readonly eventActivities: number;
+  readonly vendorTimelines: number;
+  readonly vendorActivities: number;
+  readonly audits: number;
+  readonly outbox: number;
+} {
+  return {
+    notes: repo.notes.size,
+    assignmentHistory: [...repo.assignments.values()].reduce(
+      (total, assignment) => total + assignment.history.length,
+      0,
+    ),
+    eventTimelines: sumMapValues(repo.patternB.timelines),
+    eventActivities: sumMapValues(repo.patternB.activities),
+    vendorTimelines: sumMapValues(repo.patternB.moduleTimelines),
+    vendorActivities: sumMapValues(repo.patternB.moduleActivities),
+    audits: repo.patternB.audits.length,
+    outbox: repo.patternB.outbox.length,
+  };
+}
+
+function sumMapValues<T>(values: ReadonlyMap<string, readonly T[]>): number {
+  return [...values.values()].reduce(
+    (total, entries) => total + entries.length,
+    0,
+  );
+}

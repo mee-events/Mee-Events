@@ -13,10 +13,10 @@ import {
 } from "@nestjs/common";
 import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
 import {
-  addVendorNoteSchema,
+  addVendorSelfNoteSchema,
   rejectVendorAssignmentSchema,
   vendorProgressUpdateSchema,
-  type AddVendorNoteRequest,
+  type AddVendorSelfNoteRequest,
   type RejectVendorAssignmentRequest,
   type VendorAssignmentDetailResponse,
   type VendorAssignmentListResponse,
@@ -122,23 +122,13 @@ export class VendorController {
   @HttpCode(HttpStatus.CREATED)
   @RequireCapability("vendor_own.update")
   @ApiOperation({ summary: "Add a note from the vendor organization" })
-  public async addNote(
-    @Body(new ZodValidationPipe(addVendorNoteSchema))
-    body: AddVendorNoteRequest,
+  public addNote(
+    @Body(new ZodValidationPipe(addVendorSelfNoteSchema))
+    body: AddVendorSelfNoteRequest,
     @Req() request: AuthenticatedPlatformRequest,
   ): Promise<VendorNoteSummary> {
     const principal = principalOf(request);
-    const dashboard = await this.vendors.getOwnDashboard(principal);
-    const vendorId = dashboard.vendors[0]?.id;
-    if (vendorId === undefined) {
-      throw new UnauthorizedException("No vendor membership found");
-    }
-    return this.vendors.addNote(
-      principal,
-      vendorId,
-      { ...body, noteType: body.noteType ?? "vendor" },
-      requestIdOf(request),
-    );
+    return this.vendors.addOwnNote(principal, body, requestIdOf(request));
   }
 }
 

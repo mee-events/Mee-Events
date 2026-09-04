@@ -77,6 +77,7 @@ describe("PostgresIdentityRepository completeOtpVerification (transaction-unit t
             {
               role: "customer",
               state: "active",
+              scope_type: "branch",
               scope_id: "00000000-0000-4000-8000-000000000001",
               verified_at: new Date("2026-08-28T12:00:00.000Z"),
             },

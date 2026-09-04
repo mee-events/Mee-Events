@@ -24,6 +24,7 @@ final _session = AuthSession(
   refreshToken: 'synthetic-refresh-token-value-32-chars',
   accessTokenExpiresInSeconds: 900,
   accessTokenExpiresAt: DateTime.utc(2099),
+  sessionId: '00000000-0000-4000-8000-000000000301',
   userId: '00000000-0000-4000-8000-000000000201',
   mobileNumber: '+919876543210',
   lastActiveRole: 'customer',
@@ -314,7 +315,10 @@ void main() {
         deviceId: 'mobile-synthetic-installation',
       ),
     ]);
-    expect(notifier.state, same(_session));
+    expect(notifier.state?.sessionId, _session.sessionId);
+    expect(notifier.state?.userId, _session.userId);
+    expect(notifier.state?.accessToken, _session.accessToken);
+    expect(notifier.state?.sessionGeneration, greaterThan(0));
   });
 
   for (final scenario in <({String code, String expected, bool terminal})>[

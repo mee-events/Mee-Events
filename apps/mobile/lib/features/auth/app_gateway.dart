@@ -17,9 +17,40 @@ import 'package:mee_events/theme/app_typography.dart';
 
 final platformBootstrapProvider =
     FutureProvider.autoDispose<PlatformBootstrapResponse?>((ref) async {
-      final session = ref.watch(sessionProvider);
-      if (session == null) return null;
-      return ref.watch(mobileApiProvider).getPlatformBootstrap();
+      final requestedKey = ref.watch(
+        sessionProvider.select(
+          (session) => session == null
+              ? null
+              : (
+                  sessionId: session.sessionId,
+                  userId: session.userId,
+                  activeRole: session.lastActiveRole,
+                  sessionGeneration: session.sessionGeneration,
+                  roleRevision: session.roleRevision,
+                ),
+        ),
+      );
+      if (requestedKey == null) return null;
+      final requestedSession = ref.read(sessionProvider);
+      if (requestedSession == null) return null;
+      final requestedSnapshot = requestedSession.snapshot;
+      var active = true;
+      ref.onDispose(() => active = false);
+      // The stable session/role key above owns invalidation. Reading the API
+      // client avoids treating a same-session token rotation as a new
+      // bootstrap generation while the request is in flight.
+      final response = await ref.read(mobileApiProvider).getPlatformBootstrap();
+      if (!active) throw const BootstrapValidationException();
+      final currentSession = ref.read(sessionProvider);
+      if (!requestedSnapshot.hasSameRole(currentSession) ||
+          !response.agreesWithSession(
+            userId: requestedSession.userId,
+            sessionId: requestedSession.sessionId,
+            activeRole: requestedSession.lastActiveRole,
+          )) {
+        throw const BootstrapValidationException();
+      }
+      return response;
     });
 
 /// Server-authoritative entry point for every mobile role.
@@ -247,9 +278,8 @@ class _BootstrapErrorScreen extends ConsumerWidget {
       backgroundColor: AppColors.canvas,
       appBar: const MeAppBar(title: 'Mee Events'),
       body: MeErrorState(
-        title: 'Could not open your workspace',
-        message:
-            'We could not verify this account workspace. Try again or sign out.',
+        title: 'We couldn’t open your Mee Events account.',
+        message: 'Please try again or sign out safely.',
         onRetry: () => ref.invalidate(platformBootstrapProvider),
       ),
       bottomNavigationBar: SafeArea(

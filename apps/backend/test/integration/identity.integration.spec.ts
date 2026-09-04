@@ -9,12 +9,21 @@ import type {
 } from "@me-event/api-contracts";
 import { PostgresIdentityRepository } from "../../src/modules/identity/adapters/postgres-identity.repository";
 import { AuthService } from "../../src/modules/identity/application/auth.service";
+import { activeSupportedAssignments } from "../../src/common/branch/role-scope-policy";
+import { PostgresVendorRepository } from "../../src/modules/vendors/adapters/postgres-vendor.repository";
+import { VendorService } from "../../src/modules/vendors/application/vendor.service";
+import type { AuthenticatedPrincipal } from "../../src/modules/platform-foundation/domain/platform-foundation";
 import type {
   OtpDelivery,
   OtpProvider,
 } from "../../src/modules/identity/ports/otp-provider";
 import { createIntegrationPool } from "./support/database";
-import { stableUuid, syntheticMobile } from "./support/fixtures";
+import {
+  insertSyntheticBranch,
+  insertSyntheticUser,
+  stableUuid,
+  syntheticMobile,
+} from "./support/fixtures";
 
 const OTP_HMAC_SECRET = "dbint-otp-hmac-secret-000000000000";
 const JWT_ACCESS_SECRET = "dbint-jwt-access-secret-0000000000";
@@ -99,6 +108,7 @@ describe("DBINT-02 identity mapping and transaction foundation", () => {
       expect.objectContaining({
         role: "customer",
         active: true,
+        scopeType: "branch",
         scopeId: HYDERABAD_BRANCH_ID,
       }),
     ]);
@@ -223,6 +233,249 @@ describe("DBINT-02 identity mapping and transaction foundation", () => {
       [user.id],
     );
     expect(audits.rows).toEqual([{ action: "identity.role.switched" }]);
+  });
+
+  it("round-trips branch, global, vendor, multiple, and inactive grants", async () => {
+    const user = await repository.createUser(
+      syntheticMobile("role-scope-round-trip"),
+      "customer",
+    );
+    const vendorA = stableUuid("role-scope-vendor-a");
+    const vendorB = stableUuid("role-scope-vendor-b");
+    const rows = [
+      ["administrator", "active", "global", null],
+      ["vendor_owner", "active", "vendor", vendorA],
+      ["vendor_owner", "active", "vendor", vendorB],
+      ["vendor_member", "suspended", "vendor", vendorB],
+    ] as const;
+    for (const [role, state, scopeType, scopeId] of rows) {
+      await pool.query(
+        `INSERT INTO role_assignments (
+           id, user_id, role, state, scope_type, scope_id, verified_at
+         ) VALUES ($1, $2, $3, $4, $5, $6, now())`,
+        [
+          stableUuid(`role-scope:${role}:${state}:${scopeId ?? "global"}`),
+          user.id,
+          role,
+          state,
+          scopeType,
+          scopeId,
+        ],
+      );
+    }
+
+    const loaded = await repository.findUserById(user.id);
+    expect(loaded?.roles).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          role: "customer",
+          active: true,
+          scopeType: "branch",
+          scopeId: HYDERABAD_BRANCH_ID,
+        }),
+        expect.objectContaining({
+          role: "administrator",
+          active: true,
+          scopeType: "global",
+        }),
+        expect.objectContaining({
+          role: "vendor_owner",
+          active: true,
+          scopeType: "vendor",
+          scopeId: vendorA,
+        }),
+        expect.objectContaining({
+          role: "vendor_owner",
+          active: true,
+          scopeType: "vendor",
+          scopeId: vendorB,
+        }),
+        expect.objectContaining({
+          role: "vendor_member",
+          active: false,
+          scopeType: "vendor",
+          scopeId: vendorB,
+        }),
+      ]),
+    );
+    expect(
+      loaded?.roles.find((assignment) => assignment.scopeType === "global"),
+    ).not.toHaveProperty("scopeId");
+    expect(activeSupportedAssignments(loaded?.roles ?? [])).toHaveLength(4);
+
+    await expect(
+      pool.query(
+        `INSERT INTO role_assignments (
+           id, user_id, role, state, scope_type, scope_id, verified_at
+         ) VALUES ($1, $2, 'vendor_owner', 'active', 'vendor', $3, now())`,
+        [stableUuid("role-scope-duplicate"), user.id, vendorA],
+      ),
+    ).rejects.toMatchObject({ code: "23505" });
+  });
+
+  it("loads a wrong-branch grant but the Phase 1 policy rejects it", async () => {
+    const wrongBranchId = await insertSyntheticBranch(
+      pool,
+      "scope-wrong-branch",
+    );
+    const user = await insertSyntheticUser(
+      pool,
+      "scope-wrong-branch-user",
+      "customer",
+      wrongBranchId,
+    );
+    const loaded = await repository.findUserById(user.id);
+
+    expect(loaded?.roles[0]).toMatchObject({
+      role: "customer",
+      active: true,
+      scopeType: "branch",
+      scopeId: wrongBranchId,
+    });
+    expect(activeSupportedAssignments(loaded?.roles ?? [])).toBeUndefined();
+  });
+
+  it("keeps active vendor membership authoritative across vendors", async () => {
+    const user = await insertSyntheticUser(
+      pool,
+      "scope-cross-vendor-user",
+      "vendor_owner",
+    );
+    const vendorA = stableUuid("membership-vendor-a");
+    const vendorB = stableUuid("membership-vendor-b");
+    for (const [id, code] of [
+      [vendorA, "DBINT-SCOPE-A"],
+      [vendorB, "DBINT-SCOPE-B"],
+    ] as const) {
+      await pool.query(
+        `INSERT INTO vendors (
+           id, branch_id, vendor_code, business_name, owner_name, phone_e164
+         ) VALUES ($1, $2, $3, $4, 'Synthetic Owner', '+919876543210')`,
+        [id, HYDERABAD_BRANCH_ID, code, `Synthetic ${code}`],
+      );
+    }
+    await pool.query(
+      `INSERT INTO vendor_members (
+         id, vendor_id, user_id, member_role, status
+       ) VALUES
+         ($1, $2, $3, 'owner', 'active'),
+         ($4, $5, $3, 'owner', 'inactive')`,
+      [
+        stableUuid("membership-active"),
+        vendorA,
+        user.id,
+        stableUuid("membership-inactive"),
+        vendorB,
+      ],
+    );
+    const vendors = new PostgresVendorRepository(pool);
+
+    expect(await vendors.findVendorIdForUser(user.id)).toBe(vendorA);
+    expect(await vendors.findVendorIdsForUser(user.id)).toEqual([vendorA]);
+    expect(await vendors.isVendorMember(vendorA, user.id)).toBe(true);
+    expect(await vendors.isVendorMember(vendorB, user.id)).toBe(false);
+  });
+
+  it("intersects database-backed vendor membership with exact or branch role scope", async () => {
+    const user = await insertSyntheticUser(
+      pool,
+      "scope-vendor-intersection-user",
+      "vendor_owner",
+    );
+    const vendorA = stableUuid("intersection-vendor-a");
+    const vendorB = stableUuid("intersection-vendor-b");
+    for (const [id, code] of [
+      [vendorA, "DBINT-INTERSECTION-A"],
+      [vendorB, "DBINT-INTERSECTION-B"],
+    ] as const) {
+      await pool.query(
+        `INSERT INTO vendors (
+           id, branch_id, vendor_code, business_name, owner_name, phone_e164
+         ) VALUES ($1, $2, $3, $4, 'Synthetic Owner', '+919876543210')`,
+        [id, HYDERABAD_BRANCH_ID, code, `Synthetic ${code}`],
+      );
+    }
+    await pool.query(
+      `INSERT INTO vendor_members (
+         id, vendor_id, user_id, member_role, status
+       ) VALUES
+         ($1, $2, $3, 'owner', 'active'),
+         ($4, $5, $3, 'member', 'active')`,
+      [
+        stableUuid("intersection-membership-a"),
+        vendorA,
+        user.id,
+        stableUuid("intersection-membership-b"),
+        vendorB,
+      ],
+    );
+    const repository = new PostgresVendorRepository(pool);
+    const service = new VendorService(repository);
+    const vendorAGrant: AuthenticatedPrincipal = {
+      userId: user.id,
+      sessionId: stableUuid("intersection-session-a"),
+      activeRole: "vendor_owner",
+      roleAssignments: [
+        {
+          role: "vendor_owner",
+          active: true,
+          scopeType: "vendor",
+          scopeId: vendorA,
+        },
+      ],
+    };
+
+    await expect(service.getOwnDashboard(vendorAGrant)).resolves.toMatchObject({
+      totalVendors: 1,
+      vendors: [expect.objectContaining({ id: vendorA })],
+    });
+    await expect(
+      service.addOwnNote(
+        vendorAGrant,
+        {
+          vendorId: vendorB,
+          noteType: "vendor",
+          content: "must not cross vendors",
+        },
+        stableUuid("intersection-request-denied"),
+      ),
+    ).rejects.toMatchObject({ code: "VENDOR_RESOURCE_FORBIDDEN", status: 403 });
+
+    const branchGrant: AuthenticatedPrincipal = {
+      ...vendorAGrant,
+      roleAssignments: [
+        {
+          role: "vendor_owner",
+          active: true,
+          scopeType: "branch",
+          scopeId: HYDERABAD_BRANCH_ID,
+        },
+      ],
+    };
+    await expect(service.getOwnDashboard(branchGrant)).resolves.toMatchObject({
+      totalVendors: 2,
+    });
+
+    await expect(
+      service.getOwnDashboard({
+        ...vendorAGrant,
+        userId: stableUuid("intersection-grant-without-membership"),
+      }),
+    ).rejects.toMatchObject({ code: "VENDOR_RESOURCE_FORBIDDEN", status: 403 });
+    await expect(
+      service.getOwnDashboard({
+        ...vendorAGrant,
+        activeRole: "customer",
+        roleAssignments: [
+          {
+            role: "customer",
+            active: true,
+            scopeType: "branch",
+            scopeId: HYDERABAD_BRANCH_ID,
+          },
+        ],
+      }),
+    ).rejects.toMatchObject({ code: "VENDOR_RESOURCE_FORBIDDEN", status: 403 });
   });
 });
 

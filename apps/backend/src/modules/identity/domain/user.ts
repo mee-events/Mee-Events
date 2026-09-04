@@ -1,4 +1,8 @@
 import type { PlatformRole, RoleAssignment } from "@me-event/shared-types";
+import {
+  activeSupportedAssignments,
+  hasSupportedActiveRoleAssignment,
+} from "../../../common/branch/role-scope-policy";
 import { DomainError } from "../../../common/errors/domain.error";
 
 export const mobileSwitchableRoles = [
@@ -30,9 +34,10 @@ export function assertActiveAssignment(
   user: UserRecord,
   role: PlatformRole,
 ): void {
-  const permitted = user.roles.some(
-    (assignment) => assignment.active && assignment.role === role,
-  );
+  const supportedAssignments = activeSupportedAssignments(user.roles);
+  const permitted =
+    supportedAssignments !== undefined &&
+    hasSupportedActiveRoleAssignment(supportedAssignments, role);
   if (!permitted) {
     throw new DomainError(
       "ROLE_NOT_ASSIGNED",

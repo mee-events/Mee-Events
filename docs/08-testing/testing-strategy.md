@@ -59,6 +59,24 @@ concurrency, ownership, branch lists, and Pattern B. It does not prove HTTP,
 Redis, providers, complete branch/BOLA, backup/restore, or production behavior.
 Evidence: [database-integration-baseline.md](./database-integration-baseline.md).
 
+## CUST-04 bootstrap acceptance matrix
+
+CUST-04 deliberately spans layers because no single test proves the complete
+security boundary:
+
+| Layer                  | Required proof                                                                                                                                                             |
+| ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Contract/unit          | strict structural and minimum-client versions; required baseline accepted; safe additive policy accepted; missing, malformed, privileged, or contradictory policy rejected |
+| Scope unit             | branch/global/vendor pairings, multiple grants, duplicate/inactive/wrong-branch denial, and vendor IDs never resolving as branches                                         |
+| PostgreSQL integration | `scope_type` round-trip, unique duplicate rejection, inactive rows, wrong-branch policy denial, and active/inactive cross-vendor membership                                |
+| HTTP/OpenAPI           | Bearer protection, exact serialized schema, request/session identity, request-ID handling, and `Cache-Control: no-store`                                                   |
+| Flutter concurrency    | refresh/bootstrap overlap, both refresh/switch completion orders, logout/account/session replacement, conflicting role changes, and persistence reconciliation             |
+| Regression             | full backend, Flutter, lint, typecheck, build, formatting, and diff checks                                                                                                 |
+
+The matrix does not claim physical-device, staging, production, provider, or
+multi-branch proof. Detailed evidence:
+[cust-04-customer-bootstrap-evidence.md](./cust-04-customer-bootstrap-evidence.md).
+
 ---
 
 ## Surfaces

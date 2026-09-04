@@ -142,14 +142,30 @@ inventory redesign, schema change, or quantity/concurrency behavior changed.
 
 ## Vendors
 
-| Route                                           | Files                                     | Status                                        |
-| ----------------------------------------------- | ----------------------------------------- | --------------------------------------------- |
-| `GET crm/vendors/:id`                           | `crm-vendor.controller.ts`                | Fixed                                         |
-| `GET crm/vendors/assignments`                   | `listAssignments` now passes `branchId`   | Fixed (list was optional)                     |
-| `GET crm/vendors/assignments/:assignmentId`     | `getAssignment(id, branchId)`             | Fixed                                         |
-| Create/update vendor, assign, mutate assignment | postgres adapter                          | Fixed — vendor/event locks include `branchId` |
-| `GET vendors/me/assignments/:assignmentId`      | `vendor.controller.ts` `getOwnAssignment` | Finding — see below                           |
-| CRM vendor dashboard                            | `getCrmDashboard(branchId)`               | Already scoped                                |
+| Route                                           | Files                                     | Status                                                                    |
+| ----------------------------------------------- | ----------------------------------------- | ------------------------------------------------------------------------- |
+| `GET crm/vendors/:id`                           | `crm-vendor.controller.ts`                | Fixed                                                                     |
+| `GET crm/vendors/assignments`                   | `listAssignments` now passes `branchId`   | Fixed (list was optional)                                                 |
+| `GET crm/vendors/assignments/:assignmentId`     | `getAssignment(id, branchId)`             | Fixed                                                                     |
+| Create/update vendor, assign, mutate assignment | postgres adapter                          | Fixed — vendor/event locks include `branchId`                             |
+| `GET vendors/me/assignments/:assignmentId`      | `vendor.controller.ts` `getOwnAssignment` | Finding — see below                                                       |
+| CRM vendor dashboard                            | `getCrmDashboard(branchId)`               | Already scoped                                                            |
+| CRM/vendor-self note writes                     | explicit service paths + postgres adapter | Fixed — branch/vendor/assignment/event relationship checked before writes |
+| Vendor-self dashboard output                    | `toVendorSummary` runtime allowlist       | Fixed — detail-only financial/contact/document/address fields excluded    |
+
+CUST-04 retains the existing trust split: CRM employees need the CRM vendor
+capability and branch; vendor callers additionally need an active vendor role,
+a qualifying exact-vendor or Hyderabad-branch grant, and active membership for
+the same vendor. The two controllers call explicit service methods, without a
+boolean authorization bypass.
+
+Both note paths converge on one PostgreSQL transaction. It locks the authorized
+branch vendor and proves that optional assignment/event identifiers describe an
+existing `vendor_assignments` relationship in that branch before inserting the
+note. Cross-vendor, mismatched, missing, or wrong-branch identifiers therefore
+fail before assignment history, event/vendor timeline/activity, audit, or
+outbox side effects. This preserves vendor-only notes when both optional IDs are
+omitted and does not invent an unassigned vendor/event relationship.
 
 ## Workers
 

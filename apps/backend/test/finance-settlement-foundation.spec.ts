@@ -638,7 +638,14 @@ const financeUser: AuthenticatedPrincipal = {
   userId: "finance-1",
   sessionId: "s1",
   activeRole: "finance",
-  roleAssignments: [{ role: "finance", active: true }],
+  roleAssignments: [
+    {
+      role: "finance",
+      active: true,
+      scopeType: "branch",
+      scopeId: "00000000-0000-4000-8000-000000000001",
+    },
+  ],
 };
 
 describe("Finance & Settlement Foundation", () => {

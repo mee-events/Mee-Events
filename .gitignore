@@ -46,6 +46,7 @@ output/
 outputs/
 tmp/
 work/
+next-env.d.ts
 
 # Playwright output (must not archive traces that can include local OTP)
 **/playwright-report/

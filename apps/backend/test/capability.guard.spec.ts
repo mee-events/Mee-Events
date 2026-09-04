@@ -34,7 +34,14 @@ function principalWithRole(
     userId: "user-1",
     sessionId: "session-1",
     activeRole: role,
-    roleAssignments: [{ role, active: true }],
+    roleAssignments: [
+      {
+        role,
+        active: true,
+        scopeType: "branch",
+        scopeId: "00000000-0000-4000-8000-000000000001",
+      },
+    ],
   };
 }
 

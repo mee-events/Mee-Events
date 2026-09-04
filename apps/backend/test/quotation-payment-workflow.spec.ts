@@ -331,7 +331,14 @@ function employee(
     userId: randomUUID(),
     sessionId: randomUUID(),
     activeRole: "employee",
-    roleAssignments: [{ role: "employee", active: true, scopeId: branchId }],
+    roleAssignments: [
+      {
+        role: "employee",
+        active: true,
+        scopeType: "branch",
+        scopeId: branchId,
+      },
+    ],
     branchId,
   };
 }
@@ -341,7 +348,14 @@ function customer(userId = randomUUID()): AuthenticatedPrincipal {
     userId,
     sessionId: randomUUID(),
     activeRole: "customer",
-    roleAssignments: [{ role: "customer", active: true }],
+    roleAssignments: [
+      {
+        role: "customer",
+        active: true,
+        scopeType: "branch",
+        scopeId: "00000000-0000-4000-8000-000000000001",
+      },
+    ],
   };
 }
 

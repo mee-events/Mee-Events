@@ -36,6 +36,7 @@ interface UserRow {
 interface RoleAssignmentRow {
   readonly role: PlatformRole;
   readonly state: string;
+  readonly scope_type: RoleAssignment["scopeType"];
   readonly scope_id: string | null;
   readonly verified_at: Date | null;
 }
@@ -394,7 +395,7 @@ export class PostgresIdentityRepository implements IdentityRepository {
            user_id, role, state, scope_type, scope_id, verified_at
          )
          VALUES ($1, $2, 'active', 'branch', $3, now())
-         RETURNING role, state, scope_id, verified_at`,
+         RETURNING role, state, scope_type, scope_id, verified_at`,
         [row.id, defaultRole, DEFAULT_BRANCH_ID],
       );
       return this.toUserRecord(row, assignmentResult.rows);
@@ -768,7 +769,7 @@ export class PostgresIdentityRepository implements IdentityRepository {
            user_id, role, state, scope_type, scope_id, verified_at
          )
          VALUES ($1, $2, 'active', 'branch', $3, now())
-         RETURNING role, state, scope_id, verified_at`,
+         RETURNING role, state, scope_type, scope_id, verified_at`,
         [createdRow.id, defaultRole, DEFAULT_BRANCH_ID],
       );
       return {
@@ -837,7 +838,7 @@ export class PostgresIdentityRepository implements IdentityRepository {
     executor: Pool | PoolClient = this.pool,
   ): Promise<readonly RoleAssignmentRow[]> {
     const result = await executor.query<RoleAssignmentRow>(
-      `SELECT role, state, scope_id, verified_at
+      `SELECT role, state, scope_type, scope_id, verified_at
        FROM role_assignments
        WHERE user_id = $1`,
       [userId],
@@ -851,6 +852,7 @@ export class PostgresIdentityRepository implements IdentityRepository {
   ): UserRecord {
     const roles: RoleAssignment[] = assignments.map((assignment) => ({
       role: assignment.role,
+      scopeType: assignment.scope_type,
       active: assignment.state === "active",
       ...(assignment.scope_id === null ? {} : { scopeId: assignment.scope_id }),
       ...(assignment.verified_at === null

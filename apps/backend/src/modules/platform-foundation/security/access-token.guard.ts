@@ -10,6 +10,10 @@ import { JwtService } from "@nestjs/jwt";
 import { platformRoles, type PlatformRole } from "@me-event/shared-types";
 import type { Request } from "express";
 import { resolveBranchId } from "../../../common/branch/branch-context";
+import {
+  activeSupportedAssignments,
+  hasSupportedActiveRoleAssignment,
+} from "../../../common/branch/role-scope-policy";
 import { IS_PUBLIC_KEY } from "../../authorization/public.decorator";
 import {
   IDENTITY_REPOSITORY,
@@ -77,9 +81,10 @@ export class AccessTokenGuard implements CanActivate {
       );
     }
 
-    const roleIsAssigned = user.roles.some(
-      (assignment) => assignment.active && assignment.role === claims.role,
-    );
+    const supportedAssignments = activeSupportedAssignments(user.roles);
+    const roleIsAssigned =
+      supportedAssignments !== undefined &&
+      hasSupportedActiveRoleAssignment(supportedAssignments, claims.role);
     if (!roleIsAssigned) {
       throw new UnauthorizedException(
         "Your session has ended. Please sign in again.",

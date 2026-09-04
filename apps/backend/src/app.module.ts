@@ -2,8 +2,8 @@ import { Module } from "@nestjs/common";
 import { APP_GUARD } from "@nestjs/core";
 import { ConfigModule } from "@nestjs/config";
 import { LoggerModule } from "nestjs-pino";
-import { randomUUID } from "node:crypto";
 import { PINO_REDACT_PATHS } from "./common/http/http-surface";
+import { requestIdForIncomingRequest } from "./common/http/request-context";
 import { validateEnvironment } from "./config/environment";
 import { DatabaseModule } from "./database/database.module";
 import { AuditModule } from "./modules/audit/audit.module";
@@ -40,8 +40,7 @@ import { OperationsModule } from "./modules/operations/operations.module";
           paths: [...PINO_REDACT_PATHS],
           censor: "[REDACTED]",
         },
-        genReqId: (request) =>
-          request.headers["x-request-id"]?.toString() ?? randomUUID(),
+        genReqId: (request) => requestIdForIncomingRequest(request),
       },
     }),
     DatabaseModule,

@@ -12,7 +12,14 @@ const principal: AuthenticatedPrincipal = {
   userId: "30000000-0000-4000-8000-000000000001",
   sessionId: "40000000-0000-4000-8000-000000000001",
   activeRole: "employee",
-  roleAssignments: [{ role: "employee", active: true, scopeId: BRANCH_A }],
+  roleAssignments: [
+    {
+      role: "employee",
+      active: true,
+      scopeType: "branch",
+      scopeId: BRANCH_A,
+    },
+  ],
   branchId: BRANCH_A,
 };
 

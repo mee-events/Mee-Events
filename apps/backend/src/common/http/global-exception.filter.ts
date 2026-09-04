@@ -6,15 +6,15 @@ import {
   HttpStatus,
 } from "@nestjs/common";
 import type { Request, Response } from "express";
-import { randomUUID } from "node:crypto";
 import { DomainError } from "../errors/domain.error";
+import { requestIdForError } from "./request-context";
 
 @Catch()
 export class GlobalExceptionFilter implements ExceptionFilter {
   public catch(exception: unknown, host: ArgumentsHost): void {
     const response = host.switchToHttp().getResponse<Response>();
     const request = host.switchToHttp().getRequest<Request>();
-    const requestId = request.header("x-request-id") ?? randomUUID();
+    const requestId = requestIdForError(request);
 
     if (exception instanceof DomainError) {
       response.status(exception.status).json({

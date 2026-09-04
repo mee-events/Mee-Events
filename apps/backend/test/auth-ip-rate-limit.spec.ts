@@ -117,6 +117,7 @@ describe("Auth IP rate limit HTTP (loopback Nest stub, no PostgreSQL)", () => {
       status: 202,
       body: '{"ok":true}',
     });
+    expect(first.headers.get("cache-control")).toBe("no-store");
     expect((await post("verify")).status).toBe(200);
     const limited = await post("request");
     expect(limited.status).toBe(429);

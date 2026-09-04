@@ -33,6 +33,7 @@ import {
   type VerifyOtpResponse,
 } from "@me-event/api-contracts";
 import { ZodValidationPipe } from "../../../common/http/zod-validation.pipe";
+import { requireRequestId } from "../../../common/http/request-context";
 import { Public } from "../../authorization/public.decorator";
 import type { AuthenticatedPlatformRequest } from "../../platform-foundation/security/access-token.guard";
 import { AuthIpRateLimitGuard } from "../application/auth-ip-rate-limit.guard";
@@ -65,7 +66,7 @@ export class AuthController {
     @Body(new ZodValidationPipe(verifyOtpSchema)) body: VerifyOtpRequest,
     @Req() request: AuthenticatedPlatformRequest,
   ): Promise<VerifyOtpResponse> {
-    return this.auth.verifyOtp(body, requestIdOf(request));
+    return this.auth.verifyOtp(body, requireRequestId(request));
   }
 
   @Public()
@@ -78,7 +79,7 @@ export class AuthController {
     body: RefreshSessionRequest,
     @Req() request: AuthenticatedPlatformRequest,
   ): Promise<RefreshSessionResponse> {
-    return this.auth.refreshSession(body, requestIdOf(request));
+    return this.auth.refreshSession(body, requireRequestId(request));
   }
 
   @Post("logout")
@@ -97,7 +98,7 @@ export class AuthController {
       principal.userId,
       principal.sessionId,
       principal.activeRole,
-      requestIdOf(request),
+      requireRequestId(request),
     );
   }
 
@@ -132,7 +133,7 @@ export class AuthController {
     return this.auth.logoutAll(
       principal.userId,
       principal.activeRole,
-      requestIdOf(request),
+      requireRequestId(request),
     );
   }
 
@@ -153,16 +154,7 @@ export class AuthController {
       principal.userId,
       principal.sessionId,
       body.role,
-      requestIdOf(request),
+      requireRequestId(request),
     );
   }
-}
-
-function requestIdOf(
-  request: AuthenticatedPlatformRequest,
-): string | undefined {
-  const id: unknown = request.id;
-  return typeof id === "string" || typeof id === "number"
-    ? String(id)
-    : undefined;
 }

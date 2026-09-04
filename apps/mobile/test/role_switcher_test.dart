@@ -18,6 +18,7 @@ import 'package:mee_events/features/customer/plan/event_plan_store.dart';
 import 'package:mee_events/features/customer/screens/customer_dashboard_screen.dart';
 import 'package:mee_events/features/vendor/screens/vendor_ops_dashboard_screen.dart';
 import 'package:mee_events/features/worker/screens/worker_ops_dashboard_screen.dart';
+import 'package:mee_events/models/api_error.dart';
 import 'package:mee_events/models/auth_session.dart';
 import 'package:mee_events/models/bootstrap_response.dart';
 import 'package:mee_events/models/catalog_item.dart';
@@ -26,18 +27,24 @@ import 'package:mee_events/models/client_surface.dart';
 import 'package:mee_events/theme/theme.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+const _testUserId = 'user-1';
+const _testSessionId = '00000000-0000-4000-8000-000000000201';
+
 AuthSession testSession({
   String role = 'customer',
   String accessToken = 'access-1',
   String refreshToken = 'refresh-token-value-32chars-long',
+  String userId = _testUserId,
+  String mobileNumber = '+919876543210',
 }) {
   return AuthSession(
     accessToken: accessToken,
     refreshToken: refreshToken,
     accessTokenExpiresInSeconds: 900,
     accessTokenExpiresAt: DateTime.utc(2099),
-    userId: 'user-1',
-    mobileNumber: '+919876543210',
+    sessionId: _testSessionId,
+    userId: userId,
+    mobileNumber: mobileNumber,
     lastActiveRole: role,
   );
 }
@@ -59,15 +66,51 @@ PlatformBootstrapResponse testBootstrap({
     'customer' => 'customer_home',
     _ => 'employee_dashboard',
   };
+  final modules = activeRole == 'customer'
+      ? const [
+          'customer_home',
+          'customer_enquiries',
+          'customer_quotations',
+          'customer_bookings',
+          'customer_payments',
+          'customer_event_tracking',
+          'customer_changes',
+          'customer_support',
+        ]
+      : [landingModule];
+  final capabilities = activeRole == 'customer'
+      ? const [
+          'enquiry.create_own',
+          'enquiry.read_own',
+          'quotation.read_own',
+          'quotation.approve_own',
+          'quotation.reject_own',
+          'quotation.request_revision_own',
+          'booking.read_own',
+          'payment.submit_own',
+          'payment.read_own',
+          'event.track_own',
+          'change_request.create_own',
+          'support.contact_assigned_manager',
+        ]
+      : const <String>[];
   return PlatformBootstrapResponse(
+    schemaVersion: platformBootstrapSchemaVersion,
+    minimumClientBootstrapVersion: platformBootstrapClientVersion,
+    policyVersion: platformBootstrapPolicyVersion,
+    generatedAt: '2026-09-02T10:00:00.000Z',
+    requestId: 'request-role-switcher',
+    actorUserId: _testUserId,
+    actorSessionId: _testSessionId,
     surface: surface,
     activeRole: activeRole,
     landingModule: landingModule,
+    branchId: hyderabadBranchId,
     branchCode: branchCode,
     branchName: 'Hyderabad',
     assignedRoles: assignedRoles,
-    modules: [landingModule],
-    capabilities: const [],
+    modules: modules,
+    capabilities: capabilities,
   );
 }
 
@@ -77,6 +120,7 @@ SessionNotifier sessionNotifier([AuthSession? session]) {
       accessToken: 'refreshed-access',
       refreshToken: refreshToken,
       accessTokenExpiresInSeconds: 900,
+      sessionId: _testSessionId,
       activeRole: 'worker',
     ),
     store: MemoryAuthSessionStore(),
@@ -175,6 +219,7 @@ Future<void> pumpSheet(
                 (role) async => SwitchRoleResult(
                   accessToken: 'next-$role',
                   accessTokenExpiresInSeconds: 900,
+                  sessionId: _testSessionId,
                   activeRole: role,
                 ),
             onApplied: onApplied,
@@ -351,6 +396,7 @@ void main() {
         return SwitchRoleResult(
           accessToken: 'token',
           accessTokenExpiresInSeconds: 900,
+          sessionId: _testSessionId,
           activeRole: role,
         );
       },
@@ -396,6 +442,7 @@ void main() {
         const SwitchRoleResult(
           accessToken: 'worker-token',
           accessTokenExpiresInSeconds: 900,
+          sessionId: _testSessionId,
           activeRole: 'worker',
         ),
       );
@@ -420,10 +467,38 @@ void main() {
     await tester.tap(workerRoleFinder());
     await tester.pump();
     expect(find.text('Switch role'), findsOneWidget);
-    expect(find.textContaining('Network unavailable'), findsOneWidget);
+    expect(find.text(roleSwitchUnavailableMessage), findsOneWidget);
+    expect(find.textContaining('Network unavailable'), findsNothing);
     await tester.tap(find.text('Retry'));
     await tester.pump();
     expect(calls, 2);
+  });
+
+  testWidgets('contradictory switch response fails safely', (tester) async {
+    var applied = false;
+    await pumpSheet(
+      tester,
+      bootstrap: testBootstrap(
+        activeRole: 'customer',
+        assignedRoles: const ['customer', 'worker'],
+      ),
+      onSwitch: (_) async => const SwitchRoleResult(
+        accessToken: 'contradictory-token',
+        accessTokenExpiresInSeconds: 900,
+        sessionId: _testSessionId,
+        activeRole: 'vendor_owner',
+      ),
+      onApplied: (_) async {
+        applied = true;
+      },
+    );
+
+    await tester.tap(workerRoleFinder());
+    await tester.pump();
+
+    expect(find.text(roleSwitchUnavailableMessage), findsOneWidget);
+    expect(find.text('Switch role'), findsOneWidget);
+    expect(applied, isFalse);
   });
 
   testWidgets('success updates access token, role, and secure storage', (
@@ -435,6 +510,7 @@ void main() {
         accessToken: 'refreshed',
         refreshToken: refreshToken,
         accessTokenExpiresInSeconds: 900,
+        sessionId: _testSessionId,
         activeRole: 'worker',
       ),
       store: store,
@@ -449,9 +525,12 @@ void main() {
       onSwitch: (role) async => SwitchRoleResult(
         accessToken: 'switched-access',
         accessTokenExpiresInSeconds: 900,
+        sessionId: _testSessionId,
         activeRole: role,
       ),
-      onApplied: notifier.applySwitchedRole,
+      onApplied: (result) async {
+        await notifier.applySwitchedRole(result);
+      },
     );
     await tester.tap(find.text('View assignments and duties'));
     await tester.pump();
@@ -478,6 +557,7 @@ void main() {
         accessToken: 'new-access',
         refreshToken: 'rotated-refresh-token-value-32ch',
         accessTokenExpiresInSeconds: 900,
+        sessionId: _testSessionId,
         activeRole: 'vendor_owner',
       ),
       store: MemoryAuthSessionStore(),
@@ -489,6 +569,122 @@ void main() {
     expect(notifier.state?.userId, 'user-1');
     expect(notifier.state?.mobileNumber, '+919876543210');
   });
+
+  test(
+    'refresh rotation cannot overwrite a concurrent local role switch',
+    () async {
+      final refreshGate = Completer<SessionTokens>();
+      final notifier = SessionNotifier(
+        (_) => refreshGate.future,
+        store: MemoryAuthSessionStore(),
+      );
+      await notifier.signIn(testSession());
+      final customerSnapshot = notifier.state!.snapshot;
+      final refresh = notifier.refreshAccessToken(
+        expectedSession: customerSnapshot,
+      );
+      await Future<void>.delayed(Duration.zero);
+
+      expect(
+        await notifier.applySwitchedRole(
+          const SwitchRoleResult(
+            accessToken: 'worker-switch-access',
+            accessTokenExpiresInSeconds: 900,
+            sessionId: _testSessionId,
+            activeRole: 'worker',
+          ),
+          expectedSession: customerSnapshot,
+        ),
+        isTrue,
+      );
+      refreshGate.complete(
+        const SessionTokens(
+          accessToken: 'stale-customer-refresh-access',
+          refreshToken: 'rotated-concurrent-refresh-token-value-000000',
+          accessTokenExpiresInSeconds: 900,
+          sessionId: _testSessionId,
+          activeRole: 'customer',
+        ),
+      );
+
+      expect(await refresh, 'worker-switch-access');
+      expect(notifier.state?.lastActiveRole, 'worker');
+      expect(notifier.state?.accessToken, 'worker-switch-access');
+      expect(
+        notifier.state?.refreshToken,
+        'rotated-concurrent-refresh-token-value-000000',
+      );
+    },
+  );
+
+  test(
+    'role switch reconciles when refresh observes the server role first',
+    () async {
+      final refreshGate = Completer<SessionTokens>();
+      final notifier = SessionNotifier(
+        (_) => refreshGate.future,
+        store: MemoryAuthSessionStore(),
+      );
+      await notifier.signIn(testSession());
+      final customerSnapshot = notifier.state!.snapshot;
+      final refresh = notifier.refreshAccessToken(
+        expectedSession: customerSnapshot,
+      );
+      refreshGate.complete(
+        const SessionTokens(
+          accessToken: 'server-worker-access',
+          refreshToken: 'server-worker-refresh-token-value-000000000',
+          accessTokenExpiresInSeconds: 900,
+          sessionId: _testSessionId,
+          activeRole: 'worker',
+        ),
+      );
+      await refresh;
+
+      final applied = await notifier.applySwitchedRole(
+        const SwitchRoleResult(
+          accessToken: 'switch-response-worker-access',
+          accessTokenExpiresInSeconds: 900,
+          sessionId: _testSessionId,
+          activeRole: 'worker',
+        ),
+        expectedSession: customerSnapshot,
+      );
+
+      expect(applied, isTrue);
+      expect(notifier.state?.lastActiveRole, 'worker');
+      expect(notifier.state?.accessToken, 'server-worker-access');
+    },
+  );
+
+  test(
+    'role switch response from another server session fails closed',
+    () async {
+      final notifier = sessionNotifier();
+      await notifier.signIn(testSession());
+      final expected = notifier.state!.snapshot;
+
+      await expectLater(
+        notifier.applySwitchedRole(
+          const SwitchRoleResult(
+            accessToken: 'wrong-session-worker-access',
+            accessTokenExpiresInSeconds: 900,
+            sessionId: '00000000-0000-4000-8000-000000000299',
+            activeRole: 'worker',
+          ),
+          expectedSession: expected,
+        ),
+        throwsA(
+          isA<ApiRequestException>().having(
+            (error) => error.error.code,
+            'code',
+            'SESSION_ENDED',
+          ),
+        ),
+      );
+      expect(notifier.state, isNull);
+    },
+  );
 
   test('missing or null refresh activeRole fails parsing', () {
     expect(
@@ -522,7 +718,7 @@ void main() {
   });
 
   test(
-    'secure-storage write failure keeps the previous in-memory session',
+    'secure-storage failure keeps memory aligned with the server role',
     () async {
       final store = ThrowingAuthSessionStore();
       final notifier = SessionNotifier(
@@ -530,6 +726,7 @@ void main() {
           accessToken: 'ignored',
           refreshToken: refreshToken,
           accessTokenExpiresInSeconds: 900,
+          sessionId: _testSessionId,
           activeRole: 'customer',
         ),
         store: store,
@@ -542,15 +739,16 @@ void main() {
           const SwitchRoleResult(
             accessToken: 'switched-access',
             accessTokenExpiresInSeconds: 900,
+            sessionId: _testSessionId,
             activeRole: 'worker',
           ),
         ),
         throwsA(isA<StateError>()),
       );
       expect(store.writes, 2);
-      expect(notifier.state?.accessToken, 'access-1');
+      expect(notifier.state?.accessToken, 'switched-access');
       expect(notifier.state?.refreshToken, 'refresh-token-value-32chars-long');
-      expect(notifier.state?.lastActiveRole, 'customer');
+      expect(notifier.state?.lastActiveRole, 'worker');
       final stored = StoredAuthSession.fromJson(
         jsonDecode(store.value!) as Map<String, dynamic>,
       );
@@ -562,81 +760,163 @@ void main() {
     },
   );
 
-  testWidgets(
-    'storage failure after API success shows recovery and does not switch',
-    (tester) async {
-      SharedPreferences.setMockInitialValues({});
-      final store = ThrowingAuthSessionStore();
-      final api = ScriptedMobileApi(
-        (role) async => SwitchRoleResult(
-          accessToken: 'switched-access',
-          accessTokenExpiresInSeconds: 900,
-          activeRole: role,
-        ),
-      );
-      var bootstrapLoads = 0;
-      final notifier = SessionNotifier(
-        (refreshToken) async => SessionTokens(
-          accessToken: 'ignored',
-          refreshToken: refreshToken,
-          accessTokenExpiresInSeconds: 900,
-          activeRole: 'customer',
-        ),
-        store: store,
-      );
-      await notifier.signIn(testSession());
-      await notifier.restore();
-      store.throwOnWrite = true;
+  test('stale role result cannot restore a signed-out session', () async {
+    final notifier = sessionNotifier();
+    final customer = testSession();
+    await notifier.signIn(customer);
+    final customerSnapshot = notifier.state!.snapshot;
+    await notifier.signOutLocally();
 
-      await tester.pumpWidget(
-        ProviderScope(
-          overrides: [
-            sessionProvider.overrideWith((ref) => notifier),
-            mobileApiProvider.overrideWith((ref) => api),
-            platformBootstrapProvider.overrideWith((ref) async {
-              bootstrapLoads += 1;
-              return testBootstrap(
-                activeRole: 'customer',
-                assignedRoles: const ['customer', 'worker'],
-              );
-            }),
-          ],
-          child: MaterialApp(
-            theme: AppTheme.light,
-            home: Consumer(
-              builder: (context, ref, _) {
-                final bootstrap = ref.watch(platformBootstrapProvider);
-                return Scaffold(
-                  body: bootstrap.when(
-                    data: (_) => TextButton(
-                      onPressed: () =>
-                          showRoleSwitcher(context: context, ref: ref),
-                      child: const Text('Open switcher'),
-                    ),
-                    loading: () => const SizedBox.shrink(),
-                    error: (error, _) => Text('$error'),
+    final applied = await notifier.applySwitchedRole(
+      const SwitchRoleResult(
+        accessToken: 'late-worker-token',
+        accessTokenExpiresInSeconds: 900,
+        sessionId: _testSessionId,
+        activeRole: 'worker',
+      ),
+      expectedSession: customerSnapshot,
+    );
+
+    expect(applied, isFalse);
+    expect(notifier.state, isNull);
+  });
+
+  test('conflicting role results fail closed', () async {
+    final notifier = sessionNotifier();
+    final customer = testSession();
+    await notifier.signIn(customer);
+    final customerSnapshot = notifier.state!.snapshot;
+    await notifier.applySwitchedRole(
+      const SwitchRoleResult(
+        accessToken: 'current-worker-token',
+        accessTokenExpiresInSeconds: 900,
+        sessionId: _testSessionId,
+        activeRole: 'worker',
+      ),
+      expectedSession: customerSnapshot,
+    );
+
+    final applied = await notifier.applySwitchedRole(
+      const SwitchRoleResult(
+        accessToken: 'late-vendor-token',
+        accessTokenExpiresInSeconds: 900,
+        sessionId: _testSessionId,
+        activeRole: 'vendor_owner',
+      ),
+      expectedSession: customerSnapshot,
+    );
+
+    expect(applied, isFalse);
+    expect(notifier.state, isNull);
+  });
+
+  test('Customer A role result cannot affect Customer B', () async {
+    final notifier = sessionNotifier();
+    final customerA = testSession(userId: 'customer-a');
+    await notifier.signIn(customerA);
+    final customerASnapshot = notifier.state!.snapshot;
+    await notifier.signOutLocally();
+    await notifier.signIn(
+      testSession(
+        userId: 'customer-b',
+        accessToken: 'customer-b-access',
+        refreshToken: 'customer-b-refresh-token-value-32chars',
+        mobileNumber: '+919876543211',
+      ),
+    );
+
+    final applied = await notifier.applySwitchedRole(
+      const SwitchRoleResult(
+        accessToken: 'late-customer-a-worker-token',
+        accessTokenExpiresInSeconds: 900,
+        sessionId: _testSessionId,
+        activeRole: 'worker',
+      ),
+      expectedSession: customerASnapshot,
+    );
+
+    expect(applied, isFalse);
+    expect(notifier.state?.userId, 'customer-b');
+    expect(notifier.state?.lastActiveRole, 'customer');
+    expect(notifier.state?.accessToken, 'customer-b-access');
+  });
+
+  testWidgets('storage failure after API success keeps server role in memory', (
+    tester,
+  ) async {
+    SharedPreferences.setMockInitialValues({});
+    final store = ThrowingAuthSessionStore();
+    final api = ScriptedMobileApi(
+      (role) async => SwitchRoleResult(
+        accessToken: 'switched-access',
+        accessTokenExpiresInSeconds: 900,
+        sessionId: _testSessionId,
+        activeRole: role,
+      ),
+    );
+    var bootstrapLoads = 0;
+    final notifier = SessionNotifier(
+      (refreshToken) async => SessionTokens(
+        accessToken: 'ignored',
+        refreshToken: refreshToken,
+        accessTokenExpiresInSeconds: 900,
+        sessionId: _testSessionId,
+        activeRole: 'customer',
+      ),
+      store: store,
+    );
+    await notifier.signIn(testSession());
+    await notifier.restore();
+    store.throwOnWrite = true;
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          sessionProvider.overrideWith((ref) => notifier),
+          mobileApiProvider.overrideWith((ref) => api),
+          platformBootstrapProvider.overrideWith((ref) async {
+            bootstrapLoads += 1;
+            return testBootstrap(
+              activeRole: 'customer',
+              assignedRoles: const ['customer', 'worker'],
+            );
+          }),
+        ],
+        child: MaterialApp(
+          theme: AppTheme.light,
+          home: Consumer(
+            builder: (context, ref, _) {
+              final bootstrap = ref.watch(platformBootstrapProvider);
+              return Scaffold(
+                body: bootstrap.when(
+                  data: (_) => TextButton(
+                    onPressed: () =>
+                        showRoleSwitcher(context: context, ref: ref),
+                    child: const Text('Open switcher'),
                   ),
-                );
-              },
-            ),
+                  loading: () => const SizedBox.shrink(),
+                  error: (error, _) => Text('$error'),
+                ),
+              );
+            },
           ),
         ),
-      );
-      await tester.pump();
-      await tester.pump();
-      expect(bootstrapLoads, 1);
-      await tester.tap(find.text('Open switcher'));
-      await tester.pumpAndSettle();
-      await tester.tap(workerRoleFinder());
-      await tester.pump();
-      await tester.pump();
-      expect(api.switchCalls, 1);
-      expect(find.text(switchedSessionSaveFailedMessage), findsOneWidget);
-      expect(notifier.state?.accessToken, 'access-1');
-      expect(notifier.state?.lastActiveRole, 'customer');
-      expect(bootstrapLoads, 1);
-    },
-  );
+      ),
+    );
+    await tester.pump();
+    await tester.pump();
+    expect(bootstrapLoads, 1);
+    await tester.tap(find.text('Open switcher'));
+    await tester.pumpAndSettle();
+    await tester.tap(workerRoleFinder());
+    await tester.pump();
+    await tester.pump();
+    expect(api.switchCalls, 1);
+    expect(find.text(switchedSessionSaveFailedMessage), findsOneWidget);
+    expect(notifier.state?.accessToken, 'switched-access');
+    expect(notifier.state?.lastActiveRole, 'worker');
+    expect(bootstrapLoads, 1);
+  });
 
   testWidgets('AppGateway routes Customer, Vendor, and Worker surfaces', (
     tester,
@@ -646,6 +926,7 @@ void main() {
         accessToken: 'ignored',
         refreshToken: refreshToken,
         accessTokenExpiresInSeconds: 900,
+        sessionId: _testSessionId,
         activeRole: 'customer',
       ),
       store: MemoryAuthSessionStore(),
@@ -660,6 +941,7 @@ void main() {
       const SwitchRoleResult(
         accessToken: 'vendor-access',
         accessTokenExpiresInSeconds: 900,
+        sessionId: _testSessionId,
         activeRole: 'vendor_owner',
       ),
     );
@@ -671,6 +953,7 @@ void main() {
       const SwitchRoleResult(
         accessToken: 'worker-access',
         accessTokenExpiresInSeconds: 900,
+        sessionId: _testSessionId,
         activeRole: 'worker',
       ),
     );
@@ -740,13 +1023,11 @@ void main() {
       },
     );
 
-    expect(find.text('Could not open your workspace'), findsOneWidget);
     expect(
-      find.text(
-        'We could not verify this account workspace. Try again or sign out.',
-      ),
+      find.text('We couldn’t open your Mee Events account.'),
       findsOneWidget,
     );
+    expect(find.text('Please try again or sign out safely.'), findsOneWidget);
     expect(find.textContaining(rawError), findsNothing);
     expect(find.text('Retry'), findsOneWidget);
     expect(find.text('Log out from this device'), findsOneWidget);
@@ -787,6 +1068,7 @@ void main() {
         accessToken: 'ignored',
         refreshToken: refreshToken,
         accessTokenExpiresInSeconds: 900,
+        sessionId: _testSessionId,
         activeRole: 'customer',
       ),
       store: MemoryAuthSessionStore(),
@@ -813,6 +1095,7 @@ void main() {
       const SwitchRoleResult(
         accessToken: 'worker-access',
         accessTokenExpiresInSeconds: 900,
+        sessionId: _testSessionId,
         activeRole: 'worker',
       ),
     );
@@ -863,6 +1146,7 @@ void main() {
         accessToken: 'ignored',
         refreshToken: refreshToken,
         accessTokenExpiresInSeconds: 900,
+        sessionId: _testSessionId,
         activeRole: 'customer',
       ),
       store: MemoryAuthSessionStore(),
@@ -872,6 +1156,7 @@ void main() {
       const SwitchRoleResult(
         accessToken: 'worker-access',
         accessTokenExpiresInSeconds: 900,
+        sessionId: _testSessionId,
         activeRole: 'worker',
       ),
     );
@@ -919,6 +1204,7 @@ void main() {
               onSwitch: (role) async => SwitchRoleResult(
                 accessToken: 'x',
                 accessTokenExpiresInSeconds: 900,
+                sessionId: _testSessionId,
                 activeRole: role,
               ),
             ),

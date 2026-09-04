@@ -97,6 +97,7 @@ export interface VendorRepository {
 
   getCrmDashboard(branchId: string): Promise<VendorDashboardResponse>;
   getVendorDashboard(userId: string): Promise<VendorDashboardResponse>;
+  findVendorIdsForUser(userId: string): Promise<readonly string[]>;
   findVendorIdForUser(userId: string): Promise<string | undefined>;
   isVendorMember(vendorId: string, userId: string): Promise<boolean>;
 }

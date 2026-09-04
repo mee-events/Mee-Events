@@ -13,8 +13,13 @@ export const platformRoles = [
 
 export type PlatformRole = (typeof platformRoles)[number];
 
+export const roleScopeTypes = ["global", "branch", "vendor"] as const;
+
+export type RoleScopeType = (typeof roleScopeTypes)[number];
+
 export interface RoleAssignment {
   readonly role: PlatformRole;
+  readonly scopeType: RoleScopeType;
   readonly scopeId?: string;
   readonly active: boolean;
   readonly verifiedAt?: string;

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,7 +10,8 @@ import 'package:mee_events/features/auth/customer_private_data_cleaner.dart';
 import 'package:mee_events/models/api_error.dart';
 import 'package:mee_events/models/auth_session.dart';
 
-const _sessionStorageKey = 'mee_events.auth_session.v2';
+const _sessionStorageKey = 'mee_events.auth_session.v3';
+const _versionTwoSessionStorageKey = 'mee_events.auth_session.v2';
 const _legacySessionStorageKey = 'mee_events.auth_session.v1';
 
 abstract class AuthSessionStore {
@@ -27,18 +29,21 @@ class SecureAuthSessionStore implements AuthSessionStore {
   @override
   Future<String?> read() async {
     return await _storage.read(key: _sessionStorageKey) ??
+        await _storage.read(key: _versionTwoSessionStorageKey) ??
         _storage.read(key: _legacySessionStorageKey);
   }
 
   @override
   Future<void> write(String value) async {
     await _storage.write(key: _sessionStorageKey, value: value);
+    await _storage.delete(key: _versionTwoSessionStorageKey);
     await _storage.delete(key: _legacySessionStorageKey);
   }
 
   @override
   Future<void> delete() async {
     await _storage.delete(key: _sessionStorageKey);
+    await _storage.delete(key: _versionTwoSessionStorageKey);
     await _storage.delete(key: _legacySessionStorageKey);
   }
 }
@@ -133,7 +138,11 @@ class SessionNotifier extends StateNotifier<AuthSession?> {
   final void Function()? onSessionEnded;
   final void Function()? onSessionActive;
   Future<String?>? _refreshInFlight;
+  AuthSessionSnapshot? _refreshInFlightSnapshot;
   Future<SessionRestoreOutcome>? _restoreInFlight;
+  Future<void> _mutationQueue = Future<void>.value();
+  int _lifecycleRevision = 0;
+  int _sessionGeneration = 0;
 
   Future<SessionRestoreOutcome> restore() {
     final active = _restoreInFlight;
@@ -157,7 +166,7 @@ class SessionNotifier extends StateNotifier<AuthSession?> {
 
     if (current != null) {
       try {
-        await refreshAccessToken();
+        await refreshAccessToken(expectedSession: current.snapshot);
         return state == null
             ? SessionRestoreOutcome.signedOut
             : SessionRestoreOutcome.authenticated;
@@ -170,6 +179,7 @@ class SessionNotifier extends StateNotifier<AuthSession?> {
       }
     }
 
+    final requestedLifecycleRevision = _lifecycleRevision;
     String? raw;
     try {
       raw = await _store.read();
@@ -201,17 +211,35 @@ class SessionNotifier extends StateNotifier<AuthSession?> {
     try {
       final tokens = await _refreshSession(stored.refreshToken);
       final restored = stored.withTokens(tokens, _clock());
-      try {
-        await _persist(restored);
-      } catch (_) {
-        await _terminateSession(stored.userId);
-        return SessionRestoreOutcome.signedOut;
-      }
-      return SessionRestoreOutcome.authenticated;
+      return _serialize(() async {
+        if (_lifecycleRevision != requestedLifecycleRevision || state != null) {
+          return state == null
+              ? SessionRestoreOutcome.signedOut
+              : SessionRestoreOutcome.authenticated;
+        }
+        final next = restored.withSessionGeneration(++_sessionGeneration);
+        try {
+          await _store.write(jsonEncode(next.toStorageJson()));
+        } catch (_) {
+          await _terminateSessionUnlocked(stored.userId);
+          return SessionRestoreOutcome.signedOut;
+        }
+        if (mounted) state = next;
+        onSessionActive?.call();
+        return SessionRestoreOutcome.authenticated;
+      });
     } on ApiRequestException catch (error) {
       if (_isTerminalRefreshError(error)) {
-        await _terminateSession(stored.userId);
-        return SessionRestoreOutcome.signedOut;
+        return _serialize(() async {
+          if (_lifecycleRevision == requestedLifecycleRevision &&
+              state == null) {
+            await _terminateSessionUnlocked(stored.userId);
+            return SessionRestoreOutcome.signedOut;
+          }
+          return state == null
+              ? SessionRestoreOutcome.signedOut
+              : SessionRestoreOutcome.authenticated;
+        });
       }
       return SessionRestoreOutcome.temporarilyUnavailable;
     } catch (_) {
@@ -219,26 +247,59 @@ class SessionNotifier extends StateNotifier<AuthSession?> {
     }
   }
 
-  Future<void> signIn(AuthSession session) async {
-    final previousUserId = state?.userId;
-    await _store.write(jsonEncode(session.toStorageJson()));
-    if (previousUserId != null && previousUserId != session.userId) {
-      try {
-        await _privateDataCleaner.clearForUser(previousUserId);
-      } catch (_) {
-        await _deleteStoredSessionBestEffort();
-        if (mounted) state = null;
-        rethrow;
+  Future<void> signIn(AuthSession session) {
+    return _serialize(() async {
+      final previousUserId = state?.userId;
+      final next = session.withSessionGeneration(++_sessionGeneration);
+      _lifecycleRevision += 1;
+      await _store.write(jsonEncode(next.toStorageJson()));
+      if (previousUserId != null && previousUserId != next.userId) {
+        try {
+          await _privateDataCleaner.clearForUser(previousUserId);
+        } catch (_) {
+          await _deleteStoredSessionBestEffort();
+          if (mounted) state = null;
+          rethrow;
+        }
       }
-    }
-    if (mounted) state = session;
-    onSessionActive?.call();
+      if (mounted) state = next;
+      onSessionActive?.call();
+    });
   }
 
-  Future<void> applySwitchedRole(SwitchRoleResult result) async {
-    final current = state;
-    if (current == null) return;
-    await signIn(current.withSwitchedRole(result, now: _clock()));
+  Future<bool> applySwitchedRole(
+    SwitchRoleResult result, {
+    AuthSessionSnapshot? expectedSession,
+  }) {
+    final requested = expectedSession ?? state?.snapshot;
+    if (requested == null) return Future<bool>.value(false);
+    return _serialize(() async {
+      final current = state;
+      if (!requested.hasSameSession(current)) return false;
+      if (result.sessionId != requested.sessionId) {
+        await _terminateSessionUnlocked(current!.userId);
+        throw _sessionEndedException();
+      }
+      if (!requested.hasSameRole(current)) {
+        if (current!.lastActiveRole == result.activeRole) return true;
+        await _terminateSessionUnlocked(current.userId);
+        return false;
+      }
+
+      final switched = current!.withSwitchedRole(result, now: _clock());
+      try {
+        await _store.write(jsonEncode(switched.toStorageJson()));
+      } catch (_) {
+        // The server already changed this session's role. Keep memory aligned;
+        // a restart will use the still-valid refresh token to reconcile again.
+        if (mounted) state = switched;
+        onSessionActive?.call();
+        rethrow;
+      }
+      if (mounted) state = switched;
+      onSessionActive?.call();
+      return true;
+    });
   }
 
   Future<void> signOut() => _clearLocalSession();
@@ -246,14 +307,19 @@ class SessionNotifier extends StateNotifier<AuthSession?> {
   Future<void> signOutLocally() => _clearLocalSession();
 
   Future<SessionLogoutOutcome> logoutCurrent(MobileApi api) async {
-    if (state == null) return SessionLogoutOutcome.serverRevoked;
+    final requested = state?.snapshot;
+    if (requested == null) return SessionLogoutOutcome.serverRevoked;
     try {
       await api.logout();
     } catch (_) {
       return SessionLogoutOutcome.serverUnavailable;
     }
     try {
-      await _clearLocalSession();
+      await _serialize(() async {
+        if (requested.hasSameSession(state)) {
+          await _clearLocalSessionUnlocked();
+        }
+      });
       return SessionLogoutOutcome.serverRevoked;
     } catch (_) {
       return SessionLogoutOutcome.localCleanupFailed;
@@ -261,14 +327,19 @@ class SessionNotifier extends StateNotifier<AuthSession?> {
   }
 
   Future<SessionLogoutOutcome> logoutAll(MobileApi api) async {
-    if (state == null) return SessionLogoutOutcome.serverRevoked;
+    final requested = state?.snapshot;
+    if (requested == null) return SessionLogoutOutcome.serverRevoked;
     try {
       await api.logoutAll();
     } catch (_) {
       return SessionLogoutOutcome.serverUnavailable;
     }
     try {
-      await _clearLocalSession();
+      await _serialize(() async {
+        if (requested.hasSameSession(state)) {
+          await _clearLocalSessionUnlocked();
+        }
+      });
       return SessionLogoutOutcome.serverRevoked;
     } catch (_) {
       return SessionLogoutOutcome.localCleanupFailed;
@@ -276,57 +347,128 @@ class SessionNotifier extends StateNotifier<AuthSession?> {
   }
 
   /// Rotates once even when several protected requests fail together.
-  Future<String?> refreshAccessToken() {
+  Future<String?> refreshAccessToken({AuthSessionSnapshot? expectedSession}) {
+    final current = state;
+    if (current == null) return Future<String?>.value(null);
+    if (expectedSession != null) {
+      if (!expectedSession.hasSameRole(current)) {
+        return Future<String?>.value(null);
+      }
+      if (current.tokenRevision > expectedSession.tokenRevision) {
+        return Future<String?>.value(current.accessToken);
+      }
+    }
+    final requested = current.snapshot;
     final activeRefresh = _refreshInFlight;
-    if (activeRefresh != null) return activeRefresh;
+    if (activeRefresh != null) {
+      final activeSnapshot = _refreshInFlightSnapshot;
+      if (activeSnapshot != null &&
+          activeSnapshot.sessionId == requested.sessionId &&
+          activeSnapshot.sessionGeneration == requested.sessionGeneration &&
+          activeSnapshot.roleRevision == requested.roleRevision) {
+        return activeRefresh;
+      }
+      return _afterUnrelatedRefresh(
+        activeRefresh,
+        expectedSession ?? requested,
+      );
+    }
 
-    final refresh = _refreshAccessToken();
+    final refresh = _refreshAccessToken(requested, current.refreshToken);
     _refreshInFlight = refresh;
+    _refreshInFlightSnapshot = requested;
     return refresh.whenComplete(() {
       if (identical(_refreshInFlight, refresh)) {
         _refreshInFlight = null;
+        _refreshInFlightSnapshot = null;
       }
     });
   }
 
-  Future<String?> _refreshAccessToken() async {
-    final current = state;
-    if (current == null) return null;
-
+  Future<String?> _refreshAccessToken(
+    AuthSessionSnapshot requested,
+    String refreshToken,
+  ) async {
     try {
-      final tokens = await _refreshSession(current.refreshToken);
-      final refreshed = current.withRefreshedTokens(tokens, now: _clock());
-      try {
-        await _persist(refreshed);
-      } catch (_) {
-        await _terminateSession(current.userId);
-        throw _sessionEndedException();
-      }
-      return refreshed.accessToken;
+      final tokens = await _refreshSession(refreshToken);
+      return _serialize(() async {
+        final current = state;
+        if (!requested.hasSameSession(current)) return null;
+        if (tokens.sessionId != requested.sessionId) {
+          await _terminateSessionUnlocked(current!.userId);
+          throw _sessionEndedException();
+        }
+
+        final AuthSession refreshed;
+        if (requested.hasSameRole(current) ||
+            tokens.activeRole == current!.lastActiveRole) {
+          refreshed = current!.withRefreshedTokens(tokens, now: _clock());
+        } else {
+          // A role switch won locally after this refresh began. Preserve its
+          // role-bound access token while retaining the rotated refresh token.
+          refreshed = current.withRotatedRefreshToken(tokens.refreshToken);
+        }
+        try {
+          await _store.write(jsonEncode(refreshed.toStorageJson()));
+        } catch (_) {
+          await _terminateSessionUnlocked(current.userId);
+          throw _sessionEndedException();
+        }
+        if (mounted) state = refreshed;
+        onSessionActive?.call();
+        return refreshed.accessToken;
+      });
     } on ApiRequestException catch (error) {
       if (error.error.code == 'SESSION_ENDED') rethrow;
       if (_isTerminalRefreshError(error)) {
-        await _terminateSession(current.userId);
+        await _serialize(() async {
+          final current = state;
+          if (requested.hasSameSession(current)) {
+            await _terminateSessionUnlocked(current!.userId);
+          }
+        });
         throw _sessionEndedException();
       }
       rethrow;
     }
   }
 
-  Future<void> handleRejectedAccessToken() async {
-    final current = state;
-    if (current == null) return;
-    await _terminateSession(current.userId);
+  Future<void> handleRejectedAccessToken({
+    AuthSessionSnapshot? expectedSession,
+  }) {
+    final requested = expectedSession ?? state?.snapshot;
+    if (requested == null) return Future<void>.value();
+    return _serialize(() async {
+      final current = state;
+      if (requested.hasSameRole(current) &&
+          requested.tokenRevision == current!.tokenRevision) {
+        await _terminateSessionUnlocked(current.userId);
+      }
+    });
   }
 
-  Future<void> _persist(AuthSession session) async {
-    await _store.write(jsonEncode(session.toStorageJson()));
-    if (mounted) state = session;
-    onSessionActive?.call();
+  Future<String?> _afterUnrelatedRefresh(
+    Future<String?> active,
+    AuthSessionSnapshot? expectedSession,
+  ) async {
+    try {
+      await active;
+    } catch (_) {
+      // The unrelated session decides its own outcome. Re-check this caller's
+      // stable snapshot after it settles.
+    }
+    return refreshAccessToken(expectedSession: expectedSession);
   }
 
-  Future<void> _clearLocalSession() async {
+  Future<void> _clearLocalSession() {
+    return _serialize(_clearLocalSessionUnlocked);
+  }
+
+  Future<void> _clearLocalSessionUnlocked() async {
+    _lifecycleRevision += 1;
     final userId = state?.userId;
+    if (mounted) state = null;
+    onSessionActive?.call();
     Object? firstError;
     try {
       await _store.delete();
@@ -340,16 +482,15 @@ class SessionNotifier extends StateNotifier<AuthSession?> {
         firstError ??= error;
       }
     }
-    if (mounted) state = null;
-    onSessionActive?.call();
     if (firstError != null) throw firstError;
   }
 
-  Future<void> _terminateSession(String userId) async {
-    await _deleteStoredSessionBestEffort();
-    await _clearPrivateDataBestEffort(userId);
+  Future<void> _terminateSessionUnlocked(String userId) async {
+    _lifecycleRevision += 1;
     if (mounted) state = null;
     onSessionEnded?.call();
+    await _deleteStoredSessionBestEffort();
+    await _clearPrivateDataBestEffort(userId);
   }
 
   Future<void> _deleteStoredSessionBestEffort() async {
@@ -368,6 +509,18 @@ class SessionNotifier extends StateNotifier<AuthSession?> {
       // Provider state still drops with the session. Persistent data remains
       // account-scoped and explicit sign-out can retry cleanup.
     }
+  }
+
+  Future<T> _serialize<T>(Future<T> Function() mutation) {
+    final completer = Completer<T>();
+    _mutationQueue = _mutationQueue.then((_) async {
+      try {
+        completer.complete(await mutation());
+      } catch (error, stackTrace) {
+        completer.completeError(error, stackTrace);
+      }
+    });
+    return completer.future;
   }
 }
 
@@ -408,14 +561,18 @@ String? _candidateUserId(String raw) {
 final mobileApiProvider = Provider<MobileApi>((ref) {
   final session = ref.watch(sessionProvider);
   final notifier = ref.read(sessionProvider.notifier);
+  final requested = session?.snapshot;
   return MobileApi(
     apiClient: ApiClient(
       baseUrl: Environment.apiBaseUrl,
       accessToken: session?.accessToken,
-      refreshAccessToken: session == null ? null : notifier.refreshAccessToken,
-      onAccessTokenRejected: session == null
+      refreshAccessToken: requested == null
           ? null
-          : notifier.handleRejectedAccessToken,
+          : () => notifier.refreshAccessToken(expectedSession: requested),
+      onAccessTokenRejected: requested == null
+          ? null
+          : () =>
+                notifier.handleRejectedAccessToken(expectedSession: requested),
     ),
   );
 });

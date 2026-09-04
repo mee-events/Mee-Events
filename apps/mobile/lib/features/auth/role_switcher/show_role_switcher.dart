@@ -7,7 +7,9 @@ import 'package:mee_events/features/auth/session_provider.dart';
 import 'package:mee_events/models/auth_session.dart';
 
 const switchedSessionSaveFailedMessage =
-    'Could not save the switched session on this device. Retry Switch role to apply it here.';
+    'The role changed, but this device could not save it. Sign in again if the app is restarted.';
+const staleRoleSwitchMessage =
+    'Your account changed before the role switch finished. Please try again.';
 
 Future<void> showRoleSwitcher({
   required BuildContext context,
@@ -17,6 +19,9 @@ Future<void> showRoleSwitcher({
   if (bootstrap == null) {
     return;
   }
+  final currentSession = ref.read(sessionProvider);
+  if (currentSession == null) return;
+  final expectedSession = currentSession.snapshot;
 
   final result = await showMeBottomSheet<SwitchRoleResult>(
     context: context,
@@ -33,7 +38,17 @@ Future<void> showRoleSwitcher({
   }
 
   try {
-    await ref.read(sessionProvider.notifier).applySwitchedRole(result);
+    final applied = await ref
+        .read(sessionProvider.notifier)
+        .applySwitchedRole(result, expectedSession: expectedSession);
+    if (!applied) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text(staleRoleSwitchMessage)));
+      }
+      return;
+    }
   } catch (_) {
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(

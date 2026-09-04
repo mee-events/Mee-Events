@@ -23,10 +23,13 @@ const _userOne = 'customer-0001';
 const _userTwo = 'customer-0002';
 const _refreshOne = 'refresh-token-customer-one-value-000001';
 const _refreshTwo = 'refresh-token-customer-two-value-000002';
+const _sessionOne = '00000000-0000-4000-8000-000000000101';
+const _sessionTwo = '00000000-0000-4000-8000-000000000102';
 
 AuthSession _session({
   String userId = _userOne,
   String refreshToken = _refreshOne,
+  String? sessionId,
   DateTime? expiresAt,
 }) {
   return AuthSession(
@@ -34,6 +37,7 @@ AuthSession _session({
     refreshToken: refreshToken,
     accessTokenExpiresInSeconds: 900,
     accessTokenExpiresAt: expiresAt ?? DateTime.utc(2099),
+    sessionId: sessionId ?? (userId == _userOne ? _sessionOne : _sessionTwo),
     userId: userId,
     mobileNumber: userId == _userOne ? '+919876543210' : '+919876543211',
     lastActiveRole: 'customer',
@@ -45,6 +49,7 @@ SessionTokens _rotated([String suffix = 'one']) {
     accessToken: 'rotated-access-$suffix',
     refreshToken: 'rotated-refresh-token-value-$suffix-000000000',
     accessTokenExpiresInSeconds: 900,
+    sessionId: _sessionOne,
     activeRole: 'customer',
   );
 }
@@ -82,6 +87,20 @@ class _PartialWriteStore extends MemoryAuthSessionStore {
     if (failAfterWrite) {
       throw StateError('synthetic secure-storage write failure');
     }
+  }
+}
+
+class _FailingDeleteStore extends MemoryAuthSessionStore {
+  @override
+  Future<void> delete() async {
+    throw StateError('synthetic secure-storage delete failure');
+  }
+}
+
+class _FailingPrivateDataCleaner implements CustomerPrivateDataCleaner {
+  @override
+  Future<void> clearForUser(String userId) async {
+    throw StateError('synthetic private-cache cleanup failure');
   }
 }
 
@@ -329,9 +348,122 @@ void main() {
       expect(store.value, isNull);
       expect(cleaner.clearedUserIds, [_userOne]);
     });
+
+    test('refresh finishing after logout cannot restore the session', () async {
+      final gate = Completer<SessionTokens>();
+      final notifier = SessionNotifier(
+        (_) => gate.future,
+        store: MemoryAuthSessionStore(),
+      );
+      await notifier.signIn(_session());
+      final refresh = notifier.refreshAccessToken();
+      await Future<void>.delayed(Duration.zero);
+      await notifier.signOutLocally();
+      gate.complete(_rotated('after-logout'));
+
+      expect(await refresh, isNull);
+      expect(notifier.state, isNull);
+    });
+
+    test('refresh for Customer A cannot overwrite Customer B', () async {
+      final gate = Completer<SessionTokens>();
+      final notifier = SessionNotifier(
+        (_) => gate.future,
+        store: MemoryAuthSessionStore(),
+      );
+      await notifier.signIn(_session());
+      final refresh = notifier.refreshAccessToken();
+      await Future<void>.delayed(Duration.zero);
+      await notifier.signIn(
+        _session(userId: _userTwo, refreshToken: _refreshTwo),
+      );
+      gate.complete(_rotated('customer-a-late'));
+
+      expect(await refresh, isNull);
+      expect(notifier.state?.userId, _userTwo);
+      expect(notifier.state?.accessToken, 'access-$_userTwo');
+    });
+
+    test(
+      'a refresh response from another server session fails closed',
+      () async {
+        final notifier = SessionNotifier(
+          (_) async => const SessionTokens(
+            accessToken: 'wrong-session-access',
+            refreshToken: 'wrong-session-refresh-token-value-000000000',
+            accessTokenExpiresInSeconds: 900,
+            sessionId: '00000000-0000-4000-8000-000000000199',
+            activeRole: 'customer',
+          ),
+          store: MemoryAuthSessionStore(),
+        );
+        await notifier.signIn(_session());
+
+        await expectLater(
+          notifier.refreshAccessToken(),
+          throwsA(
+            isA<ApiRequestException>().having(
+              (error) => error.error.code,
+              'code',
+              'SESSION_ENDED',
+            ),
+          ),
+        );
+        expect(notifier.state, isNull);
+      },
+    );
+
+    test('old access rejection cannot terminate a replaced session', () async {
+      final notifier = SessionNotifier(
+        (_) async => _rotated(),
+        store: MemoryAuthSessionStore(),
+      );
+      await notifier.signIn(_session());
+      final oldSession = notifier.state!.snapshot;
+      await notifier.signIn(
+        _session(
+          sessionId: '00000000-0000-4000-8000-000000000109',
+          refreshToken: 'replacement-refresh-token-value-000000000',
+        ),
+      );
+
+      await notifier.handleRejectedAccessToken(expectedSession: oldSession);
+
+      expect(notifier.state?.sessionId, '00000000-0000-4000-8000-000000000109');
+    });
+
+    test(
+      'old access rejection cannot terminate a newer token revision',
+      () async {
+        final notifier = SessionNotifier(
+          (_) async => _rotated('newer'),
+          store: MemoryAuthSessionStore(),
+        );
+        await notifier.signIn(_session());
+        final oldToken = notifier.state!.snapshot;
+        await notifier.refreshAccessToken(expectedSession: oldToken);
+
+        await notifier.handleRejectedAccessToken(expectedSession: oldToken);
+
+        expect(notifier.state?.accessToken, 'rotated-access-newer');
+        expect(notifier.state, isNotNull);
+      },
+    );
   });
 
   group('logout and privacy isolation', () {
+    test('local cleanup failures never retain authenticated memory', () async {
+      final notifier = SessionNotifier(
+        (_) async => _rotated(),
+        store: _FailingDeleteStore(),
+        privateDataCleaner: _FailingPrivateDataCleaner(),
+      );
+      await notifier.signIn(_session());
+
+      await expectLater(notifier.signOutLocally(), throwsStateError);
+      expect(notifier.state, isNull);
+    });
+
     test(
       'current-device logout requires confirmed server revocation',
       () async {

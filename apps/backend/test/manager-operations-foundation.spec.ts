@@ -372,7 +372,14 @@ const principal: AuthenticatedPrincipal = {
   userId: "crm-user-1",
   sessionId: "session-1",
   activeRole: "employee",
-  roleAssignments: [{ role: "employee", active: true }],
+  roleAssignments: [
+    {
+      role: "employee",
+      active: true,
+      scopeType: "branch",
+      scopeId: "00000000-0000-4000-8000-000000000001",
+    },
+  ],
 };
 
 describe("Manager Operations Foundation", () => {

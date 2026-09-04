@@ -4,10 +4,12 @@ import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import type { NextFunction, Request, Response } from "express";
 import helmet from "helmet";
 import type { Environment } from "../../config/environment";
+import { requestIdForIncomingRequest } from "./request-context";
 
 export const PERMISSIONS_POLICY = "camera=(), microphone=(), geolocation=()";
 
 export const HSTS_VALUE = "max-age=31536000; includeSubDomains";
+export const NO_STORE_VALUE = "no-store";
 
 const PINO_SECRET_FIELD_NAMES = [
   "refreshToken",
@@ -148,6 +150,16 @@ export function configureHttpSurface(
     response.setHeader("Permissions-Policy", PERMISSIONS_POLICY);
     next();
   });
+  app.use((request: Request, response: Response, next: NextFunction): void => {
+    const requestWithId = request as Request & { id?: string };
+    const requestId = requestIdForIncomingRequest(requestWithId);
+    requestWithId.id = requestId;
+    response.setHeader("X-Request-Id", requestId);
+    if (requiresNoStore(request.path)) {
+      response.setHeader("Cache-Control", NO_STORE_VALUE);
+    }
+    next();
+  });
 
   if (!isOpenApiEnabled(options.appEnv, options.enableOpenApiOverride)) {
     return;
@@ -162,5 +174,13 @@ export function configureHttpSurface(
     "api/docs",
     app,
     SwaggerModule.createDocument(app, openApi),
+  );
+}
+
+export function requiresNoStore(path: string): boolean {
+  const normalizedPath = path.toLowerCase();
+  return (
+    /^\/api\/v1\/auth(?:\/|$)/u.test(normalizedPath) ||
+    /^\/api\/v1\/platform\/bootstrap\/?$/u.test(normalizedPath)
   );
 }

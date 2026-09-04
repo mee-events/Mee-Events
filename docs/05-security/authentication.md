@@ -178,17 +178,42 @@ SEC-05 closed the in-process IP cap with findings
 After a stored Nest session is restored, Flutter requests
 `GET /api/v1/platform/bootstrap` through `MobileApi`. SEC-06 removed Flutter
 Supabase initialization and direct table access. The bootstrap parser now
-requires the contract metadata plus valid actor, branch, client, access, and
-control structures; validates the role/surface/landing-module catalogs; and
-requires the active role to have an assigned active role for the selected
-branch. Unknown, missing, malformed, mismatched, or non-Hyderabad bootstrap
-data cannot open a mobile product workspace. Employee-class roles remain on
-the existing ERP-only message. Bootstrap failures show a generic retry/sign-out
-state without rendering raw parser, provider, URL, or token details.
+requires the structural contract and minimum-client version plus valid actor,
+branch, client, access, and control structures. It requires the role's known
+baseline modules/capabilities, accepts only safe additive unknown entries, and
+rejects known cross-role privileges. A well-formed future policy revision does
+not unnecessarily break an older compatible client; a breaking structure must
+raise the minimum-client version or move to `/api/v2`.
 
-This is local parser/widget evidence, not live staging/production or native
-device proof. See
-[sec-06-mobile-boundary-inventory.md](./sec-06-mobile-boundary-inventory.md).
+The stable server `sessionId` returned by verify/refresh/switch must equal the
+bootstrap actor session. Local session generation, token revision, and role
+revision values replace Dart object identity checks. They discard responses
+from logout, account/session replacement, conflicting role changes, or an older
+device session while allowing harmless access-token rotation to overlap a
+bootstrap. Refresh and role switch reconcile both completion orders without
+automatically replaying either mutation. If the server switches role but local
+secure persistence fails, memory remains aligned with the server and the next
+restore refreshes authoritative state.
+
+When local logout cleanup starts, Flutter first changes the in-memory session
+to signed out, then awaits secure-storage deletion and Customer-private cache
+cleanup. Delayed or failed cleanup is still surfaced to the caller, but it
+cannot retain authenticated UI state or let an in-flight bootstrap open a
+private role surface.
+
+The server UTC `generatedAt` value is syntax/provenance data only; device clock
+skew does not decide authorization. Unknown, missing, malformed, mismatched, or
+non-Hyderabad structural data cannot open a mobile product workspace.
+Employee-class roles remain on the existing ERP-only message. Bootstrap
+failures show a generic retry/sign-out state without rendering raw parser,
+provider, URL, or token details. Sensitive auth/bootstrap responses are marked
+`Cache-Control: no-store`; path matching is normalized to lowercase so
+mixed-case routes accepted by Express receive the same protection.
+
+This is automated parser/widget/API evidence, not live staging/production or
+native-device proof. See
+[cust-04-customer-bootstrap-evidence.md](../08-testing/cust-04-customer-bootstrap-evidence.md)
+and [sec-06-mobile-boundary-inventory.md](./sec-06-mobile-boundary-inventory.md).
 
 ---
 
