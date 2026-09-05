@@ -50,6 +50,7 @@ class _CustomerHomeTabState extends ConsumerState<CustomerHomeTab> {
   Future<void> _handleRefresh() async {
     final cachedTypes = ref.read(eventTypesProvider).valueOrNull;
     final cachedEvents = ref.read(eventsProvider).valueOrNull;
+    final refreshEnquiries = ref.read(sessionProvider) != null;
     final cachedOccasion = matchLiveOccasionCode(
       pickHomeUpcomingEvent(cachedEvents)?.eventTypeName,
       cachedTypes,
@@ -59,34 +60,39 @@ class _CustomerHomeTabState extends ConsumerState<CustomerHomeTab> {
     ref.invalidate(serviceCategoriesProvider);
     ref.invalidate(eventsProvider);
     ref.invalidate(catalogServicesProvider(null));
-    ref.invalidate(enquiriesProvider);
+    if (refreshEnquiries) {
+      ref.invalidate(enquiriesProvider);
+    }
 
     final typesFuture = ref.read(eventTypesProvider.future);
     final categoriesFuture = ref.read(serviceCategoriesProvider.future);
     final eventsFuture = ref.read(eventsProvider.future);
     final servicesFuture = ref.read(catalogServicesProvider(null).future);
-    final enquiriesFuture = ref.read(enquiriesProvider.future);
     final planFuture = ref.read(eventPlanProvider.notifier).refresh();
     final favoritesFuture = ref.read(favoritesProvider.notifier).refresh();
 
-    Future<void> occasionFuture = Future.value();
+    final refreshes = <Future<bool>>[
+      _refreshSucceeded(typesFuture),
+      _refreshSucceeded(categoriesFuture),
+      _refreshSucceeded(eventsFuture),
+      _refreshSucceeded(servicesFuture),
+      planFuture,
+      favoritesFuture,
+    ];
+    if (refreshEnquiries) {
+      refreshes.add(_refreshSucceeded(ref.read(enquiriesProvider.future)));
+    }
     if (cachedOccasion != null) {
       ref.invalidate(occasionServicesProvider(cachedOccasion));
-      occasionFuture = ref
-          .read(occasionServicesProvider(cachedOccasion).future)
-          .then<void>((_) {}, onError: (_) {});
+      refreshes.add(
+        _refreshSucceeded(
+          ref.read(occasionServicesProvider(cachedOccasion).future),
+        ),
+      );
     }
 
-    await Future.wait<void>([
-      typesFuture.then<void>((_) {}, onError: (_) {}),
-      categoriesFuture.then<void>((_) {}, onError: (_) {}),
-      eventsFuture.then<void>((_) {}, onError: (_) {}),
-      servicesFuture.then<void>((_) {}, onError: (_) {}),
-      enquiriesFuture.then<void>((_) {}, onError: (_) {}),
-      planFuture.then<void>((_) {}, onError: (_) {}),
-      favoritesFuture.then<void>((_) {}, onError: (_) {}),
-      occasionFuture,
-    ]);
+    final results = await Future.wait(refreshes);
+    var anyFailed = results.any((succeeded) => !succeeded);
     if (!mounted) return;
 
     final types = ref.read(eventTypesProvider).valueOrNull;
@@ -95,12 +101,68 @@ class _CustomerHomeTabState extends ConsumerState<CustomerHomeTab> {
       pickHomeUpcomingEvent(events)?.eventTypeName,
       types,
     );
-    if (occasionCode == null || occasionCode == cachedOccasion) return;
+    if (occasionCode != null && occasionCode != cachedOccasion) {
+      ref.invalidate(occasionServicesProvider(occasionCode));
+      final succeeded = await _refreshSucceeded(
+        ref.read(occasionServicesProvider(occasionCode).future),
+      );
+      anyFailed = anyFailed || !succeeded;
+      if (!mounted) return;
+    }
 
-    ref.invalidate(occasionServicesProvider(occasionCode));
+    if (anyFailed) {
+      final messenger = ScaffoldMessenger.of(context);
+      messenger.hideCurrentSnackBar();
+      messenger.showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Some sections couldn\u2019t be refreshed. Please try again.',
+          ),
+        ),
+      );
+    }
+  }
+
+  Future<bool> _refreshSucceeded<T>(Future<T> refresh) async {
     try {
-      await ref.read(occasionServicesProvider(occasionCode).future);
-    } catch (_) {}
+      await refresh;
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  void _retryFailedResumeSources() {
+    final retries = <Future<void>>[];
+    final plan = ref.read(eventPlanProvider);
+    final favorites = ref.read(favoritesProvider);
+    final session = ref.read(sessionProvider);
+
+    if (plan.hasError && !plan.hasValue) {
+      retries.add(
+        ref.read(eventPlanProvider.notifier).refresh().then<void>((_) {}),
+      );
+    }
+    if (favorites.hasError && !favorites.hasValue) {
+      retries.add(
+        ref.read(favoritesProvider.notifier).refresh().then<void>((_) {}),
+      );
+    }
+    if (session != null) {
+      final enquiries = ref.read(enquiriesProvider);
+      if (enquiries.hasError && !enquiries.hasValue) {
+        ref.invalidate(enquiriesProvider);
+        retries.add(
+          _refreshSucceeded(
+            ref.read(enquiriesProvider.future),
+          ).then<void>((_) {}),
+        );
+      }
+    }
+
+    if (retries.isNotEmpty) {
+      unawaited(Future.wait(retries));
+    }
   }
 
   void _openFavorites() {
@@ -322,24 +384,37 @@ class _CustomerHomeTabState extends ConsumerState<CustomerHomeTab> {
         (session != null &&
             enquiriesAsync.isLoading &&
             !enquiriesAsync.hasValue);
+    final unavailable =
+        (planAsync.hasError && !planAsync.hasValue) ||
+        (savedAsync.hasError && !savedAsync.hasValue) ||
+        (session != null &&
+            enquiriesAsync.hasError &&
+            !enquiriesAsync.hasValue);
 
-    if (cards.isEmpty) {
-      if (waiting) {
-        return const [
-          SliverToBoxAdapter(child: HomeResumeSkeleton()),
-          SliverToBoxAdapter(child: SizedBox(height: AppSpacing.lg)),
-        ];
-      }
+    if (cards.isEmpty && !waiting && !unavailable) {
       return const [];
     }
 
     return [
-      SliverToBoxAdapter(
-        child: HomeResumeSection(
-          cards: cards,
-          onSelect: (kind) => _onResumeSelect(kind, actionableCompleted),
+      if (cards.isNotEmpty)
+        SliverToBoxAdapter(
+          child: HomeResumeSection(
+            cards: cards,
+            onSelect: (kind) => _onResumeSelect(kind, actionableCompleted),
+          ),
         ),
-      ),
+      if (cards.isEmpty && waiting)
+        const SliverToBoxAdapter(child: HomeResumeSkeleton()),
+      if (unavailable) ...[
+        if (cards.isNotEmpty || waiting)
+          const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.sm)),
+        SliverToBoxAdapter(
+          child: HomeSectionError(
+            title: 'Some recent activity is unavailable',
+            onRetry: _retryFailedResumeSources,
+          ),
+        ),
+      ],
       const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.lg)),
     ];
   }
@@ -352,6 +427,12 @@ class _CustomerHomeTabState extends ConsumerState<CustomerHomeTab> {
   ) {
     if (eventsAsync.isLoading && !eventsAsync.hasValue) {
       return const HomeHeroSkeleton();
+    }
+    if (eventsAsync.hasError && !eventsAsync.hasValue) {
+      return HomeSectionError(
+        title: 'Celebration details unavailable',
+        onRetry: () => ref.invalidate(eventsProvider),
+      );
     }
     return HomePlanningHero(
       event: upcoming,
@@ -412,7 +493,16 @@ class _CustomerHomeTabState extends ConsumerState<CustomerHomeTab> {
       ];
     }
     if (servicesAsync.hasError && !servicesAsync.hasValue) {
-      return const [];
+      return [
+        SliverToBoxAdapter(
+          child: HomeSectionError(
+            title: 'Recommendations unavailable',
+            onRetry: () =>
+                ref.invalidate(occasionServicesProvider(occasionCode)),
+          ),
+        ),
+        const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.lg)),
+      ];
     }
     final services = sortedCatalogServices(
       servicesAsync.valueOrNull ?? const [],
@@ -469,8 +559,20 @@ class _CustomerHomeTabState extends ConsumerState<CustomerHomeTab> {
       departments: departments,
       excludeCodes: excludeCodes,
     );
-    if (rails.isEmpty) return const [];
+    final categoriesUnavailable =
+        categoriesAsync.hasError && !categoriesAsync.hasValue;
+    if (rails.isEmpty && !categoriesUnavailable) return const [];
     return [
+      if (categoriesUnavailable) ...[
+        SliverToBoxAdapter(
+          child: HomeSectionError(
+            title: 'Service categories unavailable',
+            onRetry: () => ref.invalidate(serviceCategoriesProvider),
+          ),
+        ),
+        if (rails.isNotEmpty)
+          const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.sm)),
+      ],
       for (var i = 0; i < rails.length; i++) ...[
         SliverToBoxAdapter(
           child: ColoredBox(

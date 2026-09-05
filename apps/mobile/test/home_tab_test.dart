@@ -143,13 +143,21 @@ void main() {
     bool hangServices = false,
     bool hangEvents = false,
     Object? eventTypesError,
+    Object? serviceCategoriesError,
     Object? servicesError,
+    Object? eventsError,
+    Object? occasionServicesError,
     int Function()? onEventTypesLoad,
+    int Function()? onServiceCategoriesLoad,
     int Function()? onServicesLoad,
     int Function()? onEventsLoad,
     int Function()? onOccasionServicesLoad,
     int Function()? onEnquiriesLoad,
     Future<List<CatalogItem>> Function()? loadEventTypes,
+    Future<List<CatalogItem>> Function()? loadServiceCategories,
+    Future<List<CatalogService>> Function(String? department)? loadServices,
+    Future<List<EventRecordSummary>?> Function()? loadEvents,
+    Future<List<CatalogService>> Function(String code)? loadOccasionServices,
     List<Enquiry>? enquiries = const [],
     Object? enquiriesError,
     bool hangEnquiries = false,
@@ -176,6 +184,10 @@ void main() {
         catalogServicesProvider.overrideWith(
           (ref, department) => Completer<List<CatalogService>>().future,
         )
+      else if (loadServices != null)
+        catalogServicesProvider.overrideWith(
+          (ref, department) => loadServices(department),
+        )
       else
         catalogServicesProvider.overrideWith((ref, department) async {
           onServicesLoad?.call();
@@ -184,21 +196,44 @@ void main() {
               .where((item) => item.departmentCode == department)
               .toList();
         }),
-      serviceCategoriesProvider.overrideWith((ref) async => serviceCategories),
-      if (hangEvents)
+      if (serviceCategoriesError != null)
+        serviceCategoriesProvider.overrideWith(
+          (ref) async => throw serviceCategoriesError,
+        )
+      else if (loadServiceCategories != null)
+        serviceCategoriesProvider.overrideWith((ref) => loadServiceCategories())
+      else
+        serviceCategoriesProvider.overrideWith((ref) async {
+          onServiceCategoriesLoad?.call();
+          return serviceCategories;
+        }),
+      if (eventsError != null)
+        eventsProvider.overrideWith((ref) async => throw eventsError)
+      else if (hangEvents)
         eventsProvider.overrideWith(
           (ref) => Completer<List<EventRecordSummary>?>().future,
         )
+      else if (loadEvents != null)
+        eventsProvider.overrideWith((ref) => loadEvents())
       else
         eventsProvider.overrideWith((ref) async {
           onEventsLoad?.call();
           return events;
         }),
-      occasionServicesProvider.overrideWith((ref, code) async {
-        onOccasionServicesLoad?.call();
-        if (code == 'wedding') return occasionServices;
-        return const <CatalogService>[];
-      }),
+      if (occasionServicesError != null)
+        occasionServicesProvider.overrideWith(
+          (ref, code) async => throw occasionServicesError,
+        )
+      else if (loadOccasionServices != null)
+        occasionServicesProvider.overrideWith(
+          (ref, code) => loadOccasionServices(code),
+        )
+      else
+        occasionServicesProvider.overrideWith((ref, code) async {
+          onOccasionServicesLoad?.call();
+          if (code == 'wedding') return occasionServices;
+          return const <CatalogService>[];
+        }),
       occasionStagesProvider.overrideWith(
         (ref, code) async => const <OccasionStage>[],
       ),
@@ -285,6 +320,14 @@ void main() {
       isNull,
       reason: 'Home produced an unexpected Flutter exception',
     );
+  }
+
+  Finder retryFor(String title) {
+    final section = find.ancestor(
+      of: find.text(title),
+      matching: find.byType(HomeSectionError),
+    );
+    return find.descendant(of: section, matching: find.byType(TextButton));
   }
 
   List<CatalogItem> eightOccasions() {
@@ -1389,6 +1432,249 @@ void main() {
     expectNoFlutterException(tester);
   });
 
+  testWidgets('Events initial error is distinct from a genuine empty Home', (
+    tester,
+  ) async {
+    const rawError = 'events-down http://127.0.0.1 internal stack trace';
+    await pumpHome(
+      tester,
+      overrides: homeOverrides(eventsError: Exception(rawError)),
+    );
+
+    expect(find.text('Celebration details unavailable'), findsOneWidget);
+    expect(find.text('Plan a celebration, not a spreadsheet'), findsNothing);
+    expect(find.textContaining(rawError), findsNothing);
+    expect(find.text('Photography'), findsOneWidget);
+
+    await tester.tap(retryFor('Celebration details unavailable'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+    expect(find.text('Celebration details unavailable'), findsOneWidget);
+    expect(find.textContaining(rawError), findsNothing);
+    expectNoFlutterException(tester);
+  });
+
+  testWidgets('Successful empty Events renders the new-customer hero', (
+    tester,
+  ) async {
+    await pumpHome(tester, overrides: homeOverrides(events: const []));
+
+    expect(find.text('Plan a celebration, not a spreadsheet'), findsOneWidget);
+    expect(find.text('Celebration details unavailable'), findsNothing);
+    expectNoFlutterException(tester);
+  });
+
+  testWidgets('Events retry is isolated and recovers to a populated hero', (
+    tester,
+  ) async {
+    var eventLoads = 0;
+    var typeLoads = 0;
+    var categoryLoads = 0;
+    var serviceLoads = 0;
+    final recovered = namedEvent(
+      id: 'recovered',
+      name: 'Recovered Wedding',
+      date: DateTime(2099, 1, 2),
+    );
+    await pumpHome(
+      tester,
+      overrides: homeOverrides(
+        loadEvents: () async {
+          eventLoads += 1;
+          if (eventLoads == 1) throw Exception('events-retry-internal');
+          return [recovered];
+        },
+        onEventTypesLoad: () => ++typeLoads,
+        onServiceCategoriesLoad: () => ++categoryLoads,
+        onServicesLoad: () => ++serviceLoads,
+      ),
+    );
+    expect(eventLoads, 1);
+    expect(typeLoads, 1);
+    expect(categoryLoads, 1);
+    expect(serviceLoads, greaterThanOrEqualTo(1));
+
+    final servicesBefore = serviceLoads;
+    await tester.tap(retryFor('Celebration details unavailable'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+
+    expect(eventLoads, 2);
+    expect(typeLoads, 1);
+    expect(categoryLoads, 1);
+    expect(serviceLoads, servicesBefore);
+    expect(find.textContaining('Recovered Wedding'), findsWidgets);
+    expect(find.text('Celebration details unavailable'), findsNothing);
+    expect(find.text('events-retry-internal'), findsNothing);
+    expectNoFlutterException(tester);
+  });
+
+  testWidgets('Contextual service error is local and its retry is isolated', (
+    tester,
+  ) async {
+    var occasionLoads = 0;
+    var eventLoads = 0;
+    var typeLoads = 0;
+    var serviceLoads = 0;
+    await pumpHome(
+      tester,
+      overrides: homeOverrides(
+        events: [
+          namedEvent(
+            id: 'contextual',
+            name: 'Contextual Wedding',
+            date: DateTime(2099, 2, 3),
+          ),
+        ],
+        loadOccasionServices: (code) async {
+          occasionLoads += 1;
+          expect(code, 'wedding');
+          if (occasionLoads == 1) {
+            throw Exception('occasion-private-failure');
+          }
+          return const [
+            CatalogService(
+              code: 'floral',
+              displayName: 'Floral Decor',
+              departmentCode: 'DECOR',
+              entityKind: 'service',
+              displayOrder: 1,
+            ),
+          ];
+        },
+        onEventsLoad: () => ++eventLoads,
+        onEventTypesLoad: () => ++typeLoads,
+        onServicesLoad: () => ++serviceLoads,
+      ),
+    );
+
+    expect(find.text('Recommendations unavailable'), findsOneWidget);
+    expect(find.text('occasion-private-failure'), findsNothing);
+    expect(find.textContaining('Contextual Wedding'), findsWidgets);
+    expect(find.text('Photography'), findsOneWidget);
+    final servicesBefore = serviceLoads;
+
+    await tester.tap(retryFor('Recommendations unavailable'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+
+    expect(occasionLoads, 2);
+    expect(eventLoads, 1);
+    expect(typeLoads, 1);
+    expect(serviceLoads, servicesBefore);
+    expect(find.text('Recommendations unavailable'), findsNothing);
+    expect(find.text('Floral Decor'), findsOneWidget);
+    expectNoFlutterException(tester);
+  });
+
+  testWidgets('Successful empty contextual services omit the section cleanly', (
+    tester,
+  ) async {
+    await pumpHome(
+      tester,
+      overrides: homeOverrides(
+        events: [
+          namedEvent(
+            id: 'empty-contextual',
+            name: 'Wedding Plan',
+            date: DateTime(2099, 3, 4),
+          ),
+        ],
+        occasionServices: const [],
+      ),
+    );
+
+    expect(find.text('Recommendations unavailable'), findsNothing);
+    expect(find.text('For Your Wedding'), findsNothing);
+    expect(find.text('Photography'), findsOneWidget);
+    expectNoFlutterException(tester);
+  });
+
+  testWidgets('Category error keeps services and category retry is isolated', (
+    tester,
+  ) async {
+    var categoryLoads = 0;
+    var serviceLoads = 0;
+    var eventLoads = 0;
+    await pumpHome(
+      tester,
+      overrides: homeOverrides(
+        loadServiceCategories: () async {
+          categoryLoads += 1;
+          if (categoryLoads == 1) {
+            throw Exception('category-internal-failure');
+          }
+          return const [
+            CatalogItem(
+              code: 'PHOTO',
+              displayName: 'Photo services',
+              displayOrder: 1,
+            ),
+          ];
+        },
+        onServicesLoad: () => ++serviceLoads,
+        onEventsLoad: () => ++eventLoads,
+      ),
+    );
+
+    expect(find.text('Service categories unavailable'), findsOneWidget);
+    expect(find.text('Photography'), findsOneWidget);
+    expect(find.text('More services'), findsOneWidget);
+    expect(find.text('category-internal-failure'), findsNothing);
+    final servicesBefore = serviceLoads;
+
+    await tester.tap(retryFor('Service categories unavailable'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+
+    expect(categoryLoads, 2);
+    expect(serviceLoads, servicesBefore);
+    expect(eventLoads, 1);
+    expect(find.text('Service categories unavailable'), findsNothing);
+    expect(find.text('Photo services'), findsOneWidget);
+    expect(find.text('Photography'), findsOneWidget);
+    expectNoFlutterException(tester);
+  });
+
+  for (final fixture in const [
+    (Size(320, 844), 1.0),
+    (Size(320, 844), 2.0),
+    (Size(390, 844), 1.0),
+    (Size(390, 844), 2.0),
+  ]) {
+    testWidgets(
+      'Home error surface fits ${fixture.$1.width.toInt()} at ${fixture.$2}x',
+      (tester) async {
+        final semantics = tester.ensureSemantics();
+        try {
+          await pumpHome(
+            tester,
+            size: fixture.$1,
+            textScale: fixture.$2,
+            overrides: homeOverrides(
+              eventsError: Exception('responsive-error-private'),
+            ),
+          );
+
+          expect(
+            find.bySemanticsLabel('Celebration details unavailable'),
+            findsOneWidget,
+          );
+          expect(find.bySemanticsLabel('Retry'), findsOneWidget);
+          final retrySize = tester.getSize(
+            retryFor('Celebration details unavailable'),
+          );
+          expect(retrySize.width, greaterThanOrEqualTo(44));
+          expect(retrySize.height, greaterThanOrEqualTo(44));
+          expect(find.text('responsive-error-private'), findsNothing);
+          expectNoFlutterException(tester);
+        } finally {
+          semantics.dispose();
+        }
+      },
+    );
+  }
+
   testWidgets('Pull-to-refresh reloads Home providers', (tester) async {
     var typesLoads = 0;
     var servicesLoads = 0;
@@ -1426,7 +1712,124 @@ void main() {
     expect(eventsLoads, 2);
     expect(occasionLoads, 2);
     expect(servicesLoads, greaterThan(1));
-    expect(enquiryLoads, 1);
+    expect(enquiryLoads, 0);
+    expect(
+      find.text('Some sections couldn\u2019t be refreshed. Please try again.'),
+      findsNothing,
+    );
+    expectNoFlutterException(tester);
+  });
+
+  testWidgets(
+    'Failed Events refresh retains the loaded hero and reports once',
+    (tester) async {
+      var eventLoads = 0;
+      final retained = namedEvent(
+        id: 'retained',
+        name: 'Retained Celebration',
+        date: DateTime(2099, 4, 5),
+      );
+      await pumpHome(
+        tester,
+        overrides: homeOverrides(
+          loadEvents: () async {
+            eventLoads += 1;
+            if (eventLoads > 1) {
+              throw Exception(
+                'events-refresh http://127.0.0.1 stack trace HTTP 503',
+              );
+            }
+            return [retained];
+          },
+        ),
+      );
+      expect(find.textContaining('Retained Celebration'), findsWidgets);
+
+      await tester.fling(
+        find.byType(RefreshIndicator),
+        const Offset(0, 420),
+        1000,
+      );
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 1));
+      await tester.pump(const Duration(seconds: 1));
+
+      expect(eventLoads, 2);
+      expect(find.textContaining('Retained Celebration'), findsWidgets);
+      expect(find.text('Plan a celebration, not a spreadsheet'), findsNothing);
+      expect(find.text('Celebration details unavailable'), findsNothing);
+      expect(
+        find.text(
+          'Some sections couldn\u2019t be refreshed. Please try again.',
+        ),
+        findsOneWidget,
+      );
+      for (final unsafe in [
+        'events-refresh',
+        '127.0.0.1',
+        'stack trace',
+        'HTTP 503',
+      ]) {
+        expect(find.textContaining(unsafe), findsNothing);
+      }
+      expectNoFlutterException(tester);
+    },
+  );
+
+  testWidgets('Partial refresh updates Events and retains failed services', (
+    tester,
+  ) async {
+    var eventLoads = 0;
+    var serviceLoads = 0;
+    final before = namedEvent(
+      id: 'before',
+      name: 'Before Refresh',
+      date: DateTime(2099, 5, 6),
+    );
+    final after = namedEvent(
+      id: 'after',
+      name: 'After Refresh',
+      date: DateTime(2099, 6, 7),
+    );
+    await pumpHome(
+      tester,
+      overrides: homeOverrides(
+        loadEvents: () async {
+          eventLoads += 1;
+          return eventLoads == 1 ? [before] : [after];
+        },
+        loadServices: (department) async {
+          serviceLoads += 1;
+          if (serviceLoads > 1) {
+            throw Exception('catalog-refresh-private');
+          }
+          return const [photography];
+        },
+      ),
+    );
+    expect(find.textContaining('Before Refresh'), findsWidgets);
+    expect(find.text('Photography'), findsOneWidget);
+
+    await tester.fling(
+      find.byType(RefreshIndicator),
+      const Offset(0, 420),
+      1000,
+    );
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+    await tester.pump(const Duration(seconds: 1));
+
+    expect(eventLoads, 2);
+    expect(serviceLoads, greaterThanOrEqualTo(2));
+    expect(find.textContaining('After Refresh'), findsWidgets);
+    expect(find.textContaining('Before Refresh'), findsNothing);
+    expect(find.text('Photography'), findsOneWidget);
+    expect(find.text('Services unavailable'), findsNothing);
+    expect(find.text('catalog-refresh-private'), findsNothing);
+    expect(
+      find.text('Some sections couldn\u2019t be refreshed. Please try again.'),
+      findsOneWidget,
+    );
     expectNoFlutterException(tester);
   });
 

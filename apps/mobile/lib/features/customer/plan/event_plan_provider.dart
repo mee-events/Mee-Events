@@ -21,21 +21,23 @@ class EventPlanNotifier extends StateNotifier<AsyncValue<List<EventPlanItem>>> {
   Future<void> _tail = Future<void>.value();
 
   /// Serializes initialization and mutations in call order.
-  Future<void> _enqueue(Future<void> Function() operation) {
+  Future<T> _enqueue<T>(Future<T> Function() operation) {
     final scheduled = _tail.then((_) => operation());
     _tail = scheduled.then((_) {}, onError: (_) {});
     return scheduled;
   }
 
-  Future<void> _readFromStore() async {
+  Future<bool> _readFromStore() async {
     try {
       final items = await _store.load();
-      if (!mounted) return;
+      if (!mounted) return true;
       state = AsyncValue.data(items);
+      return true;
     } catch (error, stackTrace) {
-      if (!mounted) return;
-      if (state.hasValue) return;
+      if (!mounted) return false;
+      if (state.hasValue) return false;
       state = AsyncValue.error(error, stackTrace);
+      return false;
     }
   }
 
@@ -108,5 +110,7 @@ class EventPlanNotifier extends StateNotifier<AsyncValue<List<EventPlanItem>>> {
     });
   }
 
-  Future<void> refresh() => _enqueue(_readFromStore);
+  /// Reloads the existing local store and reports whether that read succeeded.
+  /// Previously loaded data remains visible when a refresh read fails.
+  Future<bool> refresh() => _enqueue(_readFromStore);
 }

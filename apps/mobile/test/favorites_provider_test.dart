@@ -68,8 +68,28 @@ void main() {
     await Future<void>.delayed(Duration.zero);
     expect(notifier.state.hasError, isTrue);
     fail = false;
-    await notifier.refresh();
+    expect(await notifier.refresh(), isTrue);
     expect(loads, 2);
+    expect(notifier.state.valueOrNull?.single.code, 'wedding');
+    notifier.dispose();
+  });
+
+  test('refresh failure reports false and retains trusted favorites', () async {
+    var fail = false;
+    final wedding = fav(kind: FavoriteKind.occasion, code: 'wedding');
+    final store = ScriptedFavoritesStore(
+      loadFn: () async {
+        if (fail) throw Exception('favorites-refresh-failed');
+        return [wedding];
+      },
+    );
+    final notifier = FavoritesNotifier(store);
+    await Future<void>.delayed(Duration.zero);
+    expect(notifier.state.valueOrNull?.single.code, 'wedding');
+
+    fail = true;
+    expect(await notifier.refresh(), isFalse);
+    expect(notifier.state.hasError, isFalse);
     expect(notifier.state.valueOrNull?.single.code, 'wedding');
     notifier.dispose();
   });

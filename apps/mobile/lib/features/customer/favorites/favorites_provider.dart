@@ -56,6 +56,7 @@ class FavoritesNotifier extends StateNotifier<AsyncValue<List<FavoriteItem>>> {
 
   Future<void> _reload() async {
     final epoch = _writeEpoch;
+    final previous = state.valueOrNull;
     try {
       final items = await _store.load();
       if (!mounted) return;
@@ -68,7 +69,9 @@ class FavoritesNotifier extends StateNotifier<AsyncValue<List<FavoriteItem>>> {
       if (!mounted || epoch != _writeEpoch) {
         return;
       }
-      state = AsyncValue.error(error, stack);
+      state = previous == null
+          ? AsyncValue.error(error, stack)
+          : AsyncValue.data(previous);
       rethrow;
     }
   }
@@ -210,14 +213,18 @@ class FavoritesNotifier extends StateNotifier<AsyncValue<List<FavoriteItem>>> {
     return result.future;
   }
 
-  Future<void> refresh() {
+  /// Reloads the existing local store and reports whether that read succeeded.
+  /// Previously trusted data remains visible when a refresh read fails.
+  Future<bool> refresh() {
     _writeEpoch++;
+    var succeeded = false;
     return _enqueue(() async {
       try {
         await _reload();
+        succeeded = true;
       } catch (_) {
         // Error already assigned in _reload.
       }
-    });
+    }).then((_) => succeeded);
   }
 }

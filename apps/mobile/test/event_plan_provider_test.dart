@@ -137,7 +137,7 @@ void main() {
     final store = _FakeEventPlanStore()
       ..loadError = Exception('plan-load-failed');
     final notifier = EventPlanNotifier(store);
-    await notifier.refresh();
+    expect(await notifier.refresh(), isFalse);
     expect(notifier.state.hasError, isTrue);
     expect(notifier.state.valueOrNull, isNull);
   });
@@ -146,14 +146,25 @@ void main() {
     final store = _FakeEventPlanStore()
       ..loadError = Exception('plan-load-failed');
     final notifier = EventPlanNotifier(store);
-    await notifier.refresh();
+    expect(await notifier.refresh(), isFalse);
     expect(notifier.state.hasError, isTrue);
 
     store.loadError = null;
     store.persisted.add(itemC);
-    await notifier.refresh();
+    expect(await notifier.refresh(), isTrue);
     expect(notifier.state.hasError, isFalse);
     expect(notifier.state.valueOrNull?.map((e) => e.productCode), ['decor.A1']);
+  });
+
+  test('Refresh failure reports false and retains loaded plan data', () async {
+    final store = _FakeEventPlanStore()..persisted.add(itemA);
+    final notifier = EventPlanNotifier(store);
+    expect(await notifier.refresh(), isTrue);
+
+    store.loadError = Exception('plan-refresh-failed');
+    expect(await notifier.refresh(), isFalse);
+    expect(notifier.state.hasError, isFalse);
+    expect(notifier.state.valueOrNull?.map((e) => e.productCode), ['photo.A1']);
   });
 
   test('Failed add restores previous items', () async {

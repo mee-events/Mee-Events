@@ -265,6 +265,47 @@ lifecycle. Mee Events uses the authoritative Event Record status for meaning,
 keeps active work primary, and only uses dates plus stable tie-breakers to
 choose among already-concluded records.
 
+## 7. Honest partial failure and stale-data recovery
+
+### Concept
+
+Loading, successful emptiness, initial failure, and refresh failure are four
+different states. A resilient screen contains failure within the affected
+section, keeps independent content usable, and retries only the source that
+failed. Previously trusted data may remain visible during a failed refresh, but
+the UI must still tell the user that not everything refreshed.
+
+### Mee Events implementation
+
+Customer Home uses Riverpod's existing previous-value behavior for Event
+Records, catalogue services, categories, and Enquiries. Initial failures show
+safe `HomeSectionError` surfaces instead of false empty content. Event Plan and
+Favorites keep their existing local persistence architecture and report whether
+a refresh read succeeded while retaining already trusted visible snapshots.
+One pull gesture coordinates the applicable sources and produces at most one
+safe partial-refresh notification. It does not expose raw errors or change the
+authenticated session.
+
+### Failure cases
+
+Showing the new-customer hero when Events actually failed, hiding successful
+services because category labels failed, removing all resume cards because one
+source failed, retrying every provider from a section button, duplicating
+Riverpod data in a second cache, leaking internal exceptions, or signing the
+customer out after an ordinary content-refresh failure.
+
+### Interview question
+
+Why is a refresh error different from an empty successful response?
+
+### Strong answer
+
+An empty success is authoritative evidence that no records exist. A refresh
+error proves only that the latest read failed. I keep previously trusted data
+visible, update successful sibling sections, show one safe warning, and scope
+Retry to the failed provider. That preserves usefulness without pretending the
+failed source is empty or exposing internal error details.
+
 ## Knowledge backlog
 
 Add entries when the corresponding roadmap task is implemented and understood:

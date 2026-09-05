@@ -1,6 +1,6 @@
 # Mee Events — Progress Tracker
 
-- **Updated:** 5 September 2026; CUST-05 Home second lifecycle slice
+- **Updated:** 5 September 2026; CUST-05 Home third provider-failure slice
 - **Repository:** `/Users/vinaychilagani/Desktop/Mee Event V1`
 - **Baseline application commit:** `master` / `9e2a442d91c137ec97a349d1a55697ae8d79d5df`
 - **STAB-01 snapshot HEAD:** `ca994985a898d42da2a8d717041b93a8f8f0dc4c`
@@ -8,23 +8,94 @@
 - **Phase state:** **IN PROGRESS**
 - **Last completed task:** CUST-04 Customer Bootstrap - **INDEPENDENTLY REVIEWED
   AND CLOSED - 4 SEPTEMBER 2026**
-- **Current task:** CUST-05 Home - **IN PROGRESS - SECOND LIFECYCLE SLICE
-  INDEPENDENTLY APPROVED**
+- **Current task:** CUST-05 Home - **IN PROGRESS - THIRD SLICE INDEPENDENTLY
+  APPROVED**
 - **Next authorized task:** obtain separate safe-push authorization for the
-  focused local second-slice commit; do not begin another CUST-05 slice or
+  focused local third-slice commit; do not begin another CUST-05 slice or
   CUST-06 work
-- **Latest application change:** Flutter now centralizes the 15-value Event
-  Record lifecycle policy while preserving raw status strings and failing
-  unknown values closed. Active resume copy reflects the event's calendar day,
-  and completed display/action selectors independently choose the newest
-  concluded and newest actionable concluded records. No backend or API contract
-  changed; the endpoint remains `GET /api/v1/events`.
+- **Latest application change:** Customer Home now distinguishes initial
+  provider failure from successful emptiness, keeps successful sibling and
+  stale content usable, scopes retries to failed sources, and reports one safe
+  partial-refresh notification. No backend or API contract changed; Event
+  Records remain `GET /api/v1/events`.
 - **STAB-16 implementation commit:** `999443d5d3ba547de1bb6c0406c34753c8433b00`
 - **STAB-16 closeout:** `1450263caa6a5be2263bf7b9c91827f7cc24ef6c`
 - **STAB-17 commit:** `68894f3bbfa91937a0c7c573a8fc1a0af83ce533`
 - **STAB-18 commit:** `f66cc51a726322eeb604ab84c3d3e195050248f9`
 - **STAB-19 commit:** `e833eb82d690d65e293b9521ce3f24c390fff4f0`
 - **STAB-20 canonical application commit:** `37cf6c2f8e36dd522688e3423be7b9595e442ead`
+
+## CUST-05 Home - third provider-failure slice - 5 September 2026
+
+- [~] **CUST-05 Home** — **IN PROGRESS - THIRD SLICE INDEPENDENTLY APPROVED**.
+
+The independently approved second lifecycle slice was pushed as
+`eb4dbce18b44444349b9c3d028363675df6855a6`. GitHub CI run `33944262809`,
+Security run `33944262777`, and CodeQL run `33944262795` all concluded
+`success` for that exact SHA. The CI push-only Dependency Review job skipped as
+expected because it is conditioned on `pull_request`.
+
+The third slice makes Home failure states truthful without changing the
+provider architecture. Initial Event Records failure renders `Celebration
+details unavailable`; successful `AsyncData([])` still renders the genuine
+new-customer hero. Contextual recommendation and service-category failures
+render localized safe notices. Event, occasion, and category Retry controls
+invalidate only their own provider, while successfully loaded services remain
+available under the existing neutral fallback grouping when categories fail.
+
+Initial Enquiries, Event Plan, or Favorites errors no longer imply an empty
+activity history. Successful resume cards remain visible, multiple failures
+collapse into one `Some recent activity is unavailable` notice, and its Retry
+reloads only sources still failed without a usable value. Signed-out Home does
+not request Enquiries.
+
+Riverpod 2.6.1's existing previous-value behavior is verified for Event
+Records, catalogue services, and Enquiries; no second cache was added. The
+existing Plan and Favorites notifiers now report whether their refresh read
+succeeded. Plan retains already loaded data, and Favorites retains its already
+trusted visible snapshot on refresh failure. A coordinated pull still lets
+successful providers update, then shows at most one safe partial-failure
+notification without raw exception text or session changes.
+
+Focused Home/feed/provider/Customer-shell tests pass **187/187**, and the full
+Flutter suite passes **628/628**. Flutter analysis reports zero issues. Dart
+formatting checked 210 files with zero changes, the five touched documents pass
+Prettier, and the permission-enabled root gate passes backend 343/343, ERP
+12/12, all workspace lint/typechecks, and all builds. The first sandboxed root
+attempt passed formatting, lint, typecheck, and ERP 12/12 before 17 Nest HTTP
+tests were blocked from binding loopback; the unchanged permission-enabled
+rerun passed. Git worktree and index whitespace checks pass. One first focused
+attempt reached 185 passes but
+measured the Retry text glyph instead of its enclosing 44×44 button in two
+assertions; correcting that test-only finder produced the 187/187 pass without
+a production change.
+
+Antigravity's discovery is classified as follows: the Event Records endpoint
+correction and Riverpod previous-data behavior are confirmed; Plan/Favorites
+initial persistence errors were real silent-empty risks and are remediated;
+raw Home exception leakage was not present and remains prohibited. This slice
+introduces no backend, database, API, OpenAPI, authentication, authorization,
+shared-contract, Flutter dependency, or new state-management architecture.
+CUST-05 remains open and CUST-06 remains unstarted.
+
+Claude independently reviewed this third slice read-only and returned **READY
+FOR SLICE APPROVAL — code review only**, with no P0, P1, or P2 findings and two
+non-blocking P3 observations. Claude made no repository changes and
+independently passed repository Prettier, `git diff --check`, scope inspection,
+and protected-file verification. Claude could not execute Flutter or Dart:
+**NOT VERIFIED — ENVIRONMENT LIMITATION**. The 187/187 focused and 628/628 full
+Flutter totals are Codex execution evidence, not Claude execution evidence.
+
+The retained P3 observations are that `hideCurrentSnackBar()` can dismiss an
+unrelated actionable snackbar, which matters if Home later gains Undo or a
+similar action, and rapid repeated Retry taps can issue redundant Enquiries
+requests because that retry has no in-flight UI guard. Plan and Favorites are
+serialized internally. Neither observation currently creates a correctness,
+security, or data-integrity failure. Approval applies only to this third slice.
+The slice is locally committed under
+`fix(customer): add honest home provider failure states`; separate safe-push
+authorization is still required.
+Evidence: `docs/08-testing/cust-05-customer-home-evidence.md`.
 
 ## CUST-05 Home - second lifecycle slice - 5 September 2026
 
@@ -108,8 +179,10 @@ The first sandboxed root attempt passed formatting, lint, typecheck, and ERP
 12/12 before 17 Nest HTTP tests reported only loopback `EPERM`; the unchanged
 rerun passed. Working-tree and empty-index diff checks also pass.
 
-Quotation resume, honest provider failures, location/date decisions, approved
-media, and complete acceptance testing remain open. Claude retained four
+At the second-slice review point, quotation resume, honest provider failures,
+location/date decisions, approved media, and complete acceptance testing
+remained open. The third section above now addresses provider failures but
+awaits independent review. Claude retained four
 non-blocking P3 observations: TypeScript/Dart catalogues are manually
 synchronized; calendar-day behavior depends on the date-only `YYYY-MM-DD` API
 contract; hero and card may deliberately represent different concluded events;
@@ -215,8 +288,8 @@ occurred.
 CUST-04 evidence:
 `docs/08-testing/cust-04-customer-bootstrap-evidence.md`. CUST-04 is locally
 verified and closed but is not staging, production, or physical-device proven.
-CUST-05 is now **IN PROGRESS** through the second lifecycle slice documented
-above. CUST-02 remains **PARTIAL - OFFLINE APPROVED, EXTERNAL EXOTEL EVIDENCE
+CUST-05 is now **IN PROGRESS** through the third provider-failure slice
+documented above. CUST-02 remains **PARTIAL - OFFLINE APPROVED, EXTERNAL EXOTEL EVIDENCE
 PENDING** and must reopen before the final Customer release gate. CUST-03 remains
 **DONE WITH FINDINGS**, including its
 process-local refresh de-duplication and maximum 15-second cross-instance

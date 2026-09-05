@@ -15,6 +15,7 @@ import 'package:mee_events/features/customer/providers/event_record_providers.da
 import 'package:mee_events/features/customer/screens/favorites_screen.dart';
 import 'package:mee_events/features/customer/screens/home_tab.dart';
 import 'package:mee_events/features/customer/search/search_provider.dart';
+import 'package:mee_events/features/customer/widgets/home/discovery_skeletons.dart';
 import 'package:mee_events/features/customer/widgets/home/home_planning_guidance.dart';
 import 'package:mee_events/features/customer/widgets/home/pick_up_section.dart';
 import 'package:mee_events/models/auth_session.dart';
@@ -42,13 +43,21 @@ class _SessionNotifier extends SessionNotifier {
 }
 
 class _CountingPlanStore extends EventPlanStore {
-  _CountingPlanStore({required super.prefs, super.userId, this.onLoad});
+  _CountingPlanStore({
+    required super.prefs,
+    super.userId,
+    this.onLoad,
+    this.loadFn,
+  });
 
   VoidCallback? onLoad;
+  Future<List<EventPlanItem>> Function()? loadFn;
 
   @override
   Future<List<EventPlanItem>> load() {
     onLoad?.call();
+    final scripted = loadFn;
+    if (scripted != null) return scripted();
     return super.load();
   }
 }
@@ -198,6 +207,10 @@ void main() {
     Object? planError,
     Object? favoritesError,
     Object? enquiriesError,
+    Future<List<EventPlanItem>> Function()? loadPlan,
+    Future<List<FavoriteItem>> Function()? loadFavorites,
+    Future<List<Enquiry>?> Function()? loadEnquiries,
+    Future<List<CatalogService>> Function(String? department)? loadServices,
     VoidCallback? onPlanLoad,
     VoidCallback? onFavoritesLoad,
     VoidCallback? onEnquiriesLoad,
@@ -230,9 +243,11 @@ void main() {
             onEventTypesLoad?.call();
             return const [wedding];
           }),
-          catalogServicesProvider.overrideWith(
-            (ref, department) async => const [photography],
-          ),
+          catalogServicesProvider.overrideWith((ref, department) async {
+            final scripted = loadServices;
+            if (scripted != null) return scripted(department);
+            return const [photography];
+          }),
           serviceCategoriesProvider.overrideWith(
             (ref) async => const <CatalogItem>[],
           ),
@@ -263,24 +278,27 @@ void main() {
               prefs: prefs,
               userId: userId,
               onLoad: onPlanLoad,
+              loadFn:
+                  loadPlan ??
+                  (planError == null ? null : () async => throw planError),
             );
           }),
-          if (planError != null)
-            eventPlanProvider.overrideWith(
-              (ref) => EventPlanNotifier(_ThrowingPlanStore(planError)),
-            ),
           favoritesStoreProvider.overrideWith((ref) {
             return _CountingFavoritesStore(
               prefs: prefs,
               userId: userId,
               onLoad: onFavoritesLoad,
               loadFn: () async {
+                final scripted = loadFavorites;
+                if (scripted != null) return scripted();
                 if (favoritesError != null) throw favoritesError;
                 return favorites;
               },
             );
           }),
-          if (enquiriesError != null)
+          if (loadEnquiries != null)
+            enquiriesProvider.overrideWith((ref) => loadEnquiries())
+          else if (enquiriesError != null)
             enquiriesProvider.overrideWith((ref) async => throw enquiriesError)
           else
             enquiriesProvider.overrideWith((ref) async {
@@ -300,6 +318,14 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 80));
     await tester.pump(const Duration(milliseconds: 300));
+  }
+
+  Finder retryFor(String title) {
+    final section = find.ancestor(
+      of: find.text(title),
+      matching: find.byType(HomeSectionError),
+    );
+    return find.descendant(of: section, matching: find.byType(TextButton));
   }
 
   testWidgets('Resume section is absent when all sources are empty', (
@@ -457,7 +483,104 @@ void main() {
     );
     expect(find.byKey(const Key('home-resume-plan')), findsOneWidget);
     expect(find.byKey(const Key('home-resume-enquiry')), findsNothing);
+    expect(find.text('Some recent activity is unavailable'), findsOneWidget);
     expect(find.text('enquiry-down'), findsNothing);
+  });
+
+  testWidgets('Plan initial error keeps a successful Saved card', (
+    tester,
+  ) async {
+    await pumpFeed(
+      tester,
+      favorites: [saved('p1', DateTime(2026, 8, 1))],
+      planError: Exception('plan-persistence-private'),
+    );
+
+    expect(find.byKey(const Key('home-resume-plan')), findsNothing);
+    expect(find.byKey(const Key('home-resume-saved')), findsOneWidget);
+    expect(find.text('Some recent activity is unavailable'), findsOneWidget);
+    expect(find.text('plan-persistence-private'), findsNothing);
+  });
+
+  testWidgets('Favorites initial error keeps a successful Plan card', (
+    tester,
+  ) async {
+    await pumpFeed(
+      tester,
+      plan: const [planItem],
+      favoritesError: Exception('favorites-persistence-private'),
+    );
+
+    expect(find.byKey(const Key('home-resume-plan')), findsOneWidget);
+    expect(find.byKey(const Key('home-resume-saved')), findsNothing);
+    expect(find.text('Some recent activity is unavailable'), findsOneWidget);
+    expect(find.text('favorites-persistence-private'), findsNothing);
+  });
+
+  testWidgets('Multiple resume failures render one safe activity notice', (
+    tester,
+  ) async {
+    await pumpFeed(
+      tester,
+      signedIn: session,
+      planError: Exception('plan-private'),
+      favoritesError: Exception('favorites-private'),
+      enquiriesError: Exception('enquiries-private'),
+    );
+
+    expect(find.text('Some recent activity is unavailable'), findsOneWidget);
+    expect(find.byType(HomeSectionError), findsOneWidget);
+    expect(find.text('Retry'), findsOneWidget);
+    for (final unsafe in [
+      'plan-private',
+      'favorites-private',
+      'enquiries-private',
+    ]) {
+      expect(find.textContaining(unsafe), findsNothing);
+    }
+  });
+
+  testWidgets('Activity retry reloads only failed resume sources', (
+    tester,
+  ) async {
+    var planLoads = 0;
+    var favoritesLoads = 0;
+    var enquiryLoads = 0;
+    await pumpFeed(
+      tester,
+      signedIn: session,
+      loadPlan: () async {
+        planLoads += 1;
+        if (planLoads == 1) throw Exception('plan-first-load');
+        return const [planItem];
+      },
+      loadFavorites: () async {
+        favoritesLoads += 1;
+        return [saved('safe', DateTime(2026, 8, 1))];
+      },
+      loadEnquiries: () async {
+        enquiryLoads += 1;
+        return const <Enquiry>[];
+      },
+    );
+    expect(planLoads, 1);
+    expect(favoritesLoads, 1);
+    expect(enquiryLoads, 1);
+    expect(find.byKey(const Key('home-resume-saved')), findsOneWidget);
+    expect(find.text('Some recent activity is unavailable'), findsOneWidget);
+
+    await tester.tap(retryFor('Some recent activity is unavailable'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+
+    expect(planLoads, 2);
+    expect(favoritesLoads, 1);
+    expect(enquiryLoads, 1);
+    expect(find.byKey(const Key('home-resume-plan')), findsOneWidget);
+    expect(find.byKey(const Key('home-resume-saved')), findsOneWidget);
+    expect(find.text('Some recent activity is unavailable'), findsNothing);
+    expect(find.text('plan-first-load'), findsNothing);
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('Cached plan remains visible while refresh hangs', (
@@ -556,6 +679,47 @@ void main() {
     expect(savedLoads, greaterThan(1));
     expect(find.text('favorites-refresh'), findsNothing);
     expect(find.byKey(const Key('home-resume-plan')), findsOneWidget);
+    expect(find.byKey(const Key('home-resume-saved')), findsOneWidget);
+    expect(find.text('Saved p1'), findsOneWidget);
+    expect(
+      find.text('Some sections couldn\u2019t be refreshed. Please try again.'),
+      findsOneWidget,
+    );
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('Failed Plan refresh retains its card and reports once', (
+    tester,
+  ) async {
+    var planLoads = 0;
+    await pumpFeed(
+      tester,
+      plan: const [planItem],
+      onPlanLoad: () {
+        planLoads += 1;
+        if (planLoads > 1) throw Exception('plan-refresh-private');
+      },
+    );
+    expect(planLoads, 1);
+    expect(find.byKey(const Key('home-resume-plan')), findsOneWidget);
+
+    await tester.fling(
+      find.byType(RefreshIndicator),
+      const Offset(0, 420),
+      1000,
+    );
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+    await tester.pump(const Duration(seconds: 1));
+
+    expect(planLoads, 2);
+    expect(find.byKey(const Key('home-resume-plan')), findsOneWidget);
+    expect(find.text('Cinematic Album'), findsOneWidget);
+    expect(find.text('plan-refresh-private'), findsNothing);
+    expect(
+      find.text('Some sections couldn\u2019t be refreshed. Please try again.'),
+      findsOneWidget,
+    );
     expect(tester.takeException(), isNull);
   });
 
@@ -577,6 +741,11 @@ void main() {
       ],
     );
     expect(typesLoads, 1);
+    final container = ProviderScope.containerOf(
+      tester.element(find.byType(CustomerHomeTab)),
+    );
+    expect(container.read(sessionProvider)?.sessionId, session.sessionId);
+    expect(find.byKey(const Key('home-resume-enquiry')), findsOneWidget);
     await tester.fling(
       find.byType(RefreshIndicator),
       const Offset(0, 420),
@@ -588,6 +757,13 @@ void main() {
     expect(typesLoads, 2);
     expect(enquiryLoads, greaterThan(1));
     expect(find.text('enquiry-refresh'), findsNothing);
+    expect(find.byKey(const Key('home-resume-enquiry')), findsOneWidget);
+    expect(find.textContaining('ENQ-1'), findsOneWidget);
+    expect(
+      find.text('Some sections couldn\u2019t be refreshed. Please try again.'),
+      findsOneWidget,
+    );
+    expect(container.read(sessionProvider)?.sessionId, session.sessionId);
     expect(tester.takeException(), isNull);
   });
 
@@ -615,17 +791,6 @@ void main() {
     await tester.pump(const Duration(milliseconds: 400));
     expect(find.text('Review Event Plan (2 items)'), findsOneWidget);
   });
-}
-
-class _ThrowingPlanStore extends EventPlanStore {
-  _ThrowingPlanStore(this.error) : super(userId: 'err');
-
-  final Object error;
-
-  @override
-  Future<List<EventPlanItem>> load() async {
-    throw error;
-  }
 }
 
 class _SecondLoadHangStore extends EventPlanStore {

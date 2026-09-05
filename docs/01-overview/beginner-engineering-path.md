@@ -18,10 +18,11 @@ project reaches them.
   verification, dependency order, and honest status reporting.
 - **Not yet verified hands-on:** terminal use, Git, reading TypeScript/Dart,
   tracing HTTP requests, SQL, test diagnosis, deployment, or system design.
-- **Current engineering stage:** CUST-05 Home, second lifecycle slice.
-- **Current learning focus:** how authoritative backend status becomes truthful
-  UI state, how raw wire values can remain compatible while known policy fails
-  closed, and why display selection can differ safely from action selection.
+- **Current engineering stage:** CUST-05 Home, third provider-failure slice.
+- **Current learning focus:** how loading, successful emptiness, initial failure,
+  and refresh failure mean different things; how scoped retries preserve
+  working sections; and why stale trusted data can be safer than a false empty
+  screen.
 
 ## CUST-05 lifecycle-slice learning report
 
@@ -40,9 +41,9 @@ project reaches them.
    separate action selector opens the newest concluded record with a usable
    `bookingId`; Home never navigates with blank input or duplicates workspace
    functionality.
-5. **What remains:** quotation resume, honest provider failures, location/date
-   decisions, approved media, complete acceptance testing, and independent
-   review. CUST-05 is in progress, not complete.
+5. **What remains:** the provider-failure slice needs independent review;
+   quotation resume, location/date decisions, approved media, and complete
+   acceptance testing also remain. CUST-05 is in progress, not complete.
 6. **What to understand:** server status supplies lifecycle meaning; dates can
    sort but must not invent meaning. A deterministic tie-breaker makes the same
    data choose the same event every time.
@@ -54,6 +55,11 @@ project reaches them.
 8. **How active wording stays honest:** date affects only the resume-card copy:
    future, today, and past-or-invalid dates get different titles. It never
    changes the lifecycle supplied by authoritative status.
+9. **How partial failure stays honest:** a failed provider is not treated as an
+   empty list. Home shows a safe local notice, retries only the failed source,
+   keeps successful siblings usable, and preserves previously trusted data
+   during refresh without inventing another cache. One refresh gesture produces
+   at most one customer-safe failure message and never exposes raw exceptions.
 
 ## CUST-04 learning report
 

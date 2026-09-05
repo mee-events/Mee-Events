@@ -1,18 +1,18 @@
-# CUST-05 Customer Home — Lifecycle Slice Evidence
+# CUST-05 Customer Home Evidence
 
-- **Status:** IN PROGRESS — SECOND SLICE INDEPENDENTLY APPROVED
-- **Slice:** Honest active copy, centralized lifecycle policy, and actionable
-  concluded-event selection
+- **Status:** IN PROGRESS — THIRD SLICE INDEPENDENTLY APPROVED AND LOCALLY COMMITTED
+- **Slice:** Truthful section failures, scoped recovery, and stale-data refresh
 - **Date:** 5 September 2026
 - **Branch:** `master`
-- **Second-slice starting HEAD:**
-  `ca524db90be6bb0d0580d3fcc4c4b886fc111512`
-  (`feat(customer): add status-aware home lifecycle`)
+- **Third-slice starting HEAD:**
+  `eb4dbce18b44444349b9c3d028363675df6855a6`
+  (`fix(customer): harden home lifecycle continuity`)
 
 This record covers the independently approved first CUST-05 implementation
-slice and the local second lifecycle slice. It does not close CUST-05, start
-CUST-06, or claim staging, production, physical-device, external-provider,
-payment, document, feedback, or media proof.
+slice, the independently approved second lifecycle slice, and the independently
+approved third provider-failure slice. It does not close CUST-05, start CUST-06,
+or claim staging, production, physical-device,
+external-provider, payment, document, feedback, or media proof.
 
 ## Protected starting state
 
@@ -48,9 +48,14 @@ implementation slice.
 The first slice was committed and pushed as
 `ca524db90be6bb0d0580d3fcc4c4b886fc111512`. GitHub CI run `33940773672`,
 Security run `33940773786`, and CodeQL run `33940773699` all concluded
-`success`. Before the second slice, `master`, `HEAD`, and `origin/master` all
-matched that commit. The index was empty, and the only uncommitted file was the
-separate `AGENTS.md` maintenance change with SHA-256
+`success`. The second slice was committed and pushed as
+`eb4dbce18b44444349b9c3d028363675df6855a6`. GitHub CI run `33944262809`,
+Security run `33944262777`, and CodeQL run `33944262795` all concluded
+`success`; the push-only Dependency Review job skipped as designed because it
+runs only for pull requests. Before the third slice, `master`, `HEAD`, and
+`origin/master` all matched the second-slice commit. The index was empty, and
+the only uncommitted file was the separate `AGENTS.md` maintenance change with
+SHA-256
 `6a9178bc717571fb884d2fe6828beec8b71a6b8558d370936cf40ed2b9715802`.
 That file remains byte-for-byte unchanged and unstaged during this slice.
 
@@ -178,6 +183,82 @@ Claude retained four non-blocking P3 observations:
 Approval applies only to this second lifecycle slice. CUST-05 remains **IN
 PROGRESS**, and CUST-06 remains unstarted.
 
+## Third slice: honest provider failures
+
+Home now distinguishes “the provider failed before supplying any usable value”
+from “the provider successfully returned an empty list.” An initial Event
+Records failure renders `Celebration details unavailable` in the hero position,
+while a successful empty `GET /api/v1/events` response continues to render the
+new-customer planning hero. The event retry invalidates only `eventsProvider`;
+other successful Home sections remain usable and no raw exception is shown.
+
+An initial contextual-recommendation failure renders
+`Recommendations unavailable` and retries only the matching
+`occasionServicesProvider(occasionCode)`. A successful empty contextual list
+still omits that optional section. If services succeed while their category
+provider initially fails, Home renders `Service categories unavailable`, keeps
+the live services available under the existing neutral `More services`
+fallback, and retries only `serviceCategoriesProvider`. Cached categories
+remain usable when a later refresh fails.
+
+Event Plan, Saved, and signed-in Enquiries failures no longer look like proven
+empty activity. Home keeps every successful resume card and renders at most one
+compact `Some recent activity is unavailable` notice. Its retry rechecks the
+current state and reloads only resume sources that still have an initial error
+without a value. Signed-out Home neither requests nor reports Enquiries.
+
+Coordinated pull-to-refresh still requests all applicable Home sources once.
+The existing Riverpod 2.6.1 `FutureProvider` behavior retains prior data through
+refresh loading and failure; focused tests verify this for Event Records,
+catalogue services, and Enquiries. The existing Plan and Favorites notifiers
+now return a boolean refresh outcome so Home can report partial failure without
+another cache. Plan already retained its loaded snapshot; Favorites now keeps
+its already trusted visible snapshot when a refresh read fails. Initial local
+persistence failures remain errors, not empty lists.
+
+After the requested refreshes settle, any failure produces one safe
+`Some sections couldn’t be refreshed. Please try again.` notification. Previous
+values remain visible, successful sources can still update, raw error details
+are never included, and the authenticated session is unchanged. A fully
+successful refresh shows no failure notification.
+
+## Antigravity discovery classification
+
+The corrected discovery facts were checked against the repository:
+
+1. Customer Event Records remain `GET /api/v1/events`; no alternate endpoint
+   was introduced or documented.
+2. Riverpod's retained previous `AsyncValue` data is used and verified; no
+   duplicate network cache or provider architecture was added.
+3. Initial Event Plan and Favorites persistence errors were confirmed as real
+   states and now produce one truthful resume notice while successful siblings
+   remain usable.
+4. Existing Home errors did not expose raw exceptions. This slice preserves and
+   expands that security constraint rather than claiming a prior leak.
+
+Claude independently reviewed the third slice read-only and returned **READY
+FOR SLICE APPROVAL — code review only**, with no P0, P1, or P2 findings. Claude
+made no repository changes and independently passed repository-wide Prettier,
+`git diff --check`, scope inspection, and protected-file verification. Claude
+could not execute Flutter or Dart: **NOT VERIFIED — ENVIRONMENT LIMITATION**.
+The focused 187/187 and full 628/628 Flutter totals remain Codex execution
+evidence, not Claude execution evidence.
+
+Approval applies only to this third slice. CUST-05 remains **IN PROGRESS**, and
+CUST-06 remains unstarted. No backend, database, migration, REST API, OpenAPI,
+authentication, authorization, shared contract, Flutter dependency, or
+state-management architecture changed.
+
+Claude retained two non-blocking P3 observations:
+
+1. `hideCurrentSnackBar()` can dismiss an unrelated actionable snackbar. This
+   is acceptable for current Home behavior but should be reconsidered if Home
+   later introduces Undo or another actionable snackbar.
+2. Rapid repeated Retry taps can cause redundant Enquiries requests because
+   that retry has no in-flight UI guard. Plan and Favorites remain internally
+   serialized. This is a future low-risk improvement and does not currently
+   create a correctness, security, or data-integrity failure.
+
 ## Test coverage
 
 Focused tests prove:
@@ -226,6 +307,28 @@ The second-slice regressions additionally prove:
 - the newest actionable concluded event drives both hero and card; and
 - the longer honest active copy fits a narrow 320-pixel layout at 2× text scale.
 
+The third-slice regressions additionally prove:
+
+- initial Events failure and successful empty Events render different truthful
+  states;
+- Event, contextual recommendation, and service-category retries reload only
+  their failed provider and can recover to live content;
+- category failure keeps successfully loaded services under the existing safe
+  fallback grouping;
+- Enquiries, Plan, and Favorites initial failures preserve successful sibling
+  resume cards, and multiple failures collapse into one safe notice;
+- resume retry targets only sources still failed without a value;
+- Event Records, catalogue services, Enquiries, Plan, and Favorites retain
+  usable prior content after refresh failure;
+- a successful provider updates even when a sibling refresh fails;
+- each failed pull gesture shows exactly one safe notification, a fully
+  successful refresh shows none, and signed-out Home does not request
+  Enquiries;
+- refresh failures do not mutate `sessionProvider` or reveal exception strings,
+  loopback addresses, stack traces, or internal HTTP details; and
+- error text, Retry semantics, 44×44 targets, 320/390-pixel widths, and 1×/2×
+  text scale remain usable.
+
 ## Verification
 
 First-slice results remain historical evidence. Second-slice verification is
@@ -257,6 +360,24 @@ recorded separately so a prior run is not presented as freshly executed.
 | `git diff --check`                                                                                                | PASS                                                                                                     |
 | `git diff --cached --check`                                                                                       | PASS — index remains empty                                                                               |
 
+| Third-slice command                                                                                                                                                | Result / execution                                                                                                   |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------- |
+| `flutter test test/home_tab_test.dart test/home_feed_test.dart test/event_plan_provider_test.dart test/favorites_provider_test.dart test/customer_shell_test.dart` | PASS — 187/187 after a test-only finder correction                                                                   |
+| `flutter test`                                                                                                                                                     | PASS — 628/628                                                                                                       |
+| `flutter analyze`                                                                                                                                                  | PASS — zero issues                                                                                                   |
+| `dart format --output=none --set-exit-if-changed lib test`                                                                                                         | PASS — 210 files, zero changed                                                                                       |
+| `corepack pnpm exec prettier --check <five touched CUST-05 documents>`                                                                                             | PASS — all matched                                                                                                   |
+| `corepack pnpm verify`                                                                                                                                             | FIRST ATTEMPT ENVIRONMENT-BLOCKED — 17 Nest HTTP tests could not bind sandbox loopback; 326/343 backend tests passed |
+| `corepack pnpm verify` with established loopback permission                                                                                                        | PASS — backend 343/343, ERP 12/12, four-workspace lint/typecheck, all builds, 37 ERP routes                          |
+| `git diff --check`                                                                                                                                                 | PASS                                                                                                                 |
+| `git diff --cached --check`                                                                                                                                        | PASS — index remains empty                                                                                           |
+
+The first focused third-slice run reached 185 passing tests but failed two
+target-size assertions because the test measured the `Retry` text glyph rather
+than its enclosing button. The finder was corrected to measure the existing
+`TextButton`; no production behavior changed. The unchanged focused group then
+passed 187/187.
+
 The first root attempt reached tests after passing formatting, lint, typecheck,
 and ERP 12/12. Its 17 backend failures all reported
 `listen EPERM: operation not permitted 127.0.0.1`; no assertion failed. The
@@ -276,15 +397,16 @@ and the full Flutter suite passed 599/599.
 
 ## Remaining CUST-05 work
 
-CUST-05 remains **IN PROGRESS**. Claude independently approved the second
-lifecycle slice for a focused local commit, but that approval is not CUST-05
-completion. Quotation resume integration, honest provider failure states,
-location/date decisions, approved media, and complete acceptance testing
-remain. Manual TypeScript/Dart status-catalogue synchronization remains a
-non-blocking P3 cross-language drift risk under the existing architecture.
+CUST-05 remains **IN PROGRESS**. The independently approved second lifecycle
+slice was pushed as `eb4dbce`; the third provider-failure slice is locally
+verified, independently approved, and locally committed under
+`fix(customer): add honest home provider failure states`.
+Quotation resume integration, location/date decisions, approved media, and
+complete acceptance testing remain. Manual TypeScript/Dart status-catalogue
+synchronization remains a non-blocking P3 cross-language drift risk under the
+existing architecture.
 
 The previously retained inaccurate active title, mixed-lifecycle coverage gap,
 and unusable-newest-booking-ID action-selection observation are addressed in
-the approved second slice. The next repository operation requires separate
-safe-push authorization after its focused local commit. CUST-06 has not
-started.
+the approved second slice. The approved third slice now requires separate
+safe-push authorization. CUST-06 has not started.
