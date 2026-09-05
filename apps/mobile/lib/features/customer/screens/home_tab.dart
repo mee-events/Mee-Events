@@ -16,6 +16,7 @@ import 'package:mee_events/features/customer/screens/category_detail_screen.dart
 import 'package:mee_events/features/customer/screens/favorites_screen.dart';
 import 'package:mee_events/features/customer/screens/service_detail_screen.dart';
 import 'package:mee_events/features/customer/search/customer_search_screen.dart';
+import 'package:mee_events/features/customer/workspace/event_workspace_screen.dart';
 import 'package:mee_events/features/customer/widgets/home/discovery_skeletons.dart';
 import 'package:mee_events/features/customer/widgets/home/home_planning_guidance.dart';
 import 'package:mee_events/features/customer/widgets/home/home_planning_hero.dart';
@@ -110,11 +111,20 @@ class _CustomerHomeTabState extends ConsumerState<CustomerHomeTab> {
     );
   }
 
-  void _onResumeSelect(HomeResumeKind kind) {
+  void _onResumeSelect(HomeResumeKind kind, EventRecordSummary? completed) {
     switch (kind) {
       case HomeResumeKind.upcoming:
       case HomeResumeKind.plan:
         widget.onNavigate?.call(CustomerTab.plan);
+        return;
+      case HomeResumeKind.completed:
+        final bookingId = completed?.bookingId.trim();
+        if (bookingId == null || bookingId.isEmpty) return;
+        Navigator.of(context).push(
+          MaterialPageRoute<void>(
+            builder: (_) => EventWorkspaceScreen(bookingId: bookingId),
+          ),
+        );
         return;
       case HomeResumeKind.saved:
         _openFavorites();
@@ -183,7 +193,10 @@ class _CustomerHomeTabState extends ConsumerState<CustomerHomeTab> {
     final eventsAsync = ref.watch(eventsProvider);
     final planAsync = ref.watch(eventPlanProvider);
 
-    final upcoming = pickHomeUpcomingEvent(eventsAsync.valueOrNull);
+    final events = eventsAsync.valueOrNull;
+    final upcoming = pickHomeUpcomingEvent(events);
+    final completed = upcoming == null ? pickHomeCompletedEvent(events) : null;
+    final heroEvent = upcoming ?? completed;
     final occasionCode = matchLiveOccasionCode(
       upcoming?.eventTypeName,
       eventTypesAsync.valueOrNull,
@@ -227,15 +240,16 @@ class _CustomerHomeTabState extends ConsumerState<CustomerHomeTab> {
                 child: _buildHero(
                   eventsAsync,
                   upcoming,
+                  completed,
                   matchLiveOccasion(
-                    upcoming?.eventTypeName,
+                    heroEvent?.eventTypeName,
                     eventTypesAsync.valueOrNull,
                   ),
                 ),
               ),
             ),
             const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.xl)),
-            ..._buildResumeSlivers(upcoming),
+            ..._buildResumeSlivers(upcoming, completed),
             if (planItems.isNotEmpty) ...[
               SliverToBoxAdapter(
                 child: HomePlanPreviewSection(
@@ -274,7 +288,10 @@ class _CustomerHomeTabState extends ConsumerState<CustomerHomeTab> {
     );
   }
 
-  List<Widget> _buildResumeSlivers(EventRecordSummary? upcoming) {
+  List<Widget> _buildResumeSlivers(
+    EventRecordSummary? upcoming,
+    EventRecordSummary? completed,
+  ) {
     final planAsync = ref.watch(eventPlanProvider);
     final savedAsync = ref.watch(favoritesProvider);
     final session = ref.watch(sessionProvider);
@@ -287,6 +304,7 @@ class _CustomerHomeTabState extends ConsumerState<CustomerHomeTab> {
         : pickHomeResumeEnquiry(enquiriesAsync.valueOrNull);
     final cards = <HomeResumeCardData>[
       ?homeUpcomingResumeCard(upcoming),
+      ?homeCompletedResumeCard(completed),
       ?homePlanResumeCard(planAsync.valueOrNull),
       ?homeSavedResumeCard(savedAsync.valueOrNull),
       if (enquiry != null) homeEnquiryResumeCard(enquiry),
@@ -311,7 +329,10 @@ class _CustomerHomeTabState extends ConsumerState<CustomerHomeTab> {
 
     return [
       SliverToBoxAdapter(
-        child: HomeResumeSection(cards: cards, onSelect: _onResumeSelect),
+        child: HomeResumeSection(
+          cards: cards,
+          onSelect: (kind) => _onResumeSelect(kind, completed),
+        ),
       ),
       const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.lg)),
     ];
@@ -320,6 +341,7 @@ class _CustomerHomeTabState extends ConsumerState<CustomerHomeTab> {
   Widget _buildHero(
     AsyncValue<List<EventRecordSummary>?> eventsAsync,
     EventRecordSummary? upcoming,
+    EventRecordSummary? completed,
     CatalogItem? matchedOccasion,
   ) {
     if (eventsAsync.isLoading && !eventsAsync.hasValue) {
@@ -327,6 +349,7 @@ class _CustomerHomeTabState extends ConsumerState<CustomerHomeTab> {
     }
     return HomePlanningHero(
       event: upcoming,
+      completedEvent: completed,
       imageUrl: CatalogImageResolver.resolvedHomeImage(
         code: matchedOccasion?.code ?? '',
         remoteUrl: matchedOccasion?.coverImageUrl,
@@ -615,29 +638,132 @@ int _compareDisplayOrder(CatalogItem a, CatalogItem b) {
   return a.code.compareTo(b.code);
 }
 
-EventRecordSummary? pickHomeUpcomingEvent(List<EventRecordSummary>? events) {
+/// Selects the primary active event. Status controls eligibility; the one-day
+/// relevance cutoff only preserves the existing preference for current/future
+/// work before older active history.
+EventRecordSummary? pickHomeUpcomingEvent(
+  List<EventRecordSummary>? events, {
+  DateTime? now,
+}) {
   if (events == null || events.isEmpty) return null;
-  final now = DateTime.now();
+  final relevanceCutoff = (now ?? DateTime.now()).subtract(
+    const Duration(days: 1),
+  );
   EventRecordSummary? best;
-  DateTime? bestDate;
   for (final event in events) {
-    final parsed = DateTime.tryParse(event.eventDate ?? '');
-    if (parsed != null &&
-        parsed.isBefore(now.subtract(const Duration(days: 1)))) {
-      continue;
-    }
-    if (best == null) {
+    if (!isHomeActiveEvent(event)) continue;
+    if (best == null ||
+        _compareActiveEventPriority(event, best, relevanceCutoff) > 0) {
       best = event;
-      bestDate = parsed;
-      continue;
-    }
-    if (parsed == null) continue;
-    if (bestDate == null || parsed.isBefore(bestDate)) {
-      best = event;
-      bestDate = parsed;
     }
   }
   return best;
+}
+
+const homeActiveEventStatuses = {
+  'created',
+  'planning',
+  'requirements_confirmed',
+  'quotation_approved',
+  'booking_confirmed',
+  'manager_assigned',
+  'vendor_assigned',
+  'worker_assigned',
+  'preparation',
+  'ready',
+  'event_running',
+};
+
+const homeConcludedEventStatuses = {
+  'completed',
+  'settlement_pending',
+  'closed',
+};
+
+bool isHomeActiveEvent(EventRecordSummary event) {
+  return homeActiveEventStatuses.contains(event.status);
+}
+
+bool isHomeConcludedEvent(EventRecordSummary event) {
+  return homeConcludedEventStatuses.contains(event.status);
+}
+
+int _compareActiveEventPriority(
+  EventRecordSummary left,
+  EventRecordSummary right,
+  DateTime relevanceCutoff,
+) {
+  final leftDate = DateTime.tryParse(left.eventDate ?? '');
+  final rightDate = DateTime.tryParse(right.eventDate ?? '');
+  final leftGroup = _activeDateGroup(leftDate, relevanceCutoff);
+  final rightGroup = _activeDateGroup(rightDate, relevanceCutoff);
+  final groupOrder = leftGroup.compareTo(rightGroup);
+  if (groupOrder != 0) return groupOrder;
+
+  if (leftDate != null && rightDate != null) {
+    final dateOrder = leftGroup == 2
+        ? rightDate.compareTo(leftDate)
+        : leftDate.compareTo(rightDate);
+    if (dateOrder != 0) return dateOrder;
+  }
+
+  return _compareEventServerRecency(left, right);
+}
+
+int _activeDateGroup(DateTime? date, DateTime relevanceCutoff) {
+  if (date == null) return 0;
+  return date.isBefore(relevanceCutoff) ? 1 : 2;
+}
+
+/// Selects the most recent concluded event without inferring lifecycle from
+/// the event date. Valid event dates sort newest first; updated/created
+/// timestamps and the stable event ID make missing or tied dates deterministic.
+EventRecordSummary? pickHomeCompletedEvent(List<EventRecordSummary>? events) {
+  if (events == null || events.isEmpty) return null;
+  EventRecordSummary? best;
+  for (final event in events) {
+    if (!isHomeConcludedEvent(event)) continue;
+    if (best == null || _compareCompletedEventRecency(event, best) > 0) {
+      best = event;
+    }
+  }
+  return best;
+}
+
+int _compareCompletedEventRecency(
+  EventRecordSummary left,
+  EventRecordSummary right,
+) {
+  final leftEventDate = DateTime.tryParse(left.eventDate ?? '');
+  final rightEventDate = DateTime.tryParse(right.eventDate ?? '');
+  if (leftEventDate != null || rightEventDate != null) {
+    if (leftEventDate == null) return -1;
+    if (rightEventDate == null) return 1;
+    final eventDateOrder = leftEventDate.compareTo(rightEventDate);
+    if (eventDateOrder != 0) return eventDateOrder;
+  }
+
+  return _compareEventServerRecency(left, right);
+}
+
+int _compareEventServerRecency(
+  EventRecordSummary left,
+  EventRecordSummary right,
+) {
+  for (final timestamps in [
+    (left.updatedAt, right.updatedAt),
+    (left.createdAt, right.createdAt),
+  ]) {
+    final leftTimestamp = DateTime.tryParse(timestamps.$1);
+    final rightTimestamp = DateTime.tryParse(timestamps.$2);
+    if (leftTimestamp == null && rightTimestamp == null) continue;
+    if (leftTimestamp == null) return -1;
+    if (rightTimestamp == null) return 1;
+    final timestampOrder = leftTimestamp.compareTo(rightTimestamp);
+    if (timestampOrder != 0) return timestampOrder;
+  }
+
+  return left.id.compareTo(right.id);
 }
 
 CatalogItem? matchLiveOccasion(

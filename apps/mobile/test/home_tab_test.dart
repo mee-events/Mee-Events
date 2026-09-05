@@ -15,6 +15,7 @@ import 'package:mee_events/features/customer/screens/category_detail_screen.dart
 import 'package:mee_events/features/customer/screens/home_tab.dart';
 import 'package:mee_events/features/customer/screens/service_detail_screen.dart';
 import 'package:mee_events/features/customer/search/customer_search_screen.dart';
+import 'package:mee_events/features/customer/workspace/event_workspace_screen.dart';
 import 'package:mee_events/features/customer/search/search_provider.dart';
 import 'package:mee_events/features/customer/widgets/home/discovery_skeletons.dart';
 import 'package:mee_events/features/customer/widgets/home/home_planning_guidance.dart';
@@ -95,13 +96,18 @@ void main() {
   EventRecordSummary namedEvent({
     required String id,
     required String name,
-    required DateTime date,
+    DateTime? date,
+    String? rawEventDate,
     String eventTypeName = 'Wedding',
+    String status = 'planning',
+    String? bookingId,
+    String createdAt = '2026-01-01T00:00:00.000Z',
+    String updatedAt = '2026-01-01T00:00:00.000Z',
   }) {
     return EventRecordSummary(
       id: id,
       eventNumber: 'E-$id',
-      bookingId: 'b-$id',
+      bookingId: bookingId ?? 'b-$id',
       quotationId: 'q-$id',
       leadId: 'l-$id',
       enquiryId: 'en-$id',
@@ -111,11 +117,11 @@ void main() {
       budgetAmount: '0',
       advancePaid: '0',
       pendingAmount: '0',
-      status: 'confirmed',
+      status: status,
       priority: 'normal',
-      createdAt: '2026-01-01T00:00:00.000Z',
-      updatedAt: '2026-01-01T00:00:00.000Z',
-      eventDate: dateOnly(date),
+      createdAt: createdAt,
+      updatedAt: updatedAt,
+      eventDate: rawEventDate ?? (date == null ? null : dateOnly(date)),
     );
   }
 
@@ -594,10 +600,8 @@ void main() {
     expectNoFlutterException(tester);
   });
 
-  testWidgets('Past-only events produce the start-planning state', (
-    tester,
-  ) async {
-    final past = DateTime.now().subtract(const Duration(days: 45));
+  testWidgets('Past-dated active events remain resumable', (tester) async {
+    final past = DateTime.utc(2020, 1, 1);
     await pumpHome(
       tester,
       overrides: homeOverrides(
@@ -605,9 +609,442 @@ void main() {
       ),
     );
     await revealPlanSlide(tester);
-    expect(find.text('Start planning'), findsOneWidget);
+    expect(find.text('Resume plan'), findsOneWidget);
+    expect(find.text('Old Garden Party'), findsWidgets);
+    expect(find.text('Start planning'), findsNothing);
+    expectNoFlutterException(tester);
+  });
+
+  test('completed-event selection uses authoritative lifecycle status', () {
+    final now = DateTime.utc(2026, 9, 5, 12);
+    final past = DateTime.utc(2026, 8, 1);
+    final future = DateTime.utc(2026, 10, 1);
+    final completed = namedEvent(
+      id: 'completed',
+      name: 'Completed Wedding',
+      date: future,
+      status: 'completed',
+    );
+    final activePast = namedEvent(
+      id: 'active-past',
+      name: 'Active Past Event',
+      date: past,
+      status: 'preparation',
+    );
+    final cancelled = namedEvent(
+      id: 'cancelled',
+      name: 'Cancelled Event',
+      date: future,
+      status: 'cancelled',
+    );
+
+    expect(pickHomeCompletedEvent([completed]), same(completed));
+    expect(pickHomeCompletedEvent([activePast]), isNull);
+    expect(pickHomeCompletedEvent([cancelled]), isNull);
+    expect(pickHomeUpcomingEvent([completed, cancelled], now: now), isNull);
+  });
+
+  test('past event_running remains primary over concluded history', () {
+    final now = DateTime.utc(2026, 9, 5, 12);
+    final running = namedEvent(
+      id: 'running',
+      name: 'Event in progress',
+      date: DateTime.utc(2026, 8, 1),
+      status: 'event_running',
+    );
+    final completed = namedEvent(
+      id: 'completed',
+      name: 'Completed history',
+      date: DateTime.utc(2026, 9, 1),
+      status: 'completed',
+    );
+
+    expect(
+      pickHomeUpcomingEvent([running, completed], now: now),
+      same(running),
+    );
+    expect(
+      pickHomeUpcomingEvent([completed, running], now: now),
+      same(running),
+    );
+  });
+
+  test('past preparation and manager assignment remain active', () {
+    final now = DateTime.utc(2026, 9, 5, 12);
+    final preparation = namedEvent(
+      id: 'preparation',
+      name: 'Preparation',
+      date: DateTime.utc(2026, 7, 1),
+      status: 'preparation',
+    );
+    final managerAssigned = namedEvent(
+      id: 'manager',
+      name: 'Manager assigned',
+      date: DateTime.utc(2026, 8, 1),
+      status: 'manager_assigned',
+    );
+
+    expect(pickHomeUpcomingEvent([preparation], now: now), same(preparation));
+    expect(
+      pickHomeUpcomingEvent([managerAssigned], now: now),
+      same(managerAssigned),
+    );
+  });
+
+  test('current or future active event outranks stale active history', () {
+    final now = DateTime.utc(2026, 9, 5, 12);
+    final stale = namedEvent(
+      id: 'stale',
+      name: 'Stale active event',
+      date: DateTime.utc(2026, 7, 1),
+      status: 'event_running',
+    );
+    final upcoming = namedEvent(
+      id: 'upcoming',
+      name: 'Upcoming active event',
+      date: DateTime.utc(2026, 9, 10),
+      status: 'planning',
+    );
+    final fartherFuture = namedEvent(
+      id: 'farther-future',
+      name: 'Farther future active event',
+      date: DateTime.utc(2026, 10, 1),
+      status: 'booking_confirmed',
+    );
+
+    expect(
+      pickHomeUpcomingEvent([fartherFuture, stale, upcoming], now: now),
+      same(upcoming),
+    );
+    expect(
+      pickHomeUpcomingEvent([upcoming, stale, fartherFuture], now: now),
+      same(upcoming),
+    );
+  });
+
+  test('most recent past active event wins when all active dates are past', () {
+    final now = DateTime.utc(2026, 9, 5, 12);
+    final older = namedEvent(
+      id: 'older-active',
+      name: 'Older active event',
+      date: DateTime.utc(2026, 6, 1),
+      status: 'manager_assigned',
+    );
+    final newer = namedEvent(
+      id: 'newer-active',
+      name: 'Newer active event',
+      date: DateTime.utc(2026, 8, 1),
+      status: 'preparation',
+    );
+
+    expect(pickHomeUpcomingEvent([older, newer], now: now), same(newer));
+    expect(pickHomeUpcomingEvent([newer, older], now: now), same(newer));
+  });
+
+  test('injected relevance cutoff is deterministic at both boundaries', () {
+    final now = DateTime.utc(2026, 9, 5, 12);
+    final cutoff = now.subtract(const Duration(days: 1));
+    final exact = namedEvent(
+      id: 'exact',
+      name: 'Exact cutoff',
+      rawEventDate: cutoff.toIso8601String(),
+      status: 'ready',
+    );
+    final inside = namedEvent(
+      id: 'inside',
+      name: 'Inside cutoff',
+      rawEventDate: cutoff
+          .add(const Duration(milliseconds: 1))
+          .toIso8601String(),
+      status: 'ready',
+    );
+    final outside = namedEvent(
+      id: 'outside',
+      name: 'Outside cutoff',
+      rawEventDate: cutoff
+          .subtract(const Duration(milliseconds: 1))
+          .toIso8601String(),
+      status: 'event_running',
+    );
+
+    expect(
+      pickHomeUpcomingEvent([outside, inside, exact], now: now),
+      same(exact),
+    );
+    expect(
+      pickHomeUpcomingEvent([exact, inside, outside], now: now),
+      same(exact),
+    );
+    expect(pickHomeUpcomingEvent([outside, inside], now: now), same(inside));
+    expect(pickHomeUpcomingEvent([outside], now: now), same(outside));
+  });
+
+  test('missing and invalid active dates use deterministic fallbacks', () {
+    final now = DateTime.utc(2026, 9, 5, 12);
+    final missing = namedEvent(
+      id: 'missing-active',
+      name: 'Missing active date',
+      status: 'planning',
+      updatedAt: '2026-08-01T00:00:00.000Z',
+    );
+    final invalid = namedEvent(
+      id: 'invalid-active',
+      name: 'Invalid active date',
+      rawEventDate: 'not-a-date',
+      status: 'worker_assigned',
+      updatedAt: '2026-09-01T00:00:00.000Z',
+    );
+    final validPast = namedEvent(
+      id: 'valid-past',
+      name: 'Valid past active date',
+      date: DateTime.utc(2026, 1, 1),
+      status: 'created',
+    );
+
+    expect(pickHomeUpcomingEvent([missing, invalid], now: now), same(invalid));
+    expect(pickHomeUpcomingEvent([invalid, missing], now: now), same(invalid));
+    expect(
+      pickHomeUpcomingEvent([missing, invalid, validPast], now: now),
+      same(validPast),
+    );
+  });
+
+  test('settlement pending and closed are concluded lifecycle states', () {
+    final settlementPending = namedEvent(
+      id: 'settlement',
+      name: 'Settlement Pending Event',
+      date: DateTime(2026, 8, 20),
+      status: 'settlement_pending',
+    );
+    final closed = namedEvent(
+      id: 'closed',
+      name: 'Closed Event',
+      date: DateTime(2026, 8, 21),
+      status: 'closed',
+    );
+
+    expect(isHomeConcludedEvent(settlementPending), isTrue);
+    expect(isHomeConcludedEvent(closed), isTrue);
+    expect(
+      pickHomeCompletedEvent([settlementPending]),
+      same(settlementPending),
+    );
+    expect(pickHomeCompletedEvent([closed]), same(closed));
+  });
+
+  test('most recent completed event is selected deterministically', () {
+    final older = namedEvent(
+      id: 'older',
+      name: 'Older Event',
+      date: DateTime(2026, 7, 1),
+      status: 'completed',
+      updatedAt: '2026-09-01T00:00:00.000Z',
+    );
+    final newer = namedEvent(
+      id: 'newer',
+      name: 'Newer Event',
+      date: DateTime(2026, 8, 1),
+      status: 'closed',
+      updatedAt: '2026-08-02T00:00:00.000Z',
+    );
+
+    expect(pickHomeCompletedEvent([newer, older]), same(newer));
+    expect(pickHomeCompletedEvent([older, newer]), same(newer));
+  });
+
+  test('invalid and absent completed dates use stable safe fallbacks', () {
+    final invalid = namedEvent(
+      id: 'invalid',
+      name: 'Invalid Date Event',
+      rawEventDate: 'not-a-date',
+      status: 'completed',
+      updatedAt: '2026-08-01T00:00:00.000Z',
+    );
+    final absent = namedEvent(
+      id: 'absent',
+      name: 'Absent Date Event',
+      status: 'closed',
+      updatedAt: '2026-09-01T00:00:00.000Z',
+    );
+    final stableTie = namedEvent(
+      id: 'z-stable',
+      name: 'Stable Tie Event',
+      rawEventDate: 'invalid',
+      status: 'settlement_pending',
+      createdAt: 'invalid',
+      updatedAt: 'invalid',
+    );
+
+    expect(pickHomeCompletedEvent([invalid, absent]), same(absent));
+    expect(
+      pickHomeCompletedEvent([
+        stableTie,
+        namedEvent(
+          id: 'a-stable',
+          name: 'Other Stable Tie',
+          status: 'completed',
+          createdAt: 'invalid',
+          updatedAt: 'invalid',
+        ),
+      ]),
+      same(stableTie),
+    );
+  });
+
+  testWidgets('completed status produces a truthful completed Home state', (
+    tester,
+  ) async {
+    final completed = namedEvent(
+      id: 'done',
+      name: 'Ananya & Rohan',
+      date: DateTime(2026, 8, 20),
+      status: 'completed',
+    );
+    await pumpHome(tester, overrides: homeOverrides(events: [completed]));
+
+    expect(find.text('Ananya & Rohan is complete'), findsOneWidget);
+    expect(find.text('Plan another event'), findsOneWidget);
+    expect(find.byKey(const Key('home-resume-completed')), findsOneWidget);
+    expect(find.text('View event'), findsOneWidget);
     expect(find.text('Resume plan'), findsNothing);
-    expect(find.text('Old Garden Party'), findsNothing);
+    expect(find.text('Start planning'), findsNothing);
+    expectNoFlutterException(tester);
+  });
+
+  testWidgets('cancelled event is not presented as a completed celebration', (
+    tester,
+  ) async {
+    final cancelled = namedEvent(
+      id: 'cancelled',
+      name: 'Cancelled Celebration',
+      date: DateTime.utc(2100, 1, 1),
+      status: 'cancelled',
+    );
+    await pumpHome(tester, overrides: homeOverrides(events: [cancelled]));
+
+    expect(find.text('Start planning'), findsOneWidget);
+    expect(find.text('Plan another event'), findsNothing);
+    expect(find.byKey(const Key('home-resume-completed')), findsNothing);
+    expect(find.textContaining('Cancelled Celebration'), findsNothing);
+    expectNoFlutterException(tester);
+  });
+
+  testWidgets('active upcoming event remains the primary Home context', (
+    tester,
+  ) async {
+    final completed = namedEvent(
+      id: 'done',
+      name: 'Completed Celebration',
+      date: DateTime.utc(2020, 1, 1),
+      status: 'completed',
+    );
+    final active = namedEvent(
+      id: 'active',
+      name: 'Upcoming Celebration',
+      date: DateTime.utc(2100, 1, 1),
+      status: 'preparation',
+    );
+    await pumpHome(
+      tester,
+      overrides: homeOverrides(events: [completed, active]),
+    );
+
+    expect(find.text('Upcoming Celebration'), findsWidgets);
+    expect(find.text('Resume plan'), findsOneWidget);
+    expect(find.text('Plan another event'), findsNothing);
+    expect(find.byKey(const Key('home-resume-completed')), findsNothing);
+    expectNoFlutterException(tester);
+  });
+
+  testWidgets('past active work prevents completed Home fallback', (
+    tester,
+  ) async {
+    final running = namedEvent(
+      id: 'running',
+      name: 'Celebration still running',
+      date: DateTime.utc(2020, 1, 1),
+      status: 'event_running',
+    );
+    final completed = namedEvent(
+      id: 'done',
+      name: 'Older completed celebration',
+      date: DateTime.utc(2025, 1, 1),
+      status: 'completed',
+    );
+    await pumpHome(
+      tester,
+      overrides: homeOverrides(events: [completed, running]),
+    );
+
+    expect(find.text('Celebration still running'), findsWidgets);
+    expect(find.text('Resume plan'), findsOneWidget);
+    expect(find.text('Plan another event'), findsNothing);
+    expect(find.textContaining('is complete'), findsNothing);
+    expect(find.byKey(const Key('home-resume-completed')), findsNothing);
+    expectNoFlutterException(tester);
+  });
+
+  testWidgets('completed card opens workspace with the correct booking ID', (
+    tester,
+  ) async {
+    final completed = namedEvent(
+      id: 'done',
+      name: 'Completed Celebration',
+      date: DateTime(2026, 8, 20),
+      status: 'closed',
+      bookingId: 'booking-correct',
+    );
+    await pumpHome(tester, overrides: homeOverrides(events: [completed]));
+
+    await tester.tap(find.byKey(const Key('home-resume-completed')));
+    await tester.pumpAndSettle();
+
+    final workspace = tester.widget<EventWorkspaceScreen>(
+      find.byType(EventWorkspaceScreen),
+    );
+    expect(workspace.bookingId, 'booking-correct');
+    expectNoFlutterException(tester);
+  });
+
+  testWidgets('missing booking ID hides the completed workspace action', (
+    tester,
+  ) async {
+    final completed = namedEvent(
+      id: 'done',
+      name: 'Completed Celebration',
+      date: DateTime(2026, 8, 20),
+      status: 'closed',
+      bookingId: '   ',
+    );
+    await pumpHome(tester, overrides: homeOverrides(events: [completed]));
+
+    expect(find.text('Completed Celebration is complete'), findsOneWidget);
+    expect(find.byKey(const Key('home-resume-completed')), findsNothing);
+    expect(find.text('View event'), findsNothing);
+    expectNoFlutterException(tester);
+  });
+
+  testWidgets('completed Home makes no unimplemented follow-up promises', (
+    tester,
+  ) async {
+    final completed = namedEvent(
+      id: 'done',
+      name: 'Completed Celebration',
+      date: DateTime(2026, 8, 20),
+      status: 'settlement_pending',
+    );
+    await pumpHome(tester, overrides: homeOverrides(events: [completed]));
+
+    for (final unsupported in [
+      'Documents',
+      'Feedback',
+      'Payment',
+      'Refund',
+      'Photos',
+      'Memories',
+    ]) {
+      expect(find.textContaining(unsupported), findsNothing);
+    }
     expectNoFlutterException(tester);
   });
 

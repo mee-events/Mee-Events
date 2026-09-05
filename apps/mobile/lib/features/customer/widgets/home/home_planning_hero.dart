@@ -16,11 +16,13 @@ class HomePlanningHero extends StatelessWidget {
   const HomePlanningHero({
     super.key,
     this.event,
+    this.completedEvent,
     this.imageUrl,
     required this.onPlan,
-  });
+  }) : assert(event == null || completedEvent == null);
 
   final EventRecordSummary? event;
+  final EventRecordSummary? completedEvent;
   final String? imageUrl;
   final VoidCallback onPlan;
 
@@ -29,19 +31,33 @@ class HomePlanningHero extends StatelessWidget {
   static const fallbackKey = Key('home-planning-hero-branded');
 
   bool get _hasEvent => event != null;
+  bool get _hasCompletedEvent => completedEvent != null;
+  EventRecordSummary? get _displayEvent => event ?? completedEvent;
 
-  String get title =>
-      _hasEvent ? event!.eventName : 'Plan a celebration, not a spreadsheet';
+  String get title {
+    if (_hasCompletedEvent) return '${completedEvent!.eventName} is complete';
+    return _hasEvent
+        ? event!.eventName
+        : 'Plan a celebration, not a spreadsheet';
+  }
 
-  String get subtitle => _hasEvent
-      ? homeEventContextLine(event!)
-      : 'Start with the occasion. Mee Events helps you plan the rest.';
+  String get subtitle {
+    if (_hasCompletedEvent) {
+      return homeCompletedEventContextLine(completedEvent!);
+    }
+    return _hasEvent
+        ? homeEventContextLine(event!)
+        : 'Start with the occasion. Mee Events helps you plan the rest.';
+  }
 
-  String get ctaLabel => _hasEvent ? 'Resume plan' : 'Start planning';
+  String get ctaLabel {
+    if (_hasCompletedEvent) return 'Plan another event';
+    return _hasEvent ? 'Resume plan' : 'Start planning';
+  }
 
   String? get _usableImageUrl {
     return CatalogImageResolver.resolvedHomeImage(
-      code: event?.eventTypeName ?? '',
+      code: _displayEvent?.eventTypeName ?? '',
       remoteUrl: imageUrl,
     );
   }
@@ -61,7 +77,9 @@ class HomePlanningHero extends StatelessWidget {
       child: Semantics(
         container: true,
         explicitChildNodes: true,
-        label: 'Planning. $title',
+        label: _hasCompletedEvent
+            ? 'Completed event. $title'
+            : 'Planning. $title',
         child: DecoratedBox(
           decoration: BoxDecoration(
             borderRadius: AppRadius.lgAll,
@@ -359,6 +377,16 @@ String homeEventContextLine(EventRecordSummary event) {
     parts.add(event.eventTypeName.trim());
   }
   return parts.isEmpty ? 'Continue planning this event' : parts.join(' · ');
+}
+
+String homeCompletedEventContextLine(EventRecordSummary event) {
+  final parts = <String>[];
+  final formatted = formatHomeEventDate(event.eventDate);
+  if (formatted != null) parts.add(formatted);
+  if (event.eventTypeName.trim().isNotEmpty) {
+    parts.add(event.eventTypeName.trim());
+  }
+  return parts.isEmpty ? 'Your event has concluded.' : parts.join(' · ');
 }
 
 String? formatHomeEventDate(String? raw) {

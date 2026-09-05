@@ -18,9 +18,33 @@ project reaches them.
   verification, dependency order, and honest status reporting.
 - **Not yet verified hands-on:** terminal use, Git, reading TypeScript/Dart,
   tracing HTTP requests, SQL, test diagnosis, deployment, or system design.
-- **Current engineering stage:** CUST-04 Customer Bootstrap remediation.
-- **Current learning focus:** how a mobile request travels through the API,
-  authentication, authorization, session state, API contracts, and tests.
+- **Current engineering stage:** CUST-05 Home, first implementation slice.
+- **Current learning focus:** how authoritative backend status becomes truthful
+  UI state, how deterministic selection works, and how navigation reuses an
+  existing feature instead of duplicating it.
+
+## CUST-05 first-slice learning report
+
+1. **What was built:** Customer Home recognizes concluded Event Records from
+   authoritative status, selects the most recent concluded record safely, and
+   shows a completed hero plus a resume card only when no active/upcoming event
+   is primary.
+2. **Why it was needed:** a date describes when an event was planned, but only
+   lifecycle status says whether the business process actually concluded.
+3. **How it works:** `completed`, `settlement_pending`, and `closed` qualify;
+   `cancelled` and past-dated active records do not. Dates order qualifying
+   records, while server timestamps and event ID make missing dates and ties
+   deterministic.
+4. **How navigation stays safe:** “Plan another event” selects the existing
+   Plan tab. The resume card opens the existing Event Workspace only when the
+   selected record has a usable `bookingId`; Home does not duplicate workspace
+   functionality.
+5. **What remains:** quotation resume, honest provider failures, location/date
+   decisions, approved media, complete acceptance testing, and independent
+   review. CUST-05 is in progress, not complete.
+6. **What to understand:** server status supplies lifecycle meaning; dates can
+   sort but must not invent meaning. A deterministic tie-breaker makes the same
+   data choose the same event every time.
 
 ## CUST-04 learning report
 

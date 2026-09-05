@@ -12,7 +12,7 @@ import 'package:mee_events/theme/app_radius.dart';
 import 'package:mee_events/theme/app_spacing.dart';
 import 'package:mee_events/theme/app_typography.dart';
 
-enum HomeResumeKind { upcoming, plan, saved, enquiry }
+enum HomeResumeKind { upcoming, completed, plan, saved, enquiry }
 
 class HomeResumeCardData {
   const HomeResumeCardData({
@@ -83,6 +83,18 @@ HomeResumeCardData? homeUpcomingResumeCard(EventRecordSummary? event) {
     subtitle: 'Review checklist & journey',
     actionLabel: 'Continue',
     semanticLabel: '${event.eventName}. Continue planning',
+  );
+}
+
+HomeResumeCardData? homeCompletedResumeCard(EventRecordSummary? event) {
+  if (event == null || event.bookingId.trim().isEmpty) return null;
+  final date = formatHomeEventDate(event.eventDate);
+  return HomeResumeCardData(
+    kind: HomeResumeKind.completed,
+    title: event.eventName,
+    subtitle: date ?? 'Completed event',
+    actionLabel: 'View event',
+    semanticLabel: '${event.eventName}. Completed event. Open event workspace',
   );
 }
 
@@ -248,6 +260,8 @@ class _ResumeCard extends StatelessWidget {
     switch (data.kind) {
       case HomeResumeKind.upcoming:
         return Icons.celebration_outlined;
+      case HomeResumeKind.completed:
+        return Icons.event_available_outlined;
       case HomeResumeKind.plan:
         return Icons.event_note_outlined;
       case HomeResumeKind.saved:

@@ -1,7 +1,6 @@
 # Mee Events — Progress Tracker
 
-- **Updated:** 4 September 2026; CUST-04 Customer Bootstrap independently
-  reviewed and closed
+- **Updated:** 5 September 2026; CUST-05 Home first implementation slice
 - **Repository:** `/Users/vinaychilagani/Desktop/Mee Event V1`
 - **Baseline application commit:** `master` / `9e2a442d91c137ec97a349d1a55697ae8d79d5df`
 - **STAB-01 snapshot HEAD:** `ca994985a898d42da2a8d717041b93a8f8f0dc4c`
@@ -9,24 +8,81 @@
 - **Phase state:** **IN PROGRESS**
 - **Last completed task:** CUST-04 Customer Bootstrap - **INDEPENDENTLY REVIEWED
   AND CLOSED - 4 SEPTEMBER 2026**
-- **Current task:** None; CUST-05 implementation is **NOT STARTED**
-- **Next authorized task:** CUST-05 discovery and requirements verification
-- **Latest application change:** CUST-04 now separates structural compatibility
-  from additive bootstrap policy, intersects vendor role scope with same-vendor
-  membership, clears authenticated memory before logout cleanup awaits, applies
-  no-store case-insensitively including trailing slashes, validates vendor note
-  assignment/event links inside one transaction, separates CRM and vendor-self
-  note trust paths, makes multi-vendor note selection explicit, filters vendor
-  dashboards through a runtime summary allowlist, aligns TypeScript/Flutter UTC
-  timestamps, fixes the Next generated declaration lifecycle, and tests
-  bootstrap through the real access-token guard. It does not implement CUST-05
-  Home or authorize production SMS.
+- **Current task:** CUST-05 Home - **IN PROGRESS - FIRST IMPLEMENTATION SLICE**
+- **Next authorized task:** complete final Git validation of the independently
+  approved, locally committed first slice, followed by separate push
+  authorization; do not begin another CUST-05 slice or CUST-06 work
+- **Latest application change:** Customer Home now keeps every valid
+  non-concluded, non-cancelled Event Record active regardless of date. A fixed
+  or production clock orders current/future, past, and missing-date active work
+  deterministically before completed history is considered. No backend or API
+  contract changed; the endpoint remains `GET /api/v1/events`.
 - **STAB-16 implementation commit:** `999443d5d3ba547de1bb6c0406c34753c8433b00`
 - **STAB-16 closeout:** `1450263caa6a5be2263bf7b9c91827f7cc24ef6c`
 - **STAB-17 commit:** `68894f3bbfa91937a0c7c573a8fc1a0af83ce533`
 - **STAB-18 commit:** `f66cc51a726322eeb604ab84c3d3e195050248f9`
 - **STAB-19 commit:** `e833eb82d690d65e293b9521ce3f24c390fff4f0`
 - **STAB-20 canonical application commit:** `37cf6c2f8e36dd522688e3423be7b9595e442ead`
+
+## CUST-05 Home - first implementation slice - 5 September 2026
+
+- [~] **CUST-05 Home** — **IN PROGRESS - FIRST IMPLEMENTATION SLICE**.
+
+The first slice adds a truthful concluded-event Home state. Only Event Records
+with authoritative status `completed`, `settlement_pending`, or `closed` enter
+that state. A past date alone does not make an event completed, and `cancelled`
+is not presented as a celebration.
+
+Claude's first-slice review found that the retained one-day date cutoff could
+remove a valid past-dated active record such as `event_running`, allowing
+completed history to become primary. The correction makes valid lifecycle
+status the only active eligibility rule. Every non-concluded, non-cancelled
+Event Record remains active regardless of date, so any active work prevents the
+completed fallback.
+
+Active ordering remains deterministic. Current/future relevant records are
+preferred and the nearest is selected; if none exists, the newest past active
+record wins. Invalid or absent dates fall back to server update/create
+timestamps and stable event ID. The selector accepts an optional injected clock
+for fixed boundary tests; production retains the current-time default.
+
+When no active/upcoming event is selected, Home chooses the most recent
+concluded event deterministically: valid event date first, followed by server
+update/create timestamps and a stable event-ID tie-breaker. Invalid or absent
+dates do not crash selection. The completed hero offers only “Plan another
+event” through the existing typed Plan-tab navigation. A completed resume card
+opens the existing Event Workspace with the selected record's non-blank
+`bookingId`; when that identifier is unusable, Home does not show a misleading
+workspace action. The Home state does not promise documents, feedback,
+payments, refunds, photos, or memories.
+
+Claude's correction re-review returned **READY FOR SLICE APPROVAL — code review
+only**. The original P1 active-event eligibility finding and related P2
+injectable-clock finding are resolved for this slice. Claude did not
+independently execute Flutter tests. This approval is not CUST-05 completion.
+The approved first slice is locally committed under the subject
+`feat(customer): add status-aware home lifecycle` and awaits final Git
+validation followed by separate push authorization.
+
+Quotation resume, honest provider failures, location/date decisions, approved
+media, and complete acceptance testing remain open. The review also retained
+the P2 inaccurate “Upcoming celebration” label for some active records, P3
+mirrored-status-catalogue drift protection, P3 mixed
+active/concluded/cancelled coverage, and the retained P3 where the newest
+concluded record's unusable `bookingId` can hide the workspace action. No
+follow-up was implemented during closeout. No backend, database, or API
+contract was changed. CUST-06 has not started. Evidence:
+`docs/08-testing/cust-05-customer-home-evidence.md`.
+
+Prior local execution evidence remains: focused Home/shell **119/119**, full
+Flutter **599/599**, analysis zero issues, and mobile formatting 209 files with
+zero changes. Application code and Flutter tests were unchanged in closeout, so
+those commands were not rerun; Claude also did not independently execute them.
+Separately authorized formatting-only maintenance preserved every word and
+number in the concurrent `AGENTS.md` expansion, after which root
+`corepack pnpm format` and the complete `corepack pnpm verify` gate passed.
+Root verification includes backend **343/343**, ERP **12/12**, typecheck, lint,
+and all production builds. `git diff --check` also passes.
 
 ## CUST-04 Customer Bootstrap - 4 September 2026
 
@@ -114,10 +170,10 @@ occurred.
 CUST-04 evidence:
 `docs/08-testing/cust-04-customer-bootstrap-evidence.md`. CUST-04 is locally
 verified and closed but is not staging, production, or physical-device proven.
-CUST-05 was not started. The next task is CUST-05 discovery and requirements
-verification, not immediate UI implementation. CUST-02 remains **PARTIAL - OFFLINE
-APPROVED, EXTERNAL EXOTEL EVIDENCE PENDING** and must reopen before the final
-Customer release gate. CUST-03 remains **DONE WITH FINDINGS**, including its
+CUST-05 is now **IN PROGRESS** through the first implementation slice documented
+above. CUST-02 remains **PARTIAL - OFFLINE APPROVED, EXTERNAL EXOTEL EVIDENCE
+PENDING** and must reopen before the final Customer release gate. CUST-03 remains
+**DONE WITH FINDINGS**, including its
 process-local refresh de-duplication and maximum 15-second cross-instance
 principal-cache revocation-observation findings. The existing SEC-06 manual
 TypeScript/Dart bootstrap baseline synchronization finding is retained and
@@ -1581,7 +1637,9 @@ Do not ask for these until their dependent block is approaching, unless early pr
 - [x] CUST-04 Customer bootstrap — **INDEPENDENTLY REVIEWED AND CLOSED - 4
       SEPTEMBER 2026**; evidence:
       `docs/08-testing/cust-04-customer-bootstrap-evidence.md`
-- [ ] CUST-05 Home — **NOT STARTED** (existing partial scaffold retained)
+- [~] CUST-05 Home — **IN PROGRESS - FIRST IMPLEMENTATION SLICE** 5 September
+  2026; status-authoritative completed-event Home; evidence:
+  `docs/08-testing/cust-05-customer-home-evidence.md`
 - [ ] CUST-06 Explore
 - [ ] CUST-07 Event categories
 - [ ] CUST-08 Services

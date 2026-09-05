@@ -14,6 +14,7 @@ import 'package:mee_events/features/customer/favorites/favorites_provider.dart';
 import 'package:mee_events/features/customer/favorites/favorites_store.dart';
 import 'package:mee_events/features/customer/navigation/customer_tab.dart';
 import 'package:mee_events/features/customer/plan/event_plan_store.dart';
+import 'package:mee_events/features/customer/providers/event_record_providers.dart';
 import 'package:mee_events/features/customer/providers/explore_intent_provider.dart';
 import 'package:mee_events/features/customer/screens/customer_dashboard_screen.dart';
 import 'package:mee_events/features/customer/screens/enquiries_tab.dart';
@@ -30,6 +31,7 @@ import 'package:mee_events/models/auth_session.dart';
 import 'package:mee_events/models/catalog_item.dart';
 import 'package:mee_events/models/catalog_service.dart';
 import 'package:mee_events/models/client_surface.dart';
+import 'package:mee_events/models/event_record.dart';
 import 'package:mee_events/theme/theme.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -425,6 +427,43 @@ void main() {
 
     expect(stackIndex(tester), CustomerTab.plan.tabIndex);
     expect(stackIndex(tester), isNot(3));
+  });
+
+  testWidgets('Completed Home Plan another event opens the existing Plan tab', (
+    tester,
+  ) async {
+    const completed = EventRecordSummary(
+      id: 'event-completed',
+      eventNumber: 'EVT-2026-001',
+      bookingId: 'booking-completed',
+      quotationId: 'quotation-completed',
+      leadId: 'lead-completed',
+      enquiryId: 'enquiry-completed',
+      customerId: 'shell-user',
+      eventTypeName: 'Wedding',
+      eventName: 'Completed Celebration',
+      eventDate: '2026-08-20',
+      budgetAmount: '0',
+      advancePaid: '0',
+      pendingAmount: '0',
+      status: 'completed',
+      priority: 'normal',
+      createdAt: '2026-01-01T00:00:00.000Z',
+      updatedAt: '2026-08-21T00:00:00.000Z',
+    );
+    await pumpDashboard(
+      tester,
+      extraOverrides: [
+        eventsProvider.overrideWith((ref) async => const [completed]),
+      ],
+    );
+
+    await tester.tap(find.text('Plan another event'));
+    await tester.pump();
+
+    expect(stackIndex(tester), CustomerTab.plan.tabIndex);
+    expect(find.byType(PlanTab), findsOneWidget);
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('Home View all still reaches Explore', (tester) async {

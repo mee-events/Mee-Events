@@ -207,6 +207,47 @@ I keep validation and mutation in the same transaction so a rejection cannot
 leave a note, history, timeline, audit, or outbox row. On reads, I use an
 explicit field allowlist because TypeScript types do not filter runtime JSON.
 
+## 6. Status-authoritative UI state
+
+### Concept
+
+The interface should derive business meaning from authoritative domain state,
+not infer it from a convenient but incomplete field.
+
+### Mee Events implementation
+
+Customer Home treats only `completed`, `settlement_pending`, and `closed` Event
+Records as concluded. Event date orders concluded history but cannot declare
+completion. `cancelled` is not a completed celebration, active/upcoming context
+wins, and server timestamps plus event ID make missing dates and ties stable.
+
+### Why we chose it
+
+A past event may still be running, delayed, or awaiting an operational update.
+Showing it as completed would make the UI contradict the backend source of
+truth and could expose actions at the wrong lifecycle stage.
+
+### Trade-offs
+
+The UI depends on accurate status transitions from operations. In exchange it
+remains honest and consistent across devices, refreshes, and clock settings.
+
+### Failure cases
+
+Past-dated active events, cancelled events, malformed dates, tied dates,
+missing booking IDs, or both active and concluded records arriving together.
+
+### Interview question
+
+Why does Customer Home not use an event's date to decide it is completed?
+
+### Strong answer
+
+The date is useful for ordering, but it does not describe the business
+lifecycle. Mee Events uses the authoritative Event Record status for meaning,
+keeps active work primary, and only uses dates plus stable tie-breakers to
+choose among already-concluded records.
+
 ## Knowledge backlog
 
 Add entries when the corresponding roadmap task is implemented and understood:
