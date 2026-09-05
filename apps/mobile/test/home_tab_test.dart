@@ -611,8 +611,89 @@ void main() {
     await revealPlanSlide(tester);
     expect(find.text('Resume plan'), findsOneWidget);
     expect(find.text('Old Garden Party'), findsWidgets);
+    expect(find.text('Continue your event'), findsOneWidget);
     expect(find.text('Start planning'), findsNothing);
     expectNoFlutterException(tester);
+  });
+
+  testWidgets('past active copy fits narrow layout at large text scale', (
+    tester,
+  ) async {
+    await pumpHome(
+      tester,
+      size: const Size(320, 844),
+      textScale: 2,
+      overrides: homeOverrides(
+        events: [
+          namedEvent(
+            id: 'past-responsive',
+            name: 'Past active celebration',
+            date: DateTime.utc(2020, 1, 1),
+            status: 'event_running',
+          ),
+        ],
+      ),
+    );
+
+    expect(find.text('Continue your event'), findsOneWidget);
+    expectNoFlutterException(tester);
+  });
+
+  test('active resume copy follows calendar day with an injected clock', () {
+    final now = DateTime.utc(2026, 9, 5, 23, 30);
+    final fixtures = <(String, EventRecordSummary, String)>[
+      (
+        'future',
+        namedEvent(
+          id: 'future-copy',
+          name: 'Future active event',
+          rawEventDate: '2026-09-06',
+        ),
+        'Upcoming celebration',
+      ),
+      (
+        'same day',
+        namedEvent(
+          id: 'today-copy',
+          name: 'Today active event',
+          rawEventDate: '2026-09-05',
+        ),
+        'Today’s celebration',
+      ),
+      (
+        'past',
+        namedEvent(
+          id: 'past-copy',
+          name: 'Past active event',
+          rawEventDate: '2026-09-04',
+          status: 'event_running',
+        ),
+        'Continue your event',
+      ),
+      (
+        'missing',
+        namedEvent(id: 'missing-copy', name: 'Missing active date'),
+        'Continue your event',
+      ),
+      (
+        'invalid',
+        namedEvent(
+          id: 'invalid-copy',
+          name: 'Invalid active date',
+          rawEventDate: 'not-a-date',
+        ),
+        'Continue your event',
+      ),
+    ];
+
+    for (final fixture in fixtures) {
+      expect(
+        homeUpcomingResumeCard(fixture.$2, now: now)?.title,
+        fixture.$3,
+        reason: fixture.$1,
+      );
+      expect(fixture.$2.lifecycle, EventRecordLifecycle.active);
+    }
   });
 
   test('completed-event selection uses authoritative lifecycle status', () {
@@ -642,6 +723,23 @@ void main() {
     expect(pickHomeCompletedEvent([activePast]), isNull);
     expect(pickHomeCompletedEvent([cancelled]), isNull);
     expect(pickHomeUpcomingEvent([completed, cancelled], now: now), isNull);
+  });
+
+  test('unknown status is not active, concluded, or cancelled Home state', () {
+    final unknown = namedEvent(
+      id: 'unknown-status',
+      name: 'Unknown lifecycle event',
+      date: DateTime.utc(2026, 9, 6),
+      status: 'future_additive_status',
+    );
+
+    expect(unknown.lifecycle, EventRecordLifecycle.unknown);
+    expect(
+      pickHomeUpcomingEvent([unknown], now: DateTime.utc(2026, 9, 5)),
+      isNull,
+    );
+    expect(pickHomeCompletedEvent([unknown]), isNull);
+    expect(pickHomeActionableCompletedEvent([unknown]), isNull);
   });
 
   test('past event_running remains primary over concluded history', () {
@@ -823,8 +921,8 @@ void main() {
       status: 'closed',
     );
 
-    expect(isHomeConcludedEvent(settlementPending), isTrue);
-    expect(isHomeConcludedEvent(closed), isTrue);
+    expect(settlementPending.lifecycle, EventRecordLifecycle.concluded);
+    expect(closed.lifecycle, EventRecordLifecycle.concluded);
     expect(
       pickHomeCompletedEvent([settlementPending]),
       same(settlementPending),
@@ -850,6 +948,105 @@ void main() {
 
     expect(pickHomeCompletedEvent([newer, older]), same(newer));
     expect(pickHomeCompletedEvent([older, newer]), same(newer));
+  });
+
+  test(
+    'completed display and action selectors can choose different records',
+    () {
+      final newestDisplay = namedEvent(
+        id: 'newest-display',
+        name: 'Newest concluded event',
+        date: DateTime.utc(2026, 9, 2),
+        status: 'closed',
+        bookingId: '   ',
+      );
+      final olderActionable = namedEvent(
+        id: 'older-actionable',
+        name: 'Older actionable event',
+        date: DateTime.utc(2026, 9, 1),
+        status: 'completed',
+        bookingId: 'booking-older',
+      );
+
+      for (final events in [
+        [newestDisplay, olderActionable],
+        [olderActionable, newestDisplay],
+      ]) {
+        expect(pickHomeCompletedEvent(events), same(newestDisplay));
+        expect(pickHomeActionableCompletedEvent(events), same(olderActionable));
+      }
+    },
+  );
+
+  test('completed action selector returns null when every ID is unusable', () {
+    final newest = namedEvent(
+      id: 'newest-unusable',
+      name: 'Newest concluded event',
+      date: DateTime.utc(2026, 9, 2),
+      status: 'closed',
+      bookingId: ' ',
+    );
+    final older = namedEvent(
+      id: 'older-unusable',
+      name: 'Older concluded event',
+      date: DateTime.utc(2026, 9, 1),
+      status: 'completed',
+      bookingId: '',
+    );
+
+    expect(pickHomeCompletedEvent([older, newest]), same(newest));
+    expect(pickHomeActionableCompletedEvent([older, newest]), isNull);
+  });
+
+  test('newest concluded event is also selected when it is actionable', () {
+    final newest = namedEvent(
+      id: 'newest-actionable',
+      name: 'Newest actionable event',
+      date: DateTime.utc(2026, 9, 2),
+      status: 'settlement_pending',
+      bookingId: 'booking-newest',
+    );
+    final older = namedEvent(
+      id: 'older-actionable',
+      name: 'Older actionable event',
+      date: DateTime.utc(2026, 9, 1),
+      status: 'completed',
+      bookingId: 'booking-older',
+    );
+
+    expect(pickHomeCompletedEvent([newest, older]), same(newest));
+    expect(pickHomeActionableCompletedEvent([newest, older]), same(newest));
+  });
+
+  test('mixed lifecycle input keeps active work primary in either order', () {
+    final now = DateTime.utc(2026, 9, 5, 12);
+    final active = namedEvent(
+      id: 'mixed-active',
+      name: 'Active work',
+      date: DateTime.utc(2026, 8, 1),
+      status: 'event_running',
+    );
+    final concluded = namedEvent(
+      id: 'mixed-concluded',
+      name: 'Concluded history',
+      date: DateTime.utc(2026, 9, 4),
+      status: 'completed',
+    );
+    final cancelled = namedEvent(
+      id: 'mixed-cancelled',
+      name: 'Cancelled event',
+      date: DateTime.utc(2026, 9, 6),
+      status: 'cancelled',
+    );
+
+    for (final events in [
+      [active, concluded, cancelled],
+      [cancelled, concluded, active],
+    ]) {
+      expect(pickHomeUpcomingEvent(events, now: now), same(active));
+      expect(pickHomeCompletedEvent(events), same(concluded));
+      expect(pickHomeActionableCompletedEvent(events), same(concluded));
+    }
   });
 
   test('invalid and absent completed dates use stable safe fallbacks', () {
@@ -950,6 +1147,7 @@ void main() {
     );
 
     expect(find.text('Upcoming Celebration'), findsWidgets);
+    expect(find.text('Upcoming celebration'), findsOneWidget);
     expect(find.text('Resume plan'), findsOneWidget);
     expect(find.text('Plan another event'), findsNothing);
     expect(find.byKey(const Key('home-resume-completed')), findsNothing);
@@ -977,6 +1175,7 @@ void main() {
     );
 
     expect(find.text('Celebration still running'), findsWidgets);
+    expect(find.text('Continue your event'), findsOneWidget);
     expect(find.text('Resume plan'), findsOneWidget);
     expect(find.text('Plan another event'), findsNothing);
     expect(find.textContaining('is complete'), findsNothing);
@@ -1006,21 +1205,72 @@ void main() {
     expectNoFlutterException(tester);
   });
 
-  testWidgets('missing booking ID hides the completed workspace action', (
+  testWidgets(
+    'newest concluded hero uses older actionable card and booking ID',
+    (tester) async {
+      final newestDisplay = namedEvent(
+        id: 'newest-display-widget',
+        name: 'Newest concluded celebration',
+        date: DateTime(2026, 8, 21),
+        status: 'closed',
+        bookingId: '   ',
+      );
+      final olderActionable = namedEvent(
+        id: 'older-actionable-widget',
+        name: 'Older actionable celebration',
+        date: DateTime(2026, 8, 20),
+        status: 'completed',
+        bookingId: 'booking-older-actionable',
+      );
+      await pumpHome(
+        tester,
+        overrides: homeOverrides(events: [olderActionable, newestDisplay]),
+      );
+
+      expect(
+        find.text('Newest concluded celebration is complete'),
+        findsOneWidget,
+      );
+      expect(find.text('Older actionable celebration'), findsOneWidget);
+      expect(find.byKey(const Key('home-resume-completed')), findsOneWidget);
+
+      await tester.tap(find.byKey(const Key('home-resume-completed')));
+      await tester.pumpAndSettle();
+
+      final workspace = tester.widget<EventWorkspaceScreen>(
+        find.byType(EventWorkspaceScreen),
+      );
+      expect(workspace.bookingId, 'booking-older-actionable');
+      expectNoFlutterException(tester);
+    },
+  );
+
+  testWidgets('unusable booking IDs hide the completed workspace action', (
     tester,
   ) async {
-    final completed = namedEvent(
-      id: 'done',
-      name: 'Completed Celebration',
-      date: DateTime(2026, 8, 20),
+    final newest = namedEvent(
+      id: 'newest-unusable-widget',
+      name: 'Newest completed celebration',
+      date: DateTime(2026, 8, 21),
       status: 'closed',
       bookingId: '   ',
     );
-    await pumpHome(tester, overrides: homeOverrides(events: [completed]));
+    final older = namedEvent(
+      id: 'older-unusable-widget',
+      name: 'Older completed celebration',
+      date: DateTime(2026, 8, 20),
+      status: 'completed',
+      bookingId: '',
+    );
+    await pumpHome(tester, overrides: homeOverrides(events: [newest, older]));
 
-    expect(find.text('Completed Celebration is complete'), findsOneWidget);
+    expect(
+      find.text('Newest completed celebration is complete'),
+      findsOneWidget,
+    );
     expect(find.byKey(const Key('home-resume-completed')), findsNothing);
     expect(find.text('View event'), findsNothing);
+    expect(find.byType(EventWorkspaceScreen), findsNothing);
     expectNoFlutterException(tester);
   });
 

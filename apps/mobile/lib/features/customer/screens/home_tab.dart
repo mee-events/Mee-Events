@@ -111,14 +111,17 @@ class _CustomerHomeTabState extends ConsumerState<CustomerHomeTab> {
     );
   }
 
-  void _onResumeSelect(HomeResumeKind kind, EventRecordSummary? completed) {
+  void _onResumeSelect(
+    HomeResumeKind kind,
+    EventRecordSummary? actionableCompleted,
+  ) {
     switch (kind) {
       case HomeResumeKind.upcoming:
       case HomeResumeKind.plan:
         widget.onNavigate?.call(CustomerTab.plan);
         return;
       case HomeResumeKind.completed:
-        final bookingId = completed?.bookingId.trim();
+        final bookingId = actionableCompleted?.bookingId.trim();
         if (bookingId == null || bookingId.isEmpty) return;
         Navigator.of(context).push(
           MaterialPageRoute<void>(
@@ -196,6 +199,9 @@ class _CustomerHomeTabState extends ConsumerState<CustomerHomeTab> {
     final events = eventsAsync.valueOrNull;
     final upcoming = pickHomeUpcomingEvent(events);
     final completed = upcoming == null ? pickHomeCompletedEvent(events) : null;
+    final actionableCompleted = upcoming == null
+        ? pickHomeActionableCompletedEvent(events)
+        : null;
     final heroEvent = upcoming ?? completed;
     final occasionCode = matchLiveOccasionCode(
       upcoming?.eventTypeName,
@@ -249,7 +255,7 @@ class _CustomerHomeTabState extends ConsumerState<CustomerHomeTab> {
               ),
             ),
             const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.xl)),
-            ..._buildResumeSlivers(upcoming, completed),
+            ..._buildResumeSlivers(upcoming, actionableCompleted),
             if (planItems.isNotEmpty) ...[
               SliverToBoxAdapter(
                 child: HomePlanPreviewSection(
@@ -290,7 +296,7 @@ class _CustomerHomeTabState extends ConsumerState<CustomerHomeTab> {
 
   List<Widget> _buildResumeSlivers(
     EventRecordSummary? upcoming,
-    EventRecordSummary? completed,
+    EventRecordSummary? actionableCompleted,
   ) {
     final planAsync = ref.watch(eventPlanProvider);
     final savedAsync = ref.watch(favoritesProvider);
@@ -304,7 +310,7 @@ class _CustomerHomeTabState extends ConsumerState<CustomerHomeTab> {
         : pickHomeResumeEnquiry(enquiriesAsync.valueOrNull);
     final cards = <HomeResumeCardData>[
       ?homeUpcomingResumeCard(upcoming),
-      ?homeCompletedResumeCard(completed),
+      ?homeCompletedResumeCard(actionableCompleted),
       ?homePlanResumeCard(planAsync.valueOrNull),
       ?homeSavedResumeCard(savedAsync.valueOrNull),
       if (enquiry != null) homeEnquiryResumeCard(enquiry),
@@ -331,7 +337,7 @@ class _CustomerHomeTabState extends ConsumerState<CustomerHomeTab> {
       SliverToBoxAdapter(
         child: HomeResumeSection(
           cards: cards,
-          onSelect: (kind) => _onResumeSelect(kind, completed),
+          onSelect: (kind) => _onResumeSelect(kind, actionableCompleted),
         ),
       ),
       const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.lg)),
@@ -651,41 +657,13 @@ EventRecordSummary? pickHomeUpcomingEvent(
   );
   EventRecordSummary? best;
   for (final event in events) {
-    if (!isHomeActiveEvent(event)) continue;
+    if (event.lifecycle != EventRecordLifecycle.active) continue;
     if (best == null ||
         _compareActiveEventPriority(event, best, relevanceCutoff) > 0) {
       best = event;
     }
   }
   return best;
-}
-
-const homeActiveEventStatuses = {
-  'created',
-  'planning',
-  'requirements_confirmed',
-  'quotation_approved',
-  'booking_confirmed',
-  'manager_assigned',
-  'vendor_assigned',
-  'worker_assigned',
-  'preparation',
-  'ready',
-  'event_running',
-};
-
-const homeConcludedEventStatuses = {
-  'completed',
-  'settlement_pending',
-  'closed',
-};
-
-bool isHomeActiveEvent(EventRecordSummary event) {
-  return homeActiveEventStatuses.contains(event.status);
-}
-
-bool isHomeConcludedEvent(EventRecordSummary event) {
-  return homeConcludedEventStatuses.contains(event.status);
 }
 
 int _compareActiveEventPriority(
@@ -719,10 +697,27 @@ int _activeDateGroup(DateTime? date, DateTime relevanceCutoff) {
 /// the event date. Valid event dates sort newest first; updated/created
 /// timestamps and the stable event ID make missing or tied dates deterministic.
 EventRecordSummary? pickHomeCompletedEvent(List<EventRecordSummary>? events) {
+  return _pickHomeCompletedEvent(events, requireUsableBookingId: false);
+}
+
+/// Selects the most recent concluded event that can safely open the existing
+/// Event Workspace. Display selection remains independent, so a newer
+/// concluded event with no usable booking ID can still remain in the hero.
+EventRecordSummary? pickHomeActionableCompletedEvent(
+  List<EventRecordSummary>? events,
+) {
+  return _pickHomeCompletedEvent(events, requireUsableBookingId: true);
+}
+
+EventRecordSummary? _pickHomeCompletedEvent(
+  List<EventRecordSummary>? events, {
+  required bool requireUsableBookingId,
+}) {
   if (events == null || events.isEmpty) return null;
   EventRecordSummary? best;
   for (final event in events) {
-    if (!isHomeConcludedEvent(event)) continue;
+    if (event.lifecycle != EventRecordLifecycle.concluded) continue;
+    if (requireUsableBookingId && event.bookingId.trim().isEmpty) continue;
     if (best == null || _compareCompletedEventRecency(event, best) > 0) {
       best = event;
     }

@@ -1,3 +1,43 @@
+/// Lifecycle meaning applied to the raw Event Record status received over the
+/// wire. Unknown additive values stay parseable but fail closed until the
+/// mobile policy is deliberately updated.
+enum EventRecordLifecycle { active, concluded, cancelled, unknown }
+
+const activeEventRecordStatuses = <String>{
+  'created',
+  'planning',
+  'requirements_confirmed',
+  'quotation_approved',
+  'booking_confirmed',
+  'manager_assigned',
+  'vendor_assigned',
+  'worker_assigned',
+  'preparation',
+  'ready',
+  'event_running',
+};
+
+const concludedEventRecordStatuses = <String>{
+  'completed',
+  'settlement_pending',
+  'closed',
+};
+
+const cancelledEventRecordStatuses = <String>{'cancelled'};
+
+EventRecordLifecycle classifyEventRecordLifecycle(String status) {
+  if (activeEventRecordStatuses.contains(status)) {
+    return EventRecordLifecycle.active;
+  }
+  if (concludedEventRecordStatuses.contains(status)) {
+    return EventRecordLifecycle.concluded;
+  }
+  if (cancelledEventRecordStatuses.contains(status)) {
+    return EventRecordLifecycle.cancelled;
+  }
+  return EventRecordLifecycle.unknown;
+}
+
 /// Event Record models returned by the events API.
 class EventRecordSummary {
   final String id;
@@ -85,6 +125,8 @@ class EventRecordSummary {
   }
 
   String get statusLabel => status.replaceAll('_', ' ');
+
+  EventRecordLifecycle get lifecycle => classifyEventRecordLifecycle(status);
 }
 
 class EventTimelineEntry {

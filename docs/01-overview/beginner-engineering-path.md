@@ -18,12 +18,12 @@ project reaches them.
   verification, dependency order, and honest status reporting.
 - **Not yet verified hands-on:** terminal use, Git, reading TypeScript/Dart,
   tracing HTTP requests, SQL, test diagnosis, deployment, or system design.
-- **Current engineering stage:** CUST-05 Home, first implementation slice.
+- **Current engineering stage:** CUST-05 Home, second lifecycle slice.
 - **Current learning focus:** how authoritative backend status becomes truthful
-  UI state, how deterministic selection works, and how navigation reuses an
-  existing feature instead of duplicating it.
+  UI state, how raw wire values can remain compatible while known policy fails
+  closed, and why display selection can differ safely from action selection.
 
-## CUST-05 first-slice learning report
+## CUST-05 lifecycle-slice learning report
 
 1. **What was built:** Customer Home recognizes concluded Event Records from
    authoritative status, selects the most recent concluded record safely, and
@@ -36,8 +36,9 @@ project reaches them.
    records, while server timestamps and event ID make missing dates and ties
    deterministic.
 4. **How navigation stays safe:** “Plan another event” selects the existing
-   Plan tab. The resume card opens the existing Event Workspace only when the
-   selected record has a usable `bookingId`; Home does not duplicate workspace
+   Plan tab. The completed hero can display the newest truthful history while a
+   separate action selector opens the newest concluded record with a usable
+   `bookingId`; Home never navigates with blank input or duplicates workspace
    functionality.
 5. **What remains:** quotation resume, honest provider failures, location/date
    decisions, approved media, complete acceptance testing, and independent
@@ -45,6 +46,14 @@ project reaches them.
 6. **What to understand:** server status supplies lifecycle meaning; dates can
    sort but must not invent meaning. A deterministic tie-breaker makes the same
    data choose the same event every time.
+7. **How compatibility stays safe:** Flutter keeps the raw status string so a
+   future additive value does not crash JSON parsing. The centralized policy
+   recognizes all 15 published values, while an unknown value fails closed
+   until the team makes an explicit lifecycle decision. Because Dart and
+   TypeScript are still synchronized manually, catalogue drift remains a risk.
+8. **How active wording stays honest:** date affects only the resume-card copy:
+   future, today, and past-or-invalid dates get different titles. It never
+   changes the lifecycle supplied by authoritative status.
 
 ## CUST-04 learning report
 

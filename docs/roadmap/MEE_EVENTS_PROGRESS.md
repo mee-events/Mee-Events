@@ -1,6 +1,6 @@
 # Mee Events — Progress Tracker
 
-- **Updated:** 5 September 2026; CUST-05 Home first implementation slice
+- **Updated:** 5 September 2026; CUST-05 Home second lifecycle slice
 - **Repository:** `/Users/vinaychilagani/Desktop/Mee Event V1`
 - **Baseline application commit:** `master` / `9e2a442d91c137ec97a349d1a55697ae8d79d5df`
 - **STAB-01 snapshot HEAD:** `ca994985a898d42da2a8d717041b93a8f8f0dc4c`
@@ -8,15 +8,17 @@
 - **Phase state:** **IN PROGRESS**
 - **Last completed task:** CUST-04 Customer Bootstrap - **INDEPENDENTLY REVIEWED
   AND CLOSED - 4 SEPTEMBER 2026**
-- **Current task:** CUST-05 Home - **IN PROGRESS - FIRST IMPLEMENTATION SLICE**
-- **Next authorized task:** complete final Git validation of the independently
-  approved, locally committed first slice, followed by separate push
-  authorization; do not begin another CUST-05 slice or CUST-06 work
-- **Latest application change:** Customer Home now keeps every valid
-  non-concluded, non-cancelled Event Record active regardless of date. A fixed
-  or production clock orders current/future, past, and missing-date active work
-  deterministically before completed history is considered. No backend or API
-  contract changed; the endpoint remains `GET /api/v1/events`.
+- **Current task:** CUST-05 Home - **IN PROGRESS - SECOND LIFECYCLE SLICE
+  INDEPENDENTLY APPROVED**
+- **Next authorized task:** obtain separate safe-push authorization for the
+  focused local second-slice commit; do not begin another CUST-05 slice or
+  CUST-06 work
+- **Latest application change:** Flutter now centralizes the 15-value Event
+  Record lifecycle policy while preserving raw status strings and failing
+  unknown values closed. Active resume copy reflects the event's calendar day,
+  and completed display/action selectors independently choose the newest
+  concluded and newest actionable concluded records. No backend or API contract
+  changed; the endpoint remains `GET /api/v1/events`.
 - **STAB-16 implementation commit:** `999443d5d3ba547de1bb6c0406c34753c8433b00`
 - **STAB-16 closeout:** `1450263caa6a5be2263bf7b9c91827f7cc24ef6c`
 - **STAB-17 commit:** `68894f3bbfa91937a0c7c573a8fc1a0af83ce533`
@@ -24,21 +26,24 @@
 - **STAB-19 commit:** `e833eb82d690d65e293b9521ce3f24c390fff4f0`
 - **STAB-20 canonical application commit:** `37cf6c2f8e36dd522688e3423be7b9595e442ead`
 
-## CUST-05 Home - first implementation slice - 5 September 2026
+## CUST-05 Home - second lifecycle slice - 5 September 2026
 
-- [~] **CUST-05 Home** — **IN PROGRESS - FIRST IMPLEMENTATION SLICE**.
+- [~] **CUST-05 Home** — **IN PROGRESS - SECOND LIFECYCLE SLICE INDEPENDENTLY
+  APPROVED**.
 
-The first slice adds a truthful concluded-event Home state. Only Event Records
-with authoritative status `completed`, `settlement_pending`, or `closed` enter
-that state. A past date alone does not make an event completed, and `cancelled`
-is not presented as a celebration.
+The independently approved first slice was pushed as `ca524db`; GitHub CI run
+`33940773672`, Security run `33940773786`, and CodeQL run `33940773699` all
+concluded `success`. It established the truthful concluded-event Home state:
+only `completed`, `settlement_pending`, and `closed` are concluded, a past date
+does not declare completion, and `cancelled` is not celebrated.
 
 Claude's first-slice review found that the retained one-day date cutoff could
 remove a valid past-dated active record such as `event_running`, allowing
 completed history to become primary. The correction makes valid lifecycle
-status the only active eligibility rule. Every non-concluded, non-cancelled
-Event Record remains active regardless of date, so any active work prevents the
-completed fallback.
+status the only active eligibility rule. Every Event Record with one of the 11
+published active statuses remains active regardless of date, so any known
+active work prevents the completed fallback. Unknown future statuses fail
+closed.
 
 Active ordering remains deterministic. Current/future relevant records are
 preferred and the nearest is selected; if none exists, the newest past active
@@ -57,21 +62,61 @@ workspace action. The Home state does not promise documents, feedback,
 payments, refunds, photos, or memories.
 
 Claude's correction re-review returned **READY FOR SLICE APPROVAL — code review
-only**. The original P1 active-event eligibility finding and related P2
-injectable-clock finding are resolved for this slice. Claude did not
-independently execute Flutter tests. This approval is not CUST-05 completion.
-The approved first slice is locally committed under the subject
-`feat(customer): add status-aware home lifecycle` and awaits final Git
-validation followed by separate push authorization.
+only** for that first slice. The original P1 active-event eligibility finding
+and related P2 injectable-clock finding are resolved. Claude did not
+independently execute Flutter tests. That approval is not CUST-05 completion.
+
+The second lifecycle slice moves classification out of Customer Home and into
+the Flutter Event Record domain model. All 15 currently published values map
+exactly once: 11 active, three concluded, and one cancelled. Raw status remains
+a string for additive wire compatibility; unknown values deserialize but fail
+closed outside all three known lifecycle groups. OpenAPI and the TypeScript
+contract remain authoritative, and manual TypeScript/Dart synchronization is
+retained honestly as a P3 drift risk because no generator exists.
+
+Active resume copy now uses an injectable clock and safe calendar-day
+comparison. A future active event says “Upcoming celebration”, a same-day event
+says “Today’s celebration”, and past, invalid-date, or missing-date active work
+says “Continue your event”. Date changes presentation only and cannot make an
+active event concluded.
+
+When no active event exists, the hero still displays the newest concluded
+record even if its `bookingId` is unusable. A separate selector applies the same
+deterministic concluded ordering to choose the newest record with a non-empty
+trimmed booking ID for the existing Event Workspace card. An older actionable
+record can therefore remain reachable without hiding newer truthful history,
+and no workspace action appears when every concluded ID is unusable.
+
+Claude performed a read-only review of the second slice and returned **READY
+FOR SLICE APPROVAL — code review only** with no P0, P1, or P2 findings. Claude
+independently passed the repository-wide Prettier check, `git diff --check`, and
+scope, contract, and removed-symbol inspections. Claude could not run Flutter
+or Dart: **NOT VERIFIED — ENVIRONMENT LIMITATION**. The focused **129/129** and
+full **609/609** Flutter results are Codex execution evidence and are not
+presented as independently executed by Claude.
+
+Focused second-slice lifecycle/Home/shell tests pass **129/129**. They include
+exhaustive local status classification, unknown-value fail-closed behavior,
+injected-clock wording, mixed and reversed lifecycle input, separated
+display/action selection, correct workspace ID, unusable-ID suppression, and a
+narrow 2× text-scale regression. The full Flutter suite passes **609/609**,
+analysis reports zero issues, and Dart formatting checks 210 files with zero
+changes. The complete root gate passes after granting the established loopback
+permission: backend **343/343**, ERP **12/12**, all four workspace lint and
+typecheck tasks, shared/backend builds, and the 37-route ERP production build.
+The first sandboxed root attempt passed formatting, lint, typecheck, and ERP
+12/12 before 17 Nest HTTP tests reported only loopback `EPERM`; the unchanged
+rerun passed. Working-tree and empty-index diff checks also pass.
 
 Quotation resume, honest provider failures, location/date decisions, approved
-media, and complete acceptance testing remain open. The review also retained
-the P2 inaccurate “Upcoming celebration” label for some active records, P3
-mirrored-status-catalogue drift protection, P3 mixed
-active/concluded/cancelled coverage, and the retained P3 where the newest
-concluded record's unusable `bookingId` can hide the workspace action. No
-follow-up was implemented during closeout. No backend, database, or API
-contract was changed. CUST-06 has not started. Evidence:
+media, and complete acceptance testing remain open. Claude retained four
+non-blocking P3 observations: TypeScript/Dart catalogues are manually
+synchronized; calendar-day behavior depends on the date-only `YYYY-MM-DD` API
+contract; hero and card may deliberately represent different concluded events;
+and a pre-existing inert `category_detail_screen_test.dart` fixture uses the
+non-contract status `confirmed`. This slice did not change that fixture. No
+backend, database, API, authentication, authorization, dependency, or
+code-generation change was made. CUST-06 has not started. Evidence:
 `docs/08-testing/cust-05-customer-home-evidence.md`.
 
 Prior local execution evidence remains: focused Home/shell **119/119**, full
@@ -170,7 +215,7 @@ occurred.
 CUST-04 evidence:
 `docs/08-testing/cust-04-customer-bootstrap-evidence.md`. CUST-04 is locally
 verified and closed but is not staging, production, or physical-device proven.
-CUST-05 is now **IN PROGRESS** through the first implementation slice documented
+CUST-05 is now **IN PROGRESS** through the second lifecycle slice documented
 above. CUST-02 remains **PARTIAL - OFFLINE APPROVED, EXTERNAL EXOTEL EVIDENCE
 PENDING** and must reopen before the final Customer release gate. CUST-03 remains
 **DONE WITH FINDINGS**, including its
@@ -1637,8 +1682,10 @@ Do not ask for these until their dependent block is approaching, unless early pr
 - [x] CUST-04 Customer bootstrap — **INDEPENDENTLY REVIEWED AND CLOSED - 4
       SEPTEMBER 2026**; evidence:
       `docs/08-testing/cust-04-customer-bootstrap-evidence.md`
-- [~] CUST-05 Home — **IN PROGRESS - FIRST IMPLEMENTATION SLICE** 5 September
-  2026; status-authoritative completed-event Home; evidence:
+- [~] CUST-05 Home — **IN PROGRESS - SECOND LIFECYCLE SLICE INDEPENDENTLY
+  APPROVED** 5 September 2026; centralized status-authoritative lifecycle
+  policy, honest active copy, and separated concluded display/action selection;
+  evidence:
   `docs/08-testing/cust-05-customer-home-evidence.md`
 - [ ] CUST-06 Explore
 - [ ] CUST-07 Event categories

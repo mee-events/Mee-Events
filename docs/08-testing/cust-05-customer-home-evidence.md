@@ -1,15 +1,18 @@
-# CUST-05 Customer Home — First Implementation Slice Evidence
+# CUST-05 Customer Home — Lifecycle Slice Evidence
 
-- **Status:** IN PROGRESS — FIRST SLICE INDEPENDENTLY APPROVED
-- **Slice:** Status-authoritative completed-event Customer Home
+- **Status:** IN PROGRESS — SECOND SLICE INDEPENDENTLY APPROVED
+- **Slice:** Honest active copy, centralized lifecycle policy, and actionable
+  concluded-event selection
 - **Date:** 5 September 2026
 - **Branch:** `master`
-- **Starting HEAD:** `6bdba598eca5c49460b692e3f498a25eecaf63f7`
-  (`docs: add beginner engineering training path`)
+- **Second-slice starting HEAD:**
+  `ca524db90be6bb0d0580d3fcc4c4b886fc111512`
+  (`feat(customer): add status-aware home lifecycle`)
 
-This record covers only the first CUST-05 implementation slice. It does not
-close CUST-05, start CUST-06, or claim staging, production, physical-device,
-external-provider, payment, document, feedback, or media proof.
+This record covers the independently approved first CUST-05 implementation
+slice and the local second lifecycle slice. It does not close CUST-05, start
+CUST-06, or claim staging, production, physical-device, external-provider,
+payment, document, feedback, or media proof.
 
 ## Protected starting state
 
@@ -42,6 +45,15 @@ hash is `3e3474a9d22eea3439b7f1e5ccdc4e5e1898caef27088a4835586896a6d9ccfb`
 both before and after formatting. This maintenance remains outside the CUST-05
 implementation slice.
 
+The first slice was committed and pushed as
+`ca524db90be6bb0d0580d3fcc4c4b886fc111512`. GitHub CI run `33940773672`,
+Security run `33940773786`, and CodeQL run `33940773699` all concluded
+`success`. Before the second slice, `master`, `HEAD`, and `origin/master` all
+matched that commit. The index was empty, and the only uncommitted file was the
+separate `AGENTS.md` maintenance change with SHA-256
+`6a9178bc717571fb884d2fe6828beec8b71a6b8558d370936cf40ed2b9715802`.
+That file remains byte-for-byte unchanged and unstaged during this slice.
+
 ## Architecture decision
 
 The existing `/api/v1/events` response already supplies `status`, `eventDate`,
@@ -52,12 +64,18 @@ shared-contract, or API change.
 
 Lifecycle meaning is status-authoritative:
 
+- the 11 published active values are explicitly classified as active;
 - `completed`, `settlement_pending`, and `closed` are concluded;
 - `cancelled` is not a completed celebration;
 - an active event does not become completed merely because its date is past;
-- every other valid Event Record status remains active and prevents concluded
-  history from becoming primary;
+- an unknown future value remains parseable as a raw string but fails closed
+  outside active, concluded, and cancelled behavior;
 - dates order already-concluded events but do not determine their lifecycle.
+
+OpenAPI and `packages/api-contracts/src/index.ts` remain authoritative. Flutter
+still mirrors the published schema manually under ADR 0004; this slice does not
+introduce TypeScript-to-Dart generation or claim that cross-language catalogue
+drift has been eliminated.
 
 ## Claude review finding and remediation
 
@@ -70,14 +88,14 @@ selector also read `DateTime.now()` internally, making exact ordering-boundary
 tests dependent on the live clock.
 
 The remediation makes lifecycle status the only active eligibility decision.
-All valid statuses other than `completed`, `settlement_pending`, `closed`, and
-`cancelled` remain active regardless of date. The former one-day cutoff now
-affects ordering only: relevant current/future records rank first, then the most
-recent past active record, then invalid or absent dates using server timestamps
-and stable ID. `pickHomeUpcomingEvent(events, {DateTime? now})` accepts an
-optional injected clock for deterministic tests while production callers retain
-the current-time default. No backend, database, shared contract, or API route
-changed; Customer Event Records remain `GET /api/v1/events`.
+All 11 published active statuses remain active regardless of date. The former
+one-day cutoff now affects ordering only: relevant current/future records rank
+first, then the most recent past active record, then invalid or absent dates
+using server timestamps and stable ID.
+`pickHomeUpcomingEvent(events, {DateTime? now})` accepts an optional injected
+clock for deterministic tests while production callers retain the current-time
+default. No backend, database, shared contract, or API route changed; Customer
+Event Records remain `GET /api/v1/events`.
 
 Claude's correction re-review returned **READY FOR SLICE APPROVAL — code review
 only**. The verdict resolves the original P1 active-event eligibility finding
@@ -85,7 +103,7 @@ and related P2 injectable-clock finding for this slice only. Claude inspected
 the corrected code and tests but did not independently execute Flutter tests.
 CUST-05 remains **IN PROGRESS**.
 
-## Implementation
+## First-slice implementation
 
 `pickHomeUpcomingEvent` first filters by the explicit active status set. It
 prefers the nearest relevant current/future active record, otherwise the newest
@@ -107,6 +125,58 @@ refunds, photos, or memories.
 The existing design-system colors, typography, spacing, cards, semantics,
 loading state, responsive behavior, catalogue media resolution, and typed
 navigation conventions were retained.
+
+## Second lifecycle slice
+
+Lifecycle classification now lives with the Flutter Event Record domain model
+instead of inside Customer Home. `EventRecordSummary.status` remains the raw
+wire string, and its derived lifecycle uses one policy for all 15 published
+values: 11 active, three concluded, and one cancelled. Unknown additive values
+still deserialize but classify as `unknown`, so they cannot silently enter any
+customer lifecycle surface without an explicit policy decision.
+
+The active resume-card title now compares calendar days using an injectable
+clock. Future active records say “Upcoming celebration”, same-day active
+records say “Today’s celebration”, and past, invalid-date, or missing-date
+active records say “Continue your event”. Date changes presentation only;
+lifecycle status continues to control eligibility and an old date cannot turn
+active work into concluded history.
+
+Completed display and workspace action selection now use the same deterministic
+concluded-event comparator but serve separate purposes. The hero always shows
+the newest concluded Event Record, even if its booking ID is unusable. The
+resume card selects the newest concluded record whose trimmed `bookingId` is
+non-empty. Therefore an older actionable record can still open its existing
+Event Workspace while newer non-actionable history remains truthfully visible;
+if no concluded record is actionable, no workspace card is shown.
+
+No backend, database, API, authentication, authorization, dependency, or
+code-generation change was required.
+
+## Second-slice independent review
+
+Claude performed a read-only review of the complete second lifecycle slice and
+returned **READY FOR SLICE APPROVAL — code review only** with no P0, P1, or P2
+findings. Claude independently ran and passed the repository-wide Prettier
+check, `git diff --check`, and scope, contract, and removed-symbol inspections.
+Claude could not execute Flutter or Dart in its review environment:
+**NOT VERIFIED — ENVIRONMENT LIMITATION**. The local **129/129** focused and
+**609/609** full Flutter results below are Codex execution evidence, not tests
+independently executed by Claude.
+
+Claude retained four non-blocking P3 observations:
+
+1. TypeScript and Dart status catalogues remain manually synchronized.
+2. Calendar-day behavior depends on the existing date-only `YYYY-MM-DD` API
+   contract.
+3. The hero and workspace card may deliberately represent different completed
+   events when the newest event lacks a usable booking ID.
+4. A pre-existing inert fixture in
+   `apps/mobile/test/category_detail_screen_test.dart` uses the non-contract
+   status `confirmed`; this slice did not introduce or change it.
+
+Approval applies only to this second lifecycle slice. CUST-05 remains **IN
+PROGRESS**, and CUST-06 remains unstarted.
 
 ## Test coverage
 
@@ -140,12 +210,26 @@ Focused tests prove:
 - existing new, plan, saved, enquiry, upcoming, loading, refresh,
   accessibility, responsive, and navigation behavior remains covered.
 
+The second-slice regressions additionally prove:
+
+- all 15 published statuses are classified exactly once and map to the expected
+  active, concluded, or cancelled lifecycle;
+- an unknown raw status remains parseable and fails closed;
+- future, same-day, past, missing-date, and invalid-date active records produce
+  the required deterministic resume title under an injected clock;
+- mixed active, concluded, and cancelled input keeps active work primary in
+  either input order;
+- the newest concluded record can drive the hero while an older actionable
+  concluded record drives the resume card and correct workspace booking ID;
+- all unusable booking IDs preserve the completed hero without exposing a
+  workspace action;
+- the newest actionable concluded event drives both hero and card; and
+- the longer honest active copy fits a narrow 320-pixel layout at 2× text scale.
+
 ## Verification
 
-The Flutter and individual root-stage results below are prior local execution
-evidence from implementation/remediation. Application code and Flutter tests
-did not change during this documentation closeout, so Flutter was not rerun.
-Claude did not independently execute Flutter tests.
+First-slice results remain historical evidence. Second-slice verification is
+recorded separately so a prior run is not presented as freshly executed.
 
 | Command                                                              | Result / execution                                                       |
 | -------------------------------------------------------------------- | ------------------------------------------------------------------------ |
@@ -161,6 +245,23 @@ Claude did not independently execute Flutter tests.
 | `corepack pnpm verify`                                               | CLOSEOUT PASS — complete chained root gate                               |
 | `git diff --check`                                                   | CLOSEOUT PASS                                                            |
 
+| Second-slice command                                                                                              | Result / execution                                                                                       |
+| ----------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| `flutter test test/event_record_lifecycle_policy_test.dart test/home_tab_test.dart test/customer_shell_test.dart` | PASS — 129/129                                                                                           |
+| `flutter test`                                                                                                    | PASS — 609/609                                                                                           |
+| `flutter analyze`                                                                                                 | PASS — zero issues                                                                                       |
+| `dart format --output=none --set-exit-if-changed lib test`                                                        | PASS — 210 files, zero changed                                                                           |
+| `corepack pnpm exec prettier --check <five touched CUST-05 documents>`                                            | PASS — all matched                                                                                       |
+| `corepack pnpm verify`                                                                                            | FIRST ATTEMPT BLOCKED — 17 Nest HTTP tests could not bind sandbox loopback; 326/343 backend tests passed |
+| `corepack pnpm verify` with established loopback permission                                                       | PASS — backend 343/343, ERP 12/12, four-workspace lint/typecheck, all builds, 37 ERP routes              |
+| `git diff --check`                                                                                                | PASS                                                                                                     |
+| `git diff --cached --check`                                                                                       | PASS — index remains empty                                                                               |
+
+The first root attempt reached tests after passing formatting, lint, typecheck,
+and ERP 12/12. Its 17 backend failures all reported
+`listen EPERM: operation not permitted 127.0.0.1`; no assertion failed. The
+unchanged command then passed with the established loopback permission.
+
 The earlier root blocker was resolved through the separately authorized
 formatting-only `AGENTS.md` maintenance described above. No CUST-05 application
 or test source changed during closeout.
@@ -175,21 +276,15 @@ and the full Flutter suite passed 599/599.
 
 ## Remaining CUST-05 work
 
-CUST-05 remains **IN PROGRESS**. Claude approved this implementation slice only;
-the approval is not CUST-05 completion. Quotation resume integration, honest
-provider failure states, location/date decisions, approved media, and complete
-acceptance testing remain. The review also retained these non-blocking
-observations under existing CUST-05 work:
+CUST-05 remains **IN PROGRESS**. Claude independently approved the second
+lifecycle slice for a focused local commit, but that approval is not CUST-05
+completion. Quotation resume integration, honest provider failure states,
+location/date decisions, approved media, and complete acceptance testing
+remain. Manual TypeScript/Dart status-catalogue synchronization remains a
+non-blocking P3 cross-language drift risk under the existing architecture.
 
-- P2: “Upcoming celebration” is inaccurate for some active records;
-- P3: the mirrored mobile status catalogue needs drift protection;
-- P3: mixed active/concluded/cancelled coverage should be expanded; and
-- retained P3: the newest concluded record having an unusable `bookingId` can
-  hide the Event Workspace action even when an older concluded record is
-  actionable.
-
-No follow-up was implemented in this closeout. The independently approved first
-slice is locally committed under the subject
-`feat(customer): add status-aware home lifecycle` and awaits final Git
-validation followed by separate push authorization. No additional CUST-05 slice
-or CUST-06 work is authorized yet.
+The previously retained inaccurate active title, mixed-lifecycle coverage gap,
+and unusable-newest-booking-ID action-selection observation are addressed in
+the approved second slice. The next repository operation requires separate
+safe-push authorization after its focused local commit. CUST-06 has not
+started.

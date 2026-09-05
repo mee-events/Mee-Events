@@ -4,10 +4,11 @@
 - **Current phase:** Phase 1 - Customer
 - **Last closed block:** CUST-04 Customer bootstrap - **INDEPENDENTLY REVIEWED
   AND CLOSED - 4 SEPTEMBER 2026**
-- **Current block:** CUST-05 Home - **IN PROGRESS - FIRST IMPLEMENTATION SLICE**
-- **Next authorized action:** Final Git validation of the independently
-  approved, locally committed first slice, followed by separate push
-  authorization; do not begin another CUST-05 slice or CUST-06 work
+- **Current block:** CUST-05 Home - **IN PROGRESS - SECOND LIFECYCLE SLICE
+  INDEPENDENTLY APPROVED**
+- **Next authorized action:** Obtain separate safe-push authorization for the
+  focused local second-slice commit; do not begin another CUST-05 slice or
+  CUST-06 work
 - **Rule:** One block → verify → document → commit → stop.
 
 This file is the definitive ordered work inventory. The phase order is mandatory even when a later task has a higher risk priority. Do not start Customer until the Phase 0 gate passes; do not start Vendor until Customer passes; continue one major module at a time.
@@ -84,8 +85,8 @@ Status marks in this file describe execution, not how much scaffold already exis
 - [x] **CUST-01 Authentication** — Objective: production-safe customer login entry; State: **DONE WITH FINDINGS - 30 August 2026**; Scope: mobile auth entry and backend OTP-request boundary; Result: strict Indian mobile validation and E.164 normalization, real OTP-request API contract, safe loading and error handling, duplicate-request protection, enumeration-safe response, mobile-number log redaction, accessibility and large-text support, and preserved existing OTP/AppGateway handoff; Depends/Risk: STAB-20, production provider later; Test/Security: Flutter focused 13/13, AppGateway/Customer-shell 59/59, full Flutter 497/497, focused backend 42/42, full backend 249/249, PostgreSQL integration 39/39, Flutter analysis zero issues, lint zero errors/warnings, typecheck zero errors; DoD: independently approved with retained downstream findings; Evidence: `docs/08-testing/cust-01-authentication-entry-evidence.md`; Next: CUST-02 - **NOT STARTED**.
 - [ ] **CUST-02 OTP** — Objective: reliable request/verify/resend UX; State: **PARTIAL - OFFLINE APPROVED, EXTERNAL EXOTEL EVIDENCE PENDING**; Scope: auth endpoints/UI; Result: the offline OTP lifecycle and Exotel delivery adapter are independently approved, while the live Exotel sandbox, DLT, physical-device SMS, and autofill evidence remain pending and Vinay (Developer) made the 1 September 2026 development scheduling decision to continue Customer-interface development using the existing development/test-only local OTP boundary; Action: reopen and fully close the pending external evidence before the final Customer release gate; Depends/Risk: CUST-01, Exotel procurement/DLT/device evidence; Test/Security: expiry, attempts, cooldown, provider failure/race, then separately authorized sandbox/device proof without code leakage; DoD: offline approval is retained but CUST-02 remains incomplete until the pending sandbox and device evidence passes; Next: CUST-03 may proceed only after the independent deferred-checkpoint review is complete and this checkpoint is committed, using development/test-only local OTP.
 - [x] **CUST-03 Session** — Objective: secure login persistence/logout/revocation; State: **DONE WITH FINDINGS - 2 September 2026**; Scope: secure store/API refresh/device sessions; Result: independently approved with no reviewer source changes and zero blocking findings; access tokens are memory-first, the minimum refresh session is versioned in platform-secure storage, startup restoration validates and rotates once, refresh is single-flight, unsafe mutations are not blindly replayed, revoked/reused/invalid sessions fail closed, current/all-device logout use the existing authenticated contracts, and Customer-private caches are cleared on logout or identity change; Depends/Risk: independently reviewed and committed CUST-02 deferred checkpoint; development and automated tests use the existing development/test-only local OTP boundary only; Test/Security: focused backend 23/23, full backend 293/293, PostgreSQL integration 42/42, focused Flutter 28/28, Flutter regression groups 79/79 and 59/59, full Flutter 544/544, analysis/lint/typecheck/build/format/diff checks pass; DoD: independently approved and closed with two accepted P2 non-blocking findings: refresh de-duplication is process-local with PostgreSQL authoritative across instances, and cross-instance principal-cache revocation observation may take at most 15 seconds; Evidence: `docs/08-testing/cust-03-session-evidence.md`; Next: CUST-04 - **NOT STARTED**. CUST-03 is not production-proven, does not approve production SMS, and CUST-02 must reopen before the final Customer release gate.
-- [x] **CUST-04 Customer bootstrap** — Objective: fail-closed role/branch/module bootstrap; State: **INDEPENDENTLY REVIEWED AND CLOSED - 4 SEPTEMBER 2026**; Scope: bootstrap compatibility and authorization, PostgreSQL/shared/principal role scopes, AppGateway/session freshness, refresh/role-switch concurrency, vendor-note relationship integrity, multi-vendor selection, vendor-self note classification, vendor-summary output filtering, and tests; Result: strict structural/minimum-client validation accepts safe additive policy while preserving required baselines, TypeScript and Flutter require UTC `generatedAt`, typed global/branch/vendor grants never confuse vendor UUIDs with operational Hyderabad branch, vendor self-resources intersect a qualifying active grant with same-vendor membership, ambiguous multi-vendor note requests require explicit selection, authenticated memory clears before logout cleanup awaits, stable server session identity plus local generations/revisions reject stale or conflicting responses, CRM/self note paths validate branch/vendor/assignment/event linkage transactionally, vendor-self notes strictly enforce noteType 'vendor', dashboard output uses a runtime summary allowlist, mixed-case and trailing-slash sensitive paths retain no-store, generated Next declarations are ignored/untracked and regenerated before ERP typecheck, and authorization remains server-authoritative; Depends/Risk: CUST-03; Test/Security: backend 343/343, PostgreSQL 52/52, Flutter 581/581, real Nest HTTP/guard/OpenAPI/no-store/serialization coverage, clean-like ERP type generation, two consecutive complete root verify runs, and mobile analysis pass; DoD: Claude's final independent review returned **READY TO CLOSE** with no blocking findings; locally verified and closed without claiming staging, production, physical-device, Exotel, DLT, or store proof; Evidence: `docs/08-testing/cust-04-customer-bootstrap-evidence.md`; Next: CUST-05, now **IN PROGRESS** through its first implementation slice.
-- [~] **CUST-05 Home** — Objective: real, useful customer home; State: **IN PROGRESS - FIRST IMPLEMENTATION SLICE - 5 SEPTEMBER 2026**; Scope: Home widgets/catalog API; Result: the independently approved first slice is locally committed and uses authoritative Event Record status for concluded-event meaning, treats `completed`, `settlement_pending`, and `closed` as concluded, never treats `cancelled` or a past date alone as a completed celebration, keeps every valid non-concluded/non-cancelled event active regardless of date, selects active and concluded history deterministically, renders truthful completed-event hero/resume actions, opens the existing Event Workspace only with a usable booking ID, and routes “Plan another event” through the existing Plan tab; Action remaining: quotation resume, honest provider failures, location/date decisions, approved media, complete empty/new/active/completed acceptance testing, inaccurate active-state “Upcoming celebration” copy, mirrored status-catalogue drift protection, mixed active/concluded/cancelled coverage, and retained unusable-newest-booking-ID action selection; Depends/Risk: CUST-04 and media approval; Test/Security: prior local focused Flutter 119/119, full Flutter 599/599, analysis zero issues, mobile formatting 209 files/zero changes; closeout root format/verify passes including backend 343/343, ERP 12/12, lint, typecheck, and builds; Claude returned **READY FOR SLICE APPROVAL - code review only**, resolving the P1 date-eligibility and related P2 clock findings for this slice without independently executing Flutter; no backend/API change and no fixture PII/false availability; DoD: **NOT COMPLETE** until every remaining CUST-05 state and full independent-review gate passes; Evidence: `docs/08-testing/cust-05-customer-home-evidence.md`; Next: final Git validation followed by separate push authorization; do not start another CUST-05 slice or CUST-06.
+- [x] **CUST-04 Customer bootstrap** — Objective: fail-closed role/branch/module bootstrap; State: **INDEPENDENTLY REVIEWED AND CLOSED - 4 SEPTEMBER 2026**; Scope: bootstrap compatibility and authorization, PostgreSQL/shared/principal role scopes, AppGateway/session freshness, refresh/role-switch concurrency, vendor-note relationship integrity, multi-vendor selection, vendor-self note classification, vendor-summary output filtering, and tests; Result: strict structural/minimum-client validation accepts safe additive policy while preserving required baselines, TypeScript and Flutter require UTC `generatedAt`, typed global/branch/vendor grants never confuse vendor UUIDs with operational Hyderabad branch, vendor self-resources intersect a qualifying active grant with same-vendor membership, ambiguous multi-vendor note requests require explicit selection, authenticated memory clears before logout cleanup awaits, stable server session identity plus local generations/revisions reject stale or conflicting responses, CRM/self note paths validate branch/vendor/assignment/event linkage transactionally, vendor-self notes strictly enforce noteType 'vendor', dashboard output uses a runtime summary allowlist, mixed-case and trailing-slash sensitive paths retain no-store, generated Next declarations are ignored/untracked and regenerated before ERP typecheck, and authorization remains server-authoritative; Depends/Risk: CUST-03; Test/Security: backend 343/343, PostgreSQL 52/52, Flutter 581/581, real Nest HTTP/guard/OpenAPI/no-store/serialization coverage, clean-like ERP type generation, two consecutive complete root verify runs, and mobile analysis pass; DoD: Claude's final independent review returned **READY TO CLOSE** with no blocking findings; locally verified and closed without claiming staging, production, physical-device, Exotel, DLT, or store proof; Evidence: `docs/08-testing/cust-04-customer-bootstrap-evidence.md`; Next: CUST-05, now **IN PROGRESS** through its second lifecycle slice.
+- [~] **CUST-05 Home** — Objective: real, useful customer home; State: **IN PROGRESS - SECOND LIFECYCLE SLICE INDEPENDENTLY APPROVED - 5 SEPTEMBER 2026**; Scope: Home widgets/catalog API; Result: the independently approved first slice was pushed in `ca524db`; the independently approved second slice centralizes Flutter lifecycle policy for all 15 published Event Record statuses while preserving raw-string wire compatibility and failing unknown values closed, gives future/same-day/past-or-invalid active records honest resume titles, keeps active work primary, separates newest-concluded hero display from newest-actionable workspace selection, and expands mixed-lifecycle/reversed-order/navigation/responsive coverage; Action remaining: separate safe-push authorization for the focused local commit, quotation resume, honest provider failures, location/date decisions, approved media, complete acceptance testing, and retained manual TypeScript/Dart status-catalogue synchronization risk; Depends/Risk: CUST-04 and media approval; Test/Security: current focused Flutter lifecycle/Home/shell 129/129, full Flutter 609/609, analysis zero issues, Dart formatting 210 files/zero changes, and complete root verify passing with backend 343/343, ERP 12/12, lint, typecheck, and builds after the sandbox-only loopback rerun; Claude's read-only review returned **READY FOR SLICE APPROVAL — code review only**, with repository-wide Prettier, diff, scope, contract, and removed-symbol inspections passing; Claude could not run Flutter/Dart (**NOT VERIFIED — ENVIRONMENT LIMITATION**); first-slice GitHub CI, Security, and CodeQL passed; no backend/API/auth/dependency change and no fixture PII/false availability; DoD: **NOT COMPLETE** until every remaining CUST-05 state and full independent-review gate passes; Evidence: `docs/08-testing/cust-05-customer-home-evidence.md`; Next: obtain separate safe-push authorization; do not start another CUST-05 slice or CUST-06.
 - [ ] **CUST-06 Explore** — Objective: browse live categories/services/products; State: **PARTIAL**; Scope: Explore/catalog screens/API; Action: pagination/filter/detail consistency; Depends/Risk: CUST-05; Test/Security: unpublished media hidden and safe URLs; DoD: live catalog browse works with zero fake production claims; Next: CUST-07.
 - [ ] **CUST-07 Event categories** — Objective: complete approved occasion taxonomy; State: **PARTIAL**; Scope: catalog migrations/admin data/mobile; Action: validate enabled/order/media/mappings; Depends/Risk: CUST-06, founder content approval; Test/Security: disabled/unapproved entries excluded; DoD: approved taxonomy matches DB/API/UI; Next: CUST-08.
 - [ ] **CUST-08 Services** — Objective: complete services and detail information; State: **PARTIAL**; Scope: catalog service/subcategory/product APIs/UI; Action: connect real descriptions/ranges/media/availability wording; Depends/Risk: CUST-07; Test/Security: no invented vendors/prices; DoD: each enabled service has valid live detail and enquiry path; Next: CUST-09.
@@ -376,14 +377,14 @@ The CUST-04 closure packages implementation, contracts, tests, security/API
 documentation, and evidence separately from the beginner-training document
 package. Generated `apps/erp-web/next-env.d.ts` is untracked, ignored, and
 regenerated by `next typegen` or a Next build. CUST-03 remains closed in commit
-`b7b2569`. CUST-05 is now in progress through the first implementation slice
-documented below.
+`b7b2569`. The independently approved first CUST-05 slice was pushed as
+`ca524db`; the second lifecycle slice documented below is independently
+approved for a focused local commit.
 
 ### NEXT TASK
 
-Complete final Git validation of the independently approved, locally committed
-first CUST-05 implementation slice, then request separate push authorization.
-Do not begin another CUST-05 slice or CUST-06 work.
+Obtain separate safe-push authorization for the focused local second-slice
+commit. Do not begin another CUST-05 slice or CUST-06 work.
 CUST-02 remains deferred and must reopen before the final Customer release
 gate.
 
@@ -395,7 +396,7 @@ gate.
 
 ### RESULT
 
-**IN PROGRESS - FIRST IMPLEMENTATION SLICE - 5 SEPTEMBER 2026.**
+**IN PROGRESS - SECOND LIFECYCLE SLICE INDEPENDENTLY APPROVED - 5 SEPTEMBER 2026.**
 
 This slice adds a status-authoritative completed-event Home experience without
 changing the backend, database, or API contract. Home recognizes `completed`,
@@ -403,13 +404,14 @@ changing the backend, database, or API contract. Home recognizes `completed`,
 infer completion from a past date and does not present `cancelled` as a
 completed celebration.
 
-Any valid non-concluded, non-cancelled Event Record remains active regardless of
-date and prevents concluded history from becoming primary. Current/future
-active events are ordered before past active events; if every active date is
-past, the most recent wins. Invalid or absent active dates use server timestamps
-and stable event ID. Otherwise the most recent concluded event is selected by
-valid event date, then the same deterministic fallbacks. The selector accepts
-an optional clock for fixed-time tests. The completed hero offers only
+Every Event Record with one of the 11 published active statuses remains active
+regardless of date and prevents concluded history from becoming primary.
+Current/future active events are ordered before past active events; if every
+active date is past, the most recent wins. Invalid or absent active dates use
+server timestamps and stable event ID. Unknown future statuses fail closed.
+Otherwise the most recent concluded event is selected by valid event date, then
+the same deterministic fallbacks. The selector accepts an optional clock for
+fixed-time tests. The completed hero offers only
 “Plan another event” through the existing Plan tab. Its resume card opens the
 existing Event Workspace with the selected event's non-blank `bookingId`; no
 action is shown when that identifier is unusable. Home does not duplicate the
@@ -421,20 +423,42 @@ remove past-dated active work and allow concluded history to render. That P1
 finding and the related injectable-clock P2 finding are remediated. Claude's
 correction re-review returned **READY FOR SLICE APPROVAL — code review only**.
 Approval applies to this slice only; Claude did not independently execute
-Flutter tests, and CUST-05 remains in progress. The approved slice is locally
-committed under the subject `feat(customer): add status-aware home lifecycle`.
+Flutter tests, and CUST-05 remains in progress. The approved first slice was
+committed and pushed as `ca524db`; its GitHub CI, Security, and CodeQL workflows
+passed.
+
+The local second lifecycle slice moves the Flutter status policy into the Event
+Record domain model. All 15 published values classify explicitly as active,
+concluded, or cancelled while unknown raw values remain parseable and fail
+closed. Active resume copy now distinguishes a future day, the same day, and a
+past, missing, or invalid date using an injectable clock; date changes wording,
+not lifecycle eligibility. Completed display and action selectors share the
+existing deterministic ordering, but the hero shows the newest concluded event
+while the resume card chooses the newest concluded event with a usable trimmed
+`bookingId`. Mixed-lifecycle and reversed-order tests keep active work primary.
+
+Claude performed a read-only review of this second slice and returned **READY
+FOR SLICE APPROVAL — code review only** with no P0, P1, or P2 findings. Claude
+independently passed repository-wide Prettier, `git diff --check`, and scope,
+contract, and removed-symbol inspections. Claude could not run Flutter or Dart:
+**NOT VERIFIED — ENVIRONMENT LIMITATION**. The 129/129 focused and 609/609 full
+Flutter totals remain Codex execution evidence, not Claude execution evidence.
 
 ### CURRENT WORK
 
 CUST-05 remains **IN PROGRESS**. Quotation resume, honest provider failures,
 location/date decisions, approved media, and complete acceptance testing remain
-open. The review also retains the P2 inaccurate “Upcoming celebration” label
-for some active records, P3 mirrored-status-catalogue drift protection, P3
-mixed active/concluded/cancelled coverage, and the retained P3 where the newest
-concluded record's unusable `bookingId` can hide the workspace action. These
-observations were not implemented during closeout. CUST-06 has not started.
+open. The inaccurate active title, mixed-lifecycle coverage gap, and
+unusable-newest-booking-ID action selection are addressed locally by this
+second slice. Manual TypeScript/Dart status-catalogue synchronization remains a
+P3 cross-language drift risk under the existing architecture. Calendar-day
+copy relies on the date-only `YYYY-MM-DD` API contract, and hero/card divergence
+is deliberate when the newest concluded record lacks a usable booking ID. A
+pre-existing inert `category_detail_screen_test.dart` fixture still uses the
+non-contract status `confirmed`; this slice did not change it. CUST-06 has not
+started.
 
 ### NEXT TASK
 
-Complete final Git validation of the locally committed first slice, then request
-separate push authorization. Do not begin another CUST-05 slice or CUST-06 work.
+Obtain separate safe-push authorization for the focused local second-slice
+commit. Do not begin another CUST-05 slice or CUST-06 work.

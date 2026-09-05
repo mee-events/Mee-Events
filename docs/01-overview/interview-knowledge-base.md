@@ -220,6 +220,23 @@ Customer Home treats only `completed`, `settlement_pending`, and `closed` Event
 Records as concluded. Event date orders concluded history but cannot declare
 completion. `cancelled` is not a completed celebration, active/upcoming context
 wins, and server timestamps plus event ID make missing dates and ties stable.
+Flutter retains the raw status string but derives lifecycle through one policy
+covering all 15 published values; an unknown value remains parseable and fails
+closed. Date affects active resume wording only. Completed hero display and
+workspace-action selection are separate so the newest history remains visible
+while navigation uses only a non-blank booking ID.
+
+### Interview question
+
+Why keep an unknown status parseable instead of rejecting the whole response?
+
+### Strong answer
+
+A future additive wire value should not crash every Event Record. I preserve
+the raw string for compatibility, then fail closed in the local lifecycle
+policy so the unknown record is not treated as active, concluded, or cancelled
+without a deliberate product decision. The tradeoff is that TypeScript and Dart
+catalogues still need manual drift checks until the project adopts generation.
 
 ### Why we chose it
 

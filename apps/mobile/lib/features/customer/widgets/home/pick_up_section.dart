@@ -75,15 +75,37 @@ String homeEnquiryStatusLabel(Enquiry enquiry) {
   return enquiry.statusLabel;
 }
 
-HomeResumeCardData? homeUpcomingResumeCard(EventRecordSummary? event) {
+HomeResumeCardData? homeUpcomingResumeCard(
+  EventRecordSummary? event, {
+  DateTime? now,
+}) {
   if (event == null) return null;
   return HomeResumeCardData(
     kind: HomeResumeKind.upcoming,
-    title: 'Upcoming celebration',
+    title: homeActiveEventResumeTitle(event, now: now),
     subtitle: 'Review checklist & journey',
     actionLabel: 'Continue',
     semanticLabel: '${event.eventName}. Continue planning',
   );
+}
+
+String homeActiveEventResumeTitle(EventRecordSummary event, {DateTime? now}) {
+  final rawEventDate = event.eventDate?.trim();
+  final eventDate = rawEventDate == null || rawEventDate.isEmpty
+      ? null
+      : DateTime.tryParse(rawEventDate);
+  if (eventDate == null) return 'Continue your event';
+
+  final referenceDate = now ?? DateTime.now();
+  final eventDay = DateTime.utc(eventDate.year, eventDate.month, eventDate.day);
+  final currentDay = DateTime.utc(
+    referenceDate.year,
+    referenceDate.month,
+    referenceDate.day,
+  );
+  if (eventDay.isAfter(currentDay)) return 'Upcoming celebration';
+  if (eventDay == currentDay) return 'Today’s celebration';
+  return 'Continue your event';
 }
 
 HomeResumeCardData? homeCompletedResumeCard(EventRecordSummary? event) {
