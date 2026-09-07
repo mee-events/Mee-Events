@@ -12,6 +12,7 @@ import 'package:mee_events/features/auth/session_provider.dart';
 import 'package:mee_events/features/auth/widgets/session_actions.dart';
 import 'package:mee_events/features/customer/favorites/favorites_store.dart';
 import 'package:mee_events/features/customer/plan/event_plan_store.dart';
+import 'package:mee_events/features/customer/planning_context/planning_context_store.dart';
 import 'package:mee_events/features/customer/screens/customer_dashboard_screen.dart';
 import 'package:mee_events/features/customer/search/recent_searches_store.dart';
 import 'package:mee_events/models/api_error.dart';
@@ -559,7 +560,11 @@ void main() {
           favoritesStorageKey(_userOne): <String>['private-one'],
           recentSearchesStorageKey(_userOne): <String>['private-one'],
           eventPlanStorageKey(_userOne): <String>['private-one'],
+          planningContextStorageKey(_userOne):
+              '{"area":"Gachibowli","eventDate":"2026-11-15"}',
           favoritesStorageKey(_userTwo): <String>['private-two'],
+          planningContextStorageKey(_userTwo):
+              '{"area":"Kondapur","eventDate":"2026-12-01"}',
           'mee_events.safe.theme': 'system',
         });
         final prefs = await SharedPreferences.getInstance();
@@ -572,9 +577,14 @@ void main() {
         expect(prefs.containsKey(favoritesStorageKey(_userOne)), isFalse);
         expect(prefs.containsKey(recentSearchesStorageKey(_userOne)), isFalse);
         expect(prefs.containsKey(eventPlanStorageKey(_userOne)), isFalse);
+        expect(prefs.containsKey(planningContextStorageKey(_userOne)), isFalse);
         expect(prefs.getStringList(favoritesStorageKey(_userTwo)), [
           'private-two',
         ]);
+        expect(
+          prefs.getString(planningContextStorageKey(_userTwo)),
+          '{"area":"Kondapur","eventDate":"2026-12-01"}',
+        );
         expect(prefs.getString('mee_events.safe.theme'), 'system');
       },
     );

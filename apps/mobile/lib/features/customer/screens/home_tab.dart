@@ -4,12 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mee_events/core/providers/catalog_provider.dart';
+import 'package:mee_events/design_system/design_system.dart';
 import 'package:mee_events/features/auth/session_provider.dart';
 import 'package:mee_events/features/customer/catalog/catalog_image_resolver.dart';
 import 'package:mee_events/features/customer/favorites/favorites_provider.dart';
 import 'package:mee_events/features/customer/navigation/customer_tab.dart';
 import 'package:mee_events/features/customer/plan/event_plan_provider.dart';
 import 'package:mee_events/features/customer/plan/event_plan_store.dart';
+import 'package:mee_events/features/customer/planning_context/planning_context_provider.dart';
 import 'package:mee_events/features/customer/providers/event_record_providers.dart';
 import 'package:mee_events/features/customer/providers/explore_intent_provider.dart';
 import 'package:mee_events/features/customer/screens/category_detail_screen.dart';
@@ -20,6 +22,7 @@ import 'package:mee_events/features/customer/search/customer_search_screen.dart'
 import 'package:mee_events/features/customer/workspace/event_workspace_screen.dart';
 import 'package:mee_events/features/customer/widgets/home/discovery_skeletons.dart';
 import 'package:mee_events/features/customer/widgets/home/home_planning_guidance.dart';
+import 'package:mee_events/features/customer/widgets/home/home_planning_context.dart';
 import 'package:mee_events/features/customer/widgets/home/home_planning_hero.dart';
 import 'package:mee_events/features/customer/widgets/home/home_search_bar.dart';
 import 'package:mee_events/features/customer/widgets/home/occasion_section.dart';
@@ -230,6 +233,23 @@ class _CustomerHomeTabState extends ConsumerState<CustomerHomeTab> {
     );
   }
 
+  Future<void> _openPlanningContext() async {
+    final initialUserId = ref.read(sessionUserIdProvider);
+    final notifier = ref.read(planningContextProvider.notifier);
+    final current = await notifier.ready;
+    if (!mounted) return;
+    if (ref.read(sessionUserIdProvider) != initialUserId) return;
+    await showMeBottomSheet<void>(
+      context: context,
+      builder: (_) => HomePlanningContextSheet(
+        initialContext: current,
+        today: ref.read(planningContextClockProvider)(),
+        onSave: (area, eventDate) =>
+            notifier.save(area: area, eventDate: eventDate),
+      ),
+    );
+  }
+
   void _openCategory(String code, String title, {required bool isOccasion}) {
     Navigator.of(context).push(
       MaterialPageRoute(
@@ -279,6 +299,7 @@ class _CustomerHomeTabState extends ConsumerState<CustomerHomeTab> {
     final servicesAsync = ref.watch(catalogServicesProvider(null));
     final eventsAsync = ref.watch(eventsProvider);
     final planAsync = ref.watch(eventPlanProvider);
+    final planningContext = ref.watch(planningContextProvider);
 
     final events = eventsAsync.valueOrNull;
     final upcoming = pickHomeUpcomingEvent(events);
@@ -327,6 +348,15 @@ class _CustomerHomeTabState extends ConsumerState<CustomerHomeTab> {
             SliverToBoxAdapter(
               child: Semantics(
                 sortKey: const OrdinalSortKey(2),
+                child: HomePlanningContextControl(
+                  planningContext: planningContext,
+                  onTap: _openPlanningContext,
+                ),
+              ),
+            ),
+            SliverToBoxAdapter(
+              child: Semantics(
+                sortKey: const OrdinalSortKey(3),
                 explicitChildNodes: true,
                 child: _buildHero(
                   eventsAsync,

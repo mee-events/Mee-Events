@@ -1,6 +1,6 @@
 # Mee Events — Progress Tracker
 
-- **Updated:** 7 September 2026; CUST-05 sent-quotation slice approval
+- **Updated:** 7 September 2026; CUST-05 Planning Context physical approval
 - **Repository:** `/Users/vinaychilagani/Desktop/Mee Event V1`
 - **Baseline application commit:** `master` / `9e2a442d91c137ec97a349d1a55697ae8d79d5df`
 - **STAB-01 snapshot HEAD:** `ca994985a898d42da2a8d717041b93a8f8f0dc4c`
@@ -8,20 +8,126 @@
 - **Phase state:** **IN PROGRESS**
 - **Last completed task:** CUST-04 Customer Bootstrap - **INDEPENDENTLY REVIEWED
   AND CLOSED - 4 SEPTEMBER 2026**
-- **Current task:** CUST-05 Home - **IN PROGRESS - SENT QUOTATION SLICE
-  INDEPENDENTLY APPROVED**
-- **Next authorized task:** stop for separate push authorization; no further
-  implementation
-- **Latest application change:** signed-in Home shows one deterministic,
-  server-status `sent` quotation in the existing resume rail, opens the existing
-  quotation detail, and integrates quotation loading/error/retry/refresh without
-  changing payment, booking, or server contracts.
+- **Current task:** CUST-05 Home - **IN PROGRESS - PLANNING CONTEXT SLICE
+  APPROVED AND PHYSICALLY VERIFIED**
+- **Next authorized task:** one focused local Planning Context commit; no push
+  or further implementation
+- **Latest application change:** Customer Home remembers client-only Hyderabad
+  planning area/date context and safely pre-fills the existing Enquiry Checkout
+  fields without changing APIs, filtering, availability, pricing, or submission.
 - **STAB-16 implementation commit:** `999443d5d3ba547de1bb6c0406c34753c8433b00`
 - **STAB-16 closeout:** `1450263caa6a5be2263bf7b9c91827f7cc24ef6c`
 - **STAB-17 commit:** `68894f3bbfa91937a0c7c573a8fc1a0af83ce533`
 - **STAB-18 commit:** `f66cc51a726322eeb604ab84c3d3e195050248f9`
 - **STAB-19 commit:** `e833eb82d690d65e293b9521ce3f24c390fff4f0`
 - **STAB-20 canonical application commit:** `37cf6c2f8e36dd522688e3423be7b9595e442ead`
+
+## CUST-05 Home Planning Context Foundation - 7 September 2026
+
+- [~] **CUST-05 Home** — **IN PROGRESS - PLANNING CONTEXT SLICE APPROVED AND
+  PHYSICALLY VERIFIED**.
+
+The safety audit started on `master` at
+`22a37693c35776c14266fa383bb1eb8bf4173b7e`, matching local
+`origin/master`, with a zero-behind/zero-ahead branch and empty index. The only
+pre-existing worktree change was tracked, unstaged `AGENTS.md`, whose expected
+SHA-256 remained unchanged. Its full diff was inspected and it remains excluded.
+
+The sent-quotation slice was already committed and pushed as `22a37693` under
+`feat(customer): add sent quotation home resume`. GitHub CI, Security, and
+CodeQL passed for that exact SHA; push-only Dependency Review skipped normally.
+This corrects the stale wording that said the slice still awaited commit or
+push.
+
+Home now has a compact planning-context control below search. It defaults to
+Hyderabad and no date, and an existing Mee Events bottom sheet accepts an
+optional free-text Hyderabad area/venue plus an exact non-past date. Area input
+rejects control characters and is bounded to 300 characters. Either optional
+value can be cleared. Compact display now fails closed to `Hyderabad` for
+likely hyphenated, slashed, `#`-prefixed, or marker-led door/street addresses;
+a comma-separated value may expose only its final safe area. The full sanitized
+value remains available to checkout. The UI explicitly says it does not check
+live vendor availability or filter services, prices, or recommendations.
+
+The Riverpod notifier uses the existing `SharedPreferences` architecture:
+guests remain memory-only, signed-in values use an account-scoped key, account
+changes rebuild the provider without cross-account display, and the existing
+`CustomerPrivateDataCleaner` removes the departing account's key on logout or
+identity replacement. A typed save result distinguishes persisted, expected
+guest session-only, signed-in persistence failure, and rejected-past-date
+outcomes. Both `setString == false` and thrown failures keep memory safely,
+show non-technical session-only guidance, keep the sheet open, and allow retry;
+guest saves instead show the expected sign-in reminder. Overlapping writes are
+serialized so the newest value is persisted last. Vendor and Worker surfaces
+are unchanged.
+
+The context pre-fills only the existing exact date and location fields in
+`EnquiryCheckoutScreen`. Customers retain edit/clear control, existing explicit
+constructor values win, no automatic submission occurs, and the enquiry API
+request is unchanged. Checkout captures the current session user before its
+awaited context load and discards that result if the active account changes.
+The five existing checkout paths were inspected and keep
+their current event-type, service, and note seeds. Event Record date/venue
+display remains authoritative and is never overwritten by browsing context.
+
+Claude's independent review returned **NOT READY FOR SLICE APPROVAL**. The two
+confirmed P1 findings were incomplete compact address privacy and falsely
+successful signed-in persistence reporting. The confirmed P2 was the delayed
+old-account checkout pre-fill race; the required-test concern was partially
+confirmed because some behavior existed but lacked direct deterministic
+coverage. The remediation and tests above address those findings. A fresh
+focused Claude source re-review then returned **READY FOR SLICE APPROVAL**.
+That verdict covered source review only and did not establish physical-device
+acceptance.
+
+Subsequent real-device testing returned **PHYSICAL ANDROID QA FOUND ISSUES**.
+The Home layout, keyboard handling, date selection, and compact privacy
+redaction passed. Reopening the Home sheet lost the latest area/date, and
+Enquiry Checkout received the original blank startup context, so the physical
+slice did not pass.
+
+The notifier's `ready` getter was the shared cause: it permanently returned the
+initial `_ready` storage-load result after `save()` had updated current state.
+It now waits for initialization and returns the latest mounted state, failing
+closed to empty if that notifier was disposed. Home also captures and rechecks
+session identity around the await, matching Checkout's account-switch guard.
+Deterministic tests now reproduce the same-instance Home reopen and Checkout
+flow, current state after successful or failed persistence, initial-load
+waiting, and delayed Home account switching.
+
+Claude's focused correction review returned **READY FOR PHYSICAL ANDROID
+RE-TEST**. Antigravity then re-tested the corrected working-tree application on
+a physical Nothing Phone (2a), Android 16, and returned **PHYSICAL ANDROID
+RE-TEST PASSED**. Home retained the saved location/date after sheet reopening;
+Checkout received the latest saved location/date; its location remained
+editable; its date remained clearable; and no runtime error was observed.
+
+The new stale-context regressions pass **4/4**, all planning-context tests pass
+**33/33**, and focused planning-context/Home/checkout/session tests pass
+**185/185**. Complete Flutter passes **696/696**; analysis reports zero issues;
+Dart formatting checks
+216 files with zero changes; the three touched documents pass Prettier. Root
+verification passes formatting, lint, typecheck, backend **343/343**, ERP
+**12/12**, and all builds including 37 ERP routes. The first sandboxed formatter
+and focused-test attempts were blocked by installed Flutter SDK-cache access;
+the first root run was blocked only when the established 17 backend HTTP tests
+attempted loopback. Each unchanged command passed with the required permission.
+Physical Android verification on Nothing Phone (2a), Android 16, passed with
+no runtime errors. Manual screen-reader behavior remains **NOT VERIFIED**. The
+slice is authorized for one focused local commit and no push.
+
+Deferred decisions remain explicit: saved addresses stay under CUST-20;
+flexible-date handling needs a future product/API decision; structured locality
+taxonomy and locality/date availability filtering are **NEW REQUIRED ITEM — NOT
+CURRENTLY IN ROADMAP**, with no invented task ID.
+
+Claude's retained non-blocking P3 observations are unchanged: a save completing
+during logout may recreate the departing account key; currently unused
+`clearArea`/`clearDate` calls have a mutation-ordering concern; generic
+`Hyderabad` satisfies checkout validation; the compact date omits the year;
+additional invisible Unicode formatting characters remain; and sanitized
+account-ID collisions are unreachable today because session user IDs are UUIDs.
+CUST-05 remains **IN PROGRESS** and CUST-06 remains unstarted.
 
 ## CUST-05 Sent Quotation Resume Slice - 7 September 2026
 
@@ -100,8 +206,8 @@ dedicated test while the shared composition is correct. Two future risks also
 remain: multiple simultaneous `sent` quotations need a product decision, and
 raw error rendering in the pre-existing `QuotationDetailScreen` belongs to
 CUST-14 quotation-detail hardening. CUST-05 remains **IN PROGRESS**; the slice
-is independently approved for one focused local commit, with pushing subject to
-separate authorization.
+was committed and pushed as `22a37693`; GitHub CI, Security, and CodeQL passed
+for that exact SHA.
 
 ## CUST-05 Compact Home Top Area - 6 September 2026
 
@@ -1883,10 +1989,11 @@ Do not ask for these until their dependent block is approaching, unless early pr
 - [x] CUST-04 Customer bootstrap — **INDEPENDENTLY REVIEWED AND CLOSED - 4
       SEPTEMBER 2026**; evidence:
       `docs/08-testing/cust-04-customer-bootstrap-evidence.md`
-- [~] CUST-05 Home — **IN PROGRESS - SECOND LIFECYCLE SLICE INDEPENDENTLY
-  APPROVED** 5 September 2026; centralized status-authoritative lifecycle
-  policy, honest active copy, and separated concluded display/action selection;
-  evidence:
+- [~] CUST-05 Home — **IN PROGRESS - PLANNING CONTEXT SLICE APPROVED AND
+  PHYSICALLY VERIFIED** 7 September 2026; Claude returned **READY FOR PHYSICAL
+  ANDROID RE-TEST** and Antigravity returned **PHYSICAL ANDROID RE-TEST PASSED**
+  on Nothing Phone (2a), Android 16; the focused local commit is authorized but
+  no push or further slice is authorized; evidence:
   `docs/08-testing/cust-05-customer-home-evidence.md`
 - [ ] CUST-06 Explore
 - [ ] CUST-07 Event categories

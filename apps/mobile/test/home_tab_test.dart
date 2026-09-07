@@ -10,6 +10,8 @@ import 'package:mee_events/features/auth/session_provider.dart';
 import 'package:mee_events/core/widgets/image/app_image.dart';
 import 'package:mee_events/features/customer/catalog/catalog_image_resolver.dart';
 import 'package:mee_events/features/customer/navigation/customer_tab.dart';
+import 'package:mee_events/features/customer/planning_context/planning_context_provider.dart';
+import 'package:mee_events/features/customer/planning_context/planning_context_store.dart';
 import 'package:mee_events/features/customer/providers/event_record_providers.dart';
 import 'package:mee_events/features/customer/providers/explore_intent_provider.dart';
 import 'package:mee_events/features/customer/screens/category_detail_screen.dart';
@@ -20,6 +22,7 @@ import 'package:mee_events/features/customer/workspace/event_workspace_screen.da
 import 'package:mee_events/features/customer/search/search_provider.dart';
 import 'package:mee_events/features/customer/widgets/home/discovery_skeletons.dart';
 import 'package:mee_events/features/customer/widgets/home/home_planning_guidance.dart';
+import 'package:mee_events/features/customer/widgets/home/home_planning_context.dart';
 import 'package:mee_events/features/customer/widgets/home/home_planning_hero.dart';
 import 'package:mee_events/features/customer/widgets/home/home_search_bar.dart';
 import 'package:mee_events/features/customer/widgets/home/occasion_section.dart';
@@ -35,6 +38,18 @@ import 'package:mee_events/models/event_record.dart';
 import 'package:mee_events/models/occasion_stage.dart';
 import 'package:mee_events/theme/theme.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+final _homeActiveUserProvider = StateProvider<String?>((ref) => 'customer-a');
+
+class _DelayedHomePlanningContextStore extends PlanningContextStore {
+  _DelayedHomePlanningContextStore({required this.loadResult})
+    : super(userId: 'customer-a');
+
+  final Future<CustomerPlanningContext> loadResult;
+
+  @override
+  Future<CustomerPlanningContext> load({required DateTime today}) => loadResult;
+}
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -382,6 +397,156 @@ void main() {
         of: find.byType(OccasionSection),
         matching: find.text('Birthday'),
       ),
+      findsOneWidget,
+    );
+    expectNoFlutterException(tester);
+  });
+
+  testWidgets('Home shows the default planning context below search', (
+    tester,
+  ) async {
+    await pumpHome(tester, overrides: homeOverrides());
+
+    expect(find.byKey(HomePlanningContextControl.controlKey), findsOneWidget);
+    expect(find.text('Hyderabad · Add event date'), findsOneWidget);
+    final searchBottom = tester.getRect(find.byType(HomeSearchBar)).bottom;
+    final contextTop = tester
+        .getRect(find.byKey(HomePlanningContextControl.controlKey))
+        .top;
+    expect(contextTop, greaterThanOrEqualTo(searchBottom));
+    expectNoFlutterException(tester);
+  });
+
+  testWidgets('saved context remains current when the Home sheet reopens', (
+    tester,
+  ) async {
+    await pumpHome(
+      tester,
+      overrides: [
+        ...homeOverrides(),
+        planningContextClockProvider.overrideWithValue(
+          () => DateTime(2026, 9, 7),
+        ),
+      ],
+    );
+    expect(find.text('Hyderabad · Add event date'), findsOneWidget);
+
+    await tester.tap(find.byKey(HomePlanningContextControl.controlKey));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(HomePlanningContextSheet.areaFieldKey),
+      'Gachibowli',
+    );
+    await tester.tap(find.byKey(HomePlanningContextSheet.dateFieldKey));
+    await tester.pumpAndSettle();
+    final dateInPicker = find.descendant(
+      of: find.byType(CalendarDatePicker),
+      matching: find.text('15'),
+    );
+    await tester.tap(dateInPicker.last);
+    await tester.tap(find.text('OK'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(HomePlanningContextSheet.saveKey));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Gachibowli, Hyderabad · 15 Sep'), findsOneWidget);
+
+    await tester.tap(find.byKey(HomePlanningContextControl.controlKey));
+    await tester.pumpAndSettle();
+    final areaField = tester.widget<TextField>(
+      find.byKey(HomePlanningContextSheet.areaFieldKey),
+    );
+    expect(areaField.controller?.text, 'Gachibowli');
+    expect(find.text('15 Sep 2026'), findsOneWidget);
+    expectNoFlutterException(tester);
+  });
+
+  testWidgets('Home discards a delayed context after account change', (
+    tester,
+  ) async {
+    final accountALoad = Completer<CustomerPlanningContext>();
+    final accountAStore = _DelayedHomePlanningContextStore(
+      loadResult: accountALoad.future,
+    );
+    final prefs = await SharedPreferences.getInstance();
+    final accountBStore = PlanningContextStore(
+      preferences: prefs,
+      userId: 'customer-b',
+    );
+    await pumpHome(
+      tester,
+      overrides: [
+        ...homeOverrides(),
+        sessionUserIdProvider.overrideWith(
+          (ref) => ref.watch(_homeActiveUserProvider),
+        ),
+        planningContextStoreProvider.overrideWith((ref) {
+          final userId = ref.watch(sessionUserIdProvider);
+          return userId == 'customer-a' ? accountAStore : accountBStore;
+        }),
+        planningContextClockProvider.overrideWithValue(
+          () => DateTime(2026, 9, 7),
+        ),
+      ],
+    );
+    final container = ProviderScope.containerOf(
+      tester.element(find.byKey(HomePlanningContextControl.controlKey)),
+    );
+
+    await tester.tap(find.byKey(HomePlanningContextControl.controlKey));
+    await tester.pump();
+    expect(find.byKey(HomePlanningContextSheet.sheetKey), findsNothing);
+
+    container.read(_homeActiveUserProvider.notifier).state = 'customer-b';
+    await tester.pump();
+    accountALoad.complete(
+      CustomerPlanningContext(
+        area: 'Customer A private area',
+        eventDate: DateTime(2026, 11, 15),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(HomePlanningContextSheet.sheetKey), findsNothing);
+    expect(find.textContaining('Customer A private area'), findsNothing);
+    expectNoFlutterException(tester);
+  });
+
+  testWidgets('planning context does not overwrite active Event Record', (
+    tester,
+  ) async {
+    final prefs = await SharedPreferences.getInstance();
+    final store = PlanningContextStore(
+      preferences: prefs,
+      userId: 'active-event-customer',
+    );
+    await store.save(
+      CustomerPlanningContext(
+        area: 'Gachibowli',
+        eventDate: DateTime.utc(2099, 11, 15),
+      ),
+    );
+    final event = namedEvent(
+      id: 'authoritative-event',
+      name: 'Authoritative Celebration',
+      date: DateTime.utc(2099, 12, 20),
+    );
+
+    await pumpHome(
+      tester,
+      overrides: [
+        ...homeOverrides(events: [event]),
+        planningContextStoreProvider.overrideWithValue(store),
+        planningContextClockProvider.overrideWithValue(
+          () => DateTime.utc(2026, 9, 7),
+        ),
+      ],
+    );
+
+    expect(find.text('Gachibowli, Hyderabad · 15 Nov'), findsOneWidget);
+    expect(find.text('Authoritative Celebration'), findsOneWidget);
+    expect(
+      find.textContaining(formatHomeEventDate(event.eventDate)!),
       findsOneWidget,
     );
     expectNoFlutterException(tester);
@@ -2449,9 +2614,14 @@ void main() {
               matching: find.byType(InkWell),
             );
             final searchRect = tester.getRect(search);
+            final contextRect = tester.getRect(
+              find.byKey(HomePlanningContextControl.controlKey),
+            );
             expect(searchRect.height, greaterThanOrEqualTo(48));
             expect(surface.left, searchRect.left);
-            expect(surface.top - searchRect.bottom, closeTo(8, 0.5));
+            expect(contextRect.top, greaterThanOrEqualTo(searchRect.bottom));
+            expect(contextRect.left, searchRect.left);
+            expect(surface.top - contextRect.bottom, closeTo(8, 0.5));
             expect(surface.height, greaterThanOrEqualTo(kHomeHeroHeight));
             if (scale == 1 && width == 390) {
               // Normal phone layout is compact. Narrower layouts may grow to

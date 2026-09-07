@@ -3,8 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:mee_events/design_system/design_system.dart';
 import 'package:mee_events/features/auth/session_provider.dart';
-import 'package:mee_events/features/customer/screens/enquiry_success_screen.dart';
 import 'package:mee_events/features/customer/plan/event_plan_provider.dart';
+import 'package:mee_events/features/customer/planning_context/planning_context_provider.dart';
+import 'package:mee_events/features/customer/planning_context/planning_context_store.dart';
+import 'package:mee_events/features/customer/screens/enquiry_success_screen.dart';
 import 'package:mee_events/features/customer/widgets/enquiry_checkout/enquiry_step_indicator.dart';
 import 'package:mee_events/models/api_error.dart';
 import 'package:mee_events/models/catalog_item.dart';
@@ -20,6 +22,8 @@ class EnquiryCheckoutScreen extends ConsumerStatefulWidget {
     this.initialEventTypeCode,
     this.initialServiceCategoryCodes = const [],
     this.contextNotes,
+    this.initialEventDate,
+    this.initialLocation,
   });
 
   /// Pre-select occasion when opening from detail flows.
@@ -31,6 +35,10 @@ class EnquiryCheckoutScreen extends ConsumerStatefulWidget {
   /// Seed notes with originating service/occasion context.
   final String? contextNotes;
 
+  /// Explicit navigation values take precedence over remembered Home context.
+  final DateTime? initialEventDate;
+  final String? initialLocation;
+
   @override
   ConsumerState<EnquiryCheckoutScreen> createState() =>
       _EnquiryCheckoutScreenState();
@@ -38,6 +46,9 @@ class EnquiryCheckoutScreen extends ConsumerStatefulWidget {
 
 class _EnquiryCheckoutScreenState extends ConsumerState<EnquiryCheckoutScreen> {
   static const int _stepCount = 3;
+  static const locationFieldKey = Key('enquiry-checkout-location');
+  static const dateFieldKey = Key('enquiry-checkout-event-date');
+  static const clearDateKey = Key('enquiry-checkout-clear-date');
   int _currentStep = 0;
 
   // Form State
@@ -50,12 +61,21 @@ class _EnquiryCheckoutScreenState extends ConsumerState<EnquiryCheckoutScreen> {
   String? _selectedEventType;
   final Set<String> _selectedServices = {};
   DateTime? _eventDate;
+  bool _locationEdited = false;
+  bool _dateEdited = false;
   bool _busy = false;
   String? _error;
 
   @override
   void initState() {
     super.initState();
+    if (widget.initialLocation != null) {
+      _locationController.text = widget.initialLocation!;
+    }
+    if (widget.initialEventDate != null) {
+      _eventDate = planningContextDateOnly(widget.initialEventDate!);
+    }
+    _applyPlanningContext();
     _loadCatalog();
   }
 
@@ -101,11 +121,53 @@ class _EnquiryCheckoutScreenState extends ConsumerState<EnquiryCheckoutScreen> {
     }
   }
 
+  Future<void> _applyPlanningContext() async {
+    final initialUserId = ref.read(sessionUserIdProvider);
+    final notifier = ref.read(planningContextProvider.notifier);
+    final context = await notifier.ready;
+    if (!mounted) return;
+    if (ref.read(sessionUserIdProvider) != initialUserId) return;
+    setState(() {
+      if (widget.initialLocation == null &&
+          !_locationEdited &&
+          _locationController.text.isEmpty) {
+        _locationController.text = context.checkoutLocation;
+      }
+      if (widget.initialEventDate == null &&
+          !_dateEdited &&
+          _eventDate == null) {
+        _eventDate = context.eventDate;
+      }
+    });
+  }
+
   Future<void> _pickDate() async {
-    final picked = await showMeDatePicker(context, initialDate: _eventDate);
+    final today = planningContextDateOnly(
+      ref.read(planningContextClockProvider)(),
+    );
+    final current = _eventDate;
+    final initialDate =
+        current == null || isPastPlanningContextDate(current, today)
+        ? today
+        : current;
+    final picked = await showMeDatePicker(
+      context,
+      initialDate: initialDate,
+      firstDate: today,
+    );
     if (picked != null) {
-      setState(() => _eventDate = picked);
+      setState(() {
+        _dateEdited = true;
+        _eventDate = planningContextDateOnly(picked);
+      });
     }
+  }
+
+  void _clearDate() {
+    setState(() {
+      _dateEdited = true;
+      _eventDate = null;
+    });
   }
 
   void _goToStep(int step) {
@@ -371,6 +433,7 @@ class _EnquiryCheckoutScreenState extends ConsumerState<EnquiryCheckoutScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 SizedBox(
+                  key: dateFieldKey,
                   width: double.infinity,
                   child: MeDateField(
                     label: 'Event date',
@@ -380,12 +443,25 @@ class _EnquiryCheckoutScreenState extends ConsumerState<EnquiryCheckoutScreen> {
                     onPick: _pickDate,
                   ),
                 ),
+                if (_eventDate != null)
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: TextButton(
+                      key: clearDateKey,
+                      onPressed: _clearDate,
+                      style: TextButton.styleFrom(
+                        minimumSize: const Size(44, 44),
+                      ),
+                      child: const Text('Clear date'),
+                    ),
+                  ),
                 const SizedBox(height: AppSpacing.md),
                 MeTextField(
+                  key: locationFieldKey,
                   controller: _locationController,
                   label: 'Location',
                   hint: 'City, venue, or area',
-                  onChanged: (_) => setState(() {}),
+                  onChanged: (_) => setState(() => _locationEdited = true),
                 ),
                 const SizedBox(height: AppSpacing.md),
                 MeTextField(
