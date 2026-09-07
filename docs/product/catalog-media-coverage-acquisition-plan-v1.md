@@ -1,12 +1,25 @@
 # Catalogue media coverage and acquisition plan v1
 
-- Status: **Draft — awaiting UI-C03G-E2 planning review**
-- Slice: UI-C03G-E2 planning only
+- Status: **Historical plan with current-status reconciliation — CUST-05 remains IN PROGRESS**
+- Slice: CUST-05 approved-media planning; `UI-C03G-E2-P1` is retained only as a historical artifact/plan label
 - Date: 2026-08-16
+- Reconciled: 2026-09-07
 - Preserves: accepted UI-C03G-E1-R2 catalogue-media foundation (`catalog_media`, review lifecycle, public filtering, safe-cover replacement, Flutter branded fallback)
 - Does **not** claim E2 complete, Phase 1 media coverage complete, or production photography coverage
 
-This document designs coverage rules and a legal, technical acquisition system. It does not download, generate, seed, or replace images.
+This document originally designed coverage rules and a legal, technical acquisition system. The current-status correction below records later offline pilot evidence without treating any candidate as licensed for Mee Events production, approved, hosted, or customer-visible.
+
+## Current-status correction — 7 September 2026
+
+- The Home Planning Context Foundation was pushed as `9b55299b42b6d4960b6678856097f1c15881a669`; GitHub CI, Security, and CodeQL passed for that exact commit.
+- The private offline pilot contains **12 real JPEG files**: **7 potentially usable pilot candidates** and **5 candidates rejected for customer use**. It also documents **5 separate AI-generated PNG candidates**. These are candidate/audit files only; none has public catalogue approval.
+- All pilot files remain private/offline. No image has been uploaded, inserted into PostgreSQL, approved, or returned through the live public API.
+- A read-only local PostgreSQL check on 7 September 2026 found `catalog_media` total rows **0** and active, approved, Hyderabad-customer-visible rows **0**. Repository seed data also inserts **0** `catalog_media` rows. This does not claim production or staging database coverage.
+- No public storage/CDN provider or immutable hosting convention has been approved. The storage design later in this document remains a proposal, not deployed infrastructure.
+- Current Customer Home uses one composed hero with a **176 logical-pixel minimum** and no bundled legacy photographs. The hero may render an approved occasion cover already present in the current catalogue contract for a matched Event Record; otherwise it uses the branded fallback.
+- `UI-C03G-E2-P1` remains only as a historical artifact/plan label. It is not a canonical execution task ID. Any future Home media execution remains within existing roadmap task **CUST-05**.
+- CUST-05 remains **IN PROGRESS**, CUST-06 remains unstarted, and manual screen-reader verification remains **NOT VERIFIED**.
+- Claude's independent review returned **READY FOR DOCUMENTATION COMMIT** with no P0/P1/P2 findings. It retained two non-blocking P3 observations: repeated media counts are acceptable deliberate cross-references, and `HomeHeroSkeleton` keeps a pre-existing 224 default although its only current Home call explicitly supplies 176. Claude did not independently verify PostgreSQL or private GitHub workflows because of environment limitations. The verdict authorizes no media acquisition, hosting, approval, publication, or storage/CDN selection.
 
 ---
 
@@ -24,7 +37,7 @@ This document designs coverage rules and a legal, technical acquisition system. 
 - No application UI, backend behaviour, API, ERP, Flutter, contract, test, or configuration changes.
 - No database migrations or seed changes (0018, 0019, 0020 untouched).
 - No image download, generation, ingestion, deletion, or modification.
-- No live PostgreSQL inspection. Live integration remains **PLATFORM-T01 — PostgreSQL Integration Harness**. This slice does not expand into that harness.
+- At the time of the original planning slice, no live PostgreSQL inspection was performed. The later 7 September 2026 reconciliation added only the read-only local counts recorded above; it did not expand into a database harness or mutate data.
 - No new `media_role`, hero/banner table, or placement-model schema.
 - No manually maintained 1,273-row taxonomy manifest.
 
@@ -41,7 +54,7 @@ This document designs coverage rules and a legal, technical acquisition system. 
 | Audit / provenance of the original business list | `Total Events 21` / `Events Services 41` Markdown under Vishwa Events working files                                                            | Flutter business tree                           |
 | Count checksum (repository)                      | `infrastructure/postgres/seeds/catalog-taxonomy-v3.meta.json` plus INSERT counts in 0018/0019                                                  | A second spreadsheet copied into the repo       |
 
-PostgreSQL is runtime-authoritative. Generated coverage reports must derive rows from PostgreSQL **once PLATFORM-T01 is available**. Until then, coverage numerators for approved public media are **unknown live state**. Repository migrations prove **schema and seed SQL**, not a particular operator’s database.
+PostgreSQL is runtime-authoritative. Generated coverage reports must derive rows from PostgreSQL **once PLATFORM-T01 is available**. The 7 September 2026 read-only local check proves only that the available local database had zero rows; production and staging coverage remain **unknown**. Repository migrations prove **schema and seed SQL**, not a particular operator’s database.
 
 The two Markdown taxonomies are audit/provenance sources. They must not be re-imported as a Flutter tree. A second 1,273-row (21+197+41+237+974) runtime manifest is prohibited; mappings use stable codes already in SQL.
 
@@ -101,9 +114,9 @@ Migration 0020 creates `catalog_media` and indexes. It contains **no** `INSERT I
 
 Approved public database coverage in this repository seed: **0 rows**. Live operator databases are **unknown** until PLATFORM-T01. Do not describe the seeded zero as verified live coverage.
 
-### 4.2 Unknown live PostgreSQL state
+### 4.2 PostgreSQL state
 
-Any operator database that has applied 0020 may contain drafts. That state is **not** verified here. Do not treat local Docker or staging as documented until PLATFORM-T01 records it.
+The available local PostgreSQL database was checked read-only on 7 September 2026: `catalog_media` contained **0 total rows** and **0 active, approved, Hyderabad-customer-visible rows**. Other operator, staging, and production databases remain **unknown** until an authorized environment-specific verification records them. Do not generalize the local zero.
 
 ### 4.3 Bundled Flutter inventory (`apps/mobile/assets/images/`)
 
@@ -129,14 +142,18 @@ No licence, assignment, model-release, or `source_ref` files accompany these ass
 
 **Currently reachable in customer/auth UI (not via dummy-only files):**
 
-| Asset                                                     | Use                                                                                                                                            |
-| --------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| `assets/images/logo/mee_events_logo.jpg`                  | Splash, AppGateway                                                                                                                             |
-| `assets/images/onboarding/{discover,plan,experience}.jpg` | `OnboardingScreen`                                                                                                                             |
-| `assets/images/hero/{birthday,wedding,sangeet}.jpg`       | Home planning hero carousel (`buildHomeHeroSlides`)                                                                                            |
-| `assets/images/hero/corporate.jpg`                        | Named constant `homeHeroCorporate`; **not** in the live three-slide carousel. Reachable only if a caller uses the constant (tests / resolver). |
+| Asset                                                     | Use                |
+| --------------------------------------------------------- | ------------------ |
+| `assets/images/logo/mee_events_logo.jpg`                  | Splash, AppGateway |
+| `assets/images/onboarding/{discover,plan,experience}.jpg` | `OnboardingScreen` |
 
-`AppImage` still loads `assets/` paths. Catalogue discovery (Home occasions/services, Explore, Search, product gallery) uses **HTTPS API URLs only** (`CatalogImageResolver` ignores non-http). Missing remote media shows the branded gold/burgundy fallback, not a bundled subcategory photo.
+**Historical reachability correction:**
+`assets/images/hero/{birthday,wedding,sangeet}.jpg` were previously used by the
+Home carousel, while `assets/images/hero/corporate.jpg` was an unused carousel
+candidate. Current Customer Home does not reference any of these bundled
+photographs.
+
+`AppImage` still supports `assets/` paths for other product chrome. Current Customer Home uses a single composed hero with a **176 logical-pixel minimum**, not the historical 224px bundled carousel. Catalogue discovery (Home occasions/services, Explore, Search, product gallery) uses **HTTP(S) API URLs only** (`CatalogImageResolver` ignores asset paths). Missing remote media shows the branded gold/burgundy fallback, not a bundled subcategory photo.
 
 **Present in lib but not on the live Home/Explore/Search/detail path:**
 
@@ -155,7 +172,7 @@ No licence, assignment, model-release, or `source_ref` files accompany these ass
 
 ### 4.6 Approved public database coverage
 
-**Not established.** Seeded count 0; live count unknown.
+Repository-seeded count: **0**. The read-only local PostgreSQL check on 7 September 2026 also found **0 total rows** and **0 active, approved, Hyderabad-customer-visible rows**. Staging and production counts remain unknown.
 
 ---
 
@@ -185,14 +202,14 @@ Explicit **same-binary reuse** (one immutable HTTPS object mapped to two entity 
 
 Phase 1 target: **all 21 event-type codes** and **all 41 service codes**.
 
-| Slot       | Rule                                                                                                                                                                                                                                                                                                                                                                    |
-| ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Cover      | Each of the 21 event entries and each **customer-visible** service normally has a **direct** approved `media_role = cover`. `mediaUrl` is **one** immutable cover/detail derivative. Services may use approved `icon` only as a resolver fallback, not as a substitute for a planned cover.                                                                             |
-| Thumbnail  | Every approved cover **must** set `thumbnailUrl` to **one** immutable compact derivative. Lists, Home tiles, Explore cards, and Search (56×56) must use `thumbnailUrl` when present.                                                                                                                                                                                    |
-| Hero       | Home hero is currently **hard-coded bundled** JPEGs (224px tall, full content width). A later client slice **may** crop `mediaUrl` with `BoxFit.cover`. There is **no** hero URL, focal-point field, or extra `media_role`. Semantic crop suitability (faces, mandap, text) must be checked at review because the client cannot select a focal point or a second width. |
-| Banner     | Independent campaign/editorial banners are **out of schema**. If marketing needs banners that are not catalogue covers, that is a **future, separately authorized placement-model decision**.                                                                                                                                                                           |
-| Provenance | **Operational** packet required before `approved` (§9). Current code enforcement is narrower (§9 / D10).                                                                                                                                                                                                                                                                |
-| Alt text   | Required, entity-specific (§13).                                                                                                                                                                                                                                                                                                                                        |
+| Slot       | Rule                                                                                                                                                                                                                                                                                                                                                                                                          |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Cover      | Each of the 21 event entries and each **customer-visible** service normally has a **direct** approved `media_role = cover`. `mediaUrl` is **one** immutable cover/detail derivative. Services may use approved `icon` only as a resolver fallback, not as a substitute for a planned cover.                                                                                                                   |
+| Thumbnail  | Every approved cover **must** set `thumbnailUrl` to **one** immutable compact derivative. Lists, Home tiles, Explore cards, and Search (56×56) must use `thumbnailUrl` when present.                                                                                                                                                                                                                          |
+| Hero       | Current Home uses one composed hero with a **176 logical-pixel minimum**. A matched Event Record may crop its approved occasion `mediaUrl` with `BoxFit.cover`; otherwise Home uses a branded fallback. There is **no** hero URL, focal-point field, or extra `media_role`. Semantic crop suitability (faces, mandap, text) must be checked because the client cannot select a focal point or a second width. |
+| Banner     | Independent campaign/editorial banners are **out of schema**. If marketing needs banners that are not catalogue covers, that is a **future, separately authorized placement-model decision**.                                                                                                                                                                                                                 |
+| Provenance | **Operational** packet required before `approved` (§9). Current code enforcement is narrower (§9 / D10).                                                                                                                                                                                                                                                                                                      |
+| Alt text   | Required, entity-specific (§13).                                                                                                                                                                                                                                                                                                                                                                              |
 
 Phase 1 **classifies all 41 service codes**. `honeymoon_travel` is not customer-selectable and not Hyderabad-available, so it is **excluded from the public-coverage denominator** and counted as `no_public_media_required` (also `content_blocked` as hidden/non-public). It remains so unless product scope later changes through an authorized catalogue decision. Staff may store a non-public row (`hyderabad_customer_visible = false`) for operations; it must not appear on public APIs.
 
@@ -248,17 +265,17 @@ Restricted flags (`pyrotechnic`, `animal`, `vehicle`, `hydraulic`, `laser`, `wea
 
 ## 8. Acquisition priority and batching
 
-Acquisition **tiers** are not module IDs. The next executable module remains **UI-C03G-E2-P1** (maximum 12 hosted binaries).
+Acquisition **tiers** are not module IDs. `UI-C03G-E2-P1` is a historical pilot label only; any future executable media slice remains under canonical task **CUST-05** and requires separate authorization.
 
-| Tier                                            | Queue                                                                                                                                                             | Intent                                                                                        |
-| ----------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
-| **Tier 0 — pilot**                              | 8–12 asset pilot, executed only by module **UI-C03G-E2-P1** after planning approval                                                                               | Prove validation, provenance, two-URL delivery, ERP review — **do not acquire in this slice** |
-| **Tier 1 — remaining event/service foundation** | Remaining 21 event types + customer-visible services (minus pilot mappings). Classify all 41 services, including `honeymoon_travel` as `no_public_media_required` | Phase 1 covers + one thumbnail URL + alt text                                                 |
-| **Tier 2 — subcategories**                      | High-discovery **customer-visible** subcategories that fail the inheritance rubric                                                                                | Dedicated subcategory covers                                                                  |
-| **Tier 3 — products**                           | Customer-visible products where inheritance misleads (including restricted-but-visible SKUs that need dedicated, carefully reviewed photography)                  | Dedicated product covers/galleries                                                            |
-| **Tier 4 — later expansion**                    | Later approved catalogue expansion (new codes, campaigns)                                                                                                         | Only after content approval                                                                   |
+| Tier                                            | Queue                                                                                                                                                             | Intent                                                                        |
+| ----------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| **Tier 0 — pilot**                              | Historical 12-file offline pilot labelled `UI-C03G-E2-P1`; no hosting, database insertion, approval, or public visibility                                         | Offline candidate validation only; future execution remains under **CUST-05** |
+| **Tier 1 — remaining event/service foundation** | Remaining 21 event types + customer-visible services (minus pilot mappings). Classify all 41 services, including `honeymoon_travel` as `no_public_media_required` | Phase 1 covers + one thumbnail URL + alt text                                 |
+| **Tier 2 — subcategories**                      | High-discovery **customer-visible** subcategories that fail the inheritance rubric                                                                                | Dedicated subcategory covers                                                  |
+| **Tier 3 — products**                           | Customer-visible products where inheritance misleads (including restricted-but-visible SKUs that need dedicated, carefully reviewed photography)                  | Dedicated product covers/galleries                                            |
+| **Tier 4 — later expansion**                    | Later approved catalogue expansion (new codes, campaigns)                                                                                                         | Only after content approval                                                   |
 
-Recommended **Tier 0 mix** (codes only; no files in this slice), ~10 assets spanning risk profiles:
+Original recommended **Tier 0 mix** (historical planning guidance), ~10 assets spanning risk profiles:
 
 1. Cultural occasion — `mehndi` or `festival`
 2. Wedding-related occasion — `wedding` or `sangeet`
@@ -346,28 +363,28 @@ The accepted schema stores **one** `mediaUrl` and **one** `thumbnailUrl` per row
 1. Keep an archival source master **outside** public catalogue URLs (for example a `masters/` object key). Clients never receive this URL.
 2. `mediaUrl` → one immutable optimized **cover/detail** derivative (one encoded format).
 3. `thumbnailUrl` → one immutable **compact** derivative (one encoded format), sized for lists/search/Home tiles.
-4. Home hero, **if** enabled in a later client slice, uses the same `mediaUrl` with client-side `BoxFit.cover`. No dedicated hero derivative URL exists in the schema.
+4. The current contextual Event Record hero can already use the matched occasion's same `mediaUrl` with client-side `BoxFit.cover`. The generic planning hero has no separate hero-media contract and remains branded. No dedicated hero derivative URL exists in the schema.
 5. Without focal-point metadata, reviewers must reject covers that crop badly at 16:9 or 1:1.
 6. Do **not** promise selectable 1280/1920 (or other) variants through the current API. Extra widths may exist in storage; clients cannot select them unless a later authorized URL-transformation convention, client-hints strategy, or API contract is implemented.
 
-**Format (Phase 1):** exactly **one encoded delivery format per stored URL**. The Flutter client does **not** perform automatic WebP-to-JPEG URL fallback. WebP may become the default **only after** the UI-C03G-E2-P1 pilot proves decode on supported Flutter targets. JPEG is the conservative alternative when compatibility or photographic quality requires it. AVIF is not mandated.
+**Format (Phase 1):** exactly **one encoded delivery format per stored URL**. The Flutter client does **not** perform automatic WebP-to-JPEG URL fallback. WebP may become the default **only after** a separately authorized CUST-05 delivery-format validation proves decode on supported Flutter targets; the historical offline pilot contains JPEG/PNG files and does not prove WebP delivery. JPEG is the conservative alternative when compatibility or photographic quality requires it. AVIF is not mandated.
 
 CDN `Accept` content negotiation is **future / not required for the pilot**. If it is ever added, it needs an extension-neutral or otherwise compatible URL, `Vary: Accept`, and correctly separated cache variants. Do not assume it exists today.
 
 Layout targets below are **authoring/review guidance** for choosing the two stored files, not a menu of URLs the app can pick:
 
-| Usage                                     | Layout (approx.)                                                | Crop guidance for the stored pair                      | Min source master (px)          | Stored delivery target                              | Byte-size budget (guide) |
-| ----------------------------------------- | --------------------------------------------------------------- | ------------------------------------------------------ | ------------------------------- | --------------------------------------------------- | ------------------------ |
-| Cover / detail / possible later hero crop | Detail full width; Home hero height **224** with `BoxFit.cover` | Prefer ~4:3 cover that still crops acceptably to ~16:9 | 1920 on long edge; no upscaling | **One** `mediaUrl` file (e.g. long edge ~1600)      | **≤280 KB**              |
-| Occasion Home tiles                       | **Square** (`tileImageSize` ≈ 72–120 logical px)                | 1:1 centre crop of the compact file is typical         | 800×800                         | **One** `thumbnailUrl` file (e.g. 512 on long edge) | **≤80 KB**               |
-| Service Home cards                        | Width ≈ `(inner − md) / 2.35`; image height **88**              | 4:3 or 3:2                                             | 1200 long edge                  | Same `thumbnailUrl`                                 | included above           |
-| Explore cards                             | Flexible column, image `Expanded`                               | 4:3                                                    | 1200 long edge                  | `thumbnailUrl` in grids; `mediaUrl` on detail       | —                        |
-| Search / list                             | **56×56**                                                       | 1:1                                                    | 512×512                         | `thumbnailUrl`                                      | **≤40 KB** preferred     |
-| Product gallery                           | Full width; skeleton ~180–220 height                            | Same as cover                                          | 1600 long edge                  | `mediaUrl` (+ gallery rows, each still one URL)     | **≤280 KB**              |
+| Usage                                 | Layout (approx.)                                                 | Crop guidance for the stored pair                      | Min source master (px)          | Stored delivery target                              | Byte-size budget (guide) |
+| ------------------------------------- | ---------------------------------------------------------------- | ------------------------------------------------------ | ------------------------------- | --------------------------------------------------- | ------------------------ |
+| Cover / detail / contextual hero crop | Detail full width; Home hero minimum **176** with `BoxFit.cover` | Prefer ~4:3 cover that still crops acceptably to ~16:9 | 1920 on long edge; no upscaling | **One** `mediaUrl` file (e.g. long edge ~1600)      | **≤280 KB**              |
+| Occasion Home tiles                   | **Square** (`tileImageSize` ≈ 72–120 logical px)                 | 1:1 centre crop of the compact file is typical         | 800×800                         | **One** `thumbnailUrl` file (e.g. 512 on long edge) | **≤80 KB**               |
+| Service Home cards                    | Width ≈ `(inner − md) / 2.35`; image height **88**               | 4:3 or 3:2                                             | 1200 long edge                  | Same `thumbnailUrl`                                 | included above           |
+| Explore cards                         | Flexible column, image `Expanded`                                | 4:3                                                    | 1200 long edge                  | `thumbnailUrl` in grids; `mediaUrl` on detail       | —                        |
+| Search / list                         | **56×56**                                                        | 1:1                                                    | 512×512                         | `thumbnailUrl`                                      | **≤40 KB** preferred     |
+| Product gallery                       | Full width; skeleton ~180–220 height                             | Same as cover                                          | 1600 long edge                  | `mediaUrl` (+ gallery rows, each still one URL)     | **≤280 KB**              |
 
 **No upscaling.** Do not ship the archival master as `mediaUrl`. `memCacheWidth` / `memCacheHeight` only limit decode/cache size after the single URL is fetched.
 
-Current Home hero JPEGs are ~0.85–1.22 MB at 1376×768 — over the delivery budget. They are **unprovenanced legacy carousel files**, not catalogue `mediaUrl` derivatives.
+Bundled legacy hero JPEGs are ~0.85–1.22 MB at 1376×768 — over the delivery budget. They are **unprovenanced historical carousel files**, not catalogue `mediaUrl` derivatives, and current Customer Home does not render them.
 
 ---
 
@@ -381,7 +398,7 @@ Stay compatible with one `mediaUrl`, one `thumbnailUrl`, review lifecycle, `plan
 - CDN in front of object storage (vendor not chosen in this slice). HTTPS only. No assumed `Accept` negotiation in Phase 1 or the pilot.
 - Cache-Control for versioned keys: long-lived immutable (`public, max-age=31536000, immutable`).
 - Lists/search: `thumbnailUrl` only.
-- Below-fold Home/Explore: Flutter already lazy-builds lists; keep network images out of first paint except the bundled legacy hero + first occasion row until a later client slice uses `mediaUrl` for hero.
+- Below-fold Home/Explore: Flutter already lazy-builds lists. Current Home may fetch a matched Event Record occasion cover for its single contextual hero and thumbnails for visible catalogue rails; it does not use a bundled legacy hero.
 - First viewport: first tiles use `thumbnailUrl`; still not the archival master.
 - Client `memCacheWidth` / `memCacheHeight` bound decode/cache size only.
 - Deduplicate by content hash; second entity mapping reuses the URL (explicit reuse).
@@ -426,18 +443,18 @@ Cover replacement follows `planCoverLifecycle`: approving a new cover promotes i
 
 **This slice does not delete or replace files.**
 
-| Class                                         | Disposition                                                                                                                                                                                                                                                                |
-| --------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Logo `mee_events_logo.jpg`                    | **Keep temporarily** as branded chrome; recover provenance or recommission later. Not catalogue coverage.                                                                                                                                                                  |
-| Onboarding three portraits                    | **Keep temporarily** as product chrome; provenance recovery or replace.                                                                                                                                                                                                    |
-| Home hero `wedding/sangeet/birthday.jpg`      | **Keep temporarily** as **unprovenanced legacy carousel fallback**. Still referenced by the Home carousel. Not verified for ownership or licensing; not approved catalogue coverage; not `direct_approved`. Do not call them branded merely because the app displays them. |
-| `hero/corporate.jpg`                          | Unprovenanced unused carousel candidate; not in the live three-slide set. Same licensing gap.                                                                                                                                                                              |
-| 24 HTML/404 masquerades                       | **Quarantine** (do not map into `catalog_media`). Safe-delete **later** after confirming no remaining Dart/`pubspec` need (pubspec still lists those folders).                                                                                                             |
-| Duplicate valid subcategory/vendor JPEGs      | **Quarantine / replace**; dummy-only. Do not register as licensed covers without ownership proof.                                                                                                                                                                          |
-| `home/banners/*` including concert masquerade | **Quarantine**; unused by live Home.                                                                                                                                                                                                                                       |
-| Category JPEGs                                | Tests + dummy; **replace** for catalogue; tests should move to HTTPS fixtures in a later cleanup module.                                                                                                                                                                   |
-| Unsplash literals                             | **Replace**; never approve. Dead code paths should be removed in a later hygiene module, not this slice.                                                                                                                                                                   |
-| Fake vendor photography                       | **Quarantine**; must not surface as live vendors.                                                                                                                                                                                                                          |
+| Class                                         | Disposition                                                                                                                                                                                                                           |
+| --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Logo `mee_events_logo.jpg`                    | **Keep temporarily** as branded chrome; recover provenance or recommission later. Not catalogue coverage.                                                                                                                             |
+| Onboarding three portraits                    | **Keep temporarily** as product chrome; provenance recovery or replace.                                                                                                                                                               |
+| Home hero `wedding/sangeet/birthday.jpg`      | **Historical bundled assets, not used by current Customer Home.** Not verified for ownership or licensing; not approved catalogue coverage; not `direct_approved`. Retain/delete only in a separately authorized asset-hygiene slice. |
+| `hero/corporate.jpg`                          | Unprovenanced unused legacy candidate; not used by current Customer Home. Same licensing gap.                                                                                                                                         |
+| 24 HTML/404 masquerades                       | **Quarantine** (do not map into `catalog_media`). Safe-delete **later** after confirming no remaining Dart/`pubspec` need (pubspec still lists those folders).                                                                        |
+| Duplicate valid subcategory/vendor JPEGs      | **Quarantine / replace**; dummy-only. Do not register as licensed covers without ownership proof.                                                                                                                                     |
+| `home/banners/*` including concert masquerade | **Quarantine**; unused by live Home.                                                                                                                                                                                                  |
+| Category JPEGs                                | Tests + dummy; **replace** for catalogue; tests should move to HTTPS fixtures in a later cleanup module.                                                                                                                              |
+| Unsplash literals                             | **Replace**; never approve. Dead code paths should be removed in a later hygiene module, not this slice.                                                                                                                              |
+| Fake vendor photography                       | **Quarantine**; must not surface as live vendors.                                                                                                                                                                                     |
 
 ---
 
@@ -447,10 +464,10 @@ Do not use a single percentage.
 
 ### Planning approval (this document)
 
-- Reviewers accept vocabulary, Tier 0 / UI-C03G-E2-P1 boundary, legal/technical gates, and the live-vs-repo distinction.
+- Reviewers accept the vocabulary, historical Tier 0 boundary, legal/technical gates, and live-vs-repository distinction without treating the historical label as an execution task ID.
 - Status may move from draft only after Codex and Antigravity review. This correction does **not** claim planning PASS.
 
-### Pilot acceptance (future module UI-C03G-E2-P1)
+### Pilot acceptance (historical label `UI-C03G-E2-P1`; future execution stays in CUST-05)
 
 Prerequisites: approved planning document; authorized source masters; completed rights/provenance packets; a controlled HTTPS storage/CDN location; a **verified way to exercise ERP/database behaviour** before any database-backed or public-coverage claim.
 
@@ -482,7 +499,7 @@ Report counts: `direct_approved`, `inherited_approved`, `needs_dedicated_media`,
 
 ### Visual-module readiness
 
-Home, Explore, Search, service detail, product gallery show approved `thumbnailUrl` / `mediaUrl` without dummy Unsplash or masquerades. Home hero may still use **unprovenanced legacy carousel** assets until a later client change crops `mediaUrl` with `BoxFit.cover` (out of this planning slice).
+Home, Explore, Search, service detail, and product gallery can show approved `thumbnailUrl` / `mediaUrl` without dummy Unsplash or masquerades. Current Home's single contextual Event Record hero can already crop an approved occasion cover with `BoxFit.cover`; its generic hero uses the branded fallback. It does not render the unprovenanced legacy carousel.
 
 Coverage SQL in `listMediaCoverage` should be extended **later** (not in this slice) to emit the vocabulary; until PLATFORM-T01, do not quote live percentages.
 
@@ -490,27 +507,27 @@ Coverage SQL in `listMediaCoverage` should be extended **later** (not in this sl
 
 ## 17. Risks and decisions
 
-| ID  | Topic                              | Decision in this plan                                                                                                             | Open?                             |
-| --- | ---------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- | --------------------------------- |
-| D1  | Approved covers as hero            | Later client slice may `BoxFit.cover` the **single** `mediaUrl`; no hero URL, no extra widths via API, crop suitability at review | Confirm client work later         |
-| D2  | Banner placement model             | **Not now**; only if campaigns need non-cover art                                                                                 | Open until marketing asks         |
-| D3  | Placeholder products               | **No public acquisition**; 547 placeholders stay `content_blocked` / `no_public_media_required`                                   | —                                 |
-| D4  | Same-binary reuse vs inheritance   | Reuse = two rows, one hash; inheritance = child has no row                                                                        | Semantic review required per pair |
-| D5  | CDN / storage vendor               | URLs + content-addressed keys; vendor unspecified; no assumed content negotiation                                                 | Open (ops)                        |
-| D6  | Live PostgreSQL                    | Unknown; PLATFORM-T01                                                                                                             | Open                              |
-| D7  | Sensitive photography              | Extra review; avoid children/pyrotechnics in **Tier 0**                                                                           | —                                 |
-| D8  | Licence expiry / revocation        | New object + deactivate row; immutable cache                                                                                      | Need calendar/process             |
-| D9  | ADR 0010 Expo vs Flutter           | Follow Flutter + ADR 0011; **do not edit ADR 0010 here**                                                                          | Doc inconsistency remains         |
-| D10 | `internal`/`bundle_asset` approval | Code/ERP do not require `source_ref`; **operational** E2 process does. Harden code later; not this slice                          | Open (code)                       |
-| D11 | Dummy Unsplash still in tree       | Unreachable today but risky if re-imported                                                                                        | Hygiene module later              |
+| ID  | Topic                              | Decision in this plan                                                                                                                                        | Open?                             |
+| --- | ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------- |
+| D1  | Approved covers as hero            | Current contextual Event Record hero may `BoxFit.cover` the matched occasion's **single** `mediaUrl`; generic hero media has no contract or product decision | Generic placement remains open    |
+| D2  | Banner placement model             | **Not now**; only if campaigns need non-cover art                                                                                                            | Open until marketing asks         |
+| D3  | Placeholder products               | **No public acquisition**; 547 placeholders stay `content_blocked` / `no_public_media_required`                                                              | —                                 |
+| D4  | Same-binary reuse vs inheritance   | Reuse = two rows, one hash; inheritance = child has no row                                                                                                   | Semantic review required per pair |
+| D5  | CDN / storage vendor               | URLs + content-addressed keys; vendor unspecified; no assumed content negotiation                                                                            | Open (ops)                        |
+| D6  | PostgreSQL coverage                | Local read-only check on 7 September 2026: 0 total / 0 approved public; staging and production remain unknown                                                | Open beyond local                 |
+| D7  | Sensitive photography              | Extra review; avoid children/pyrotechnics in **Tier 0**                                                                                                      | —                                 |
+| D8  | Licence expiry / revocation        | New object + deactivate row; immutable cache                                                                                                                 | Need calendar/process             |
+| D9  | ADR 0010 Expo vs Flutter           | Follow Flutter + ADR 0011; **do not edit ADR 0010 here**                                                                                                     | Doc inconsistency remains         |
+| D10 | `internal`/`bundle_asset` approval | Code/ERP do not require `source_ref`; **operational** E2 process does. Harden code later; not this slice                                                     | Open (code)                       |
+| D11 | Dummy Unsplash still in tree       | Unreachable today but risky if re-imported                                                                                                                   | Hygiene module later              |
 
 ---
 
-## 18. Exact next module boundary
+## 18. Historical pilot boundary
 
-### UI-C03G-E2-P1 — Catalogue Media Pilot Acquisition and Validation
+### UI-C03G-E2-P1 — Catalogue Media Pilot Acquisition and Validation (historical label only)
 
-**Proposed, not executed. Does not claim planning PASS, database success, or public coverage.**
+This label is preserved for artifact traceability and is **not a canonical execution task ID**. The offline pilot was executed privately, but no candidate was hosted, inserted, approved, or made customer-visible. Any future execution belongs to existing roadmap task **CUST-05** and still does not claim database success or public coverage.
 
 | Item                   | Boundary                                                                                                                                                                                                                                                                                          |
 | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -524,12 +541,12 @@ Coverage SQL in `listMediaCoverage` should be extended **later** (not in this sl
 | Tests                  | Extend existing catalog-media unit tests only if that module includes code; ops-only work attaches evidence screenshots. **Do not** add a 1,273-row manifest                                                                                                                                      |
 | Screenshots / previews | ERP media form (preview + provenance fields). Public catalog / Flutter screenshots only if the harness exists; otherwise mark previews as non-authoritative                                                                                                                                       |
 
-UI-C03G-E2-P1 must not bulk-fill 21+41. After that module is accepted, a later slice may execute **Tier 1** remaining Phase 1 acquisition.
+The historical pilot boundary must not bulk-fill 21+41. A later, separately authorized **CUST-05** slice may execute only after hosting, provenance, licensing, crop, alt-text, approval, and verification decisions are resolved.
 
 ---
 
 ## Document control
 
 - Authors: UI-C03G-E2 planning slice
-- Reviewers: Codex, Antigravity (pending)
+- Reviewers: Claude returned **READY FOR DOCUMENTATION COMMIT** for the 7 September 2026 reconciliation; PostgreSQL and private GitHub workflows were not independently verified by Claude because of environment limitations
 - Related: `docs/product/catalog-taxonomy-v1.md` (proposed copy taxonomy; not a media inventory)

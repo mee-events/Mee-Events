@@ -1,19 +1,19 @@
 # CUST-05 Customer Home Evidence
 
-- **Status:** IN PROGRESS — PLANNING CONTEXT SLICE APPROVED AND PHYSICALLY VERIFIED
-- **Slice:** Customer Home planning location/date context foundation
+- **Status:** IN PROGRESS — MEDIA TRUTH RECONCILIATION PENDING INDEPENDENT REVIEW
+- **Slice:** Customer Home evidence, including Planning Context and approved-media readiness
 - **Date:** 7 September 2026
 - **Branch:** `master`
 - **Planning-context starting HEAD:**
   `22a37693c35776c14266fa383bb1eb8bf4173b7e`
   (`feat(customer): add sent quotation home resume`)
 
-This record covers the independently approved and pushed earlier CUST-05
-slices plus the newly authorized, uncommitted Home Planning Context Foundation
-and its focused P1/P2 remediation. Prior approvals do not approve this new
-slice. It does not close CUST-05, start
-CUST-06, or claim staging, production, external-provider,
-payment, document, feedback, availability, or media proof.
+This record covers the independently approved and pushed CUST-05 slices,
+including the Home Planning Context Foundation committed as `9b55299`, plus the
+current documentation-only media truth reconciliation. Prior approvals do not
+approve media candidates or future media execution. This does not close
+CUST-05, start CUST-06, or claim staging, production, external-provider,
+payment, document, feedback, availability, hosted-media, or public-media proof.
 
 ## Home Planning Context Foundation — 7 September 2026
 
@@ -31,6 +31,12 @@ The sent-quotation Home resume slice was committed and pushed as `22a37693`.
 GitHub CI, Security, and CodeQL passed for that exact commit; Dependency Review
 skipped normally for the push event. The earlier wording that described that
 slice as waiting for commit or push is superseded by this result.
+
+The Planning Context Foundation was subsequently committed and pushed as
+`9b55299b42b6d4960b6678856097f1c15881a669` under
+`feat(customer): add persistent home planning context`. GitHub CI run
+`34115552104`, Security run `34115552044`, and CodeQL run `34115552079` all
+completed successfully for that exact SHA.
 
 ### Client-only behavior
 
@@ -193,6 +199,53 @@ their mutation-ordering concern; generic `Hyderabad` satisfies checkout
 location validation; the compact date omits its year; additional invisible
 Unicode formatting characters are not covered; and sanitized account-ID
 collisions are unreachable today because session user IDs are UUIDs.
+
+## Approved-media truth reconciliation — 7 September 2026
+
+The offline `artifacts/catalog-media-pilot/` evidence contains **12 real JPEG
+files**: **7 potentially usable pilot candidates** and **5 candidates rejected
+for customer use**. Five additional AI-generated PNG candidates are documented
+separately. All remain private/offline candidates or audit evidence. None is
+licensed for Mee Events production merely by being present, and none is
+publicly approved, hosted, inserted into PostgreSQL, or customer-visible.
+
+Repository migration/seed data contains no `catalog_media` inserts. A read-only
+check of the available local PostgreSQL database on 7 September 2026 found
+`catalog_media` total rows **0** and active, approved,
+Hyderabad-customer-visible rows **0**. No image has been uploaded, inserted,
+approved, or returned through the live public API. No public storage/CDN
+provider or immutable hosting convention has been approved.
+
+The current Customer Home uses a single composed hero with a **176
+logical-pixel minimum** and no bundled legacy photographs. It can show an
+approved remote occasion cover from the existing catalogue contract for a
+matched Event Record; otherwise it renders the branded fallback. Occasion and
+service rails, and the Home Event Plan preview, likewise render contract media
+when present and safe, then fall back to branded visuals. The stale 224px
+bundled-carousel description is historical, not current implementation truth.
+
+`UI-C03G-E2-P1` is retained only as a historical artifact/plan label. It is not
+a canonical execution task ID. Future Home media execution remains within
+existing roadmap task **CUST-05**. CUST-05 remains **IN PROGRESS**, CUST-06
+remains unstarted, and manual screen-reader verification remains **NOT
+VERIFIED**.
+
+### Independent documentation review
+
+Claude returned **READY FOR DOCUMENTATION COMMIT** with no P0, P1, or P2
+findings. Two non-blocking P3 observations remain recorded:
+
+- repeated media counts are acceptable deliberate cross-references across the
+  canonical documents; and
+- `HomeHeroSkeleton` retains a pre-existing default height of 224 logical
+  pixels, while its only current Home call explicitly supplies 176.
+
+Claude did not independently verify PostgreSQL or private GitHub workflow
+results because of environment limitations. Those limitations do not convert
+the documented Codex read-only database and exact-SHA workflow evidence into
+Claude verification. No media acquisition, hosting, approval, publication, or
+storage/CDN selection is authorized by this documentation verdict. CUST-05
+remains **IN PROGRESS**, and CUST-06 remains unstarted.
 
 ## Sent Quotation Resume Slice — 7 September 2026
 
@@ -818,17 +871,19 @@ CUST-05 remains **IN PROGRESS**. The independently approved compact Home slice
 was pushed as `81581f1`, matching the inspected local `origin/master`, and its
 GitHub CI, Security, and CodeQL workflows passed. The sent-quotation resume
 slice and both P3 corrections were committed and pushed as `22a37693`; GitHub
-CI, Security, and CodeQL also passed for that exact commit. The current Home
-Planning Context Foundation stale-context remediation is locally verified,
-uncommitted, and unstaged. Claude returned **READY FOR PHYSICAL ANDROID
+CI, Security, and CodeQL also passed for that exact commit. The Planning Context
+Foundation was committed and pushed as `9b55299`; GitHub CI, Security, and
+CodeQL passed for that exact SHA. Claude returned **READY FOR PHYSICAL ANDROID
 RE-TEST**, and Antigravity returned **PHYSICAL ANDROID RE-TEST PASSED** on a
 Nothing Phone (2a), Android 16, with no runtime errors. The saved context
 survived sheet reopen, reached Checkout, remained editable, and could have its
-date cleared. The slice is approved for its authorized focused local commit;
-manual screen-reader verification remains **NOT VERIFIED**. Approved quotation
-Home handling, approved media, and complete acceptance testing remain. Manual TypeScript/Dart
-status-catalogue synchronization remains a non-blocking P3 cross-language drift
-risk under the existing architecture.
+date cleared. Manual screen-reader verification remains **NOT VERIFIED**.
+Approved quotation Home handling, publicly approved and hosted media, and
+complete acceptance testing remain. The private pilot is not approved coverage:
+local PostgreSQL has 0 media rows, and storage/CDN plus immutable-hosting policy
+remain undecided. Manual TypeScript/Dart status-catalogue synchronization
+remains a non-blocking P3 cross-language drift risk under the existing
+architecture.
 
 The previously retained inaccurate active title, mixed-lifecycle coverage gap,
 and unusable-newest-booking-ID action-selection observation are addressed in

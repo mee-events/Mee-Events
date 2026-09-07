@@ -1,6 +1,6 @@
 # Mee Events — Progress Tracker
 
-- **Updated:** 7 September 2026; CUST-05 Planning Context physical approval
+- **Updated:** 7 September 2026; CUST-05 media truth reconciliation
 - **Repository:** `/Users/vinaychilagani/Desktop/Mee Event V1`
 - **Baseline application commit:** `master` / `9e2a442d91c137ec97a349d1a55697ae8d79d5df`
 - **STAB-01 snapshot HEAD:** `ca994985a898d42da2a8d717041b93a8f8f0dc4c`
@@ -8,13 +8,13 @@
 - **Phase state:** **IN PROGRESS**
 - **Last completed task:** CUST-04 Customer Bootstrap - **INDEPENDENTLY REVIEWED
   AND CLOSED - 4 SEPTEMBER 2026**
-- **Current task:** CUST-05 Home - **IN PROGRESS - PLANNING CONTEXT SLICE
-  APPROVED AND PHYSICALLY VERIFIED**
-- **Next authorized task:** one focused local Planning Context commit; no push
-  or further implementation
-- **Latest application change:** Customer Home remembers client-only Hyderabad
-  planning area/date context and safely pre-fills the existing Enquiry Checkout
-  fields without changing APIs, filtering, availability, pricing, or submission.
+- **Current task:** CUST-05 Home - **IN PROGRESS - MEDIA TRUTH RECONCILIATION**
+- **Next authorized task:** create one focused local documentation commit, then
+  stop without push, media implementation, or another slice
+- **Latest application change:** pushed Planning Context commit `9b55299`
+  remembers client-only Hyderabad planning area/date context and safely
+  pre-fills existing Enquiry Checkout fields without changing APIs, filtering,
+  availability, pricing, or submission.
 - **STAB-16 implementation commit:** `999443d5d3ba547de1bb6c0406c34753c8433b00`
 - **STAB-16 closeout:** `1450263caa6a5be2263bf7b9c91827f7cc24ef6c`
 - **STAB-17 commit:** `68894f3bbfa91937a0c7c573a8fc1a0af83ce533`
@@ -114,7 +114,10 @@ the first root run was blocked only when the established 17 backend HTTP tests
 attempted loopback. Each unchanged command passed with the required permission.
 Physical Android verification on Nothing Phone (2a), Android 16, passed with
 no runtime errors. Manual screen-reader behavior remains **NOT VERIFIED**. The
-slice is authorized for one focused local commit and no push.
+slice was committed and pushed as `9b55299b42b6d4960b6678856097f1c15881a669`
+under `feat(customer): add persistent home planning context`. GitHub CI run
+`34115552104`, Security run `34115552044`, and CodeQL run `34115552079` all
+completed successfully for that exact SHA.
 
 Deferred decisions remain explicit: saved addresses stay under CUST-20;
 flexible-date handling needs a future product/API decision; structured locality
@@ -128,6 +131,47 @@ during logout may recreate the departing account key; currently unused
 additional invisible Unicode formatting characters remain; and sanitized
 account-ID collisions are unreachable today because session user IDs are UUIDs.
 CUST-05 remains **IN PROGRESS** and CUST-06 remains unstarted.
+
+## CUST-05 Approved-media truth reconciliation - 7 September 2026
+
+- [~] **CUST-05 Home** — **IN PROGRESS - DOCUMENTATION RECONCILIATION PENDING
+  INDEPENDENT REVIEW**.
+
+The private offline catalogue-media pilot contains **12 real JPEG files**:
+**7 potentially usable pilot candidates** and **5 rejected candidates**. Five
+additional AI-generated PNG candidates are documented separately. Repository
+presence establishes neither Mee Events production licensing nor approval. All
+files remain private/offline; no image has been uploaded, inserted, approved,
+hosted, returned by the live public API, or shown to customers.
+
+Migration/seed data inserts **0** `catalog_media` rows. A read-only local
+PostgreSQL check on 7 September 2026 found **0 total rows** and **0 active,
+approved, Hyderabad-customer-visible rows**. No public storage/CDN provider or
+immutable hosting convention has been selected or approved. Production and
+staging database coverage remain unverified.
+
+Current Flutter source uses one composed Customer Home hero with a **176
+logical-pixel minimum** and no bundled legacy photographs. A matched Event
+Record may use its approved remote occasion cover from the existing contract;
+otherwise the hero is branded. Home occasion/service rails and Event Plan
+previews likewise render contract media when supplied and safe, then use
+branded fallbacks. This supersedes the historical 224px bundled-carousel
+description without deleting its evidence.
+
+`UI-C03G-E2-P1` remains only as a historical artifact/plan label, not a
+canonical execution task ID. Future Home media work stays under existing task
+**CUST-05**. CUST-05 remains **IN PROGRESS**, CUST-06 remains unstarted, and
+manual screen-reader verification remains **NOT VERIFIED**. The next action is
+the approved focused local documentation commit only.
+
+Claude's independent review returned **READY FOR DOCUMENTATION COMMIT** with no
+P0, P1, or P2 findings. Two non-blocking P3 observations remain: repeated media
+counts are acceptable deliberate cross-references, and `HomeHeroSkeleton`
+retains a pre-existing 224 default while its only current Home call explicitly
+supplies 176. Claude did not independently verify PostgreSQL or private GitHub
+workflows because of environment limitations. No media acquisition, hosting,
+approval, publication, or storage/CDN selection is authorized. CUST-05 remains
+**IN PROGRESS**, and CUST-06 remains unstarted.
 
 ## CUST-05 Sent Quotation Resume Slice - 7 September 2026
 
@@ -1989,11 +2033,14 @@ Do not ask for these until their dependent block is approaching, unless early pr
 - [x] CUST-04 Customer bootstrap — **INDEPENDENTLY REVIEWED AND CLOSED - 4
       SEPTEMBER 2026**; evidence:
       `docs/08-testing/cust-04-customer-bootstrap-evidence.md`
-- [~] CUST-05 Home — **IN PROGRESS - PLANNING CONTEXT SLICE APPROVED AND
-  PHYSICALLY VERIFIED** 7 September 2026; Claude returned **READY FOR PHYSICAL
-  ANDROID RE-TEST** and Antigravity returned **PHYSICAL ANDROID RE-TEST PASSED**
-  on Nothing Phone (2a), Android 16; the focused local commit is authorized but
-  no push or further slice is authorized; evidence:
+- [~] CUST-05 Home — **IN PROGRESS - MEDIA TRUTH RECONCILIATION** 7 September
+  2026; Planning Context was pushed as `9b55299` and its GitHub CI, Security,
+  and CodeQL workflows passed; Antigravity's physical Android re-test passed on
+  Nothing Phone (2a), Android 16; the private media pilot is not approved,
+  hosted, database-backed, API-visible, or customer-visible; the local
+  `catalog_media` count is 0; Claude returned **READY FOR DOCUMENTATION COMMIT**
+  with no P0/P1/P2 findings; only the focused local documentation commit is
+  authorized, with no push, media implementation, or further slice; evidence:
   `docs/08-testing/cust-05-customer-home-evidence.md`
 - [ ] CUST-06 Explore
 - [ ] CUST-07 Event categories
