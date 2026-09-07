@@ -1,18 +1,145 @@
 # CUST-05 Customer Home Evidence
 
-- **Status:** IN PROGRESS — COMPACT HOME INDEPENDENTLY APPROVED AND LOCALLY COMMITTED
-- **Slice:** Compact Home hero and Home-only search spacing
+- **Status:** IN PROGRESS — SENT QUOTATION SLICE INDEPENDENTLY APPROVED
+- **Slice:** Customer Home server-status `sent` quotation resume
 - **Date:** 7 September 2026
 - **Branch:** `master`
-- **Third-slice starting HEAD:**
-  `eb4dbce18b44444349b9c3d028363675df6855a6`
-  (`fix(customer): harden home lifecycle continuity`)
+- **Quotation-slice starting HEAD:**
+  `81581f1fc69bc9d3949f67983f373a0da174581f`
+  (`feat(customer): compact home top area`)
 
-This record covers the independently approved first three CUST-05 slices and
-the newly authorized, uncommitted Compact Home Top Area slice. Prior approvals
-do not approve this new layout. It does not close CUST-05, start CUST-06,
-or claim staging, production, physical-device,
-external-provider, payment, document, feedback, or media proof.
+This record covers the independently approved first three CUST-05 slices, the
+independently approved and pushed Compact Home Top Area slice, and the newly
+authorized, uncommitted sent-quotation resume slice. Prior approvals do not
+approve this new slice. It does not close CUST-05, start CUST-06, or claim
+staging, production, physical-device, external-provider, payment, document,
+feedback, or media proof.
+
+## Sent Quotation Resume Slice — 7 September 2026
+
+### Scope and protected state
+
+Starting `master`, `HEAD`, and local `origin/master` matched
+`81581f1fc69bc9d3949f67983f373a0da174581f`. The index was empty. The only
+pre-existing worktree change was tracked, unstaged `AGENTS.md`, whose current
+SHA-256 remained
+`6a9178bc717571fb884d2fe6828beec8b71a6b8558d370936cf40ed2b9715802`.
+Its complete 830-line addition was inspected before editing; it remains
+unedited, unformatted, unstaged, and uncommitted. No conflicting Home,
+quotation, test, roadmap, progress, or evidence edit was present.
+
+The compact Home commit `81581f1` is pushed and matches `origin/master`. Its
+GitHub CI, Security, and CodeQL workflows passed. That proof applies to the
+compact slice only, not to this uncommitted quotation slice.
+
+### Contract boundary and implementation
+
+The shared `QuotationSummary` list contract has no `bookingId` or
+`paymentPlanId`; those fields exist only on quotation detail. The legacy Dart
+summary model still carries optional versions, but Home neither reads nor relies
+on them, and this slice does not alter that pre-existing out-of-scope drift.
+
+Home therefore admits only quotations whose exact server-authoritative status
+is `sent` and whose ID is non-empty. It chooses the newest valid `updatedAt`,
+then `createdAt`, then stable ID. Invalid dates remain deterministic; phone time
+and `validUntil` never convert status. `approved`, `revision_requested`,
+`rejected`, `expired`, `superseded`, `draft`, and unknown statuses remain hidden.
+
+The single card uses the matching enquiry occasion name when available, then a
+trimmed quotation reference, then `Your quotation`. Its only action is `Review
+quote`, which opens the existing `QuotationDetailScreen` with the selected
+quotation's exact ID. The UI makes no payment or booking claim. When the selected
+quotation and an enquiry share `enquiryId`, only that duplicate enquiry card is
+suppressed; unrelated active enquiries remain eligible. Enquiry failure or
+absence leaves the quotation fallback card usable.
+
+Signed-out Home does not watch or request quotations. Signed-in quotation
+loading, initial failure, failed-source retry, previous-data retention, and
+pull-to-refresh use the existing Home/Riverpod architecture. Successful sibling
+cards remain visible, only failed sources without values are retried, and all
+error UI stays section-level and free of raw exceptions, URLs, tokens, stack
+traces, or private details.
+
+No backend, database, migration, shared contract, authentication,
+authorization, dependency, state-management, Explore, Plan, Enquiries, Account,
+payment, booking, role-switching, or CUST-06 behavior changed.
+
+### Claude review and P3 remediation
+
+Claude's focused re-review returned **READY FOR SLICE APPROVAL** with no P0, P1,
+or P2 findings. It confirmed that the accessibility-label correction and the
+quotation loading-test correction are resolved. Claude did not execute Flutter
+or Dart:
+**NOT VERIFIED — ENVIRONMENT LIMITATION**.
+
+Claude retained two slice-local P3 observations. First, the quotation card's
+screen-reader label did not announce the visible quotation reference when an
+occasion title was available. The label now announces the occasion and
+`Quotation <reference>` once when both exist, announces the reference when it
+is the only identity, and uses `Your quotation` once only when neither identity
+exists. Visible copy, layout, navigation, and selection are unchanged. Second,
+the pending quotation-provider skeleton had no direct test. A focused signed-in
+widget test now holds that provider pending with no other resume cards, proves
+the skeleton without a false card, empty section, or error, completes the
+provider into the expected quotation card, and verifies clean completion and
+disposal.
+
+Claude retained two non-blocking P3 test-coverage observations. The occasion
+plus blank-reference semantic branch has no dedicated test but is correct by
+construction in the shared identity expression. Pending quotations alongside
+an existing Plan or Saved card also have no dedicated test, while the shared
+resume composition keeps those already resolved cards visible.
+
+### Verification
+
+The original focused file run passed 32 tests and failed only the new navigation
+assertion because it checked before the pushed route's first frame. The test was
+corrected to pump the route start and transition; production code did not
+change. The single regression then passed 1/1, and the pre-review focused Home
+feed file passed **34/34**. After the P3 remediation, the two new focused tests
+passed **2/2**, the complete Home/quotation/shell group passed **189/189**, and
+the complete Flutter suite passed **659/659**. The first P3-focused run found
+only a test cleanup issue because its semantics handle was disposed after
+Flutter's end-of-test check; moving disposal into `finally` fixed the test with
+no production change.
+
+Focused coverage proves reversed ordering, invalid-date fallback, stable-ID
+tie-breaking, supported-status and ID filtering, no phone-clock expiry inference,
+both safe title fallbacks, signed-out request suppression, truthful card copy,
+exact-ID navigation, matching-enquiry de-duplication, unrelated-enquiry
+retention, enquiry-failure fallback, safe initial errors, source-scoped retry,
+signed-in refresh, retained previous quotation data, and raw-error suppression.
+
+| Command                                                                                       | Result / execution                                                                                                   |
+| --------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `flutter test test/home_feed_test.dart --name 'Quotation semantics\|Pending quotations'`      | PASS — 2/2                                                                                                           |
+| `flutter test test/home_tab_test.dart test/home_feed_test.dart test/customer_shell_test.dart` | PASS — 189/189                                                                                                       |
+| `flutter test`                                                                                | PASS — 659/659                                                                                                       |
+| `flutter analyze`                                                                             | PASS — zero issues                                                                                                   |
+| `dart format --output=none --set-exit-if-changed lib test`                                    | PASS — 210 files, zero changes                                                                                       |
+| `corepack pnpm exec prettier --check <three touched CUST-05 documents>`                       | PASS — all matched                                                                                                   |
+| `corepack pnpm verify`                                                                        | FIRST ATTEMPT ENVIRONMENT-BLOCKED — 17 Nest HTTP tests could not bind sandbox loopback; 326/343 backend tests passed |
+| unchanged `corepack pnpm verify` with established loopback permission                         | PASS — backend 343/343, ERP 12/12, four-workspace lint/typecheck, all builds, 37 ERP routes                          |
+| `git diff --check`                                                                            | PASS                                                                                                                 |
+| `git diff --cached --check` and `git diff --cached --stat`                                    | PASS — index remains empty                                                                                           |
+
+The first attempt to invoke Dart/Flutter inside the restricted sandbox was
+also blocked from writing the installed Flutter SDK cache. The same scoped
+commands passed with SDK-cache permission. No source workaround or dependency
+change was made.
+
+### Deferred contract risks
+
+- Approved quotation Home handling needs booking/payment state unavailable from
+  the list contract.
+- Quotation expiry enforcement belongs to CUST-14/CUST-15.
+- Trusted provider-bound payment remains CUST-16.
+- Multiple simultaneous `sent` quotations need a later product decision.
+- Raw error rendering in the pre-existing `QuotationDetailScreen` belongs to
+  CUST-14 quotation-detail hardening.
+
+Physical-device proof for this slice is **NOT VERIFIED**. CUST-05 remains **IN
+PROGRESS**.
 
 ## Compact Home Top Area — 6 September 2026
 
@@ -120,10 +247,10 @@ note require no correction in this slice. Claude again could not execute
 Flutter/Dart; the post-remediation run results above are Codex evidence. Claude
 modified no files. Earlier non-blocking P3 observations remain deferred.
 
-The independently approved 10-file slice is included in the focused local commit
-`feat(customer): compact home top area`; `AGENTS.md` is excluded. No push,
-further slice, CUST-06 implementation, or CUST-05 closure is authorized. Next
-action: obtain separate safe-push authorization for this local commit.
+The independently approved 10-file slice was committed and pushed as `81581f1`
+under `feat(customer): compact home top area`; `AGENTS.md` was excluded. GitHub
+CI, Security, and CodeQL workflows passed. This does not approve the later
+sent-quotation slice, authorize CUST-06, or close CUST-05.
 
 ## Protected starting state
 
@@ -508,14 +635,14 @@ and the full Flutter suite passed 599/599.
 
 ## Remaining CUST-05 work
 
-CUST-05 remains **IN PROGRESS**. The independently approved second lifecycle
-slice was pushed as `eb4dbce`; the third provider-failure slice is committed as
-`da036480`, matching the inspected local `origin/master`. The new Compact Home
-Top Area remains uncommitted and awaits manual review after verification.
-Quotation resume integration, location/date decisions, approved media, and
-complete acceptance testing remain. Manual TypeScript/Dart status-catalogue
-synchronization remains a non-blocking P3 cross-language drift risk under the
-existing architecture.
+CUST-05 remains **IN PROGRESS**. The independently approved compact Home slice
+was pushed as `81581f1`, matching the inspected local `origin/master`, and its
+GitHub CI, Security, and CodeQL workflows passed. The sent-quotation resume
+slice and both P3 corrections are independently approved for one focused local
+commit; pushing still requires separate authorization. Approved quotation Home
+handling, location/date decisions, approved media, and complete acceptance
+testing remain. Manual TypeScript/Dart status-catalogue synchronization remains
+a non-blocking P3 cross-language drift risk under the existing architecture.
 
 The previously retained inaccurate active title, mixed-lifecycle coverage gap,
 and unusable-newest-booking-ID action-selection observation are addressed in

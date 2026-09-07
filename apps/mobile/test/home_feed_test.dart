@@ -4,6 +4,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mee_events/api/api_client.dart';
+import 'package:mee_events/api/mobile_api.dart';
 import 'package:mee_events/core/providers/catalog_provider.dart';
 import 'package:mee_events/features/auth/session_provider.dart';
 import 'package:mee_events/features/customer/favorites/favorites_provider.dart';
@@ -14,6 +16,7 @@ import 'package:mee_events/features/customer/plan/event_plan_store.dart';
 import 'package:mee_events/features/customer/providers/event_record_providers.dart';
 import 'package:mee_events/features/customer/screens/favorites_screen.dart';
 import 'package:mee_events/features/customer/screens/home_tab.dart';
+import 'package:mee_events/features/customer/screens/quotation_detail_screen.dart';
 import 'package:mee_events/features/customer/search/search_provider.dart';
 import 'package:mee_events/features/customer/widgets/home/discovery_skeletons.dart';
 import 'package:mee_events/features/customer/widgets/home/home_planning_guidance.dart';
@@ -27,6 +30,7 @@ import 'package:mee_events/models/catalog_subcategory.dart';
 import 'package:mee_events/models/enquiry.dart';
 import 'package:mee_events/models/event_record.dart';
 import 'package:mee_events/models/occasion_stage.dart';
+import 'package:mee_events/models/quotation.dart';
 import 'package:mee_events/theme/theme.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -76,6 +80,20 @@ class _CountingFavoritesStore extends ScriptedFavoritesStore {
   Future<List<FavoriteItem>> load() {
     onLoad?.call();
     return super.load();
+  }
+}
+
+class _RecordingQuotationApi extends MobileApi {
+  _RecordingQuotationApi()
+    : super(apiClient: ApiClient(baseUrl: 'https://example.invalid'));
+
+  final _pendingDetail = Completer<QuotationDetail>();
+  String? requestedQuotationId;
+
+  @override
+  Future<QuotationDetail> getQuotation(String id) {
+    requestedQuotationId = id;
+    return _pendingDetail.future;
   }
 }
 
@@ -135,6 +153,28 @@ void main() {
       createdAt: createdAt,
       submittedAt: submittedAt.isEmpty ? null : submittedAt,
       eventDate: eventDate,
+    );
+  }
+
+  QuotationSummary quotation({
+    required String id,
+    String status = 'sent',
+    String reference = 'QT-1',
+    String enquiryId = 'enquiry-1',
+    String createdAt = '2026-01-01T00:00:00.000Z',
+    String updatedAt = '2026-01-01T00:00:00.000Z',
+    String? validUntil,
+  }) {
+    return QuotationSummary(
+      id: id,
+      referenceCode: reference,
+      leadId: 'lead-$id',
+      enquiryId: enquiryId,
+      customerId: 'customer-1',
+      status: status,
+      createdAt: createdAt,
+      updatedAt: updatedAt,
+      validUntil: validUntil,
     );
   }
 
@@ -198,24 +238,129 @@ void main() {
     );
   });
 
+  test('reversed input still selects the newest sent quotation', () {
+    final older = quotation(
+      id: 'quote-older',
+      updatedAt: '2026-07-01T00:00:00.000Z',
+    );
+    final newer = quotation(
+      id: 'quote-newer',
+      updatedAt: '2026-08-01T00:00:00.000Z',
+    );
+
+    expect(pickHomeResumeQuotation([older, newer])?.id, 'quote-newer');
+    expect(pickHomeResumeQuotation([newer, older])?.id, 'quote-newer');
+  });
+
+  test('invalid quotation dates use deterministic fallbacks', () {
+    final older = quotation(
+      id: 'quote-created-older',
+      updatedAt: 'invalid',
+      createdAt: '2026-06-01T00:00:00.000Z',
+    );
+    final newer = quotation(
+      id: 'quote-created-newer',
+      updatedAt: 'also-invalid',
+      createdAt: '2026-07-01T00:00:00.000Z',
+    );
+
+    expect(pickHomeResumeQuotation([newer, older])?.id, newer.id);
+    expect(pickHomeResumeQuotation([older, newer])?.id, newer.id);
+  });
+
+  test('quotation selection has a stable ID tie-breaker', () {
+    final lower = quotation(
+      id: 'quote-a',
+      updatedAt: 'invalid',
+      createdAt: 'invalid',
+    );
+    final higher = quotation(
+      id: 'quote-z',
+      updatedAt: 'invalid',
+      createdAt: 'invalid',
+    );
+
+    expect(pickHomeResumeQuotation([higher, lower])?.id, higher.id);
+    expect(pickHomeResumeQuotation([lower, higher])?.id, higher.id);
+  });
+
+  test('unsupported quotation statuses and empty IDs are ignored', () {
+    final unsupported = [
+      'approved',
+      'revision_requested',
+      'rejected',
+      'expired',
+      'superseded',
+      'draft',
+      'unknown_internal_status',
+    ];
+    final items = [
+      for (var i = 0; i < unsupported.length; i++)
+        quotation(id: 'quote-$i', status: unsupported[i]),
+      quotation(id: ''),
+      quotation(id: '   '),
+    ];
+
+    expect(pickHomeResumeQuotation(items), isNull);
+  });
+
+  test('sent quotation eligibility does not use the phone clock or expiry', () {
+    final sent = quotation(id: 'quote-server-sent', validUntil: '2000-01-01');
+
+    expect(pickHomeResumeQuotation([sent]), same(sent));
+  });
+
+  test('quotation card title uses reference then safe generic fallback', () {
+    final referenced = homeQuotationResumeCard(
+      quotation(id: 'quote-reference', reference: 'QT-SAFE'),
+      null,
+    );
+    final generic = homeQuotationResumeCard(
+      quotation(id: 'quote-generic', reference: '   '),
+      const <Enquiry>[],
+    );
+
+    expect(referenced.title, 'QT-SAFE');
+    expect(generic.title, 'Your quotation');
+    expect(referenced.actionLabel, 'Review quote');
+    expect(generic.actionLabel, 'Review quote');
+    expect(
+      referenced.semanticLabel,
+      'Quotation QT-SAFE. Ready for review. Review quote',
+    );
+    expect(
+      generic.semanticLabel,
+      'Your quotation. Ready for review. Review quote',
+    );
+    expect(
+      RegExp('Your quotation').allMatches(generic.semanticLabel),
+      hasLength(1),
+    );
+  });
+
   Future<void> pumpFeed(
     WidgetTester tester, {
     List<EventPlanItem> plan = const [],
     List<FavoriteItem> favorites = const [],
     List<Enquiry> enquiries = const [],
+    List<QuotationSummary> quotations = const [],
     AuthSession? signedIn,
     Object? planError,
     Object? favoritesError,
     Object? enquiriesError,
+    Object? quotationsError,
     Future<List<EventPlanItem>> Function()? loadPlan,
     Future<List<FavoriteItem>> Function()? loadFavorites,
     Future<List<Enquiry>?> Function()? loadEnquiries,
+    Future<List<QuotationSummary>?> Function()? loadQuotations,
     Future<List<CatalogService>> Function(String? department)? loadServices,
     VoidCallback? onPlanLoad,
     VoidCallback? onFavoritesLoad,
     VoidCallback? onEnquiriesLoad,
+    VoidCallback? onQuotationsLoad,
     VoidCallback? onEventTypesLoad,
     ValueChanged<CustomerTab>? onNavigate,
+    MobileApi? mobileApi,
     Size size = const Size(390, 844),
   }) async {
     tester.view.physicalSize = Size(size.width * 3, size.height * 3);
@@ -305,6 +450,18 @@ void main() {
               onEnquiriesLoad?.call();
               return enquiries;
             }),
+          if (loadQuotations != null)
+            quotationsProvider.overrideWith((ref) => loadQuotations())
+          else if (quotationsError != null)
+            quotationsProvider.overrideWith(
+              (ref) async => throw quotationsError,
+            )
+          else
+            quotationsProvider.overrideWith((ref) async {
+              onQuotationsLoad?.call();
+              return quotations;
+            }),
+          if (mobileApi != null) mobileApiProvider.overrideWithValue(mobileApi),
         ],
         child: MaterialApp(
           theme: AppTheme.light,
@@ -342,6 +499,18 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 400));
     expect(find.byKey(HomeHowItWorksSection.sectionKey), findsOneWidget);
+  });
+
+  testWidgets('Signed-out Home performs no quotation request', (tester) async {
+    var quotationLoads = 0;
+    await pumpFeed(
+      tester,
+      onQuotationsLoad: () => quotationLoads += 1,
+      quotations: [quotation(id: 'quote-must-not-load')],
+    );
+
+    expect(quotationLoads, 0);
+    expect(find.byKey(const Key('home-resume-quotation')), findsNothing);
   });
 
   testWidgets('Plan-only resume uses one full-width card', (tester) async {
@@ -399,6 +568,226 @@ void main() {
     await tester.tap(find.byKey(const Key('home-resume-enquiry')));
     await tester.pump();
     expect(tab, CustomerTab.enquiries);
+  });
+
+  testWidgets('Sent quotation renders Review quote and opens exact detail', (
+    tester,
+  ) async {
+    final api = _RecordingQuotationApi();
+    const exactId = 'quote-exact-id-009';
+    await pumpFeed(
+      tester,
+      signedIn: session,
+      quotations: [
+        quotation(
+          id: exactId,
+          reference: 'QT-009',
+          enquiryId: 'matching-enquiry',
+        ),
+      ],
+      enquiries: [
+        enquiry(
+          id: 'matching-enquiry',
+          status: 'proposal_expected',
+          name: 'Birthday',
+        ),
+      ],
+      mobileApi: api,
+    );
+
+    final card = find.byKey(const Key('home-resume-quotation'));
+    expect(card, findsOneWidget);
+    expect(
+      find.descendant(of: card, matching: find.text('Birthday')),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(of: card, matching: find.text('QT-009')),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(of: card, matching: find.text('Review quote')),
+      findsOneWidget,
+    );
+    for (final unsupportedClaim in [
+      'Pay advance',
+      'Payment pending',
+      'Open My Event',
+    ]) {
+      expect(find.text(unsupportedClaim), findsNothing);
+    }
+
+    await tester.tap(
+      find.descendant(of: card, matching: find.text('Review quote')),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+
+    final detail = tester.widget<QuotationDetailScreen>(
+      find.byType(QuotationDetailScreen),
+    );
+    expect(detail.quotationId, exactId);
+    expect(api.requestedQuotationId, exactId);
+  });
+
+  testWidgets('Quotation semantics announce occasion and reference once', (
+    tester,
+  ) async {
+    final semantics = tester.ensureSemantics();
+    try {
+      await pumpFeed(
+        tester,
+        signedIn: session,
+        quotations: [
+          quotation(
+            id: 'quote-accessible',
+            reference: 'QT-009',
+            enquiryId: 'accessible-enquiry',
+          ),
+        ],
+        enquiries: [
+          enquiry(
+            id: 'accessible-enquiry',
+            status: 'proposal_expected',
+            name: 'Birthday',
+          ),
+        ],
+      );
+
+      expect(
+        find.bySemanticsLabel(
+          'Birthday. Quotation QT-009. Ready for review. Review quote',
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.bySemanticsLabel(
+          'Birthday. Quotation ready for review. Review quote',
+        ),
+        findsNothing,
+      );
+    } finally {
+      semantics.dispose();
+    }
+  });
+
+  testWidgets('Pending quotations show only the resume skeleton then card', (
+    tester,
+  ) async {
+    final pending = Completer<List<QuotationSummary>?>();
+    await pumpFeed(
+      tester,
+      signedIn: session,
+      loadQuotations: () => pending.future,
+    );
+
+    expect(find.byType(HomeResumeSkeleton), findsOneWidget);
+    expect(find.byKey(HomeResumeSection.sectionKey), findsNothing);
+    expect(find.byKey(const Key('home-resume-quotation')), findsNothing);
+    expect(find.byType(HomeSectionError), findsNothing);
+    expect(find.text('Some recent activity is unavailable'), findsNothing);
+    expect(tester.takeException(), isNull);
+
+    pending.complete([quotation(id: 'quote-loaded', reference: 'QT-LOADED')]);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+
+    expect(find.byType(HomeResumeSkeleton), findsNothing);
+    expect(find.byKey(const Key('home-resume-quotation')), findsOneWidget);
+    expect(find.text('QT-LOADED'), findsOneWidget);
+    expect(find.byType(HomeSectionError), findsNothing);
+    expect(tester.takeException(), isNull);
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump();
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('Matching enquiry is de-duplicated from quotation resume', (
+    tester,
+  ) async {
+    await pumpFeed(
+      tester,
+      signedIn: session,
+      quotations: [quotation(id: 'quote-1', enquiryId: 'same-enquiry')],
+      enquiries: [
+        enquiry(
+          id: 'same-enquiry',
+          status: 'proposal_expected',
+          submittedAt: '2026-08-01T00:00:00.000Z',
+        ),
+      ],
+    );
+
+    expect(find.byKey(const Key('home-resume-quotation')), findsOneWidget);
+    expect(find.byKey(const Key('home-resume-enquiry')), findsNothing);
+  });
+
+  testWidgets('Unrelated active enquiry remains beside quotation resume', (
+    tester,
+  ) async {
+    await pumpFeed(
+      tester,
+      signedIn: session,
+      quotations: [quotation(id: 'quote-1', enquiryId: 'quoted-enquiry')],
+      enquiries: [
+        enquiry(
+          id: 'quoted-enquiry',
+          status: 'proposal_expected',
+          submittedAt: '2026-08-02T00:00:00.000Z',
+        ),
+        enquiry(
+          id: 'other-enquiry',
+          status: 'received',
+          submittedAt: '2026-08-01T00:00:00.000Z',
+          name: 'Corporate Event',
+          reference: 'ENQ-OTHER',
+        ),
+      ],
+    );
+
+    expect(find.byKey(const Key('home-resume-quotation')), findsOneWidget);
+    final enquiryCard = find.byKey(const Key('home-resume-enquiry'));
+    expect(enquiryCard, findsOneWidget);
+    expect(
+      find.descendant(of: enquiryCard, matching: find.text('Corporate Event')),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(
+        of: enquiryCard,
+        matching: find.textContaining('ENQ-OTHER'),
+      ),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('Enquiry failure keeps quotation fallback card available', (
+    tester,
+  ) async {
+    await pumpFeed(
+      tester,
+      signedIn: session,
+      quotations: [
+        quotation(
+          id: 'quote-fallback',
+          reference: 'QT-FALLBACK',
+          enquiryId: 'unavailable-enquiry',
+        ),
+      ],
+      enquiriesError: Exception('https://private.invalid?token=secret'),
+    );
+
+    final card = find.byKey(const Key('home-resume-quotation'));
+    expect(card, findsOneWidget);
+    expect(
+      find.descendant(of: card, matching: find.text('QT-FALLBACK')),
+      findsOneWidget,
+    );
+    expect(find.text('Review quote'), findsOneWidget);
+    expect(find.text('Some recent activity is unavailable'), findsOneWidget);
+    expect(find.textContaining('private.invalid'), findsNothing);
+    expect(find.textContaining('secret'), findsNothing);
   });
 
   testWidgets('Three resume cards form a peeking horizontal rail', (
@@ -485,6 +874,25 @@ void main() {
     expect(find.byKey(const Key('home-resume-enquiry')), findsNothing);
     expect(find.text('Some recent activity is unavailable'), findsOneWidget);
     expect(find.text('enquiry-down'), findsNothing);
+  });
+
+  testWidgets('Quotation initial failure is truthful and safe', (tester) async {
+    await pumpFeed(
+      tester,
+      signedIn: session,
+      plan: const [planItem],
+      quotationsError: Exception(
+        'GET http://127.0.0.1:3002/quotations token=private stack trace',
+      ),
+    );
+
+    expect(find.byKey(const Key('home-resume-quotation')), findsNothing);
+    expect(find.byKey(const Key('home-resume-plan')), findsOneWidget);
+    expect(find.text('Some recent activity is unavailable'), findsOneWidget);
+    expect(find.byType(HomeSectionError), findsOneWidget);
+    for (final unsafe in ['127.0.0.1', 'token=private', 'stack trace']) {
+      expect(find.textContaining(unsafe), findsNothing);
+    }
   });
 
   testWidgets('Plan initial error keeps a successful Saved card', (
@@ -580,6 +988,110 @@ void main() {
     expect(find.byKey(const Key('home-resume-saved')), findsOneWidget);
     expect(find.text('Some recent activity is unavailable'), findsNothing);
     expect(find.text('plan-first-load'), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('Activity retry reloads only failed quotation source', (
+    tester,
+  ) async {
+    var planLoads = 0;
+    var favoritesLoads = 0;
+    var enquiryLoads = 0;
+    var quotationLoads = 0;
+    await pumpFeed(
+      tester,
+      signedIn: session,
+      onPlanLoad: () => planLoads += 1,
+      onFavoritesLoad: () => favoritesLoads += 1,
+      onEnquiriesLoad: () => enquiryLoads += 1,
+      loadQuotations: () async {
+        quotationLoads += 1;
+        if (quotationLoads == 1) throw Exception('quotation-private');
+        return [quotation(id: 'quote-recovered', reference: 'QT-RECOVERED')];
+      },
+    );
+    expect(planLoads, 1);
+    expect(favoritesLoads, 1);
+    expect(enquiryLoads, 1);
+    expect(quotationLoads, 1);
+    expect(find.text('Some recent activity is unavailable'), findsOneWidget);
+
+    await tester.tap(retryFor('Some recent activity is unavailable'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+
+    expect(planLoads, 1);
+    expect(favoritesLoads, 1);
+    expect(enquiryLoads, 1);
+    expect(quotationLoads, 2);
+    expect(find.byKey(const Key('home-resume-quotation')), findsOneWidget);
+    expect(find.text('QT-RECOVERED'), findsOneWidget);
+    expect(find.text('quotation-private'), findsNothing);
+    expect(find.text('Some recent activity is unavailable'), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('Signed-in pull-to-refresh reloads quotations', (tester) async {
+    var quotationLoads = 0;
+    await pumpFeed(
+      tester,
+      signedIn: session,
+      loadQuotations: () async {
+        quotationLoads += 1;
+        return [quotation(id: 'quote-refresh', reference: 'QT-REFRESH')];
+      },
+    );
+    expect(quotationLoads, 1);
+    expect(find.byKey(const Key('home-resume-quotation')), findsOneWidget);
+
+    await tester.fling(
+      find.byType(RefreshIndicator),
+      const Offset(0, 420),
+      1000,
+    );
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+    await tester.pump(const Duration(seconds: 1));
+
+    expect(quotationLoads, greaterThan(1));
+    expect(find.byKey(const Key('home-resume-quotation')), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('Failed quotation refresh retains its previous card safely', (
+    tester,
+  ) async {
+    var quotationLoads = 0;
+    await pumpFeed(
+      tester,
+      signedIn: session,
+      loadQuotations: () async {
+        quotationLoads += 1;
+        if (quotationLoads > 1) {
+          throw Exception('https://internal.invalid/private-stack');
+        }
+        return [quotation(id: 'quote-cached', reference: 'QT-CACHED')];
+      },
+    );
+    expect(find.byKey(const Key('home-resume-quotation')), findsOneWidget);
+
+    await tester.fling(
+      find.byType(RefreshIndicator),
+      const Offset(0, 420),
+      1000,
+    );
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+    await tester.pump(const Duration(seconds: 1));
+
+    expect(quotationLoads, greaterThan(1));
+    expect(find.byKey(const Key('home-resume-quotation')), findsOneWidget);
+    expect(find.text('QT-CACHED'), findsOneWidget);
+    expect(find.textContaining('internal.invalid'), findsNothing);
+    expect(
+      find.text('Some sections couldn\u2019t be refreshed. Please try again.'),
+      findsOneWidget,
+    );
     expect(tester.takeException(), isNull);
   });
 

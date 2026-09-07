@@ -14,6 +14,7 @@ import 'package:mee_events/features/customer/providers/event_record_providers.da
 import 'package:mee_events/features/customer/providers/explore_intent_provider.dart';
 import 'package:mee_events/features/customer/screens/category_detail_screen.dart';
 import 'package:mee_events/features/customer/screens/favorites_screen.dart';
+import 'package:mee_events/features/customer/screens/quotation_detail_screen.dart';
 import 'package:mee_events/features/customer/screens/service_detail_screen.dart';
 import 'package:mee_events/features/customer/search/customer_search_screen.dart';
 import 'package:mee_events/features/customer/workspace/event_workspace_screen.dart';
@@ -28,6 +29,7 @@ import 'package:mee_events/models/catalog_item.dart';
 import 'package:mee_events/models/catalog_service.dart';
 import 'package:mee_events/models/enquiry.dart';
 import 'package:mee_events/models/event_record.dart';
+import 'package:mee_events/models/quotation.dart';
 import 'package:mee_events/theme/app_colors.dart';
 import 'package:mee_events/theme/app_radius.dart';
 import 'package:mee_events/theme/app_spacing.dart';
@@ -50,7 +52,7 @@ class _CustomerHomeTabState extends ConsumerState<CustomerHomeTab> {
   Future<void> _handleRefresh() async {
     final cachedTypes = ref.read(eventTypesProvider).valueOrNull;
     final cachedEvents = ref.read(eventsProvider).valueOrNull;
-    final refreshEnquiries = ref.read(sessionProvider) != null;
+    final refreshCustomerActivity = ref.read(sessionProvider) != null;
     final cachedOccasion = matchLiveOccasionCode(
       pickHomeUpcomingEvent(cachedEvents)?.eventTypeName,
       cachedTypes,
@@ -60,8 +62,9 @@ class _CustomerHomeTabState extends ConsumerState<CustomerHomeTab> {
     ref.invalidate(serviceCategoriesProvider);
     ref.invalidate(eventsProvider);
     ref.invalidate(catalogServicesProvider(null));
-    if (refreshEnquiries) {
+    if (refreshCustomerActivity) {
       ref.invalidate(enquiriesProvider);
+      ref.invalidate(quotationsProvider);
     }
 
     final typesFuture = ref.read(eventTypesProvider.future);
@@ -79,8 +82,9 @@ class _CustomerHomeTabState extends ConsumerState<CustomerHomeTab> {
       planFuture,
       favoritesFuture,
     ];
-    if (refreshEnquiries) {
+    if (refreshCustomerActivity) {
       refreshes.add(_refreshSucceeded(ref.read(enquiriesProvider.future)));
+      refreshes.add(_refreshSucceeded(ref.read(quotationsProvider.future)));
     }
     if (cachedOccasion != null) {
       ref.invalidate(occasionServicesProvider(cachedOccasion));
@@ -158,6 +162,15 @@ class _CustomerHomeTabState extends ConsumerState<CustomerHomeTab> {
           ).then<void>((_) {}),
         );
       }
+      final quotations = ref.read(quotationsProvider);
+      if (quotations.hasError && !quotations.hasValue) {
+        ref.invalidate(quotationsProvider);
+        retries.add(
+          _refreshSucceeded(
+            ref.read(quotationsProvider.future),
+          ).then<void>((_) {}),
+        );
+      }
     }
 
     if (retries.isNotEmpty) {
@@ -176,6 +189,7 @@ class _CustomerHomeTabState extends ConsumerState<CustomerHomeTab> {
   void _onResumeSelect(
     HomeResumeKind kind,
     EventRecordSummary? actionableCompleted,
+    QuotationSummary? quotation,
   ) {
     switch (kind) {
       case HomeResumeKind.upcoming:
@@ -188,6 +202,14 @@ class _CustomerHomeTabState extends ConsumerState<CustomerHomeTab> {
         Navigator.of(context).push(
           MaterialPageRoute<void>(
             builder: (_) => EventWorkspaceScreen(bookingId: bookingId),
+          ),
+        );
+        return;
+      case HomeResumeKind.quotation:
+        if (quotation == null) return;
+        Navigator.of(context).push(
+          MaterialPageRoute<void>(
+            builder: (_) => QuotationDetailScreen(quotationId: quotation.id),
           ),
         );
         return;
@@ -367,13 +389,24 @@ class _CustomerHomeTabState extends ConsumerState<CustomerHomeTab> {
     final enquiriesAsync = session == null
         ? const AsyncValue<List<Enquiry>?>.data(null)
         : ref.watch(enquiriesProvider);
+    final quotationsAsync = session == null
+        ? const AsyncValue<List<QuotationSummary>?>.data(null)
+        : ref.watch(quotationsProvider);
 
+    final quotation = session == null
+        ? null
+        : pickHomeResumeQuotation(quotationsAsync.valueOrNull);
+    final enquiries = enquiriesAsync.valueOrNull;
     final enquiry = session == null
         ? null
-        : pickHomeResumeEnquiry(enquiriesAsync.valueOrNull);
+        : pickHomeResumeEnquiry(
+            enquiries,
+            excludingEnquiryId: quotation?.enquiryId,
+          );
     final cards = <HomeResumeCardData>[
       ?homeUpcomingResumeCard(upcoming),
       ?homeCompletedResumeCard(actionableCompleted),
+      if (quotation != null) homeQuotationResumeCard(quotation, enquiries),
       ?homePlanResumeCard(planAsync.valueOrNull),
       ?homeSavedResumeCard(savedAsync.valueOrNull),
       if (enquiry != null) homeEnquiryResumeCard(enquiry),
@@ -384,13 +417,19 @@ class _CustomerHomeTabState extends ConsumerState<CustomerHomeTab> {
         (savedAsync.isLoading && !savedAsync.hasValue) ||
         (session != null &&
             enquiriesAsync.isLoading &&
-            !enquiriesAsync.hasValue);
+            !enquiriesAsync.hasValue) ||
+        (session != null &&
+            quotationsAsync.isLoading &&
+            !quotationsAsync.hasValue);
     final unavailable =
         (planAsync.hasError && !planAsync.hasValue) ||
         (savedAsync.hasError && !savedAsync.hasValue) ||
         (session != null &&
             enquiriesAsync.hasError &&
-            !enquiriesAsync.hasValue);
+            !enquiriesAsync.hasValue) ||
+        (session != null &&
+            quotationsAsync.hasError &&
+            !quotationsAsync.hasValue);
 
     if (cards.isEmpty && !waiting && !unavailable) {
       return const [];
@@ -401,7 +440,8 @@ class _CustomerHomeTabState extends ConsumerState<CustomerHomeTab> {
         SliverToBoxAdapter(
           child: HomeResumeSection(
             cards: cards,
-            onSelect: (kind) => _onResumeSelect(kind, actionableCompleted),
+            onSelect: (kind) =>
+                _onResumeSelect(kind, actionableCompleted, quotation),
           ),
         ),
       if (cards.isEmpty && waiting)

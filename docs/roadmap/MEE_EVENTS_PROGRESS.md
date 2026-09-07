@@ -1,6 +1,6 @@
 # Mee Events — Progress Tracker
 
-- **Updated:** 7 September 2026; CUST-05 Compact Home independent approval
+- **Updated:** 7 September 2026; CUST-05 sent-quotation slice approval
 - **Repository:** `/Users/vinaychilagani/Desktop/Mee Event V1`
 - **Baseline application commit:** `master` / `9e2a442d91c137ec97a349d1a55697ae8d79d5df`
 - **STAB-01 snapshot HEAD:** `ca994985a898d42da2a8d717041b93a8f8f0dc4c`
@@ -8,20 +8,100 @@
 - **Phase state:** **IN PROGRESS**
 - **Last completed task:** CUST-04 Customer Bootstrap - **INDEPENDENTLY REVIEWED
   AND CLOSED - 4 SEPTEMBER 2026**
-- **Current task:** CUST-05 Home - **IN PROGRESS - COMPACT TOP INDEPENDENTLY
-  APPROVED AND LOCALLY COMMITTED**
-- **Next authorized task:** obtain separate safe-push authorization for the
-  focused Compact Home commit; no further implementation
-- **Latest application change:** the Home hero has a 176-logical-pixel minimum
-  instead of 224, full-width wrapping text, and tighter search/hero gaps. Home
-  alone opts into the compact shared search layout. Lifecycle selection,
-  navigation, provider errors, and all other product surfaces remain unchanged.
+- **Current task:** CUST-05 Home - **IN PROGRESS - SENT QUOTATION SLICE
+  INDEPENDENTLY APPROVED**
+- **Next authorized task:** stop for separate push authorization; no further
+  implementation
+- **Latest application change:** signed-in Home shows one deterministic,
+  server-status `sent` quotation in the existing resume rail, opens the existing
+  quotation detail, and integrates quotation loading/error/retry/refresh without
+  changing payment, booking, or server contracts.
 - **STAB-16 implementation commit:** `999443d5d3ba547de1bb6c0406c34753c8433b00`
 - **STAB-16 closeout:** `1450263caa6a5be2263bf7b9c91827f7cc24ef6c`
 - **STAB-17 commit:** `68894f3bbfa91937a0c7c573a8fc1a0af83ce533`
 - **STAB-18 commit:** `f66cc51a726322eeb604ab84c3d3e195050248f9`
 - **STAB-19 commit:** `e833eb82d690d65e293b9521ce3f24c390fff4f0`
 - **STAB-20 canonical application commit:** `37cf6c2f8e36dd522688e3423be7b9595e442ead`
+
+## CUST-05 Sent Quotation Resume Slice - 7 September 2026
+
+- [~] **CUST-05 Home** — **IN PROGRESS - SENT QUOTATION RESUME SLICE LOCALLY
+  VERIFIED**.
+
+The safety audit started on `master` at
+`81581f1fc69bc9d3949f67983f373a0da174581f`, matching local
+`origin/master`, with an empty index. The only pre-existing worktree change was
+the tracked, unstaged `AGENTS.md` expansion. It was fully inspected and remains
+untouched and unstaged. The Compact Home Top Area commit `81581f1` is pushed;
+its GitHub CI, Security, and CodeQL workflows passed.
+
+Signed-in Home now watches the existing `quotationsProvider` and selects one
+quotation only when its exact server status is `sent` and its identifier is
+non-empty. Valid `updatedAt` orders first, then `createdAt`, then stable ID, so
+reversed and malformed-date input stays deterministic. Home does not use
+`validUntil` or the phone clock to change lifecycle. Unsupported and unknown
+statuses are ignored.
+
+The card says `Review quote`, uses the matching enquiry's occasion name when
+available, and otherwise falls back to the quotation reference or `Your
+quotation`. It opens the existing `QuotationDetailScreen` with the exact
+quotation ID. Only an active enquiry with the same `enquiryId` is suppressed;
+unrelated active enquiries remain available. An enquiry failure cannot remove
+the quotation fallback card.
+
+Quotation loading and initial failure join the existing resume skeleton and
+safe `Some recent activity is unavailable` notice. Retry invalidates only
+failed resume sources without usable values. Signed-in pull-to-refresh includes
+quotations; Riverpod's established previous-value behavior keeps a cached card
+visible if refresh fails. Signed-out Home never watches or requests quotations,
+and no raw exception, URL, token, stack trace, or private error detail is shown.
+
+No backend, database, migration, shared API contract, authentication,
+authorization, dependency, state-management, payment, booking, Explore, Plan,
+Enquiries, Account, role-switching, or CUST-06 change is included. The focused
+Home feed file passes **34/34**, the expanded Home/quotation/shell group passes
+**187/187**, and complete Flutter passes **657/657**. Analysis reports zero
+issues and Dart formatting checks 210 files with no changes. The three touched
+documents pass Prettier. The root gate's first sandboxed run was blocked only
+when 17 Nest tests attempted loopback; the unchanged permission-enabled rerun
+passes formatting, lint, typecheck, backend **343/343**, ERP **12/12**, and all
+builds including 37 ERP routes. Physical-device behavior for this slice is
+**NOT VERIFIED**.
+
+Deferred contract risks remain explicit: approved quotation Home handling needs
+booking/payment state unavailable from the list contract; quotation expiry
+enforcement belongs to CUST-14/CUST-15; trusted provider-bound payment remains
+CUST-16.
+
+Claude's focused re-review returned **READY FOR SLICE APPROVAL** with no P0, P1,
+or P2 findings and confirmed that the accessibility-label and quotation
+loading-test corrections are resolved. Claude did not execute Flutter or Dart:
+**NOT VERIFIED — ENVIRONMENT LIMITATION**. Quotation card semantics announce
+the visible reference without repeating fallback wording, while visible copy,
+layout, selection, and navigation remain unchanged. A direct signed-in
+pending-provider widget test now proves `HomeResumeSkeleton`, no premature
+quotation/empty/error state, the expected card after completion, and
+exception-free completion and disposal.
+
+The two new focused regressions pass **2/2**, the Home/quotation/shell group
+passes **189/189**, and complete Flutter passes **659/659**. Analysis reports
+zero issues and Dart formatting checks 210 files with no changes. The first
+focused P3 run exposed only late semantics-handle cleanup in the new test; the
+test now disposes the handle in `finally`, with no production change.
+The root gate's sandboxed run was blocked only when the established 17 Nest
+tests attempted loopback; the unchanged permission-enabled rerun passed
+formatting, lint, typecheck, backend **343/343**, ERP **12/12**, and all builds
+including 37 ERP routes.
+
+Two non-blocking P3 coverage observations remain: the occasion plus blank
+reference semantic branch has no dedicated test but is correct by construction,
+and pending quotations alongside an existing Plan or Saved card have no
+dedicated test while the shared composition is correct. Two future risks also
+remain: multiple simultaneous `sent` quotations need a product decision, and
+raw error rendering in the pre-existing `QuotationDetailScreen` belongs to
+CUST-14 quotation-detail hardening. CUST-05 remains **IN PROGRESS**; the slice
+is independently approved for one focused local commit, with pushing subject to
+separate authorization.
 
 ## CUST-05 Compact Home Top Area - 6 September 2026
 
@@ -50,7 +130,8 @@ lint, typecheck, backend **343/343**, ERP **12/12**, and all builds including
 Home search opens Search, and Start planning opens Plan. Home is left open for
 manual review. A physical phone was not connected, so physical-device behavior
 is **NOT VERIFIED**. Independent approval of earlier slices does not approve
-this layout. No commit or push is authorized; CUST-05 remains incomplete.
+this layout. At that verification point, no commit or push was authorized;
+CUST-05 remained incomplete.
 
 Antigravity subsequently returned **READY FOR COMPACT-SLICE APPROVAL** with no
 current blocker, while accurately reporting that no Android device was
@@ -66,9 +147,11 @@ with no changes. Root verification passes backend **343/343**, ERP **12/12**,
 lint, typecheck, and all builds including 37 ERP routes. Claude's focused
 re-review independently confirmed the P2 resolved and returned **READY FOR SLICE
 APPROVAL** with no blocker; Claude could not execute Flutter/Dart and modified
-no files. The owner authorized one focused local commit excluding `AGENTS.md`;
-the approved 10 files are locally committed under `feat(customer): compact home
-top area`. No push or further slice is authorized.
+no files. The owner authorized one focused commit excluding `AGENTS.md`; the
+approved 10 files were committed and pushed as `81581f1` under
+`feat(customer): compact home top area`. GitHub CI, Security, and CodeQL
+workflows passed for that pushed commit. Those results do not approve the later
+sent-quotation slice or close CUST-05.
 
 ## CUST-05 Home - third provider-failure slice - 5 September 2026
 

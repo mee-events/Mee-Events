@@ -7,12 +7,13 @@ import 'package:mee_events/features/customer/widgets/home/home_planning_hero.dar
 import 'package:mee_events/features/customer/widgets/home/occasion_section.dart';
 import 'package:mee_events/models/enquiry.dart';
 import 'package:mee_events/models/event_record.dart';
+import 'package:mee_events/models/quotation.dart';
 import 'package:mee_events/theme/app_colors.dart';
 import 'package:mee_events/theme/app_radius.dart';
 import 'package:mee_events/theme/app_spacing.dart';
 import 'package:mee_events/theme/app_typography.dart';
 
-enum HomeResumeKind { upcoming, completed, plan, saved, enquiry }
+enum HomeResumeKind { upcoming, completed, quotation, plan, saved, enquiry }
 
 class HomeResumeCardData {
   const HomeResumeCardData({
@@ -36,11 +37,18 @@ class HomeResumeCardData {
   Key get cardKey => Key('home-resume-${kind.name}');
 }
 
-Enquiry? pickHomeResumeEnquiry(List<Enquiry>? items) {
+Enquiry? pickHomeResumeEnquiry(
+  List<Enquiry>? items, {
+  String? excludingEnquiryId,
+}) {
   if (items == null || items.isEmpty) return null;
+  final excludedId = excludingEnquiryId?.trim().isNotEmpty == true
+      ? excludingEnquiryId
+      : null;
   Enquiry? best;
   DateTime? bestDate;
   for (final enquiry in items) {
+    if (excludedId != null && enquiry.id == excludedId) continue;
     if (enquiry.status == 'closed' || enquiry.status == 'cancelled') {
       continue;
     }
@@ -59,6 +67,40 @@ Enquiry? pickHomeResumeEnquiry(List<Enquiry>? items) {
     }
   }
   return best;
+}
+
+/// Selects the newest server-authoritative quotation that is ready for review.
+/// Valid server timestamps sort ahead of invalid ones; the stable quotation ID
+/// makes tied or invalid input deterministic without consulting the phone clock.
+QuotationSummary? pickHomeResumeQuotation(List<QuotationSummary>? items) {
+  if (items == null || items.isEmpty) return null;
+  QuotationSummary? best;
+  for (final quotation in items) {
+    if (quotation.id.trim().isEmpty || quotation.status != 'sent') continue;
+    if (best == null || _compareQuotationServerRecency(quotation, best) > 0) {
+      best = quotation;
+    }
+  }
+  return best;
+}
+
+int _compareQuotationServerRecency(
+  QuotationSummary left,
+  QuotationSummary right,
+) {
+  for (final timestamps in [
+    (left.updatedAt, right.updatedAt),
+    (left.createdAt, right.createdAt),
+  ]) {
+    final leftTimestamp = DateTime.tryParse(timestamps.$1);
+    final rightTimestamp = DateTime.tryParse(timestamps.$2);
+    if (leftTimestamp == null && rightTimestamp == null) continue;
+    if (leftTimestamp == null) return -1;
+    if (rightTimestamp == null) return 1;
+    final timestampOrder = leftTimestamp.compareTo(rightTimestamp);
+    if (timestampOrder != 0) return timestampOrder;
+  }
+  return left.id.compareTo(right.id);
 }
 
 String homeEnquiryStatusLabel(Enquiry enquiry) {
@@ -117,6 +159,41 @@ HomeResumeCardData? homeCompletedResumeCard(EventRecordSummary? event) {
     subtitle: date ?? 'Completed event',
     actionLabel: 'View event',
     semanticLabel: '${event.eventName}. Completed event. Open event workspace',
+  );
+}
+
+HomeResumeCardData homeQuotationResumeCard(
+  QuotationSummary quotation,
+  List<Enquiry>? enquiries,
+) {
+  Enquiry? matchingEnquiry;
+  for (final enquiry in enquiries ?? const <Enquiry>[]) {
+    if (enquiry.id == quotation.enquiryId) {
+      matchingEnquiry = enquiry;
+      break;
+    }
+  }
+
+  final occasionName = matchingEnquiry?.eventTypeName.trim() ?? '';
+  final reference = quotation.referenceCode.trim();
+  final title = occasionName.isNotEmpty
+      ? occasionName
+      : (reference.isNotEmpty ? reference : 'Your quotation');
+  final subtitle = occasionName.isNotEmpty && reference.isNotEmpty
+      ? reference
+      : 'Quotation ready for review';
+  final semanticIdentity = occasionName.isNotEmpty
+      ? [
+          occasionName,
+          if (reference.isNotEmpty) 'Quotation $reference',
+        ].join('. ')
+      : (reference.isNotEmpty ? 'Quotation $reference' : 'Your quotation');
+  return HomeResumeCardData(
+    kind: HomeResumeKind.quotation,
+    title: title,
+    subtitle: subtitle,
+    actionLabel: 'Review quote',
+    semanticLabel: '$semanticIdentity. Ready for review. Review quote',
   );
 }
 
@@ -284,6 +361,8 @@ class _ResumeCard extends StatelessWidget {
         return Icons.celebration_outlined;
       case HomeResumeKind.completed:
         return Icons.event_available_outlined;
+      case HomeResumeKind.quotation:
+        return Icons.request_quote_outlined;
       case HomeResumeKind.plan:
         return Icons.event_note_outlined;
       case HomeResumeKind.saved:
