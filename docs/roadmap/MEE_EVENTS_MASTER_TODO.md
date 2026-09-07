@@ -4,10 +4,10 @@
 - **Current phase:** Phase 1 - Customer
 - **Last closed block:** CUST-04 Customer bootstrap - **INDEPENDENTLY REVIEWED
   AND CLOSED - 4 SEPTEMBER 2026**
-- **Current block:** CUST-05 Home - **IN PROGRESS - THIRD SLICE INDEPENDENTLY
+- **Current block:** CUST-05 Home - **IN PROGRESS - COMPACT TOP INDEPENDENTLY
   APPROVED AND LOCALLY COMMITTED**
 - **Next authorized action:** Obtain separate safe-push authorization for the
-  focused third-slice commit; do not begin another CUST-05 slice or CUST-06 work
+  focused Compact Home commit; do not begin further implementation
 - **Rule:** One block → verify → document → commit → stop.
 
 This file is the definitive ordered work inventory. The phase order is mandatory even when a later task has a higher risk priority. Do not start Customer until the Phase 0 gate passes; do not start Vendor until Customer passes; continue one major module at a time.
@@ -85,7 +85,7 @@ Status marks in this file describe execution, not how much scaffold already exis
 - [ ] **CUST-02 OTP** — Objective: reliable request/verify/resend UX; State: **PARTIAL - OFFLINE APPROVED, EXTERNAL EXOTEL EVIDENCE PENDING**; Scope: auth endpoints/UI; Result: the offline OTP lifecycle and Exotel delivery adapter are independently approved, while the live Exotel sandbox, DLT, physical-device SMS, and autofill evidence remain pending and Vinay (Developer) made the 1 September 2026 development scheduling decision to continue Customer-interface development using the existing development/test-only local OTP boundary; Action: reopen and fully close the pending external evidence before the final Customer release gate; Depends/Risk: CUST-01, Exotel procurement/DLT/device evidence; Test/Security: expiry, attempts, cooldown, provider failure/race, then separately authorized sandbox/device proof without code leakage; DoD: offline approval is retained but CUST-02 remains incomplete until the pending sandbox and device evidence passes; Next: CUST-03 may proceed only after the independent deferred-checkpoint review is complete and this checkpoint is committed, using development/test-only local OTP.
 - [x] **CUST-03 Session** — Objective: secure login persistence/logout/revocation; State: **DONE WITH FINDINGS - 2 September 2026**; Scope: secure store/API refresh/device sessions; Result: independently approved with no reviewer source changes and zero blocking findings; access tokens are memory-first, the minimum refresh session is versioned in platform-secure storage, startup restoration validates and rotates once, refresh is single-flight, unsafe mutations are not blindly replayed, revoked/reused/invalid sessions fail closed, current/all-device logout use the existing authenticated contracts, and Customer-private caches are cleared on logout or identity change; Depends/Risk: independently reviewed and committed CUST-02 deferred checkpoint; development and automated tests use the existing development/test-only local OTP boundary only; Test/Security: focused backend 23/23, full backend 293/293, PostgreSQL integration 42/42, focused Flutter 28/28, Flutter regression groups 79/79 and 59/59, full Flutter 544/544, analysis/lint/typecheck/build/format/diff checks pass; DoD: independently approved and closed with two accepted P2 non-blocking findings: refresh de-duplication is process-local with PostgreSQL authoritative across instances, and cross-instance principal-cache revocation observation may take at most 15 seconds; Evidence: `docs/08-testing/cust-03-session-evidence.md`; Next: CUST-04 - **NOT STARTED**. CUST-03 is not production-proven, does not approve production SMS, and CUST-02 must reopen before the final Customer release gate.
 - [x] **CUST-04 Customer bootstrap** — Objective: fail-closed role/branch/module bootstrap; State: **INDEPENDENTLY REVIEWED AND CLOSED - 4 SEPTEMBER 2026**; Scope: bootstrap compatibility and authorization, PostgreSQL/shared/principal role scopes, AppGateway/session freshness, refresh/role-switch concurrency, vendor-note relationship integrity, multi-vendor selection, vendor-self note classification, vendor-summary output filtering, and tests; Result: strict structural/minimum-client validation accepts safe additive policy while preserving required baselines, TypeScript and Flutter require UTC `generatedAt`, typed global/branch/vendor grants never confuse vendor UUIDs with operational Hyderabad branch, vendor self-resources intersect a qualifying active grant with same-vendor membership, ambiguous multi-vendor note requests require explicit selection, authenticated memory clears before logout cleanup awaits, stable server session identity plus local generations/revisions reject stale or conflicting responses, CRM/self note paths validate branch/vendor/assignment/event linkage transactionally, vendor-self notes strictly enforce noteType 'vendor', dashboard output uses a runtime summary allowlist, mixed-case and trailing-slash sensitive paths retain no-store, generated Next declarations are ignored/untracked and regenerated before ERP typecheck, and authorization remains server-authoritative; Depends/Risk: CUST-03; Test/Security: backend 343/343, PostgreSQL 52/52, Flutter 581/581, real Nest HTTP/guard/OpenAPI/no-store/serialization coverage, clean-like ERP type generation, two consecutive complete root verify runs, and mobile analysis pass; DoD: Claude's final independent review returned **READY TO CLOSE** with no blocking findings; locally verified and closed without claiming staging, production, physical-device, Exotel, DLT, or store proof; Evidence: `docs/08-testing/cust-04-customer-bootstrap-evidence.md`; Next: CUST-05, now **IN PROGRESS** through its third provider-failure slice.
-- [~] **CUST-05 Home** — Objective: real, useful customer home; State: **IN PROGRESS - THIRD SLICE INDEPENDENTLY APPROVED AND LOCALLY COMMITTED - 5 SEPTEMBER 2026**; Scope: Home widgets/catalog API; Result: the independently approved first slice was pushed in `ca524db`; the independently approved and pushed second slice in `eb4dbce` centralizes the 15-status Flutter lifecycle policy, adds honest active copy, and separates completed display/action selection; the independently approved and locally committed third slice distinguishes provider failure from successful emptiness, adds safe section-level errors and scoped retries, preserves successful sibling/resume content, verifies Riverpod stale network data, preserves trusted local Plan/Saved snapshots, and emits one safe partial-refresh notice without changing session state; Action remaining: separate safe-push authorization for the third slice, quotation resume, location/date decisions, approved media, complete acceptance testing, and retained manual TypeScript/Dart status-catalogue synchronization risk; Depends/Risk: CUST-04 and media approval; Test/Security: third-slice focused Home/feed/provider/shell 187/187, full Flutter 628/628, analysis zero issues, Dart/document formatting and diff checks pass, and the permission-enabled root gate passes backend 343/343, ERP 12/12, all workspace lint/typechecks, and all builds; Claude's read-only review returned **READY FOR SLICE APPROVAL — code review only**, with no P0/P1/P2 findings, two non-blocking P3 observations, repository Prettier/diff/scope/protected-file checks passing, and Flutter/Dart **NOT VERIFIED — ENVIRONMENT LIMITATION**; no backend/API/auth/dependency/state-architecture change; DoD: **NOT COMPLETE** until every remaining CUST-05 state and full independent-review gate passes; Evidence: `docs/08-testing/cust-05-customer-home-evidence.md`; Next: obtain separate safe-push authorization; do not start another CUST-05 slice or CUST-06.
+- [~] **CUST-05 Home** — Objective: real, useful customer home; State: **IN PROGRESS - COMPACT TOP INDEPENDENTLY APPROVED AND LOCALLY COMMITTED - 7 SEPTEMBER 2026**; Scope: Home hero and search spacing only for the current authorized slice; Result: the three prior slices are committed through `da036480`; the compact slice reduces hero minimum height, tightens Home search spacing, and allows text to wrap while preserving lifecycle selection, navigation, loading, and provider errors; Antigravity returned READY FOR COMPACT-SLICE APPROVAL; Claude returned READY FOR SLICE APPROVAL with no P0/P1 and one confirmed P2 weakness in the no-truncation test; the authorized test-only correction positively checks complete laid-out text, render-box fit, and multi-line 2× titles without changing production UI; Claude's focused re-review confirmed the P2 resolved and returned READY FOR SLICE APPROVAL with no blocker; the approved 10 files are locally committed under `feat(customer): compact home top area`, excluding `AGENTS.md`; Action remaining: separate push authorization, quotation resume, location/date decisions, approved media, complete acceptance testing, and retained P3 observations; Depends/Risk: CUST-04 and media approval; Test/Security: post-remediation Home 118/118, full Flutter 642/642, analysis zero issues, Dart format 210 files, root verify backend 343/343, ERP 12/12, formatting/lint/typecheck and all builds including 37 ERP routes; physical device NOT VERIFIED by the independent reviewers; DoD: **NOT COMPLETE** until every remaining CUST-05 state and full independent-review gate passes; Evidence: `docs/08-testing/cust-05-customer-home-evidence.md`; Next: obtain separate safe-push authorization; no CUST-06 work.
 - [ ] **CUST-06 Explore** — Objective: browse live categories/services/products; State: **PARTIAL**; Scope: Explore/catalog screens/API; Action: pagination/filter/detail consistency; Depends/Risk: CUST-05; Test/Security: unpublished media hidden and safe URLs; DoD: live catalog browse works with zero fake production claims; Next: CUST-07.
 - [ ] **CUST-07 Event categories** — Objective: complete approved occasion taxonomy; State: **PARTIAL**; Scope: catalog migrations/admin data/mobile; Action: validate enabled/order/media/mappings; Depends/Risk: CUST-06, founder content approval; Test/Security: disabled/unapproved entries excluded; DoD: approved taxonomy matches DB/API/UI; Next: CUST-08.
 - [ ] **CUST-08 Services** — Objective: complete services and detail information; State: **PARTIAL**; Scope: catalog service/subcategory/product APIs/UI; Action: connect real descriptions/ranges/media/availability wording; Depends/Risk: CUST-07; Test/Security: no invented vendors/prices; DoD: each enabled service has valid live detail and enquiry path; Next: CUST-09.
@@ -379,13 +379,14 @@ regenerated by `next typegen` or a Next build. CUST-03 remains closed in commit
 `b7b2569`. The independently approved first CUST-05 slice was pushed as
 `ca524db`; the independently approved second lifecycle slice was pushed as
 `eb4dbce`, with GitHub CI, Security, and CodeQL passing. The third
-provider-failure slice documented below is independently approved and locally
-committed under `fix(customer): add honest home provider failure states`.
+provider-failure slice is independently approved and committed as `da036480`,
+matching local `origin/master`. The owner authorized only the Compact Home Top
+Area slice on 6 September 2026, with a stop for manual review.
 
 ### NEXT TASK
 
-Obtain separate safe-push authorization for the focused local third-slice
-commit. Do not begin another CUST-05 slice or CUST-06 work.
+Obtain separate safe-push authorization for the focused Compact Home commit. Do
+not begin another slice or start CUST-06.
 CUST-02 remains deferred and must reopen before the final Customer release
 gate.
 
@@ -397,7 +398,7 @@ gate.
 
 ### RESULT
 
-**IN PROGRESS - THIRD SLICE INDEPENDENTLY APPROVED - 5 SEPTEMBER 2026.**
+**IN PROGRESS - COMPACT TOP INDEPENDENTLY APPROVED AND LOCALLY COMMITTED - 7 SEPTEMBER 2026.**
 
 This slice adds a status-authoritative completed-event Home experience without
 changing the backend, database, or API contract. Home recognizes `completed`,
@@ -471,7 +472,9 @@ currently create a correctness, security, or data-integrity failure.
 ### CURRENT WORK
 
 CUST-05 remains **IN PROGRESS**. The third provider-failure slice is
-independently approved and locally committed. Quotation resume, location/date
+independently approved and committed as `da036480`. The current compact-top
+slice changes only Home presentation, is locally verified, and awaits manual review.
+Quotation resume, location/date
 decisions, approved media, and complete acceptance testing remain open. The
 inaccurate active title, mixed-lifecycle coverage gap, and
 unusable-newest-booking-ID action selection are addressed locally by this
@@ -485,5 +488,5 @@ started.
 
 ### NEXT TASK
 
-Obtain separate safe-push authorization for the focused local third-slice
-commit. Do not begin another CUST-05 slice or CUST-06 work.
+Obtain separate safe-push authorization for the focused Compact Home commit. Do
+not begin another slice or start CUST-06.

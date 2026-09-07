@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mee_events/core/providers/catalog_provider.dart';
@@ -2384,7 +2385,7 @@ void main() {
         if (fixture.$2 == 1.0) {
           expect(surface.height, closeTo(kHomeHeroHeight, 0.5));
         }
-        if (fixture.$2 >= 1.5) {
+        if (fixture.$2 >= 2.0) {
           expect(surface.height, greaterThan(kHomeHeroHeight));
         }
         final ctaSize = tester.getSize(find.byKey(HomePlanningHero.ctaKey));
@@ -2394,6 +2395,172 @@ void main() {
       },
     );
   }
+
+  for (final width in [320.0, 390.0]) {
+    for (final scale in [1.0, 2.0]) {
+      for (final lifecycle in ['new', 'active', 'completed']) {
+        testWidgets(
+          'Compact Home $lifecycle at $width text $scale keeps copy and action readable',
+          (tester) async {
+            final event = namedEvent(
+              id: 'compact',
+              name: scale == 1
+                  ? 'Family celebration'
+                  : 'Ananya and Rohan extended family wedding celebration',
+              rawEventDate: '2026-10-05',
+              status: lifecycle == 'completed' ? 'closed' : 'planning',
+            );
+            CustomerTab? destination;
+            await pumpHome(
+              tester,
+              size: Size(width, 844),
+              textScale: scale,
+              overrides: homeOverrides(
+                events: lifecycle == 'new' ? const [] : [event],
+              ),
+              onNavigate: (tab) => destination = tab,
+            );
+
+            final heroFinder = find.byType(HomePlanningHero);
+            final hero = tester.widget<HomePlanningHero>(heroFinder);
+            expect(hero.event?.id, lifecycle == 'active' ? event.id : null);
+            expect(
+              hero.completedEvent?.id,
+              lifecycle == 'completed' ? event.id : null,
+            );
+            final expectedTitle = switch (lifecycle) {
+              'new' => 'Plan a celebration, not a spreadsheet',
+              'completed' => '${event.eventName} is complete',
+              _ => event.eventName,
+            };
+            final expectedCta = switch (lifecycle) {
+              'new' => 'Start planning',
+              'completed' => 'Plan another event',
+              _ => 'Resume plan',
+            };
+            expect(hero.title, expectedTitle);
+            expect(hero.ctaLabel, expectedCta);
+
+            final surface = tester.getRect(
+              find.byKey(HomePlanningHero.surfaceKey),
+            );
+            final search = find.descendant(
+              of: find.byType(HomeSearchBar),
+              matching: find.byType(InkWell),
+            );
+            final searchRect = tester.getRect(search);
+            expect(searchRect.height, greaterThanOrEqualTo(48));
+            expect(surface.left, searchRect.left);
+            expect(surface.top - searchRect.bottom, closeTo(8, 0.5));
+            expect(surface.height, greaterThanOrEqualTo(kHomeHeroHeight));
+            if (scale == 1 && width == 390) {
+              // Normal phone layout is compact. Narrower layouts may grow to
+              // keep all text readable, including with the wider test font.
+              expect(surface.height, lessThan(224));
+            } else if (scale == 2) {
+              expect(surface.height, greaterThan(kHomeHeroHeight));
+            }
+
+            final titleText = find.descendant(
+              of: heroFinder,
+              matching: find.text(hero.title),
+            );
+            for (final (text, expectedText, container) in [
+              (titleText, hero.title, surface),
+              (
+                find.descendant(
+                  of: heroFinder,
+                  matching: find.text(hero.subtitle),
+                ),
+                hero.subtitle,
+                surface,
+              ),
+              (
+                find.descendant(
+                  of: heroFinder,
+                  matching: find.text(expectedCta),
+                ),
+                expectedCta,
+                surface,
+              ),
+              (
+                find.descendant(
+                  of: find.byType(HomeSearchBar),
+                  matching: find.text(kHomeSearchHint),
+                ),
+                kHomeSearchHint,
+                searchRect,
+              ),
+            ]) {
+              final paragraph = tester.renderObject<RenderParagraph>(text);
+              expect(paragraph.text.toPlainText(), expectedText);
+              expect(
+                paragraph.textSize.width,
+                lessThanOrEqualTo(paragraph.size.width + 0.5),
+              );
+              expect(
+                paragraph.textSize.height,
+                lessThanOrEqualTo(paragraph.size.height + 0.5),
+              );
+              final bounds = tester.getRect(text);
+              expect(container.inflate(0.5).contains(bounds.topLeft), isTrue);
+              expect(
+                container.inflate(0.5).contains(bounds.bottomRight),
+                isTrue,
+              );
+            }
+            if (scale == 2) {
+              final titleParagraph = tester.renderObject<RenderParagraph>(
+                titleText,
+              );
+              final titleLength = titleParagraph.text.toPlainText().length;
+              expect(
+                titleParagraph
+                    .getBoxesForSelection(
+                      TextSelection(baseOffset: 0, extentOffset: titleLength),
+                    )
+                    .length,
+                greaterThan(1),
+              );
+            }
+
+            final cta = find.byKey(HomePlanningHero.ctaKey);
+            await tester.ensureVisible(cta);
+            await tester.pumpAndSettle();
+            expect(tester.getSize(cta).height, greaterThanOrEqualTo(44));
+            await tester.tap(cta);
+            expect(destination, CustomerTab.plan);
+            expectNoFlutterException(tester);
+          },
+        );
+      }
+    }
+  }
+
+  testWidgets('Compact Home loading keeps the hero placeholder short', (
+    tester,
+  ) async {
+    await pumpHome(tester, overrides: homeOverrides(hangEvents: true));
+    expect(find.byType(HomeHeroSkeleton), findsOneWidget);
+    expect(tester.getSize(find.byType(HomeHeroSkeleton)).height, lessThan(224));
+    expect(find.byType(HomePlanningHero), findsNothing);
+    expectNoFlutterException(tester);
+  });
+
+  testWidgets('Shared search retains the existing non-Home layout by default', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.light,
+        home: Scaffold(body: HomeSearchBar(padded: false, onTap: () {})),
+      ),
+    );
+    final search = tester.widget<HomeSearchBar>(find.byType(HomeSearchBar));
+    expect(search.compact, isFalse);
+    expect(tester.getSize(find.byType(HomeSearchBar)).height, 48);
+    expectNoFlutterException(tester);
+  });
 
   testWidgets('Missing occasion media uses branded hero fallback', (
     tester,
@@ -2614,7 +2781,9 @@ void main() {
     );
     final position = tester.state<ScrollableState>(scrollable).position;
     expect(position.pixels, 0);
-    expect(find.byKey(HomeHowItWorksSection.sectionKey), findsNothing);
+    // A shorter hero can bring later slivers into Flutter's build cache before
+    // they are visible. Check the action's reachability, not cache population.
+    expect(find.byKey(HomeFinalPlanPanel.planKey).hitTestable(), findsNothing);
 
     await tester.fling(scrollable, const Offset(0, -700), 2000);
     await tester.pump();

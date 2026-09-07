@@ -9,7 +9,8 @@ import 'package:mee_events/theme/app_radius.dart';
 import 'package:mee_events/theme/app_spacing.dart';
 import 'package:mee_events/theme/app_typography.dart';
 
-const kHomeHeroHeight = 224.0;
+/// Compact at normal text size; content may grow beyond this minimum.
+const kHomeHeroHeight = 176.0;
 
 /// Single composed planning hero. Never uses bundled legacy photographs.
 class HomePlanningHero extends StatelessWidget {
@@ -47,7 +48,7 @@ class HomePlanningHero extends StatelessWidget {
     }
     return _hasEvent
         ? homeEventContextLine(event!)
-        : 'Start with the occasion. Mee Events helps you plan the rest.';
+        : 'Choose an occasion. We’ll help you plan.';
   }
 
   String get ctaLabel {
@@ -66,9 +67,6 @@ class HomePlanningHero extends StatelessWidget {
   Widget build(BuildContext context) {
     final photoUrl = _usableImageUrl;
     final onPhoto = photoUrl != null;
-    final width = MediaQuery.sizeOf(context).width;
-    final textScale = MediaQuery.textScalerOf(context).scale(14) / 14;
-    final showMotif = !onPhoto && width >= 360 && textScale < 1.3;
     final titleColor = onPhoto ? AppColors.onPrimary : AppColors.onPrimary;
     final subtitleColor = AppColors.onPrimary.withValues(alpha: 0.9);
 
@@ -105,14 +103,14 @@ class HomePlanningHero extends StatelessWidget {
                     const Positioned.fill(
                       child: ExcludeSemantics(child: _HeroScrim()),
                     ),
-                  if (showMotif)
+                  if (!onPhoto)
                     const Positioned.fill(
                       child: ExcludeSemantics(child: _HeroMotif()),
                     ),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(
                       AppSpacing.lg,
-                      AppSpacing.lg,
+                      AppSpacing.md,
                       AppSpacing.lg,
                       AppSpacing.md,
                     ),
@@ -122,54 +120,23 @@ class HomePlanningHero extends StatelessWidget {
                       children: [
                         ExcludeSemantics(
                           child: Text(
-                            'Mee Events',
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: AppTypography.captionSm.copyWith(
-                              color: AppColors.goldAccent,
-                              fontWeight: FontWeight.w600,
-                              letterSpacing: 0.6,
+                            title,
+                            style: AppTypography.displaySm.copyWith(
+                              color: titleColor,
+                              height: 1.12,
                             ),
                           ),
                         ),
                         const SizedBox(height: AppSpacing.xs),
                         ExcludeSemantics(
-                          child: ConstrainedBox(
-                            constraints: BoxConstraints(
-                              maxWidth: showMotif
-                                  ? MediaQuery.sizeOf(context).width * 0.58
-                                  : double.infinity,
-                            ),
-                            child: Text(
-                              title,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: AppTypography.displaySm.copyWith(
-                                color: titleColor,
-                                height: 1.12,
-                              ),
+                          child: Text(
+                            subtitle,
+                            style: AppTypography.bodySm.copyWith(
+                              color: subtitleColor,
                             ),
                           ),
                         ),
-                        const SizedBox(height: AppSpacing.xs),
-                        ExcludeSemantics(
-                          child: ConstrainedBox(
-                            constraints: BoxConstraints(
-                              maxWidth: showMotif
-                                  ? MediaQuery.sizeOf(context).width * 0.62
-                                  : double.infinity,
-                            ),
-                            child: Text(
-                              subtitle,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: AppTypography.bodySm.copyWith(
-                                color: subtitleColor,
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: AppSpacing.md),
+                        const SizedBox(height: AppSpacing.sm),
                         Semantics(
                           button: true,
                           label: ctaLabel,
@@ -264,24 +231,6 @@ class _HeroMotif extends StatelessWidget {
             ),
           ),
         ),
-        Positioned(
-          right: 36,
-          top: 40,
-          child: Icon(
-            Icons.calendar_month_outlined,
-            size: 34,
-            color: AppColors.goldSoft.withValues(alpha: 0.88),
-          ),
-        ),
-        Positioned(
-          right: 78,
-          bottom: 36,
-          child: Icon(
-            Icons.auto_awesome,
-            size: 28,
-            color: AppColors.goldAccent.withValues(alpha: 0.9),
-          ),
-        ),
       ],
     );
   }
@@ -341,8 +290,6 @@ class _HeroCta extends StatelessWidget {
                     Flexible(
                       child: Text(
                         label,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
                         style: AppTypography.titleSm.copyWith(
                           color: inverted
                               ? AppColors.primary

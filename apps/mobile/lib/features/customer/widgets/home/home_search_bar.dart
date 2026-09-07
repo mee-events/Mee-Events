@@ -12,12 +12,16 @@ class HomeSearchBar extends StatelessWidget {
     this.onTap,
     this.hint = kHomeSearchHint,
     this.padded = true,
+    this.compact = false,
     this.semanticLabel,
   });
 
   final VoidCallback? onTap;
   final String hint;
   final bool padded;
+
+  /// Home opts in; shared callers retain their existing layout.
+  final bool compact;
   final String? semanticLabel;
 
   static const double minHeight = 48;
@@ -40,8 +44,11 @@ class HomeSearchBar extends StatelessWidget {
           child: ConstrainedBox(
             constraints: const BoxConstraints(minHeight: minHeight),
             child: Container(
-              height: minHeight,
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+              height: compact ? null : minHeight,
+              padding: EdgeInsets.symmetric(
+                horizontal: AppSpacing.lg,
+                vertical: compact ? AppSpacing.sm : 0,
+              ),
               decoration: BoxDecoration(
                 borderRadius: AppRadius.lgAll,
                 border: Border.all(
@@ -62,14 +69,16 @@ class HomeSearchBar extends StatelessWidget {
                     color: AppColors.primary,
                     size: 22,
                   ),
-                  const SizedBox(width: AppSpacing.md),
+                  SizedBox(width: compact ? AppSpacing.sm : AppSpacing.md),
                   Expanded(
                     child: Text(
                       hint,
                       style: AppTypography.bodySm.copyWith(
                         color: AppColors.muted,
                       ),
-                      overflow: TextOverflow.ellipsis,
+                      overflow: compact
+                          ? TextOverflow.visible
+                          : TextOverflow.ellipsis,
                     ),
                   ),
                 ],
@@ -82,11 +91,11 @@ class HomeSearchBar extends StatelessWidget {
 
     if (!padded) return field;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.xl,
-        AppSpacing.sm,
-        AppSpacing.xl,
-        AppSpacing.md,
+      padding: EdgeInsets.fromLTRB(
+        compact ? AppSpacing.lg : AppSpacing.xl,
+        compact ? AppSpacing.xs : AppSpacing.sm,
+        compact ? AppSpacing.lg : AppSpacing.xl,
+        compact ? AppSpacing.sm : AppSpacing.md,
       ),
       child: field,
     );

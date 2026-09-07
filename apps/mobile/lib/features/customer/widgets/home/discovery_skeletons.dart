@@ -56,15 +56,17 @@ class HomeSectionSkeleton extends StatelessWidget {
 }
 
 class HomeHeroSkeleton extends StatelessWidget {
-  const HomeHeroSkeleton({super.key});
+  const HomeHeroSkeleton({super.key, this.height = 224});
+
+  final double height;
 
   @override
   Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
       child: MeSkeleton(
         width: double.infinity,
-        height: 224,
+        height: height,
         borderRadius: AppRadius.lgAll,
       ),
     );

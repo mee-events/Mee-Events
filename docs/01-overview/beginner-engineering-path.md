@@ -18,11 +18,31 @@ project reaches them.
   verification, dependency order, and honest status reporting.
 - **Not yet verified hands-on:** terminal use, Git, reading TypeScript/Dart,
   tracing HTTP requests, SQL, test diagnosis, deployment, or system design.
-- **Current engineering stage:** CUST-05 Home, third provider-failure slice.
-- **Current learning focus:** how loading, successful emptiness, initial failure,
-  and refresh failure mean different things; how scoped retries preserve
-  working sections; and why stale trusted data can be safer than a false empty
-  screen.
+- **Current engineering stage:** CUST-05 Compact Home Top Area; manual review
+  pending, not task completion.
+- **Current learning focus:** make a screen take less space without making its
+  text harder to read or changing what its buttons do.
+
+## CUST-05 compact Home learning report
+
+- **Building:** reduced Home's hero minimum from 224 to 176 logical pixels,
+  tightened search spacing, removed repeated decoration, and let text wrap.
+- **Understanding:** a minimum height is a starting size, not a locked box.
+  When a customer enlarges the phone's text, the box grows to keep the words
+  readable. We removed unnecessary space instead of shrinking the font.
+- **Where:** existing Home hero/search widgets and the Home screen. Explore
+  retains the shared search widget's original defaults.
+- **Real example:** a long wedding name must stay readable even if that makes
+  the active-event hero taller than the compact new-customer version.
+- **Verification:** 14 new tests exercise narrow/normal widths, normal/large
+  text, all three lifecycle layouts, the loading placeholder, and navigation.
+  The full Flutter suite passed 642/642; manual appearance approval remains open.
+- **Small question:** why would forcing every hero to exactly 176 pixels be
+  unsafe for someone using large text?
+- **Interview version:** “I used adaptive minimum constraints and wrapping text
+  to reduce Home's visual footprint while preserving accessibility, lifecycle
+  meaning, and navigation. I tested narrow screens and enlarged text instead
+  of validating only a normal screenshot.”
 
 ## CUST-05 lifecycle-slice learning report
 

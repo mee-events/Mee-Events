@@ -1,6 +1,6 @@
 # Mee Events — Progress Tracker
 
-- **Updated:** 5 September 2026; CUST-05 Home third provider-failure slice
+- **Updated:** 7 September 2026; CUST-05 Compact Home independent approval
 - **Repository:** `/Users/vinaychilagani/Desktop/Mee Event V1`
 - **Baseline application commit:** `master` / `9e2a442d91c137ec97a349d1a55697ae8d79d5df`
 - **STAB-01 snapshot HEAD:** `ca994985a898d42da2a8d717041b93a8f8f0dc4c`
@@ -8,22 +8,67 @@
 - **Phase state:** **IN PROGRESS**
 - **Last completed task:** CUST-04 Customer Bootstrap - **INDEPENDENTLY REVIEWED
   AND CLOSED - 4 SEPTEMBER 2026**
-- **Current task:** CUST-05 Home - **IN PROGRESS - THIRD SLICE INDEPENDENTLY
-  APPROVED**
+- **Current task:** CUST-05 Home - **IN PROGRESS - COMPACT TOP INDEPENDENTLY
+  APPROVED AND LOCALLY COMMITTED**
 - **Next authorized task:** obtain separate safe-push authorization for the
-  focused local third-slice commit; do not begin another CUST-05 slice or
-  CUST-06 work
-- **Latest application change:** Customer Home now distinguishes initial
-  provider failure from successful emptiness, keeps successful sibling and
-  stale content usable, scopes retries to failed sources, and reports one safe
-  partial-refresh notification. No backend or API contract changed; Event
-  Records remain `GET /api/v1/events`.
+  focused Compact Home commit; no further implementation
+- **Latest application change:** the Home hero has a 176-logical-pixel minimum
+  instead of 224, full-width wrapping text, and tighter search/hero gaps. Home
+  alone opts into the compact shared search layout. Lifecycle selection,
+  navigation, provider errors, and all other product surfaces remain unchanged.
 - **STAB-16 implementation commit:** `999443d5d3ba547de1bb6c0406c34753c8433b00`
 - **STAB-16 closeout:** `1450263caa6a5be2263bf7b9c91827f7cc24ef6c`
 - **STAB-17 commit:** `68894f3bbfa91937a0c7c573a8fc1a0af83ce533`
 - **STAB-18 commit:** `f66cc51a726322eeb604ab84c3d3e195050248f9`
 - **STAB-19 commit:** `e833eb82d690d65e293b9521ce3f24c390fff4f0`
 - **STAB-20 canonical application commit:** `37cf6c2f8e36dd522688e3423be7b9595e442ead`
+
+## CUST-05 Compact Home Top Area - 6 September 2026
+
+The owner approved only the compact Home top area and requested a stop for
+manual review. Starting branch was `master` at `da036480`, matching local
+`origin/master`, with an empty index. The only pre-existing modification was
+`AGENTS.md`, whose SHA-256 remained
+`6a9178bc717571fb884d2fe6828beec8b71a6b8558d370936cf40ed2b9715802`.
+No conflicting Home edits or active Codex implementation task was found.
+The existing backend and Flutter emulator session were reused.
+
+The layout removes the repeated brand eyebrow and decorative icons from the
+hero, keeps the existing colours/fonts/actions, shortens the introductory
+description, and lets titles, descriptions, and button labels grow naturally.
+Home search keeps its 48-pixel minimum target and full hint at large text.
+Explore keeps the default search appearance. Home's loading placeholder uses
+the new hero minimum; loading/error selection and request handling are unchanged.
+
+Focused Home/feed/shell verification passes **172/172**. The new tests cover
+all three lifecycle surfaces at 320/390 widths and 1x/2x text, readable text
+bounds, Plan navigation, loading height, and the unchanged shared-search default.
+Full Flutter passes **642/642**, analysis reports zero issues, and Dart format
+checks 210 files with no changes. Root `corepack pnpm verify` passes formatting,
+lint, typecheck, backend **343/343**, ERP **12/12**, and all builds including
+37 ERP routes. The Android emulator shows the compact new-customer hero;
+Home search opens Search, and Start planning opens Plan. Home is left open for
+manual review. A physical phone was not connected, so physical-device behavior
+is **NOT VERIFIED**. Independent approval of earlier slices does not approve
+this layout. No commit or push is authorized; CUST-05 remains incomplete.
+
+Antigravity subsequently returned **READY FOR COMPACT-SLICE APPROVAL** with no
+current blocker, while accurately reporting that no Android device was
+connected in its session. Claude, configured as Opus 5 with Extra effort,
+returned **READY FOR SLICE APPROVAL** with no P0/P1 application issue and one P2
+test-quality correction: the previous `didExceedMaxLines` assertion was vacuous
+because the adaptive text has no line cap. The owner authorized a test-only
+repair. The corrected test proves exact complete text, text-size fit within the
+render box, and multi-line layout for long 2× titles; production UI is
+unchanged. The corrected Home test passes **118/118**. Full Flutter passes
+**642/642**, analysis reports zero issues, and Dart formatting checks 210 files
+with no changes. Root verification passes backend **343/343**, ERP **12/12**,
+lint, typecheck, and all builds including 37 ERP routes. Claude's focused
+re-review independently confirmed the P2 resolved and returned **READY FOR SLICE
+APPROVAL** with no blocker; Claude could not execute Flutter/Dart and modified
+no files. The owner authorized one focused local commit excluding `AGENTS.md`;
+the approved 10 files are locally committed under `feat(customer): compact home
+top area`. No push or further slice is authorized.
 
 ## CUST-05 Home - third provider-failure slice - 5 September 2026
 

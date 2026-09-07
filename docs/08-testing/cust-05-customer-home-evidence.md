@@ -1,18 +1,129 @@
 # CUST-05 Customer Home Evidence
 
-- **Status:** IN PROGRESS — THIRD SLICE INDEPENDENTLY APPROVED AND LOCALLY COMMITTED
-- **Slice:** Truthful section failures, scoped recovery, and stale-data refresh
-- **Date:** 5 September 2026
+- **Status:** IN PROGRESS — COMPACT HOME INDEPENDENTLY APPROVED AND LOCALLY COMMITTED
+- **Slice:** Compact Home hero and Home-only search spacing
+- **Date:** 7 September 2026
 - **Branch:** `master`
 - **Third-slice starting HEAD:**
   `eb4dbce18b44444349b9c3d028363675df6855a6`
   (`fix(customer): harden home lifecycle continuity`)
 
-This record covers the independently approved first CUST-05 implementation
-slice, the independently approved second lifecycle slice, and the independently
-approved third provider-failure slice. It does not close CUST-05, start CUST-06,
+This record covers the independently approved first three CUST-05 slices and
+the newly authorized, uncommitted Compact Home Top Area slice. Prior approvals
+do not approve this new layout. It does not close CUST-05, start CUST-06,
 or claim staging, production, physical-device,
 external-provider, payment, document, feedback, or media proof.
+
+## Compact Home Top Area — 6 September 2026
+
+### Scope and protected state
+
+The owner authorized a shorter existing Home hero and tighter Home search
+spacing only, followed by verification, an Android preview, and a stop for
+manual review. Starting `master`, `HEAD`, and local `origin/master` matched
+`da0364800ed77b4099a08aa69f1ea01c84b8d698`, the third provider-failure commit.
+The index was empty. The sole pre-existing modification was `AGENTS.md`, whose
+SHA-256 was
+`6a9178bc717571fb884d2fe6828beec8b71a6b8558d370936cf40ed2b9715802`.
+It remains untouched and unstaged. No conflicting Home edits or active Codex
+implementation task was found. Existing backend and Flutter emulator processes
+were reused instead of starting duplicate servers.
+
+### Presentation changes
+
+- Home hero minimum height: **224 → 176 logical pixels**. This is a minimum,
+  not a fixed height; long titles and enlarged text can make it taller.
+- Removed the repeated brand eyebrow and calendar/sparkle icons. Kept the
+  existing colours, typography, decorative background, and media handling. The
+  abstract motif now remains visible at narrow widths and enlarged text; the
+  text is painted above it and retains acceptable contrast.
+- Gave the text the full available width and shortened only the new-customer
+  description to “Choose an occasion. We’ll help you plan.” Lifecycle titles,
+  event context, completed wording, and button actions remain unchanged.
+- Hero title, description, and button label wrap instead of being truncated.
+- Home-only search padding is tighter and aligned with the hero. Its minimum
+  touch height stays 48 logical pixels and the complete hint can wrap.
+  The shared widget's default remains unchanged for Explore.
+- The gap below the hero is 12 instead of 20 logical pixels. Home's loading
+  placeholder follows the new minimum; initial-error and refresh handling are
+  unchanged.
+
+No selectors, providers, recommendations, navigation destinations, other tabs,
+backend, database, API, authentication, or role-switching behavior changed.
+
+### Verification for this slice
+
+| Check                         | Executed result                                                                                    |
+| ----------------------------- | -------------------------------------------------------------------------------------------------- |
+| Focused Home/feed/shell tests | PASS — 172/172                                                                                     |
+| Complete Flutter suite        | PASS — 642/642                                                                                     |
+| Flutter analysis              | PASS — zero issues                                                                                 |
+| Dart formatting               | PASS — 210 files, zero changes                                                                     |
+| `corepack pnpm verify`        | PASS — formatting, lint, typecheck, backend 343/343, ERP 12/12, all builds including 37 ERP routes |
+| Android emulator              | Compact new-customer hero rendered; Home search opens Search; Start planning opens Plan            |
+| Physical Android phone        | NOT VERIFIED — no physical phone connected                                                         |
+| Antigravity visual review     | READY FOR COMPACT-SLICE APPROVAL; physical device unavailable                                      |
+| Claude independent review     | READY FOR SLICE APPROVAL; P2 test correction independently confirmed resolved                      |
+| Owner manual approval         | Compact foundation accepted; test correction authorized                                            |
+
+Fourteen new tests cover new/active/completed Home at 320/390 logical-pixel
+widths and 1x/2x text, text bounds without truncation, minimum touch size, Plan
+navigation, compact loading height, and the unchanged default shared-search
+layout. Existing tests retain error, stale-data, lifecycle, and shell coverage.
+Initial runs exposed overly strict fixed-height expectations at narrow widths
+and an old scroll test's dependence on off-screen widget caching. The tests now
+require readable adaptive height and actual on-screen visibility, respectively;
+the final focused and full runs above passed.
+
+The existing Android 16/API 36 emulator (`emulator-5554`) runs the development
+flavour against the existing local backend. The updated source was hot-reloaded
+into that session. This is emulator observation, not physical-device proof;
+active and completed variants were exercised by widget tests, not seeded into
+the live database. No customer records were created for this preview.
+The backend readiness check returned `status: ok` with PostgreSQL persistence.
+The existing session was left on Home for manual review. Temporary before/after
+screenshots were captured outside the repository; no screenshots or test data
+were added to version control. The root gate ran with permission for local HTTP
+tests and completed successfully; no blocked attempt is represented as a pass.
+
+### Independent review and test remediation — 7 September 2026
+
+Antigravity returned **READY FOR COMPACT-SLICE APPROVAL** with no current-slice
+blocker. Its visual motif, rotating search hint, CTA motion, and shared shimmer
+ideas remain later polish rather than silently entering this slice. It ran the
+Home test 118/118, an extended Customer group 96/96, and Flutter analysis with
+zero issues. No physical Android device or emulator was connected during that
+review, and Antigravity modified no files.
+
+Claude, configured as Opus 5 with Extra effort, independently returned **READY
+FOR SLICE APPROVAL** with no P0/P1 application finding. It confirmed scope,
+lifecycle behavior, navigation, errors, touch targets, adaptive layout, and the
+unchanged non-Home search default. Claude could not execute Flutter/Dart in its
+environment. It identified one P2 test-quality defect: `didExceedMaxLines`
+cannot prove truncation when the production `Text` intentionally has no
+`maxLines` value.
+
+The authorized correction changes only `home_tab_test.dart`. The vacuous check
+is replaced by positive assertions that the exact complete text is laid out,
+that its calculated width and height fit its render box, and that long 2× titles
+occupy multiple rendered text boxes. Existing containment, touch-target,
+lifecycle, and navigation assertions remain. Production Home code and appearance
+are unchanged. Post-remediation checks pass: corrected Home **118/118**, full
+Flutter **642/642**, analysis with zero issues, Dart format across 210 files,
+and root verification with backend **343/343**, ERP **12/12**, lint, typecheck,
+and all builds including 37 ERP routes.
+
+Claude's focused re-review returned **READY FOR SLICE APPROVAL** and confirmed
+that the original P2 is resolved, the production diff is unchanged, and no new
+blocker exists. Its two new test-observation P3s and reviewer-label precision
+note require no correction in this slice. Claude again could not execute
+Flutter/Dart; the post-remediation run results above are Codex evidence. Claude
+modified no files. Earlier non-blocking P3 observations remain deferred.
+
+The independently approved 10-file slice is included in the focused local commit
+`feat(customer): compact home top area`; `AGENTS.md` is excluded. No push,
+further slice, CUST-06 implementation, or CUST-05 closure is authorized. Next
+action: obtain separate safe-push authorization for this local commit.
 
 ## Protected starting state
 
@@ -398,9 +509,9 @@ and the full Flutter suite passed 599/599.
 ## Remaining CUST-05 work
 
 CUST-05 remains **IN PROGRESS**. The independently approved second lifecycle
-slice was pushed as `eb4dbce`; the third provider-failure slice is locally
-verified, independently approved, and locally committed under
-`fix(customer): add honest home provider failure states`.
+slice was pushed as `eb4dbce`; the third provider-failure slice is committed as
+`da036480`, matching the inspected local `origin/master`. The new Compact Home
+Top Area remains uncommitted and awaits manual review after verification.
 Quotation resume integration, location/date decisions, approved media, and
 complete acceptance testing remain. Manual TypeScript/Dart status-catalogue
 synchronization remains a non-blocking P3 cross-language drift risk under the
@@ -408,5 +519,5 @@ existing architecture.
 
 The previously retained inaccurate active title, mixed-lifecycle coverage gap,
 and unusable-newest-booking-ID action-selection observation are addressed in
-the approved second slice. The approved third slice now requires separate
-safe-push authorization. CUST-06 has not started.
+the approved second slice. Prior independent approvals do not close the compact
+layout slice or the overall Home task. CUST-06 has not started.

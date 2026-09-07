@@ -295,6 +295,7 @@ class _CustomerHomeTabState extends ConsumerState<CustomerHomeTab> {
                 sortKey: const OrdinalSortKey(1),
                 explicitChildNodes: true,
                 child: HomeSearchBar(
+                  compact: true,
                   hint: kHomeSearchHint,
                   semanticLabel: kHomeSearchHint,
                   onTap: _openSearch,
@@ -316,7 +317,7 @@ class _CustomerHomeTabState extends ConsumerState<CustomerHomeTab> {
                 ),
               ),
             ),
-            const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.xl)),
+            const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.md)),
             ..._buildResumeSlivers(upcoming, actionableCompleted),
             if (planItems.isNotEmpty) ...[
               SliverToBoxAdapter(
@@ -426,7 +427,7 @@ class _CustomerHomeTabState extends ConsumerState<CustomerHomeTab> {
     CatalogItem? matchedOccasion,
   ) {
     if (eventsAsync.isLoading && !eventsAsync.hasValue) {
-      return const HomeHeroSkeleton();
+      return const HomeHeroSkeleton(height: kHomeHeroHeight);
     }
     if (eventsAsync.hasError && !eventsAsync.hasValue) {
       return HomeSectionError(

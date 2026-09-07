@@ -306,6 +306,40 @@ visible, update successful sibling sections, show one safe warning, and scope
 Retry to the failed provider. That preserves usefulness without pretending the
 failed source is empty or exposing internal error details.
 
+## 8. Compact layout without sacrificing readability
+
+### Concept
+
+A minimum height gives a component a compact starting size while allowing it
+to grow when long content or accessibility text settings require more room.
+This differs from a fixed height, which may clip content.
+
+### Mee Events implementation and reasoning
+
+CUST-05 Home uses a 176-logical-pixel hero minimum, full-width wrapping text,
+and tighter search spacing. Existing typography and lifecycle actions remain.
+The shared search widget opts into compact mode only on Home, preserving
+Explore's layout without introducing a second search component.
+
+### Trade-offs and failure cases
+
+Large text and long event names can make the hero taller; readability takes
+priority over fitting more cards on screen. Fixed heights, ellipsis, smaller
+fonts, or globally changing a shared widget could hide important context or
+regress another tab. Tests cover three lifecycle states at two widths and two
+text sizes, plus navigation and loading. Emulator observation complements tests
+but does not prove physical-device or production behavior.
+
+### Interview question and strong answer
+
+How do you make a mobile screen more compact without reducing accessibility?
+
+“I remove redundant content and excess spacing first, retain font and touch
+sizes, and let containers grow with wrapped text. In Mee Events I kept Home's
+event selection and navigation unchanged and added narrow-screen and large-text
+regression tests. I used AI-assisted implementation and verified these design
+decisions rather than treating a good-looking screenshot as complete proof.”
+
 ## Knowledge backlog
 
 Add entries when the corresponding roadmap task is implemented and understood:
